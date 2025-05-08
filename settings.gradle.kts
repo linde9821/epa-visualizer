@@ -1,5 +1,5 @@
 rootProject.name = "epa-visualizer"
-include("app", "ui")
+include("epa", "ui")
 
 pluginManagement {
     repositories {
