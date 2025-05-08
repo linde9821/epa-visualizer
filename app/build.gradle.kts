@@ -7,8 +7,9 @@ plugins {
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
     mavenCentral()
+    maven("https://raw.githubusercontent.com/apromore/ApromoreCore_SupportLibs/master/mvn-repo/")
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -16,6 +17,11 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation(libs.guava)
+    implementation(libs.bundles.log4j)
+    implementation(libs.logging)
+    implementation(libs.jaxb.api)
+    implementation(libs.openxes)
+    implementation(libs.progressbar)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -27,7 +33,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.AppKt"
+    mainClass = "moritz.lindner.masterarbeit.RunnableKt"
 }
 
 tasks.named<Test>("test") {
