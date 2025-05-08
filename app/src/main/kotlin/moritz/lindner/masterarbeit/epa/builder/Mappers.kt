@@ -7,7 +7,7 @@ import org.deckfour.xes.model.XTrace
 import org.deckfour.xes.model.impl.XAttributeLiteralImpl
 import org.deckfour.xes.model.impl.XAttributeTimestampImpl
 
-class BPI2017ChallengeEventMapper : EventLogMapper<Long> {
+class BPI2017ChallengeEventMapper : EventLogMapper<Long>() {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -19,7 +19,7 @@ class BPI2017ChallengeEventMapper : EventLogMapper<Long> {
         )
 }
 
-class BPI2017OfferChallengeEventMapper : EventLogMapper<Long> {
+class BPI2017OfferChallengeEventMapper : EventLogMapper<Long>() {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -31,7 +31,7 @@ class BPI2017OfferChallengeEventMapper : EventLogMapper<Long> {
         )
 }
 
-class BPI2018 : EventLogMapper<Long> {
+class BPI2018 : EventLogMapper<Long>() {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -48,7 +48,7 @@ class BPI2018 : EventLogMapper<Long> {
         )
 }
 
-class SampleEventMapper : EventLogMapper<Long> {
+class SampleEventMapper : EventLogMapper<Long>() {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,

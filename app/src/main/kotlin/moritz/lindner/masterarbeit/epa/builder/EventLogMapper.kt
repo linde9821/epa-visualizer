@@ -4,7 +4,7 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XTrace
 
-interface EventLogMapper<T : Comparable<T>> {
+abstract class EventLogMapper<T : Comparable<T>> {
     fun build(log: Iterable<XTrace>): List<Event<T>> =
         log
             .flatMap { trace ->
@@ -20,7 +20,7 @@ interface EventLogMapper<T : Comparable<T>> {
                     }
             }.sortedBy { it.timestamp }
 
-    fun map(
+    abstract fun map(
         xEvent: XEvent,
         xTrace: XTrace,
     ): Event<T>
