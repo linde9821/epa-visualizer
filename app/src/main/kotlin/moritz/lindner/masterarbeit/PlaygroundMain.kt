@@ -16,11 +16,11 @@ fun main() {
     val sample = File("./app/src/main/resources/eventlogs/sample.xes") to SampleEventMapper()
     val sample2 = File("./app/src/main/resources/eventlogs/sample2.xes") to SampleEventMapper()
     val loops = File("./app/src/main/resources/eventlogs/loops.xes") to SampleEventMapper()
-    val challenge2017Offers = File("./app/src/main/resources/BPI Challenge 2017 - /eventlogsOffer log.xes") to BPI2017OfferChallengeEventMapper()
-    val challenge2017 = File("./app/src/main/resources/BPI /eventlogsChallenge 2017.xes") to BPI2017ChallengeEventMapper()
-    val challenge2018 = File("./app/src/main/resources/BPI Challenge 2018/eventlogs.xes.gz") to BPI2018()
+    val challenge2017Offers = File("./app/src/main/resources/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
+    val challenge2017 = File("./app/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
+    val challenge2018 = File("./app/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018()
 
-    val (file, mapper) = sample
+    val (file, mapper) = challenge2017Offers
 
     logger.info { "Parsing ${file.absolutePath}" }
 
