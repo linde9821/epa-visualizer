@@ -36,7 +36,7 @@ sealed class ApplicationState() {
 @Composable
 fun EPAVisualizer() {
 
-    val backgroundDispatcher = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
+    val backgroundDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     var state: ApplicationState by remember { mutableStateOf(NoFileSelected) }
     val scope = rememberCoroutineScope()
 
