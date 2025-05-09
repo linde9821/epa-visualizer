@@ -1,69 +1,86 @@
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.Button
+import ApplicationState.EpaConstructed
+import ApplicationState.EpaConstructionRunning
+import ApplicationState.FileSelected
+import ApplicationState.NoFileSelected
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import epa.ConstructEpa
+import epa.EpaConstruction
+import epa.EpaView
+import epa.FileSelection
+import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomateBuilder
-import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor
+import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import java.io.File
+import java.util.concurrent.Executors
+
+sealed class ApplicationState() {
+    data object NoFileSelected : ApplicationState()
+    data class FileSelected(val file: File) : ApplicationState()
+    data class EpaConstructionRunning(val builder: ExtendedPrefixAutomataBuilder<Long>) : ApplicationState()
+    data class EpaConstructed(val extendedPrefixAutomata: ExtendedPrefixAutomata<Long>) : ApplicationState()
+}
 
 @Composable
-fun App() {
+fun EPAVisualizer() {
 
+    val backgroundDispatcher = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
+    var state: ApplicationState by remember { mutableStateOf(NoFileSelected) }
     val scope = rememberCoroutineScope()
 
-    var text by remember { mutableStateOf("Build EPA") }
-    var epa by remember { mutableStateOf<ExtendedPrefixAutomata<Long>?>(null) }
-
-    val file = File("./ui/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz")
-    val mapper = BPI2017ChallengeEventMapper()
-
-    val epaBuilder = ExtendedPrefixAutomateBuilder<Long>()
-        .setFile(file)
-        .setEventLogMapper(mapper)
-
     MaterialTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
+        ) {
+            when (val currentState = state) {
 
-        if (epa != null) {
-            BasicText(
-                text = "epa: ${epa?.states?.size} states",
-            )
-            Button(onClick = {
-                scope.launch(Dispatchers.IO) {
-                    val statistics = StatisticsVisitor<Long>(epa!!)
-                    epa!!.acceptDepthFirst(statistics)
-                    text = "${statistics.report()}"
+                NoFileSelected -> {
+                    FileSelection { file ->
+                        state = FileSelected(file)
+                    }
                 }
-            }) {
-                Text("Create statistics")
-            }
-        }else {
-            Button(onClick = {
-                scope.launch(Dispatchers.IO) {
-                    text = "Start Constructing"
-                    epa = epaBuilder.build()
-                    text = "End Constructing"
+
+                is FileSelected -> {
+                    EpaConstruction(
+                        file = currentState.file,
+                        onAbort = { state = NoFileSelected },
+                        onStartConstructionStart = { builder ->
+                            state = EpaConstructionRunning(builder)
+                        },
+                    )
                 }
-            }) {
-                Text(text)
+
+                is EpaConstructionRunning -> {
+                    ConstructEpa(scope, backgroundDispatcher, currentState.builder) { epa ->
+                        state = EpaConstructed(epa)
+                    }
+                }
+
+                is EpaConstructed -> EpaView(currentState.extendedPrefixAutomata, scope, backgroundDispatcher) {
+                    state = NoFileSelected
+                }
             }
         }
     }
 }
 
+
 fun main() = application {
     Window(onCloseRequest = ::exitApplication) {
-        App()
+        EPAVisualizer()
     }
 }

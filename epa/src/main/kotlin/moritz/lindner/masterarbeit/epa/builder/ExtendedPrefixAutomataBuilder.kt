@@ -14,7 +14,7 @@ import moritz.lindner.masterarbeit.epa.parser.EPAXesParser
 import org.deckfour.xes.`in`.XesXmlParser
 import java.io.File
 
-class ExtendedPrefixAutomateBuilder<T : Comparable<T>> {
+class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
     private var eventLogMapper: EventLogMapper<T>? = null
     private var file: File? = null
     private val parser: XesXmlParser = EPAXesParser()
@@ -23,12 +23,12 @@ class ExtendedPrefixAutomateBuilder<T : Comparable<T>> {
 
     private val logger = KotlinLogging.logger { }
 
-    fun setEventLogMapper(mapper: EventLogMapper<T>): ExtendedPrefixAutomateBuilder<T> {
+    fun setEventLogMapper(mapper: EventLogMapper<T>): ExtendedPrefixAutomataBuilder<T> {
         eventLogMapper = mapper
         return this
     }
 
-    fun setFile(f: File): ExtendedPrefixAutomateBuilder<T> {
+    fun setFile(f: File): ExtendedPrefixAutomataBuilder<T> {
         file = f
         return this
     }

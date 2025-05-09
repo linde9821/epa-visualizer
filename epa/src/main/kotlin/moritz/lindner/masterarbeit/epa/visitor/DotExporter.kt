@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 
 class DotExporter<T : Comparable<T>>(
     private val epa: ExtendedPrefixAutomata<T>,
-) : AutomataVisitorProgress<T>("dot export") {
+) : AutomataVisitor<T> {
     private val labelByState = mutableMapOf<State, String>()
     private val transitions = mutableListOf<String>()
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
