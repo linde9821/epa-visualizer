@@ -20,19 +20,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.domain.Event
+import moritz.lindner.masterarbeit.epa.domain.State
 
 @Composable
-fun RadialTidyTree() {
+fun RadialTidyTree(epa: ExtendedPrefixAutomata<Long>) {
 
     var zoom by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+    val textMeasurer = rememberTextMeasurer()
 
     LaunchedEffect(Unit) {
 //        offset = Offset(windowWidth / 2f, windowHeight / 2f)
@@ -42,7 +54,7 @@ fun RadialTidyTree() {
         .pointerInput(Unit) {
             detectTransformGestures { _, pan, gestureZoom, _ ->
                 // Apply zoom, clamped to a reasonable range
-                zoom = (zoom * gestureZoom).coerceIn(0.1f, 5f)
+                zoom = (zoom * gestureZoom)
                 // Update offset (scroll position)
                 offset += pan
             }
@@ -70,14 +82,49 @@ fun RadialTidyTree() {
             translate(offset.x, offset.y)
             scale(zoom)
         }) {
-            drawCircle(
-                color = Color.Red,
-                radius = 40f,
-                center = Offset(drawContext.size.width / 2f, drawContext.size.height / 2f)
-            )
+            val root: Set<Event<Long>> = epa.sequence(State.Root)
+            drawNode(root, textMeasurer)
         }
     }
 
+}
+
+fun DrawScope.drawNode(events: Set<Event<Long>>, textMeasurer: TextMeasurer) {
+    // Draw circle
+    drawCircle(
+        color = Color.Black,
+        radius = 20f,
+        center = center,
+        style = Stroke(width = 4f) // Adjust the stroke width as needed
+    )
+
+    // Prepare the label
+    val label = events.joinToString(", ")
+
+    // Define text style
+    val textStyle = TextStyle(
+        fontSize = 8.sp,
+        fontWeight = FontWeight.Normal,
+        color = Color.Red
+    )
+
+    // Measure the text
+    val textLayoutResult = textMeasurer.measure(
+        text = AnnotatedString(label),
+        style = textStyle
+    )
+
+    // Calculate position to draw text next to the node
+    val textPosition = Offset(
+        x = center.x + 30f,
+        y = center.y - textLayoutResult.size.height / 2
+    )
+
+    // Draw the text
+    drawText(
+        textLayoutResult = textLayoutResult,
+        topLeft = textPosition
+    )
 }
 
 @Composable
@@ -104,7 +151,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize()
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTree()
+                RadialTidyTree(epa)
             }
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")
