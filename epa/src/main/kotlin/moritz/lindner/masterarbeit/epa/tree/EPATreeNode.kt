@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa
+package moritz.lindner.masterarbeit.epa.tree
 
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
