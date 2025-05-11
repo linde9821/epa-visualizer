@@ -7,6 +7,14 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 
 interface AutomataVisitor<T : Comparable<T>> {
 
+    fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+
+    }
+
+    fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+
+    }
+
     fun visit(
         extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         state: State,
