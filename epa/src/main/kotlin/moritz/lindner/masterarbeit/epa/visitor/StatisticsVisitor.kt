@@ -19,6 +19,7 @@ class StatisticsVisitor<T : Comparable<T>>(
     private val prefixLengths = mutableListOf<Int>()
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         state: State,
         depth: Int,
     ) {
@@ -34,6 +35,7 @@ class StatisticsVisitor<T : Comparable<T>>(
     }
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         transition: Transition,
         depth: Int,
     ) {
@@ -41,6 +43,7 @@ class StatisticsVisitor<T : Comparable<T>>(
     }
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         event: Event<T>,
         depth: Int,
     ) {
