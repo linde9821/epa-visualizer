@@ -9,7 +9,7 @@ class EPATreeNode<T : Comparable<T>>(
     val transitionFromParent: Transition?, // is null for root state
     val parent: EPATreeNode<T>? = null,
     val sequence: Set<Event<T>>
-) {
+): Iterable<EPATreeNode<T>> {
     // todo: check datastructure
     val children = mutableListOf<EPATreeNode<T>>()
 
@@ -29,4 +29,25 @@ class EPATreeNode<T : Comparable<T>>(
         return children.isEmpty()
     }
 
+
+    override fun iterator(): Iterator<EPATreeNode<T>> = object : Iterator<EPATreeNode<T>> {
+        private val stack = ArrayDeque<EPATreeNode<T>>().apply { add(this@EPATreeNode) }
+
+        override fun hasNext(): Boolean = stack.isNotEmpty()
+
+        override fun next(): EPATreeNode<T> {
+            val node = stack.removeLast()
+            // Add children in reverse to process left-to-right
+            node.children.asReversed().forEach { stack.addLast(it) }
+            return node
+        }
+    }
+
+    fun leftmostChild(): EPATreeNode<T>? {
+        return children.first()
+    }
+
+    fun rightmostChild(): EPATreeNode<T>? {
+        return children.last()
+    }
 }
