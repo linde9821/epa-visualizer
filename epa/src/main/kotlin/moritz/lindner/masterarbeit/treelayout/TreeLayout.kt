@@ -259,7 +259,7 @@ class TreeLayout<T : Comparable<T>>(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.level.toDouble() * distance
+        val y = v.level.toDouble()
 
         coordinatesByNode[v] = Coordinate(x, y)
 

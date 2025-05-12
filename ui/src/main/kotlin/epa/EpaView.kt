@@ -45,6 +45,8 @@ fun RadialTidyTree(
     epa: ExtendedPrefixAutomata<Long>,
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,
+    windowWidth: Int,
+    windowHeight: Int,
 ) {
     var zoom by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
@@ -53,15 +55,15 @@ fun RadialTidyTree(
     var treeReady by remember { mutableStateOf(false) }
 
     LaunchedEffect(epa) {
+        offset = Offset(windowWidth / 2f, windowHeight / 2f)
         withContext(dispatcher) {
             treeLayout = null
             val treeBuildingVisitor = TreeBuildingVisitor<Long>()
             epa.acceptDepthFirst(AutomataVisitorProgressBar(treeBuildingVisitor, "tree"))
-            treeLayout = TreeLayout(treeBuildingVisitor.root, 100.0)
+            treeLayout = TreeLayout(treeBuildingVisitor.root, 90.0)
             treeLayout!!.build()
             treeReady = true
         }
-//         offset = Offset(windowWidth / 2f, windowHeight / 2f)
     }
 
     if (!treeReady) {
@@ -72,7 +74,7 @@ fun RadialTidyTree(
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, gestureZoom, _ ->
-                        // Apply zoom, clamped to a reasonable range
+                        // Apply zoom
                         zoom = (zoom * gestureZoom)
                         // Update offset (scroll position)
                         offset += pan
@@ -88,12 +90,10 @@ fun RadialTidyTree(
                                     ?.y ?: 0f
 
                             if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
-                                val mousePos = event.changes.first().position
-                                val newZoom = (zoom * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.1f, 5f)
+                                val newZoom = (zoom * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.001f, 8f)
 
-                                // Adjust the offset to keep the point under the mouse stationary
                                 val scaleChange = newZoom / zoom
-                                offset = (offset - mousePos) * scaleChange + mousePos
+                                offset = offset * scaleChange
 
                                 zoom = newZoom
                             }
@@ -108,6 +108,7 @@ fun RadialTidyTree(
             }) {
                 treeLayout!!
                     .coordinatesByNode
+                    // add filter to check if node is in view
                     .onEach { (node, coordinate) ->
                         drawNode(node, textMeasurer, coordinate)
                     }
@@ -125,7 +126,7 @@ fun DrawScope.drawNode(
     drawCircle(
         color = Color.Black,
         radius = 10f,
-        center = Offset(coordinate.x.toFloat(), coordinate.y.toFloat()),
+        center = Offset(coordinate.x.toFloat(), coordinate.y.toFloat() * 120),
         style = Stroke(width = 4f), // Adjust the stroke width as needed
     )
 
@@ -168,6 +169,8 @@ fun EpaView(
     epa: ExtendedPrefixAutomata<Long>,
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
+    windowWidth: Int,
+    windowHeight: Int,
     onClose: () -> Unit,
 ) {
     Row {
@@ -187,7 +190,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTree(epa, scope, backgroundDispatcher)
+                RadialTidyTree(epa, scope, backgroundDispatcher, windowWidth, windowHeight)
             }
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")

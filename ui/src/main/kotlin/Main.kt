@@ -45,7 +45,10 @@ sealed class ApplicationState {
 }
 
 @Composable
-fun EPAVisualizer() {
+fun EPAVisualizer(
+    windowWidth: Int,
+    windowHeight: Int,
+) {
     val backgroundDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     var state: ApplicationState by remember { mutableStateOf(NoFileSelected) }
     val scope = rememberCoroutineScope()
@@ -81,9 +84,16 @@ fun EPAVisualizer() {
                 }
 
                 is EpaConstructed ->
-                    EpaView(currentState.extendedPrefixAutomata, scope, backgroundDispatcher) {
-                        state = NoFileSelected
-                    }
+                    EpaView(
+                        currentState.extendedPrefixAutomata,
+                        scope,
+                        backgroundDispatcher,
+                        windowWidth,
+                        windowHeight,
+                        {
+                            state = NoFileSelected
+                        },
+                    )
             }
         }
     }
@@ -98,7 +108,8 @@ fun main() =
                     placement = WindowPlacement.Maximized,
                     isMinimized = false,
                 ),
+            title = "EPA Visualizer",
         ) {
-            EPAVisualizer()
+            EPAVisualizer(this.window.width, this.window.height)
         }
     }
