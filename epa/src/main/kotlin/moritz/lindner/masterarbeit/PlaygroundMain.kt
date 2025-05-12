@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.visitor.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
@@ -21,7 +22,7 @@ fun main() {
     val challenge2017 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = sample2
+    val (file, mapper) = challenge2018
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -44,15 +45,16 @@ fun main() {
     epa.acceptDepthFirst(statisticsVisitor)
     logger.info { visitor1.report() }
 
-    logger.info { "depth first" }
-//    epa.acceptDepthFirst(
-//        PrintingVisitor(
-//            printTransition = false,
-//            printEvent = false,
-//        ),
-//    )
 
-    logger.info { "breadth first" }
+
+
+    val treeBuildingVisitor = TreeBuildingVisitor<Long>()
+    epa.acceptDepthFirst(
+        AutomataVisitorProgressBar(treeBuildingVisitor, "tree"),
+    )
+    val tree = treeBuildingVisitor.root
+
+
 //    epa.acceptBreadthFirst(
 //        PrintingVisitor(
 //            printTransition = false,
