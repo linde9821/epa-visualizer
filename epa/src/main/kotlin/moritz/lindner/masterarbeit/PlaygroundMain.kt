@@ -12,6 +12,7 @@ import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.visitor.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.treelayout.TreeLayout
 import java.io.File
+import kotlin.time.measureTime
 
 fun main() {
     val logger = KotlinLogging.logger {}
@@ -25,7 +26,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = sample
+    val (file, mapper) = sample2
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -47,16 +48,24 @@ fun main() {
     val statisticsVisitor = AutomataVisitorProgressBar(visitor1, "statistics")
     epa.acceptDepthFirst(statisticsVisitor)
     logger.info { visitor1.report() }
-
     val treeBuildingVisitor = TreeBuildingVisitor<Long>()
-    epa.acceptDepthFirst(
-        AutomataVisitorProgressBar(treeBuildingVisitor, "tree"),
-    )
-    val tree = treeBuildingVisitor.root
 
-    val layout = TreeLayout<Long>(tree, 1.0)
-    layout.build()
-    logger.info { "build layout" }
+    val x =
+        measureTime {
+            epa.acceptDepthFirst(
+                AutomataVisitorProgressBar(treeBuildingVisitor, "tree"),
+            )
+        }
+    val y =
+        measureTime {
+            val tree = treeBuildingVisitor.root
+            val layout = TreeLayout<Long>(tree, 1.0)
+            layout.build()
+            logger.info { "build layout" }
+        }
+
+    logger.info { "Total tree build time $x" }
+    logger.info { "Total layouttime $y" }
 
 //    epa.acceptBreadthFirst(
 //        PrintingVisitor(

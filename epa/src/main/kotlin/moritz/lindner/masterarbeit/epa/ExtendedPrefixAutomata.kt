@@ -18,7 +18,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
     // for improved visitor speed
-    val outgoingTransitionsByState = transitions.groupBy { it.start }
+    val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
 
     fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 
