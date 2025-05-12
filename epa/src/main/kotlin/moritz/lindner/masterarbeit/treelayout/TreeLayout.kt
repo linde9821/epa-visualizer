@@ -1,12 +1,8 @@
 package moritz.lindner.masterarbeit.treelayout
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
-
-data class Coordinate(
-    val x: Float,
-    val y: Float,
-)
 
 class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
@@ -22,7 +18,7 @@ class TreeLayout<T : Comparable<T>>(
     private val shifts = mutableMapOf<EPATreeNode<T>, Float>()
     private val changes = mutableMapOf<EPATreeNode<T>, Float>()
 
-    val coordinatesByNode = hashMapOf<EPATreeNode<T>, Coordinate>()
+    private val coordinatesByState = hashMapOf<State, Coordinate>()
 
     fun build() {
         logger.info { "Building tree layout" }
@@ -260,7 +256,7 @@ class TreeLayout<T : Comparable<T>>(
         // let y(v) be the level of v
         val y = v.level.toFloat()
 
-        coordinatesByNode[v] = Coordinate(x, y)
+        coordinatesByState[v.state] = Coordinate(x, y)
 
         // for all children w of v
         v.children().forEach { w ->
@@ -268,4 +264,6 @@ class TreeLayout<T : Comparable<T>>(
             secondWalk(w, m + modifiers[v]!!)
         }
     }
+
+    fun getCoordinates(state: State): Coordinate = coordinatesByState[state]!!
 }

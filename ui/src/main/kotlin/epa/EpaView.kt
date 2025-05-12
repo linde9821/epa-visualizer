@@ -34,7 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.treelayout.Coordinate
@@ -106,19 +106,31 @@ fun RadialTidyTree(
                 translate(offset.x, offset.y)
                 scale(zoom)
             }) {
-                treeLayout!!
-                    .coordinatesByNode
-                    // add filter to check if node is in view
-                    .onEach { (node, coordinate) ->
-                        drawNode(node, textMeasurer, coordinate)
+                epa.states.forEach { state ->
+                    val coordinate = treeLayout!!.getCoordinates(state)
+                    drawNode(state, textMeasurer, coordinate)
+                    when (state) {
+                        is State.PrefixState -> {
+                            val parentCoordinate = treeLayout!!.getCoordinates(state.from)
+
+                            drawLine(
+                                color = Color.Black,
+                                start = Offset(parentCoordinate.x, parentCoordinate.y * 120),
+                                end = Offset(coordinate.x, coordinate.y * 120),
+                                strokeWidth = 5f,
+                            )
+                        }
+                        State.Root -> {
+                        }
                     }
+                }
             }
         }
     }
 }
 
 fun DrawScope.drawNode(
-    node: EPATreeNode<Long>,
+    node: State,
     textMeasurer: TextMeasurer,
     coordinate: Coordinate,
 ) {
@@ -129,8 +141,6 @@ fun DrawScope.drawNode(
         center = Offset(coordinate.x.toFloat(), coordinate.y.toFloat() * 120),
         style = Stroke(width = 4f), // Adjust the stroke width as needed
     )
-
-    node.state
 
 //    // Prepare the label
 //    val label = events.joinToString(", ")
