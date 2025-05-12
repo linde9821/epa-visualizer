@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "ui"
-            packageVersion = "1.0.0"
+            packageVersion = "0.1.0"
         }
     }
 }

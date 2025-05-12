@@ -199,6 +199,7 @@ fun EpaView(
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
                 RadialTidyTree(epa, backgroundDispatcher, windowWidth, windowHeight)
             }
+            // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")
             }
