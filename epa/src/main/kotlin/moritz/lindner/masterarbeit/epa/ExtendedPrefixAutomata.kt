@@ -6,7 +6,6 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
-
 /**
  * Not thread safe to visit
  */
@@ -18,15 +17,12 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     private val partitionByState: Map<State, Int>,
     private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
-
     // for improved visitor speed
     val outgoingTransitionsByState = transitions.groupBy { it.start }
 
-    fun partition(start: State): Int =
-        partitionByState[start] ?: throw IllegalStateException("No state with start $start")
+    fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 
-    fun sequence(state: State): Set<Event<T>> =
-        sequenceByState[state] ?: throw IllegalStateException("No sequence for state $state")
+    fun sequence(state: State): Set<Event<T>> = sequenceByState[state] ?: throw IllegalStateException("No sequence for state $state")
 
     private var visitedStates = 0L
 

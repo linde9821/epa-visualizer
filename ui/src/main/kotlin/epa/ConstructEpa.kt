@@ -13,7 +13,7 @@ fun ConstructEpa(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     builder: ExtendedPrefixAutomataBuilder<Long>,
-    onEPAConstructed: (ExtendedPrefixAutomata<Long>) -> Unit
+    onEPAConstructed: (ExtendedPrefixAutomata<Long>) -> Unit,
 ) {
     scope.launch(backgroundDispatcher) {
         val epa = builder.build()

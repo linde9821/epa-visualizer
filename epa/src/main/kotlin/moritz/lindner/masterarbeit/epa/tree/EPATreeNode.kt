@@ -8,46 +8,45 @@ class EPATreeNode<T : Comparable<T>>(
     val state: State,
     val transitionFromParent: Transition?, // is null for root state
     val parent: EPATreeNode<T>? = null,
-    val sequence: Set<Event<T>>
-): Iterable<EPATreeNode<T>> {
+    val sequence: Set<Event<T>>,
+) : Iterable<EPATreeNode<T>> {
     // todo: check datastructure
     val children = mutableListOf<EPATreeNode<T>>()
 
     val leftSibling: EPATreeNode<T>?
-        get() = parent?.children?.let { siblings ->
-            val index = siblings.indexOf(this)
-            if (index > 0) siblings[index - 1] else null
-        }
+        get() =
+            parent?.children?.let { siblings ->
+                val index = siblings.indexOf(this)
+                if (index > 0) siblings[index - 1] else null
+            }
 
     val rightSibling: EPATreeNode<T>?
-        get() = parent?.children?.let { siblings ->
-            val index = siblings.indexOf(this)
-            if (index >= 0 && index < siblings.size - 1) siblings[index + 1] else null
+        get() =
+            parent?.children?.let { siblings ->
+                val index = siblings.indexOf(this)
+                if (index >= 0 && index < siblings.size - 1) siblings[index + 1] else null
+            }
+
+    val leftmostSibling: EPATreeNode<T>?
+        get() = parent?.children?.first()
+
+    fun isLeaf(): Boolean = children.isEmpty()
+
+    override fun iterator(): Iterator<EPATreeNode<T>> =
+        object : Iterator<EPATreeNode<T>> {
+            private val stack = ArrayDeque<EPATreeNode<T>>().apply { add(this@EPATreeNode) }
+
+            override fun hasNext(): Boolean = stack.isNotEmpty()
+
+            override fun next(): EPATreeNode<T> {
+                val node = stack.removeLast()
+                // Add children in reverse to process left-to-right
+                node.children.asReversed().forEach { stack.addLast(it) }
+                return node
+            }
         }
 
-    fun isLeaf(): Boolean {
-        return children.isEmpty()
-    }
+    fun leftmostChild(): EPATreeNode<T>? = children.first()
 
-
-    override fun iterator(): Iterator<EPATreeNode<T>> = object : Iterator<EPATreeNode<T>> {
-        private val stack = ArrayDeque<EPATreeNode<T>>().apply { add(this@EPATreeNode) }
-
-        override fun hasNext(): Boolean = stack.isNotEmpty()
-
-        override fun next(): EPATreeNode<T> {
-            val node = stack.removeLast()
-            // Add children in reverse to process left-to-right
-            node.children.asReversed().forEach { stack.addLast(it) }
-            return node
-        }
-    }
-
-    fun leftmostChild(): EPATreeNode<T>? {
-        return children.first()
-    }
-
-    fun rightmostChild(): EPATreeNode<T>? {
-        return children.last()
-    }
+    fun rightmostChild(): EPATreeNode<T>? = children.last()
 }

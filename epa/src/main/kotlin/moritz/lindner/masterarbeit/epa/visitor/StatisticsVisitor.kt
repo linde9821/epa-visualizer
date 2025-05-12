@@ -9,7 +9,7 @@ import kotlin.math.max
 
 class StatisticsVisitor<T : Comparable<T>>(
     private val extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
-): AutomataVisitor<T> {
+) : AutomataVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
     private val visitedTransitions = mutableSetOf<Transition>()
     private var eventCount = 0

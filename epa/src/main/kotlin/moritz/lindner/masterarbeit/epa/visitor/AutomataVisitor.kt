@@ -6,13 +6,10 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 
 interface AutomataVisitor<T : Comparable<T>> {
-
     fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
-
     }
 
     fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
-
     }
 
     fun visit(
@@ -20,7 +17,6 @@ interface AutomataVisitor<T : Comparable<T>> {
         state: State,
         depth: Int,
     ) {
-
     }
 
     fun visit(
@@ -28,7 +24,6 @@ interface AutomataVisitor<T : Comparable<T>> {
         transition: Transition,
         depth: Int,
     ) {
-
     }
 
     fun visit(
@@ -36,7 +31,6 @@ interface AutomataVisitor<T : Comparable<T>> {
         event: Event<T>,
         depth: Int,
     ) {
-
     }
 
     fun onProgress(

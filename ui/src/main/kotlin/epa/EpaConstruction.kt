@@ -13,19 +13,20 @@ import java.io.File
 fun EpaConstruction(
     file: File,
     onAbort: () -> Unit,
-    onStartConstructionStart: (ExtendedPrefixAutomataBuilder<Long>) -> Unit
+    onStartConstructionStart: (ExtendedPrefixAutomataBuilder<Long>) -> Unit,
 ) {
     Column {
         Text("Selected file: ${file.name}")
         Row {
             Button(
                 onClick = {
-                    val builder = ExtendedPrefixAutomataBuilder<Long>().apply {
-                        setFile(file)
-                        setEventLogMapper(BPI2017ChallengeEventMapper()) // default mapper for now
-                    }
+                    val builder =
+                        ExtendedPrefixAutomataBuilder<Long>().apply {
+                            setFile(file)
+                            setEventLogMapper(BPI2017ChallengeEventMapper()) // default mapper for now
+                        }
                     onStartConstructionStart(builder)
-                }
+                },
             ) {
                 Text("Construct EPA")
             }
@@ -33,7 +34,7 @@ fun EpaConstruction(
             Button(
                 onClick = {
                     onAbort()
-                }
+                },
             ) {
                 Text("Abort")
             }

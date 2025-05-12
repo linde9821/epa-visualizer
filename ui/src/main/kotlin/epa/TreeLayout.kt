@@ -2,11 +2,10 @@ package epa
 
 import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
 
-class TreeLayoutVisitor<T: Comparable<T>>(
+class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
     private val distance: Double,
 ) {
-
     private val threads = mutableMapOf<EPATreeNode<T>, Double>()
     private val modifiers = mutableMapOf<EPATreeNode<T>, Double>()
     private val ancestor = mutableMapOf<EPATreeNode<T>, List<EPATreeNode<T>>>()
@@ -41,7 +40,8 @@ class TreeLayoutVisitor<T: Comparable<T>>(
             val w = v.leftSibling
             if (w != null) {
                 // let prelim(v) = prelim(w) + distance
-                prelim[v] = prelim[w]!! + distance // here distance can be made variable distance(v, w) a function of the widths of v and w
+                prelim[v] =
+                    prelim[w]!! + distance // here distance can be made variable distance(v, w) a function of the widths of v and w
             }
         } else { // else
             // let defaultAncestor be the leftmost child of v
@@ -53,7 +53,7 @@ class TreeLayoutVisitor<T: Comparable<T>>(
                 firstWalk(w)
 
                 // Apportion(w,defaultAncestor)
-                apportion(w,defaultAncestor)
+                apportion(w, defaultAncestor)
             }
 
             // ExecuteShifts(v)
@@ -68,14 +68,17 @@ class TreeLayoutVisitor<T: Comparable<T>>(
                 // let prelim(v) = prelim(w) + distance
                 prelim[v] = prelim[w]!! + distance
                 // let mod(v) = prelim(v) − midpoint
-                modifiers[v] =  prelim[v]!! - midpoint
+                modifiers[v] = prelim[v]!! - midpoint
             } else { // else
                 prelim[v] = midpoint
             }
         }
     }
 
-    private fun apportion(v: EPATreeNode<T>, defaultAncestor: EPATreeNode<T>) {
+    private fun apportion(
+        v: EPATreeNode<T>,
+        defaultAncestor: EPATreeNode<T>,
+    ) {
         // if v has a left sibling w
         val w = v.leftSibling
         if (w != null) {
@@ -93,8 +96,9 @@ class TreeLayoutVisitor<T: Comparable<T>>(
         TODO("Not yet implemented")
     }
 
-    private fun secondWalk(r: EPATreeNode<T>, foo: Double) {
-
+    private fun secondWalk(
+        r: EPATreeNode<T>,
+        foo: Double,
+    ) {
     }
-
 }

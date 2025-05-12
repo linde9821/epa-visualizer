@@ -26,28 +26,36 @@ import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import java.io.File
 import java.util.concurrent.Executors
 
-sealed class ApplicationState() {
+sealed class ApplicationState {
     data object NoFileSelected : ApplicationState()
-    data class FileSelected(val file: File) : ApplicationState()
-    data class EpaConstructionRunning(val builder: ExtendedPrefixAutomataBuilder<Long>) : ApplicationState()
-    data class EpaConstructed(val extendedPrefixAutomata: ExtendedPrefixAutomata<Long>) : ApplicationState()
+
+    data class FileSelected(
+        val file: File,
+    ) : ApplicationState()
+
+    data class EpaConstructionRunning(
+        val builder: ExtendedPrefixAutomataBuilder<Long>,
+    ) : ApplicationState()
+
+    data class EpaConstructed(
+        val extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
+    ) : ApplicationState()
 }
 
 @Composable
 fun EPAVisualizer() {
-
     val backgroundDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     var state: ApplicationState by remember { mutableStateOf(NoFileSelected) }
     val scope = rememberCoroutineScope()
 
     MaterialTheme {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(10.dp),
         ) {
             when (val currentState = state) {
-
                 NoFileSelected -> {
                     FileSelection { file ->
                         state = FileSelected(file)
@@ -70,17 +78,18 @@ fun EPAVisualizer() {
                     }
                 }
 
-                is EpaConstructed -> EpaView(currentState.extendedPrefixAutomata, scope, backgroundDispatcher) {
-                    state = NoFileSelected
-                }
+                is EpaConstructed ->
+                    EpaView(currentState.extendedPrefixAutomata, scope, backgroundDispatcher) {
+                        state = NoFileSelected
+                    }
             }
         }
     }
 }
 
-
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
-        EPAVisualizer()
+fun main() =
+    application {
+        Window(onCloseRequest = ::exitApplication) {
+            EPAVisualizer()
+        }
     }
-}

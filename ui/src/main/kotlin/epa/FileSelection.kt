@@ -26,7 +26,7 @@ fun FileSelection(onFileSelected: (file: File) -> Unit) {
         }
 
         if (showDialog) {
-            FileDialog() { path ->
+            FileDialog { path ->
                 val file = File(path)
                 onFileSelected(file)
             }
@@ -37,7 +37,7 @@ fun FileSelection(onFileSelected: (file: File) -> Unit) {
 @Composable
 private fun FileDialog(
     parent: Frame? = null,
-    onCloseRequest: (result: String) -> Unit
+    onCloseRequest: (result: String) -> Unit,
 ) = AwtWindow(
     create = {
         object : FileDialog(parent, "Choose a file", LOAD) {
@@ -49,5 +49,5 @@ private fun FileDialog(
             }
         }
     },
-    dispose = FileDialog::dispose
+    dispose = FileDialog::dispose,
 )
