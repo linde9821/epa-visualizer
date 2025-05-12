@@ -15,6 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import epa.ConstructEpa
 import epa.EpaConstruction
@@ -89,7 +91,14 @@ fun EPAVisualizer() {
 
 fun main() =
     application {
-        Window(onCloseRequest = ::exitApplication) {
+        Window(
+            onCloseRequest = ::exitApplication,
+            state =
+                WindowState(
+                    placement = WindowPlacement.Maximized,
+                    isMinimized = false,
+                ),
+        ) {
             EPAVisualizer()
         }
     }
