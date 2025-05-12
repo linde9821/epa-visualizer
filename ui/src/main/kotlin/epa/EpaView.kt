@@ -60,7 +60,7 @@ fun RadialTidyTree(
             treeLayout = null
             val treeBuildingVisitor = TreeBuildingVisitor<Long>()
             epa.acceptDepthFirst(AutomataVisitorProgressBar(treeBuildingVisitor, "tree"))
-            treeLayout = TreeLayout(treeBuildingVisitor.root, 90.0)
+            treeLayout = TreeLayout(treeBuildingVisitor.root, 70.0f)
             treeLayout!!.build()
             treeReady = true
         }
@@ -93,7 +93,7 @@ fun RadialTidyTree(
                                 val newZoom = (zoom * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.001f, 8f)
 
                                 val scaleChange = newZoom / zoom
-                                offset = offset * scaleChange
+                                offset *= scaleChange
 
                                 zoom = newZoom
                             }

@@ -4,23 +4,23 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
 
 data class Coordinate(
-    val x: Double,
-    val y: Double,
+    val x: Float,
+    val y: Float,
 )
 
 class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
-    private val distance: Double,
+    private val distance: Float,
 ) {
     private val logger = KotlinLogging.logger {}
 
     private val threads = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>?>()
-    private val modifiers = mutableMapOf<EPATreeNode<T>, Double>()
+    private val modifiers = mutableMapOf<EPATreeNode<T>, Float>()
     private val ancestor = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>>()
-    private val prelim = mutableMapOf<EPATreeNode<T>, Double>()
+    private val prelim = mutableMapOf<EPATreeNode<T>, Float>()
 
-    private val shifts = mutableMapOf<EPATreeNode<T>, Double>()
-    private val changes = mutableMapOf<EPATreeNode<T>, Double>()
+    private val shifts = mutableMapOf<EPATreeNode<T>, Float>()
+    private val changes = mutableMapOf<EPATreeNode<T>, Float>()
 
     val coordinatesByNode = hashMapOf<EPATreeNode<T>, Coordinate>()
 
@@ -30,13 +30,13 @@ class TreeLayout<T : Comparable<T>>(
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
-            modifiers[v] = 0.0
+            modifiers[v] = 0.0f
             threads[v] = null
             // let ancestor (v) = v
             ancestor[v] = v
 
-            shifts[v] = 0.0
-            changes[v] = 0.0
+            shifts[v] = 0.0f
+            changes[v] = 0.0f
         }
         // let r be the root of T
         val r = tree
@@ -54,7 +54,7 @@ class TreeLayout<T : Comparable<T>>(
         // if v is a leaf
         if (v.isLeaf()) {
             // let prelim(v) = 0
-            prelim[v] = 0.0
+            prelim[v] = 0.0f
 
             // if v has a left sibling w
             val w = v.leftSibling
@@ -83,7 +83,7 @@ class TreeLayout<T : Comparable<T>>(
             executeShifts(v)
 
             // let midpoint = (1/2) (prelim(leftmost child of v) + prelim(rightmost child of v))
-            val midpoint = 0.5 * (prelim[v.leftmostChild()!!]!! + prelim[v.rightmostChild()!!]!!)
+            val midpoint = 0.5f * (prelim[v.leftmostChild()!!]!! + prelim[v.rightmostChild()!!]!!)
 
             // if v has a left sibling w
             val w = v.leftSibling
@@ -140,18 +140,18 @@ class TreeLayout<T : Comparable<T>>(
                     // MoveSubtree(Ancestor(viMinus, v, defaultAncestor), v , shift)
                     moveSubtree(ancestor(viMinus, v, defaultAncestor), v, shift)
                     // let siPlus = siPlus + shift
-                    siPlus = siPlus + shift
+                    siPlus += shift
                     // let soPLus = soPLus + shift
-                    soPlus = soPlus + shift
+                    soPlus += shift
                 }
                 // let siMinus = siMinus + mod(viMinus)
-                siMinus = siMinus + modifiers[viMinus]!!
+                siMinus += modifiers[viMinus]!!
                 // let siPlus = siPlus + mod(viPlus)
-                siPlus = siPlus + modifiers[viPlus]!!
+                siPlus += modifiers[viPlus]!!
                 // let soMinus = soMinus + mod(voMinus)
-                soMinus = soMinus + modifiers[voMinus]!!
+                soMinus += modifiers[voMinus]!!
                 // let soPlus = soPlus + mod(voPlus)
-                soPlus = soPlus + modifiers[voPlus]!!
+                soPlus += modifiers[voPlus]!!
             }
 
             // if NextRight(viMinus) != 0 and NextRight(voPlus) = 0
@@ -201,27 +201,27 @@ class TreeLayout<T : Comparable<T>>(
     private fun moveSubtree(
         wMinus: EPATreeNode<T>,
         wPlus: EPATreeNode<T>,
-        shift: Double,
+        shift: Float,
     ) {
         // let subtrees = number(w+) − number(w−)
         val subtrees = wPlus.number() - wMinus.number()
         // let change(w+) = change(w+) − shift / subtrees
-        changes[wPlus] = (changes[wPlus] ?: 0.0) - (shift / subtrees.toDouble())
+        changes[wPlus] = (changes[wPlus] ?: 0.0f) - (shift / subtrees.toFloat())
         // let shift(w+) = shift(w+) + shift
-        shifts[wPlus] = (shifts[wPlus] ?: 0.0) + shift
+        shifts[wPlus] = (shifts[wPlus] ?: 0.0f) + shift
         // let change(w−) = change(w−) + shift / subtrees
-        changes[wMinus] = (changes[wMinus] ?: 0.0) + (shift / subtrees.toDouble())
+        changes[wMinus] = (changes[wMinus] ?: 0.0f) + (shift / subtrees.toFloat())
         // let prelim(w+) = prelim(w+) + shift
-        prelim[wPlus] = (prelim[wPlus] ?: 0.0) + shift
+        prelim[wPlus] = (prelim[wPlus] ?: 0.0f) + shift
         // let mod(w+) = mod(w+) + shift
         modifiers[wPlus] = modifiers[wPlus]!! + shift
     }
 
     private fun executeShifts(v: EPATreeNode<T>) {
         // let shift = 0
-        var shift = 0.0
+        var shift = 0.0f
         // let change = 0
-        var change = 0.0
+        var change = 0.0f
 
         // for all children w of v from right to left
         v.children().reversed().forEach { w ->
@@ -230,9 +230,9 @@ class TreeLayout<T : Comparable<T>>(
             // let mod(w) = mod(w) + shift
             modifiers[w] = modifiers[w]!! + shift
             // let change = change + change(w)
-            change = change + changes[w]!!
+            change += changes[w]!!
             // let shift = shift + shift(w) + change
-            shift = shift + shifts[w]!! + change
+            shift += shifts[w]!! + change
         }
     }
 
@@ -254,12 +254,12 @@ class TreeLayout<T : Comparable<T>>(
 
     private fun secondWalk(
         v: EPATreeNode<T>,
-        m: Double,
+        m: Float,
     ) {
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.level.toDouble()
+        val y = v.level.toFloat()
 
         coordinatesByNode[v] = Coordinate(x, y)
 

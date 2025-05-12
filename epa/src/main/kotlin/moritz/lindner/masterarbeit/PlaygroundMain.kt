@@ -59,7 +59,7 @@ fun main() {
     val y =
         measureTime {
             val tree = treeBuildingVisitor.root
-            val layout = TreeLayout<Long>(tree, 1.0)
+            val layout = TreeLayout<Long>(tree, 1.0f)
             layout.build()
             logger.info { "build layout" }
         }
