@@ -1,15 +1,15 @@
-package moritz.lindner.masterarbeit.epa.visitor
+package moritz.lindner.masterarbeit.treelayout.tree
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
 class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     lateinit var root: EPATreeNode<T>
         private set
 
-    private val stateToNode = mutableMapOf<State, EPATreeNode<T>>()
+    private val stateToNode = hashMapOf<State, EPATreeNode<T>>()
     private var currentState: State? = null
 
     override fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
@@ -49,7 +49,7 @@ class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
                 transitionFromParent = transition,
                 parent = parentNode,
                 sequence = extendedPrefixAutomata.sequence(transition.end),
-                level = depth,
+                level = depth + 1,
             )
 
         parentNode.addChild(childNode)

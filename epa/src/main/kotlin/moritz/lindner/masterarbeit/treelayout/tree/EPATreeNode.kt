@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.tree
+package moritz.lindner.masterarbeit.treelayout.tree
 
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -11,7 +11,6 @@ class EPATreeNode<T : Comparable<T>>(
     val sequence: Set<Event<T>>,
     val level: Int,
 ) : Iterable<EPATreeNode<T>> {
-    // todo: check datastructure
     private val children = mutableListOf<EPATreeNode<T>>()
     private var childIndex: Int = -1
 
@@ -20,13 +19,6 @@ class EPATreeNode<T : Comparable<T>>(
             parent?.children?.let { siblings ->
                 val index = siblings.indexOf(this)
                 if (index > 0) siblings[index - 1] else null
-            }
-
-    val rightSibling: EPATreeNode<T>?
-        get() =
-            parent?.children?.let { siblings ->
-                val index = siblings.indexOf(this)
-                if (index >= 0 && index < siblings.size - 1) siblings[index + 1] else null
             }
 
     val leftmostSibling: EPATreeNode<T>?
@@ -48,9 +40,12 @@ class EPATreeNode<T : Comparable<T>>(
             }
         }
 
-    fun addChild(node: EPATreeNode<T>) {
-        children.add(node)
-        node.childIndex = children.size
+    /**
+     * adds the provided node to these nodes children and saves the given index nodeToAdd
+     */
+    fun addChild(nodeToAdd: EPATreeNode<T>) {
+        children.add(nodeToAdd)
+        nodeToAdd.childIndex = children.size
     }
 
     fun leftmostChild(): EPATreeNode<T>? = children.firstOrNull()
@@ -59,8 +54,10 @@ class EPATreeNode<T : Comparable<T>>(
 
     fun hasChildren(): Boolean = children.isNotEmpty()
 
-    // number() gives the index of node w in its parent’s child list.
+    /**
+     *  returns the index of the nodes in its parent’s child list.
+     *  */
     fun number(): Int = childIndex
 
-    fun children(): List<EPATreeNode<T>> = children.toList()
+    fun children(): List<EPATreeNode<T>> = children
 }

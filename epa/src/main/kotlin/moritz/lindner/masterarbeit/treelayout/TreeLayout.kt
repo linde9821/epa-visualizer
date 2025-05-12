@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.treelayout
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
+import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
 
 class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
@@ -57,7 +57,7 @@ class TreeLayout<T : Comparable<T>>(
             if (w != null) {
                 // let prelim(v) = prelim(w) + distance
                 prelim[v] =
-                    prelim[w]!! + distance // here distance can be made variable distance(v, w) a function of the widths of v and w
+                    prelim[w]!! + distance // TODO: here distance can be made variable distance(v, w) a function of the widths of v and w
             }
         } else { // else
             // let defaultAncestor be the leftmost child of v

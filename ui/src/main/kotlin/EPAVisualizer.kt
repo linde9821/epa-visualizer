@@ -86,14 +86,12 @@ fun EPAVisualizer(
                 is EpaConstructed ->
                     EpaView(
                         currentState.extendedPrefixAutomata,
-                        scope,
                         backgroundDispatcher,
                         windowWidth,
                         windowHeight,
-                        {
-                            state = NoFileSelected
-                        },
-                    )
+                    ) {
+                        state = NoFileSelected
+                    }
             }
         }
     }

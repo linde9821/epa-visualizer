@@ -9,8 +9,8 @@ import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.DotExporter
 import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor
-import moritz.lindner.masterarbeit.epa.visitor.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.treelayout.TreeLayout
+import moritz.lindner.masterarbeit.treelayout.tree.TreeBuildingVisitor
 import java.io.File
 import kotlin.time.measureTime
 

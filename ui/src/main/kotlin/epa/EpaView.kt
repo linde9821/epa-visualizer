@@ -30,20 +30,18 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.treelayout.Coordinate
 import moritz.lindner.masterarbeit.treelayout.TreeLayout
+import moritz.lindner.masterarbeit.treelayout.tree.TreeBuildingVisitor
 
 @Composable
 fun RadialTidyTree(
     epa: ExtendedPrefixAutomata<Long>,
-    scope: CoroutineScope,
     dispatcher: CoroutineDispatcher,
     windowWidth: Int,
     windowHeight: Int,
@@ -177,7 +175,6 @@ fun DrawScope.drawNode(
 @Composable
 fun EpaView(
     epa: ExtendedPrefixAutomata<Long>,
-    scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     windowWidth: Int,
     windowHeight: Int,
@@ -200,7 +197,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTree(epa, scope, backgroundDispatcher, windowWidth, windowHeight)
+                RadialTidyTree(epa, backgroundDispatcher, windowWidth, windowHeight)
             }
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")

@@ -19,7 +19,9 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
-
+    implementation(libs.bundles.log4j)
+    implementation(libs.logging)
+    implementation(compose.materialIconsExtended)
     implementation(project(":epa"))
 }
 
