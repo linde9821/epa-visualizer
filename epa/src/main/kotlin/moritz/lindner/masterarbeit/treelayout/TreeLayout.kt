@@ -73,8 +73,7 @@ class TreeLayout<T : Comparable<T>>(
                 firstWalk(w)
 
                 // Apportion(w,defaultAncestor)
-                val newDefaultAncestor = apportion(w, defaultAncestor)
-                if (newDefaultAncestor != null) {
+                apportion(w, defaultAncestor)?.let { newDefaultAncestor ->
                     defaultAncestor = newDefaultAncestor
                 }
             }
