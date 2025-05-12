@@ -9,9 +9,11 @@ class EPATreeNode<T : Comparable<T>>(
     val transitionFromParent: Transition?, // is null for root state
     val parent: EPATreeNode<T>? = null,
     val sequence: Set<Event<T>>,
+    val level: Int,
 ) : Iterable<EPATreeNode<T>> {
     // todo: check datastructure
-    val children = mutableListOf<EPATreeNode<T>>()
+    private val children = mutableListOf<EPATreeNode<T>>()
+    private var childIndex: Int = -1
 
     val leftSibling: EPATreeNode<T>?
         get() =
@@ -46,7 +48,19 @@ class EPATreeNode<T : Comparable<T>>(
             }
         }
 
-    fun leftmostChild(): EPATreeNode<T>? = children.first()
+    fun addChild(node: EPATreeNode<T>) {
+        children.add(node)
+        node.childIndex = children.size
+    }
 
-    fun rightmostChild(): EPATreeNode<T>? = children.last()
+    fun leftmostChild(): EPATreeNode<T>? = children.firstOrNull()
+
+    fun rightmostChild(): EPATreeNode<T>? = children.lastOrNull()
+
+    fun hasChildren(): Boolean = children.isNotEmpty()
+
+    // number() gives the index of node w in its parent’s child list.
+    fun number(): Int = childIndex
+
+    fun children(): List<EPATreeNode<T>> = children.toList()
 }

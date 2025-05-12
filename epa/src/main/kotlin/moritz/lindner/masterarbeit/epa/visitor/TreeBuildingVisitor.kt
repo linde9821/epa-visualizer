@@ -19,6 +19,7 @@ class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
                 transitionFromParent = null,
                 parent = null,
                 sequence = extendedPrefixAutomata.sequence(State.Root),
+                level = 0,
             )
         root = rootNode
         stateToNode[State.Root] = rootNode
@@ -48,9 +49,10 @@ class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
                 transitionFromParent = transition,
                 parent = parentNode,
                 sequence = extendedPrefixAutomata.sequence(transition.end),
+                level = depth,
             )
 
-        parentNode.children.add(childNode)
+        parentNode.addChild(childNode)
         stateToNode[transition.end] = childNode
     }
 }
