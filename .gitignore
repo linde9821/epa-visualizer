@@ -421,3 +421,4 @@ gradle-app.setting
 # Ignore Gradle build output directory
 build
 /.kotlin/
+ui/.run/desktop.run.xml

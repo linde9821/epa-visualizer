@@ -1,4 +1,4 @@
-package epa
+package moritz.lindner.masterarbeit.treelayout
 
 import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
 
@@ -22,8 +22,10 @@ class TreeLayout<T : Comparable<T>>(
             threads[v] = null
             // let ancestor (v) = v
             ancestor[v] = v
-        }
 
+            shifts[v] = 0.0
+            changes[v] = 0.0
+        }
         // let r be the root of T
         val r = tree
 
@@ -101,8 +103,8 @@ class TreeLayout<T : Comparable<T>>(
             var soPlus = modifiers[voPlus]!!
             // let siMinus = mod(viMinus)
             var siMinus = modifiers[viMinus]!!
-            // let soMinus = mod(voPLus)
-            var soMinus = modifiers[voPlus]!!
+            // let soMinus = mod(voMinus)
+            var soMinus = modifiers[voMinus]!!
 
             // while NextRight(viMinus) != 0 and NextLeft(viPlus) != 0
             while (nextRight(viMinus) != null && nextLeft(viPlus) != null) {
@@ -242,7 +244,7 @@ class TreeLayout<T : Comparable<T>>(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.level
+        val y = v.level.toDouble()
         // for all children w of v
         v.children().forEach { w ->
             // SecondWalk(w, m + mod(v))

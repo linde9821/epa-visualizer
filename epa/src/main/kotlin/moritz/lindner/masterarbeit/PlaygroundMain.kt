@@ -10,6 +10,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.DotExporter
 import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.visitor.TreeBuildingVisitor
+import moritz.lindner.masterarbeit.treelayout.TreeLayout
 import java.io.File
 
 fun main() {
@@ -24,7 +25,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = challenge2018
+    val (file, mapper) = sample
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -52,6 +53,10 @@ fun main() {
         AutomataVisitorProgressBar(treeBuildingVisitor, "tree"),
     )
     val tree = treeBuildingVisitor.root
+
+    val layout = TreeLayout<Long>(tree, 1.0)
+    layout.build()
+    logger.info { "build layout" }
 
 //    epa.acceptBreadthFirst(
 //        PrintingVisitor(
