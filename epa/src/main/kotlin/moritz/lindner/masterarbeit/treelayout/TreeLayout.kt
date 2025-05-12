@@ -1,11 +1,19 @@
 package moritz.lindner.masterarbeit.treelayout
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.tree.EPATreeNode
+
+data class Coordinate(
+    val x: Double,
+    val y: Double,
+)
 
 class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
     private val distance: Double,
 ) {
+    private val logger = KotlinLogging.logger {}
+
     private val threads = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>?>()
     private val modifiers = mutableMapOf<EPATreeNode<T>, Double>()
     private val ancestor = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>>()
@@ -14,7 +22,11 @@ class TreeLayout<T : Comparable<T>>(
     private val shifts = mutableMapOf<EPATreeNode<T>, Double>()
     private val changes = mutableMapOf<EPATreeNode<T>, Double>()
 
+    val coordinatesByNode = hashMapOf<EPATreeNode<T>, Coordinate>()
+
     fun build() {
+        logger.info { "Building tree layout" }
+        logger.info { "initializing" }
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
@@ -30,9 +42,12 @@ class TreeLayout<T : Comparable<T>>(
         val r = tree
 
         // FirstWalk(r)
+        logger.info { "first walk" }
         firstWalk(r)
+        logger.info { "second walk" }
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
+        logger.info { "finished layout construction" }
     }
 
     private fun firstWalk(v: EPATreeNode<T>) {
@@ -244,7 +259,10 @@ class TreeLayout<T : Comparable<T>>(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.level.toDouble()
+        val y = v.level.toDouble() * distance
+
+        coordinatesByNode[v] = Coordinate(x, y)
+
         // for all children w of v
         v.children().forEach { w ->
             // SecondWalk(w, m + mod(v))
