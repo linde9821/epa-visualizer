@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.treelayout.tree
+package moritz.lindner.masterarbeit.drawing.tree
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -13,14 +13,7 @@ class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private var currentState: State? = null
 
     override fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
-        val rootNode =
-            EPATreeNode<T>(
-                state = State.Root,
-                transitionFromParent = null,
-                parent = null,
-                sequence = extendedPrefixAutomata.sequence(State.Root),
-                level = 0,
-            )
+        val rootNode = EPATreeNode<T>(State.Root, null, 0)
         root = rootNode
         stateToNode[State.Root] = rootNode
         currentState = State.Root
@@ -46,10 +39,8 @@ class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         val childNode =
             EPATreeNode(
                 state = transition.end,
-                transitionFromParent = transition,
                 parent = parentNode,
-                sequence = extendedPrefixAutomata.sequence(transition.end),
-                level = depth + 1,
+                depth = depth + 1,
             )
 
         parentNode.addChild(childNode)

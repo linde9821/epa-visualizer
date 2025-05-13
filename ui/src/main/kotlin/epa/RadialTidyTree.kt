@@ -20,15 +20,15 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
+import moritz.lindner.masterarbeit.drawing.Coordinate
+import moritz.lindner.masterarbeit.drawing.layout.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.treelayout.Coordinate
-import moritz.lindner.masterarbeit.treelayout.TreeLayout
 
 @Composable
 fun RadialTidyTree(
     epa: ExtendedPrefixAutomata<Long>,
-    treeLayout: TreeLayout<Long>,
+    treeLayout: WalkerTreeLayout<Long>,
 ) {
     var zoom by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
@@ -71,14 +71,14 @@ fun RadialTidyTree(
         }) {
             val center = Offset(size.width / 2f, size.height / 2f)
 
-            (0..treeLayout.maxDepth).forEach { depth ->
-                drawCircle(
-                    color = Color.Gray,
-                    radius = depth * treeLayout.RADIUS_INCREMENT,
-                    center = Offset(0f, 0.0f),
-                    style = Stroke(width = 2f), // Adjust the stroke width as needed
-                )
-            }
+//            (0..treeLayout.max).forEach { depth ->
+//                drawCircle(
+//                    color = Color.Gray,
+//                    radius = depth * treeLayout.depthDistance,
+//                    center = Offset(0f, 0.0f),
+//                    style = Stroke(width = 2f), // Adjust the stroke width as needed
+//                )
+//            }
 
             drawCircle(
                 color = Color.Red,
@@ -88,12 +88,12 @@ fun RadialTidyTree(
 
             epa.states
                 .forEach { state ->
-                    val coordinate = treeLayout.getCoordinates(state)
+                    val coordinate = treeLayout.getCoordinate(state)
 
                     drawNode(state, textMeasurer, coordinate, center, epa)
                     when (state) {
                         is State.PrefixState -> {
-                            val parentCoordinate = treeLayout.getCoordinates(state.from)
+                            val parentCoordinate = treeLayout.getCoordinate(state.from)
 
                             drawLine(
                                 color = Color.Black,

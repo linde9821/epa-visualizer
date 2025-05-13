@@ -1,12 +1,17 @@
 package moritz.lindner.masterarbeit.epa.domain
 
-sealed class State {
-    data object Root : State()
+sealed class State(
+    val name: String,
+) {
+    data object Root : State("root") {
+        override fun toString() = name
+    }
 
-    data class PrefixState(
+    class PrefixState(
+        name: String,
         val from: State,
         val via: Activity,
-    ) : State() {
+    ) : State(name) {
         override fun toString(): String = "$from -> $via"
     }
 }

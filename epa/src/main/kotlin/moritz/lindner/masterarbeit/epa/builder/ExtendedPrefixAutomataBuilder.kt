@@ -90,7 +90,12 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
 
                 val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
 
-                val newState = State.PrefixState(predecessorState, event.activity)
+                val newState =
+                    State.PrefixState(
+                        name = event.activity.name,
+                        from = predecessorState,
+                        via = event.activity,
+                    )
                 states.add(newState)
                 val newTransition = Transition(predecessorState, event.activity, newState)
                 transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)] = newTransition

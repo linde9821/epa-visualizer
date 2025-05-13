@@ -23,9 +23,9 @@ import epa.EpaConstruction
 import epa.EpaView
 import epa.FileSelection
 import kotlinx.coroutines.asCoroutineDispatcher
+import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
-import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
 import java.io.File
 import java.util.concurrent.Executors
 

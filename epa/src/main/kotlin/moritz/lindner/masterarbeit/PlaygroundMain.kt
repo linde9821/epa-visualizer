@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
@@ -9,10 +10,7 @@ import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.DotExporter
 import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor
-import moritz.lindner.masterarbeit.treelayout.TreeLayout
-import moritz.lindner.masterarbeit.treelayout.tree.TreeBuildingVisitor
 import java.io.File
-import kotlin.time.measureTime
 
 fun main() {
     val logger = KotlinLogging.logger {}
@@ -49,23 +47,6 @@ fun main() {
     epa.acceptDepthFirst(statisticsVisitor)
     logger.info { visitor1.report() }
     val treeBuildingVisitor = TreeBuildingVisitor<Long>()
-
-    val x =
-        measureTime {
-            epa.acceptDepthFirst(
-                AutomataVisitorProgressBar(treeBuildingVisitor, "tree"),
-            )
-        }
-    val y =
-        measureTime {
-            val tree = treeBuildingVisitor.root
-            val layout = TreeLayout<Long>(tree, 1.0f, 1.0f)
-            layout.build()
-            logger.info { "build layout" }
-        }
-
-    logger.info { "Total tree build time $x" }
-    logger.info { "Total layouttime $y" }
 
 //    epa.acceptBreadthFirst(
 //        PrintingVisitor(

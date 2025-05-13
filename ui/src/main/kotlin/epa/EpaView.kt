@@ -17,8 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
 
 @Composable
 fun EpaView(

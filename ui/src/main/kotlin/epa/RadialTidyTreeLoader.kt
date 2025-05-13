@@ -9,9 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import moritz.lindner.masterarbeit.drawing.layout.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.drawing.layout.WalkerTreeLayout
+import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.treelayout.TreeLayout
-import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
 
 @Composable
 fun RadialTidyTreeLoader(
@@ -19,15 +20,15 @@ fun RadialTidyTreeLoader(
     tree: EPATreeNode<Long>,
     dispatcher: CoroutineDispatcher,
 ) {
-    var treeLayout: TreeLayout<Long>? by remember { mutableStateOf(null) }
+    var treeLayout: WalkerTreeLayout<Long>? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(epa) {
         withContext(dispatcher) {
             treeLayout = null
 
-            treeLayout = TreeLayout(tree, 10.0f, 600.0f)
-            treeLayout!!.build()
+            treeLayout = RadialWalkerTreeLayout(100.0f, 80.0f)
+            treeLayout!!.build(tree)
             isLoading = false
         }
     }
