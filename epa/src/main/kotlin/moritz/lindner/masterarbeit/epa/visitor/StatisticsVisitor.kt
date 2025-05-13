@@ -9,7 +9,7 @@ import kotlin.math.max
 
 class StatisticsVisitor<T : Comparable<T>>(
     private val extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
-): AutomataVisitor<T> {
+) : AutomataVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
     private val visitedTransitions = mutableSetOf<Transition>()
     private var eventCount = 0
@@ -19,6 +19,7 @@ class StatisticsVisitor<T : Comparable<T>>(
     private val prefixLengths = mutableListOf<Int>()
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         state: State,
         depth: Int,
     ) {
@@ -34,6 +35,7 @@ class StatisticsVisitor<T : Comparable<T>>(
     }
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         transition: Transition,
         depth: Int,
     ) {
@@ -41,6 +43,7 @@ class StatisticsVisitor<T : Comparable<T>>(
     }
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         event: Event<T>,
         depth: Int,
     ) {

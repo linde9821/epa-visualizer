@@ -13,6 +13,7 @@ class DotExporter<T : Comparable<T>>(
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         state: State,
         depth: Int,
     ) {
@@ -31,6 +32,7 @@ class DotExporter<T : Comparable<T>>(
     }
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         transition: Transition,
         depth: Int,
     ) {
@@ -38,6 +40,7 @@ class DotExporter<T : Comparable<T>>(
     }
 
     override fun visit(
+        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         event: Event<T>,
         depth: Int,
     ) {

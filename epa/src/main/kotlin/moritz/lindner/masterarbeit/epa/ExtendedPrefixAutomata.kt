@@ -9,7 +9,8 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 /**
  * Not thread safe to visit
  */
-data class ExtendedPrefixAutomata<T : Comparable<T>>(
+// TODO: specify collection implementations
+class ExtendedPrefixAutomata<T : Comparable<T>>(
     val states: Set<State>,
     val activities: Set<Activity>,
     val transitions: Set<Transition>,
@@ -17,7 +18,7 @@ data class ExtendedPrefixAutomata<T : Comparable<T>>(
     private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
     // for improved visitor speed
-    private val outgoingTransitionsByState = transitions.groupBy { it.start }
+    val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
 
     fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 
@@ -27,12 +28,16 @@ data class ExtendedPrefixAutomata<T : Comparable<T>>(
 
     fun acceptDepthFirst(visitor: AutomataVisitor<T>) {
         visitedStates = 0
+        visitor.onStart(this)
         visitDepthFirst(visitor, State.Root)
+        visitor.onEnd(this)
     }
 
     fun acceptBreadthFirst(visitor: AutomataVisitor<T>) {
         visitedStates = 0
+        visitor.onStart(this)
         visitBreadthFirst(visitor)
+        visitor.onEnd(this)
     }
 
     private fun visitBreadthFirst(visitor: AutomataVisitor<T>) {
@@ -49,17 +54,17 @@ data class ExtendedPrefixAutomata<T : Comparable<T>>(
             val (state, depth) = deque.removeFirst()
             visitor.onProgress(visitedStates, states.size.toLong())
 
-            visitor.visit(state, depth)
+            visitor.visit(this, state, depth)
 
             val seq = sequence(state)
             val transitions = outgoingTransitionsByState[state] ?: emptyList()
 
             seq.forEach { event ->
-                visitor.visit(event, depth)
+                visitor.visit(this, event, depth)
             }
 
             transitions.forEach { transition ->
-                visitor.visit(transition, depth)
+                visitor.visit(this, transition, depth)
                 deque.addLast(Inner(transition.end, depth + 1))
             }
         }
@@ -70,17 +75,17 @@ data class ExtendedPrefixAutomata<T : Comparable<T>>(
         state: State,
         depth: Int = 0,
     ) {
-        visitor.visit(state, depth)
+        visitor.visit(this, state, depth)
         visitedStates++
         visitor.onProgress(visitedStates, states.size.toLong())
 
         sequence(state).forEach { event ->
-            visitor.visit(event, depth)
+            visitor.visit(this, event, depth)
         }
 
         outgoingTransitionsByState[state]
             ?.onEach { transition ->
-                visitor.visit(transition, depth)
+                visitor.visit(this, transition, depth)
             }?.forEach { transition ->
                 visitDepthFirst(
                     visitor = visitor,

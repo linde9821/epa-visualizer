@@ -2,43 +2,29 @@ digraph EPA {
     rankdir=LR;
     // states (nodes)
     "-955356007" [label="Root"];
-    "278783129" [label="Receive Request Case001\nReceive Request Case002\nReceive Request Case003\nReceive Request Case004\nReceive Request Case005\nReceive Request Case006"];
-    "669727515" [label="Assign Agent Case001\nAssign Agent Case002\nAssign Agent Case003\nAssign Agent Case004\nAssign Agent Case005\nAssign Agent Case006"];
-    "-1600941219" [label="Investigate Issue Case001\nInvestigate Issue Case002\nInvestigate Issue Case003\nInvestigate Issue Case004\nInvestigate Issue Case005\nInvestigate Issue Case006"];
-    "-1705573781" [label="Request More Info Case003\nRequest More Info Case005\nRequest More Info Case006"];
-    "-1999942912" [label="Receive Info Case003\nReceive Info Case005\nReceive Info Case006"];
-    "1452634725" [label="Resolve Issue Case003"];
-    "1954263763" [label="Close Case Case003"];
-    "1538621464" [label="Investigate Issue Case005\nInvestigate Issue Case006"];
-    "1131588880" [label="Request More Info Case005\nRequest More Info Case006"];
-    "52753659" [label="Receive Info Case005\nReceive Info Case006"];
-    "747705725" [label="Investigate Issue Case005\nInvestigate Issue Case006"];
-    "730396552" [label="Resolve Issue Case005\nResolve Issue Case006"];
-    "1039716880" [label="Close Case Case005\nClose Case Case006"];
-    "936785320" [label="Resolve Issue Case001"];
-    "-1152165904" [label="Close Case Case001"];
-    "1488238914" [label="Escalate to Supervisor Case002"];
-    "-2082878365" [label="Resolve Issue Case002"];
-    "-272459627" [label="Close Case Case002"];
+    "448734952" [label="a case1\na case2\na case3"];
+    "1025881722" [label="b case1\nb case2\nb case3"];
+    "1737562409" [label="c case1\nc case2\nc case3"];
+    "-1970140069" [label="d case1\nd case3"];
+    "-944799894" [label="e case1"];
+    "-944799895" [label="d case3"];
+    "775974428" [label="e case3"];
+    "-1970140071" [label="b case2"];
+    "-944799958" [label="c case2"];
+    "775972474" [label="d case2"];
+    "-1714656981" [label="e case2"];
     // transitions
-    "-955356007" -> "278783129" [label="Receive Request"];
-    "278783129" -> "669727515" [label="Assign Agent"];
-    "669727515" -> "-1600941219" [label="Investigate Issue"];
-    "-1600941219" -> "-1705573781" [label="Request More Info"];
-    "-1600941219" -> "936785320" [label="Resolve Issue"];
-    "-1600941219" -> "1488238914" [label="Escalate to Supervisor"];
-    "-1705573781" -> "-1999942912" [label="Receive Info"];
-    "-1999942912" -> "1452634725" [label="Resolve Issue"];
-    "-1999942912" -> "1538621464" [label="Investigate Issue"];
-    "1452634725" -> "1954263763" [label="Close Case"];
-    "1538621464" -> "1131588880" [label="Request More Info"];
-    "1131588880" -> "52753659" [label="Receive Info"];
-    "52753659" -> "747705725" [label="Investigate Issue"];
-    "747705725" -> "730396552" [label="Resolve Issue"];
-    "730396552" -> "1039716880" [label="Close Case"];
-    "936785320" -> "-1152165904" [label="Close Case"];
-    "1488238914" -> "-2082878365" [label="Resolve Issue"];
-    "-2082878365" -> "-272459627" [label="Close Case"];
+    "-955356007" -> "448734952" [label="a"];
+    "448734952" -> "1025881722" [label="b"];
+    "1025881722" -> "1737562409" [label="c"];
+    "1737562409" -> "-1970140069" [label="d"];
+    "1737562409" -> "-1970140071" [label="b"];
+    "-1970140069" -> "-944799894" [label="e"];
+    "-1970140069" -> "-944799895" [label="d"];
+    "-944799895" -> "775974428" [label="e"];
+    "-1970140071" -> "-944799958" [label="c"];
+    "-944799958" -> "775972474" [label="d"];
+    "775972474" -> "-1714656981" [label="e"];
     // partitions
     subgraph cluster_partition0 {
         label = "Partition 0";
@@ -48,35 +34,24 @@ digraph EPA {
     subgraph cluster_partition1 {
         label = "Partition 1";
         color=black;
-        "278783129"
-        "669727515"
-        "-1600941219"
-        "936785320"
-        "-1152165904"
+        "448734952"
+        "1025881722"
+        "1737562409"
+        "-1970140069"
+        "-944799894"
     }
     subgraph cluster_partition3 {
         label = "Partition 3";
         color=black;
-        "-1705573781"
-        "-1999942912"
-        "1452634725"
-        "1954263763"
-    }
-    subgraph cluster_partition4 {
-        label = "Partition 4";
-        color=black;
-        "1538621464"
-        "1131588880"
-        "52753659"
-        "747705725"
-        "730396552"
-        "1039716880"
+        "-944799895"
+        "775974428"
     }
     subgraph cluster_partition2 {
         label = "Partition 2";
         color=black;
-        "1488238914"
-        "-2082878365"
-        "-272459627"
+        "-1970140071"
+        "-944799958"
+        "775972474"
+        "-1714656981"
     }
 }

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -19,13 +19,15 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
-
+    implementation(libs.bundles.log4j)
+    implementation(libs.logging)
+    implementation(compose.materialIconsExtended)
     implementation(project(":epa"))
 }
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "EPAVisualizerKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

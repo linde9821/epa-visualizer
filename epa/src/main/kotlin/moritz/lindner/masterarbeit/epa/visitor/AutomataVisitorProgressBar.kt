@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.visitor
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import me.tongfei.progressbar.ConsoleProgressBarConsumer
 import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
@@ -10,8 +9,7 @@ import me.tongfei.progressbar.ProgressBarStyle
 class AutomataVisitorProgressBar<T : Comparable<T>>(
     private val visitor: AutomataVisitor<T>,
     private val taskName: String,
-) : AutomataVisitor<T> by visitor{
-
+) : AutomataVisitor<T> by visitor {
     private var progressBar: ProgressBar =
         ProgressBarBuilder()
             .apply {

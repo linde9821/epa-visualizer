@@ -12,10 +12,12 @@ import androidx.compose.ui.window.AwtWindow
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
+import java.io.FilenameFilter
 
 @Composable
 fun FileSelection(onFileSelected: (file: File) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
+
     Column {
         Button(
             onClick = {
@@ -26,7 +28,7 @@ fun FileSelection(onFileSelected: (file: File) -> Unit) {
         }
 
         if (showDialog) {
-            FileDialog() { path ->
+            FileDialog { path ->
                 val file = File(path)
                 onFileSelected(file)
             }
@@ -37,17 +39,24 @@ fun FileSelection(onFileSelected: (file: File) -> Unit) {
 @Composable
 private fun FileDialog(
     parent: Frame? = null,
-    onCloseRequest: (result: String) -> Unit
+    onCloseRequest: (result: String) -> Unit,
 ) = AwtWindow(
     create = {
         object : FileDialog(parent, "Choose a file", LOAD) {
+            override fun isMultipleMode(): Boolean = false
+
+            override fun getFilenameFilter(): FilenameFilter =
+                FilenameFilter { _, name ->
+                    name.endsWith("xes") || name.endsWith("gz")
+                }
+
             override fun setVisible(value: Boolean) {
                 super.setVisible(value)
-                if (value) {
-                    onCloseRequest(this.directory + file)
+                if (value && directory != null && file != null) {
+                    onCloseRequest(directory + file)
                 }
             }
         }
     },
-    dispose = FileDialog::dispose
+    dispose = FileDialog::dispose,
 )

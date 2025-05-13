@@ -7,44 +7,57 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
 
 @Composable
 fun EpaView(
     epa: ExtendedPrefixAutomata<Long>,
-    scope: CoroutineScope,
+    tree: EPATreeNode<Long>,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
-    Row() {
+    var value by remember { mutableStateOf(10.0f) }
+
+    Row {
         Button(
             onClick = { onClose() },
         ) {
             Text("Close")
         }
+
+        Slider(
+            value = value,
+            onValueChange = { value = it },
+            valueRange = 10.0f..1000.0f,
+        )
     }
     Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
         Column(
-            modifier = Modifier.background(Color.Red).fillMaxWidth(0.2f).fillMaxHeight()
+            modifier = Modifier.background(Color.Red).fillMaxWidth(0.2f).fillMaxHeight(),
         ) {
             Text("UI Component Filter")
         }
         Column(
-            modifier = Modifier.background(Color.Blue).fillMaxSize()
+            modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
-            Row(modifier = Modifier.background(Color.Cyan).fillMaxWidth()) {
-                Text("UI Component EPA")
+            Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
+                RadialTidyTreeLoader(epa, tree, backgroundDispatcher)
             }
+            // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")
             }
         }
     }
-
 }
