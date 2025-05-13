@@ -46,7 +46,7 @@ private fun FileDialog(
             override fun isMultipleMode(): Boolean = false
 
             override fun getFilenameFilter(): FilenameFilter =
-                FilenameFilter { dir, name ->
+                FilenameFilter { _, name ->
                     name.endsWith("xes") || name.endsWith("gz")
                 }
 

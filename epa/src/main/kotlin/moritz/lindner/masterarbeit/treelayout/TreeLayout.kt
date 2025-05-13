@@ -3,10 +3,16 @@ package moritz.lindner.masterarbeit.treelayout
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sin
 
 class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
     private val distance: Float,
+    private val distanceY: Float,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -18,7 +24,11 @@ class TreeLayout<T : Comparable<T>>(
     private val shifts = mutableMapOf<EPATreeNode<T>, Float>()
     private val changes = mutableMapOf<EPATreeNode<T>, Float>()
 
-    private val coordinatesByState = hashMapOf<State, Coordinate>()
+    private val xMinByDepth = hashMapOf<Int, Float>()
+    private val xMaxByDepth = hashMapOf<Int, Float>()
+
+    private val coordinatesByNode = hashMapOf<EPATreeNode<T>, Coordinate>()
+    private val rotatedCoordinatesByState = hashMapOf<State, Coordinate>()
 
     fun build() {
         logger.info { "Building tree layout" }
@@ -43,7 +53,45 @@ class TreeLayout<T : Comparable<T>>(
         logger.info { "second walk" }
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
+
+        logger.info { "polar coordinates" }
+        polarCoordinates()
         logger.info { "finished layout construction" }
+    }
+
+    private fun polarCoordinates() {
+        assignAngles(
+            node = tree,
+            state = State.Root,
+            startAngle = 0.0,
+            endAngle = 2 * PI,
+            depth = 0,
+        )
+    }
+
+    fun assignAngles(
+        node: EPATreeNode<T>,
+        startAngle: Double,
+        endAngle: Double,
+        depth: Int,
+        state: State,
+    ) {
+        val r = depth * distanceY
+        val theta = (startAngle + endAngle) / 2
+        val newX = 0 + r * cos(theta)
+        val newY = 0 + r * sin(theta)
+
+        rotatedCoordinatesByState[state] = Coordinate(newX.toFloat(), newY.toFloat(), depth)
+
+        val children = node.children()
+        if (children.isEmpty()) return
+
+        val wedge = (endAngle - startAngle) / children.size
+        for ((i, child) in children.withIndex()) {
+            val childStart = startAngle + i * wedge
+            val childEnd = childStart + wedge
+            assignAngles(child, childStart, childEnd, depth + 1, child.state)
+        }
     }
 
     private fun firstWalk(v: EPATreeNode<T>) {
@@ -256,7 +304,10 @@ class TreeLayout<T : Comparable<T>>(
         // let y(v) be the level of v
         val y = v.level.toFloat()
 
-        coordinatesByState[v.state] = Coordinate(x, y)
+        xMaxByDepth.merge(v.level, x, ::max)
+        xMinByDepth.merge(v.level, x, ::min)
+
+        coordinatesByNode[v] = Coordinate(x, y, v.level)
 
         // for all children w of v
         v.children().forEach { w ->
@@ -265,5 +316,5 @@ class TreeLayout<T : Comparable<T>>(
         }
     }
 
-    fun getCoordinates(state: State): Coordinate = coordinatesByState[state]!!
+    fun getCoordinates(state: State): Coordinate = rotatedCoordinatesByState[state]!!
 }

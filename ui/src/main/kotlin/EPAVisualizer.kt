@@ -25,6 +25,7 @@ import epa.FileSelection
 import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -41,14 +42,12 @@ sealed class ApplicationState {
 
     data class EpaConstructed(
         val extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
+        val tree: EPATreeNode<Long>,
     ) : ApplicationState()
 }
 
 @Composable
-fun EPAVisualizer(
-    windowWidth: Int,
-    windowHeight: Int,
-) {
+fun EPAVisualizer() {
     val backgroundDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     var state: ApplicationState by remember { mutableStateOf(NoFileSelected) }
     val scope = rememberCoroutineScope()
@@ -78,17 +77,16 @@ fun EPAVisualizer(
                 }
 
                 is EpaConstructionRunning -> {
-                    ConstructEpa(scope, backgroundDispatcher, currentState.builder) { epa ->
-                        state = EpaConstructed(epa)
+                    ConstructEpa(scope, backgroundDispatcher, currentState.builder) { epa, tree ->
+                        state = EpaConstructed(epa, tree)
                     }
                 }
 
                 is EpaConstructed ->
                     EpaView(
                         currentState.extendedPrefixAutomata,
+                        currentState.tree,
                         backgroundDispatcher,
-                        windowWidth,
-                        windowHeight,
                     ) {
                         state = NoFileSelected
                     }
@@ -108,6 +106,6 @@ fun main() =
                 ),
             title = "EPA Visualizer",
         ) {
-            EPAVisualizer(this.window.width, this.window.height)
+            EPAVisualizer()
         }
     }
