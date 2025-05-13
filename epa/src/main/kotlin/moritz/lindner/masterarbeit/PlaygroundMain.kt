@@ -26,7 +26,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = sample
+    val (file, mapper) = loops
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -59,7 +59,7 @@ fun main() {
     val y =
         measureTime {
             val tree = treeBuildingVisitor.root
-            val layout = TreeLayout<Long>(tree, 1.0f, 2f)
+            val layout = TreeLayout<Long>(tree, 1.0f, 1.0f)
             layout.build()
             logger.info { "build layout" }
         }

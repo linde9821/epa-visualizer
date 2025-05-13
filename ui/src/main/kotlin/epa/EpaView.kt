@@ -7,8 +7,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -22,12 +27,20 @@ fun EpaView(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
+    var value by remember { mutableStateOf(10.0f) }
+
     Row {
         Button(
             onClick = { onClose() },
         ) {
             Text("Close")
         }
+
+        Slider(
+            value = value,
+            onValueChange = { value = it },
+            valueRange = 10.0f..1000.0f,
+        )
     }
     Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
         Column(

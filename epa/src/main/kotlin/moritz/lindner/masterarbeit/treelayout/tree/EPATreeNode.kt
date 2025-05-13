@@ -45,7 +45,7 @@ class EPATreeNode<T : Comparable<T>>(
      */
     fun addChild(nodeToAdd: EPATreeNode<T>) {
         children.add(nodeToAdd)
-        nodeToAdd.childIndex = children.size
+        nodeToAdd.childIndex = children.size - 1
     }
 
     fun leftmostChild(): EPATreeNode<T>? = children.firstOrNull()

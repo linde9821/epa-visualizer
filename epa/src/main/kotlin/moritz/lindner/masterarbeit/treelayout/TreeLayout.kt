@@ -12,7 +12,7 @@ import kotlin.math.sin
 class TreeLayout<T : Comparable<T>>(
     private val tree: EPATreeNode<T>,
     private val distance: Float,
-    private val distanceY: Float,
+    val RADIUS_INCREMENT: Float,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -24,11 +24,11 @@ class TreeLayout<T : Comparable<T>>(
     private val shifts = mutableMapOf<EPATreeNode<T>, Float>()
     private val changes = mutableMapOf<EPATreeNode<T>, Float>()
 
-    private val xMinByDepth = hashMapOf<Int, Float>()
-    private val xMaxByDepth = hashMapOf<Int, Float>()
+    private var xMin = Float.MAX_VALUE
+    private var xMax = Float.MIN_VALUE
+    var maxDepth = Int.MIN_VALUE
 
-    private val coordinatesByNode = hashMapOf<EPATreeNode<T>, Coordinate>()
-    private val rotatedCoordinatesByState = hashMapOf<State, Coordinate>()
+    private val coordinatesByState = hashMapOf<State, Coordinate>()
 
     fun build() {
         logger.info { "Building tree layout" }
@@ -54,43 +54,25 @@ class TreeLayout<T : Comparable<T>>(
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
+        assignAngles()
+
         logger.info { "polar coordinates" }
-        polarCoordinates()
         logger.info { "finished layout construction" }
     }
 
-    private fun polarCoordinates() {
-        assignAngles(
-            node = tree,
-            state = State.Root,
-            startAngle = 0.0,
-            endAngle = 2 * PI,
-            depth = 0,
-        )
-    }
+    private fun assignAngles() {
+        val margin = 0.1 * PI
 
-    fun assignAngles(
-        node: EPATreeNode<T>,
-        startAngle: Double,
-        endAngle: Double,
-        depth: Int,
-        state: State,
-    ) {
-        val r = depth * distanceY
-        val theta = (startAngle + endAngle) / 2
-        val newX = 0 + r * cos(theta)
-        val newY = 0 + r * sin(theta)
+        coordinatesByState.forEach { (_, coord) ->
+            val adjustedX = (coord.x - xMin) / (xMax - xMin)
 
-        rotatedCoordinatesByState[state] = Coordinate(newX.toFloat(), newY.toFloat(), depth)
-
-        val children = node.children()
-        if (children.isEmpty()) return
-
-        val wedge = (endAngle - startAngle) / children.size
-        for ((i, child) in children.withIndex()) {
-            val childStart = startAngle + i * wedge
-            val childEnd = childStart + wedge
-            assignAngles(child, childStart, childEnd, depth + 1, child.state)
+            val radius = coord.depth * RADIUS_INCREMENT
+            val usableAngle = 2 * PI * (1 - margin)
+            val angleOffset = PI * margin
+            val angle = angleOffset + adjustedX * usableAngle
+            coord.angle = angle.toFloat()
+            coord.x = radius * cos(angle).toFloat()
+            coord.y = radius * sin(angle).toFloat()
         }
     }
 
@@ -104,8 +86,7 @@ class TreeLayout<T : Comparable<T>>(
             val w = v.leftSibling
             if (w != null) {
                 // let prelim(v) = prelim(w) + distance
-                prelim[v] =
-                    prelim[w]!! + distance // TODO: here distance can be made variable distance(v, w) a function of the widths of v and w
+                prelim[v] = prelim[w]!! + adjustedDistance(v, w)
             }
         } else { // else
             // let defaultAncestor be the leftmost child of v
@@ -132,7 +113,7 @@ class TreeLayout<T : Comparable<T>>(
             val w = v.leftSibling
             if (w != null) {
                 // let prelim(v) = prelim(w) + distance
-                prelim[v] = prelim[w]!! + distance
+                prelim[v] = prelim[w]!! + adjustedDistance(v, w)
                 // let mod(v) = prelim(v) − midpoint
                 modifiers[v] = prelim[v]!! - midpoint
             } else { // else
@@ -177,7 +158,8 @@ class TreeLayout<T : Comparable<T>>(
                 // let ancestor(voPlus) = v
                 ancestor[voPlus] = v
                 // let shift = (prelim(viMinus) + siMinus) - (prelim(viPlus) + siPlus) + distance
-                val shift = (prelim[viMinus]!! + siMinus) - (prelim[viPlus]!! + siPlus) + distance
+                val shift =
+                    (prelim[viMinus]!! + siMinus) - (prelim[viPlus]!! + siPlus) + adjustedDistance(viMinus, viPlus)
                 // if shift > 0
                 if (shift > 0) {
                     // MoveSubtree(Ancestor(viMinus, v, defaultAncestor), v , shift)
@@ -217,6 +199,17 @@ class TreeLayout<T : Comparable<T>>(
         }
 
         return null
+    }
+
+    private fun adjustedDistance(
+        a: EPATreeNode<T>,
+        b: EPATreeNode<T>,
+    ): Float {
+//        val depth = max(a.level, b.level).coerceAtLeast(1)
+//        val weightA = countLeaves(a)
+//        val weightB = countLeaves(b)
+//        return distance * (weightA + weightB).toFloat() / 2f / depth
+        return distance
     }
 
     private fun nextLeft(v: EPATreeNode<T>): EPATreeNode<T>? {
@@ -304,10 +297,11 @@ class TreeLayout<T : Comparable<T>>(
         // let y(v) be the level of v
         val y = v.level.toFloat()
 
-        xMaxByDepth.merge(v.level, x, ::max)
-        xMinByDepth.merge(v.level, x, ::min)
+        xMax = max(x, xMax)
+        xMin = min(x, xMin)
+        maxDepth = max(maxDepth, v.level)
 
-        coordinatesByNode[v] = Coordinate(x, y, v.level)
+        coordinatesByState[v.state] = Coordinate(x, y, v.level, 0f)
 
         // for all children w of v
         v.children().forEach { w ->
@@ -316,5 +310,5 @@ class TreeLayout<T : Comparable<T>>(
         }
     }
 
-    fun getCoordinates(state: State): Coordinate = rotatedCoordinatesByState[state]!!
+    fun getCoordinates(state: State): Coordinate = coordinatesByState[state]!!
 }

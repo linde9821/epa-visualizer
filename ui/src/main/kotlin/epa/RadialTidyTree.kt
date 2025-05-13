@@ -71,38 +71,42 @@ fun RadialTidyTree(
         }) {
             val center = Offset(size.width / 2f, size.height / 2f)
 
+            (0..treeLayout.maxDepth).forEach { depth ->
+                drawCircle(
+                    color = Color.Gray,
+                    radius = depth * treeLayout.RADIUS_INCREMENT,
+                    center = Offset(0f, 0.0f),
+                    style = Stroke(width = 2f), // Adjust the stroke width as needed
+                )
+            }
+
             drawCircle(
                 color = Color.Red,
                 radius = 5f,
                 center = Offset(0f, 0.0f), // whatever you used in polarCoordinates()
             )
 
-            println("start drawing")
-            epa.states.forEach { state ->
-                val coordinate = treeLayout.getCoordinates(state)
+            epa.states
+                .forEach { state ->
+                    val coordinate = treeLayout.getCoordinates(state)
 
-                when (state) {
-                    is State.PrefixState -> println("drawing $coordinate $state")
-                    State.Root -> {}
-                }
+                    drawNode(state, textMeasurer, coordinate, center, epa)
+                    when (state) {
+                        is State.PrefixState -> {
+                            val parentCoordinate = treeLayout.getCoordinates(state.from)
 
-                drawNode(state, textMeasurer, coordinate, center)
-                when (state) {
-                    is State.PrefixState -> {
-                        val parentCoordinate = treeLayout.getCoordinates(state.from)
+                            drawLine(
+                                color = Color.Black,
+                                start = Offset(parentCoordinate.x, parentCoordinate.y),
+                                end = Offset(coordinate.x, coordinate.y),
+                                strokeWidth = 5f,
+                            )
+                        }
 
-                        drawLine(
-                            color = Color.Black,
-                            start = Offset(parentCoordinate.x, parentCoordinate.y),
-                            end = Offset(coordinate.x, coordinate.y),
-                            strokeWidth = 5f,
-                        )
-                    }
-
-                    State.Root -> {
+                        State.Root -> {
+                        }
                     }
                 }
-            }
         }
     }
 }
@@ -112,6 +116,7 @@ fun DrawScope.drawNode(
     textMeasurer: TextMeasurer,
     coordinate: Coordinate,
     center: Offset,
+    epa: ExtendedPrefixAutomata<Long>,
 ) {
     // Draw circle
     drawCircle(
@@ -122,12 +127,12 @@ fun DrawScope.drawNode(
     )
 
 //    // Prepare the label
-//    val label = events.joinToString(", ")
+//    val label = epa.sequence(node).joinToString { it.activity.name }
 //
 //    // Define text style
 //    val textStyle =
 //        TextStyle(
-//            fontSize = 8.sp,
+//            fontSize = 20.sp,
 //            fontWeight = FontWeight.Normal,
 //            color = Color.Red,
 //        )
@@ -142,8 +147,8 @@ fun DrawScope.drawNode(
 //    // Calculate position to draw text next to the node
 //    val textPosition =
 //        Offset(
-//            x = center.x + 30f,
-//            y = center.y - textLayoutResult.size.height / 2,
+//            x = coordinate.x + 30f,
+//            y = coordinate.y - textLayoutResult.size.height / 2,
 //        )
 //
 //    // Draw the text

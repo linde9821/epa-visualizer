@@ -26,7 +26,7 @@ fun RadialTidyTreeLoader(
         withContext(dispatcher) {
             treeLayout = null
 
-            treeLayout = TreeLayout(tree, 20.0f, 40.0f)
+            treeLayout = TreeLayout(tree, 10.0f, 600.0f)
             treeLayout!!.build()
             isLoading = false
         }

@@ -87,9 +87,10 @@ fun EPAVisualizer() {
                         currentState.extendedPrefixAutomata,
                         currentState.tree,
                         backgroundDispatcher,
-                    ) {
-                        state = NoFileSelected
-                    }
+                        onClose = {
+                            state = NoFileSelected
+                        },
+                    )
             }
         }
     }
