@@ -23,6 +23,11 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
 
     private val logger = KotlinLogging.logger { }
 
+    inner class StateActivityKey(
+        val state: State,
+        val activity: Activity,
+    )
+
     fun setEventLogMapper(mapper: EventLogMapper<T>): ExtendedPrefixAutomataBuilder<T> {
         eventLogMapper = mapper
         return this
@@ -67,46 +72,44 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
                     .setUnit(" Events", 1L),
             )
 
-        val states: MutableSet<State> = hashSetOf(State.Root)
-        val transitions: MutableSet<Transition> = hashSetOf()
-        val activities: MutableSet<Activity> = hashSetOf()
-        val sequences: MutableMap<State, MutableSet<Event<T>>> = hashMapOf(State.Root to hashSetOf())
-        val partitionByState: MutableMap<State, Int> = hashMapOf(State.Root to 0)
-        val lastActivityByState: MutableMap<String, State> = hashMapOf()
-        val transitionByPredecessorStateAndActivity = hashMapOf<Pair<State, Activity>, Transition>()
+        val states = hashSetOf<State>(State.Root)
+        val transitions = hashSetOf<Transition>()
+        val activities = hashSetOf<Activity>()
+        val sequences = hashMapOf<State, HashSet<Event<T>>>(State.Root to hashSetOf())
+        val partitionByState = hashMapOf<State, Int>(State.Root to 0)
+        val lastActivityByState = hashMapOf<String, State>()
+        val transitionByPredecessorStateAndActivity = hashMapOf<StateActivityKey, Transition>()
         val transitionByPredecessorState = hashMapOf<State, Transition>()
 
         plainLog.forEach { event ->
             val predecessorState = lastActivityByState[event.caseIdentifier] ?: State.Root
 
-            val currentActivity: State?
+            val existingTransition = transitionByPredecessorStateAndActivity[StateActivityKey(predecessorState, event.activity)]
 
-            val existingTransition = transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)]
+            val currentActivity =
+                if (existingTransition != null) {
+                    existingTransition.end
+                } else {
+                    val existingTransitionFromPredecessor = transitionByPredecessorState[predecessorState]
 
-            if (existingTransition != null) {
-                currentActivity = existingTransition.end
-            } else {
-                val existingTransitionFromPredecessor = transitionByPredecessorState[predecessorState]
+                    val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
 
-                val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
+                    val newState =
+                        State.PrefixState(
+                            from = predecessorState,
+                            via = event.activity,
+                        )
+                    states.add(newState)
+                    val newTransition = Transition(predecessorState, event.activity, newState)
+                    transitionByPredecessorStateAndActivity[StateActivityKey(predecessorState, event.activity)] = newTransition
+                    transitionByPredecessorState[predecessorState] = newTransition
+                    transitions.add(newTransition)
+                    activities.add(event.activity)
+                    partitionByState[newState] = c
+                    newState
+                }
 
-                val newState =
-                    State.PrefixState(
-                        name = event.activity.name,
-                        from = predecessorState,
-                        via = event.activity,
-                    )
-                states.add(newState)
-                val newTransition = Transition(predecessorState, event.activity, newState)
-                transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)] = newTransition
-                transitionByPredecessorState[predecessorState] = newTransition
-                transitions.add(newTransition)
-                activities.add(event.activity)
-                partitionByState[newState] = c
-                currentActivity = newState
-            }
-
-            sequences.computeIfAbsent(currentActivity) { mutableSetOf() }.add(event)
+            sequences.computeIfAbsent(currentActivity) { HashSet() }.add(event)
             lastActivityByState[event.caseIdentifier] = currentActivity
         }
 

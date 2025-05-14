@@ -86,6 +86,7 @@ fun EPAVisualizer() {
                     EpaView(
                         currentState.extendedPrefixAutomata,
                         currentState.tree,
+                        scope,
                         backgroundDispatcher,
                         onClose = {
                             state = NoFileSelected

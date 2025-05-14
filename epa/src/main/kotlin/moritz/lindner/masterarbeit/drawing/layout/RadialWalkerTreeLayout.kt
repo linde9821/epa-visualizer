@@ -8,22 +8,25 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class RadialWalkerTreeLayout<T : Comparable<T>>(
-    distance: Float,
-    private val depthDistance: Float,
+    val depthDistance: Float,
     margin: Float = 0.1f * PI.toFloat(),
     private val rotate: Float = 0.5f * PI.toFloat(),
-) : WalkerTreeLayout<T>(distance, 1.0f) {
+    expectedCapacity: Int = 1000,
+) : WalkerTreeLayout<T>(
+        distance = 10f,
+        yDistance = 1.0f,
+        expectedCapacity = expectedCapacity,
+    ) {
     private val logger = KotlinLogging.logger {}
     private val usableAngle = 2 * PI.toFloat() * (1 - margin)
     private val angleOffset = PI.toFloat() * margin
 
     private fun convertToAngles() {
         nodePlacementInformationByState.replaceAll { _, nodePlacementInformation ->
-            val (coordinate, node) = nodePlacementInformation
-            val (x, y) = coordinate
+            val (cartasianCoordinate, node) = nodePlacementInformation
+            val (x, y) = cartasianCoordinate
 
             val normalizedX = (x - xMin) / (xMax - xMin)
-            require(!normalizedX.isNaN())
             val radius = node.depth * depthDistance
             val theta = rotate + angleOffset + normalizedX * usableAngle
 

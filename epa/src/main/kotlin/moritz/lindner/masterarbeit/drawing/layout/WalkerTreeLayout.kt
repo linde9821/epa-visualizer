@@ -11,23 +11,22 @@ import kotlin.math.min
 open class WalkerTreeLayout<T : Comparable<T>>(
     private val distance: Float,
     private val yDistance: Float,
+    private val expectedCapacity: Int = 1000,
 ) : TreeLayout<T> {
     private val logger = KotlinLogging.logger {}
 
-    private val threads = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>?>()
-    private val modifiers = mutableMapOf<EPATreeNode<T>, Float>()
-    private val ancestor = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>>()
-    private val prelim = mutableMapOf<EPATreeNode<T>, Float>()
+    private val threads = HashMap<EPATreeNode<T>, EPATreeNode<T>?>(expectedCapacity)
+    private val modifiers = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    private val ancestor = HashMap<EPATreeNode<T>, EPATreeNode<T>>(expectedCapacity)
+    private val prelim = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    private val shifts = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    private val changes = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
 
-    private val shifts = mutableMapOf<EPATreeNode<T>, Float>()
-    private val changes = mutableMapOf<EPATreeNode<T>, Float>()
-
-    private var maxDepth = Int.MIN_VALUE
+    var maxDepth = Int.MIN_VALUE
 
     protected var xMin = Float.MAX_VALUE
     protected var xMax = Float.MIN_VALUE
-
-    protected val nodePlacementInformationByState = hashMapOf<State, NodePlacementInformation<T>>()
 
     private fun firstWalk(v: EPATreeNode<T>) {
         // if v is a leaf
