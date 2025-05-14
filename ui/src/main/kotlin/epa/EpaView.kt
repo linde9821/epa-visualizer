@@ -29,7 +29,8 @@ fun EpaView(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    var value by remember { mutableStateOf(30.0f) }
+    var radius by remember { mutableStateOf(30.0f) }
+    var margin by remember { mutableStateOf(0.0f) }
 
     Row {
         Button(
@@ -38,11 +39,19 @@ fun EpaView(
             Text("Close")
         }
 
-        Slider(
-            value = value,
-            onValueChange = { value = it },
-            valueRange = 10.0f..1000.0f,
-        )
+        Column {
+            Slider(
+                value = radius,
+                onValueChange = { radius = it },
+                valueRange = 10.0f..1000.0f,
+            )
+
+            Slider(
+                value = margin,
+                onValueChange = { margin = it },
+                valueRange = 0.0f..360.0f,
+            )
+        }
     }
     Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
         Column(
@@ -54,7 +63,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTree(epa, tree, backgroundDispatcher, scope, value)
+                RadialTidyTree(epa, tree, backgroundDispatcher, scope, radius, margin)
             }
             // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {

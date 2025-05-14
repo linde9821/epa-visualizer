@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.sync.Mutex
@@ -34,6 +35,9 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.State.Root
+import kotlin.math.PI
+
+private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
 @Composable
 fun RadialTidyTree(
@@ -42,7 +46,10 @@ fun RadialTidyTree(
     dispatcher: CoroutineDispatcher,
     scope: CoroutineScope,
     value: Float,
+    margin: Float,
 ) {
+    val logger = KotlinLogging.logger {}
+
     val mutex by remember { mutableStateOf(Mutex()) }
     var zoom by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
@@ -50,14 +57,16 @@ fun RadialTidyTree(
     var layout by remember { mutableStateOf<RadialWalkerTreeLayout<Long>?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(epa, value, tree) {
+    LaunchedEffect(epa, value, tree, margin) {
         isLoading = true
         mutex.withLock {
             withContext(dispatcher) {
+                logger.info { "margine: $margin deg" }
                 layout =
                     RadialWalkerTreeLayout(
                         depthDistance = value,
                         expectedCapacity = epa.states.size,
+                        margin = margin.degreesToRadians(),
                     )
                 layout!!.build(tree)
                 isLoading = false
@@ -206,7 +215,7 @@ fun DrawScope.drawNode(
         color = Color.Black,
         radius = 10f,
         center = Offset(coordinate.x, coordinate.y),
-        style = Stroke(width = 4f), // Adjust the stroke width as needed
+//        style = Stroke(width = 4f), // Adjust the stroke width as needed
     )
 
 //    // Prepare the label
