@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
@@ -24,10 +25,11 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 fun EpaView(
     epa: ExtendedPrefixAutomata<Long>,
     tree: EPATreeNode<Long>,
+    scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    var value by remember { mutableStateOf(10.0f) }
+    var value by remember { mutableStateOf(30.0f) }
 
     Row {
         Button(
@@ -52,7 +54,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTreeLoader(epa, tree, backgroundDispatcher)
+                RadialTidyTree(epa, tree, backgroundDispatcher, scope, value)
             }
             // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
