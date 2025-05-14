@@ -32,6 +32,8 @@ import moritz.lindner.masterarbeit.drawing.layout.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
+import moritz.lindner.masterarbeit.epa.domain.State.Root
 
 @Composable
 fun RadialTidyTree(
@@ -99,59 +101,96 @@ fun RadialTidyTree(
             scale(zoom)
         }) {
             if (!isLoading) {
+                drawDepthCircles(layout!!)
                 val center = Offset(size.width / 2f, size.height / 2f)
-                (0..layout!!.maxDepth).forEach { depth ->
-                    drawCircle(
-                        color = Color.Gray,
-                        radius = depth * layout!!.depthDistance,
-                        center = Offset(0f, 0.0f),
-                        style = Stroke(width = 2f), // Adjust the stroke width as needed
+                drawEPA(epa, layout!!, textMeasurer, center)
+            }
+        }
+    }
+}
+
+private fun DrawScope.drawEPA(
+    epa: ExtendedPrefixAutomata<Long>,
+    layout: RadialWalkerTreeLayout<Long>,
+    textMeasurer: TextMeasurer,
+    center: Offset,
+) {
+    epa.states.forEach { state ->
+        drawState(layout, state, textMeasurer, center, epa)
+    }
+}
+
+private fun DrawScope.drawState(
+    layout: RadialWalkerTreeLayout<Long>,
+    state: State,
+    textMeasurer: TextMeasurer,
+    center: Offset,
+    epa: ExtendedPrefixAutomata<Long>,
+) {
+    val coordinate = layout.getCoordinate(state)
+    drawNode(state, textMeasurer, coordinate, center, epa)
+    drawEdge(state, layout, coordinate)
+}
+
+private fun DrawScope.drawEdge(
+    state: State,
+    layout: RadialWalkerTreeLayout<Long>,
+    coordinate: Coordinate,
+) {
+    when (state) {
+        is PrefixState -> {
+            val parentCoordinate = layout.getCoordinate(state.from)
+            val start = Offset(parentCoordinate.x, parentCoordinate.y)
+            val end = Offset(coordinate.x, coordinate.y)
+
+            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+
+            val path =
+                Path().apply {
+                    moveTo(start.x, start.y)
+                    cubicTo(
+                        c1.x,
+                        c1.y,
+                        c2.x,
+                        c2.y,
+                        end.x,
+                        end.y,
                     )
                 }
 
-                drawCircle(
-                    color = Color.Red,
-                    radius = 5f,
-                    center = Offset(0f, 0.0f), // whatever you used in polarCoordinates()
-                )
-
-                epa.states
-                    .forEach { state ->
-                        val coordinate = layout!!.getCoordinate(state)
-
-                        drawNode(state, textMeasurer, coordinate, center, epa)
-                        when (state) {
-                            is State.PrefixState -> {
-                                val parentCoordinate = layout!!.getCoordinate(state.from)
-
-                                val start = Offset(parentCoordinate.x, parentCoordinate.y)
-                                val control = Offset(coordinate.x + 90, coordinate.y - 20)
-                                val end = Offset(coordinate.x, coordinate.y)
-
-                                val path =
-                                    Path().apply {
-                                        moveTo(start.x, start.y)
-                                        quadraticTo(
-                                            control.x,
-                                            control.y,
-                                            end.x,
-                                            end.y,
-                                        )
-                                    }
-
-                                drawPath(
-                                    path = path,
-                                    color = Color.Black,
-                                    style = Stroke(width = 4f),
-                                )
-                            }
-
-                            State.Root -> {
-                            }
-                        }
-                    }
-            }
+            drawPath(
+                path = path,
+                color = Color.Black,
+                style = Stroke(width = 4f),
+            )
         }
+
+        Root -> {}
+    }
+}
+
+fun getControlPoints(
+    parentCoordinate: Coordinate,
+    coordinate: Coordinate,
+    curvature: Float = 0.5f,
+): Pair<Offset, Offset> {
+    val dx = coordinate.x - parentCoordinate.x
+    val dy = coordinate.y - parentCoordinate.y
+
+    val c1 = Offset(parentCoordinate.x, parentCoordinate.y + dy * curvature)
+    val c2 = Offset(coordinate.x, coordinate.y - dy * curvature)
+
+    return Pair(c1, c2)
+}
+
+private fun DrawScope.drawDepthCircles(layout: RadialWalkerTreeLayout<Long>) {
+    (0..layout.maxDepth).forEach { depth ->
+        drawCircle(
+            color = Color.Gray,
+            radius = depth * layout!!.depthDistance,
+            center = Offset(0f, 0.0f),
+            style = Stroke(width = 2f), // Adjust the stroke width as needed
+        )
     }
 }
 

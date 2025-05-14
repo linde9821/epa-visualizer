@@ -60,13 +60,12 @@ fun EPAVisualizer() {
                     .padding(10.dp),
         ) {
             when (val currentState = state) {
-                NoFileSelected -> {
+                NoFileSelected ->
                     FileSelection { file ->
                         state = FileSelected(file)
                     }
-                }
 
-                is FileSelected -> {
+                is FileSelected ->
                     EpaConstruction(
                         file = currentState.file,
                         onAbort = { state = NoFileSelected },
@@ -74,13 +73,11 @@ fun EPAVisualizer() {
                             state = EpaConstructionRunning(builder)
                         },
                     )
-                }
 
-                is EpaConstructionRunning -> {
+                is EpaConstructionRunning ->
                     ConstructEpa(scope, backgroundDispatcher, currentState.builder) { epa, tree ->
                         state = EpaConstructed(epa, tree)
                     }
-                }
 
                 is EpaConstructed ->
                     EpaView(
