@@ -17,7 +17,7 @@ import kotlin.math.sin
 
 class DirectAngularPlacement<T : Comparable<T>>(
     private val layerSpace: Float,
-    private val expectedCapacity: Int = 1000,
+    expectedCapacity: Int = 1000,
 ) : RadialTreeLayout<T> {
     protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
 
@@ -27,7 +27,7 @@ class DirectAngularPlacement<T : Comparable<T>>(
     private var maxDepth = 0
 
     override fun build(tree: EPATreeNode<T>) {
-        walk(tree, 0f, 2f * PI.toFloat())
+        assignAngles(tree, 0f, 2f * PI.toFloat())
 
         var rTree = RTree.create<NodePlacementInformation<T>, Point>()
 
@@ -46,7 +46,7 @@ class DirectAngularPlacement<T : Comparable<T>>(
         isBuilt = true
     }
 
-    private fun walk(
+    private fun assignAngles(
         tree: EPATreeNode<T>,
         start: Float,
         end: Float,
@@ -74,7 +74,7 @@ class DirectAngularPlacement<T : Comparable<T>>(
         tree.children().forEach { child ->
             val childStart = start + child.number() * anglePerChild
             val childEnd = childStart + anglePerChild
-            walk(child, childStart, childEnd)
+            assignAngles(child, childStart, childEnd)
         }
     }
 

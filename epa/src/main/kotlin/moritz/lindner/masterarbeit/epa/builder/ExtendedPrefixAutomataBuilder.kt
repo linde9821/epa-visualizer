@@ -84,7 +84,8 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
         plainLog.forEach { event ->
             val predecessorState = lastActivityByState[event.caseIdentifier] ?: State.Root
 
-            val existingTransition = transitionByPredecessorStateAndActivity[StateActivityKey(predecessorState, event.activity)]
+            val existingTransition =
+                transitionByPredecessorStateAndActivity[StateActivityKey(predecessorState, event.activity)]
 
             val currentActivity =
                 if (existingTransition != null) {
@@ -101,7 +102,8 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
                         )
                     states.add(newState)
                     val newTransition = Transition(predecessorState, event.activity, newState)
-                    transitionByPredecessorStateAndActivity[StateActivityKey(predecessorState, event.activity)] = newTransition
+                    transitionByPredecessorStateAndActivity[StateActivityKey(predecessorState, event.activity)] =
+                        newTransition
                     transitionByPredecessorState[predecessorState] = newTransition
                     transitions.add(newTransition)
                     activities.add(event.activity)
