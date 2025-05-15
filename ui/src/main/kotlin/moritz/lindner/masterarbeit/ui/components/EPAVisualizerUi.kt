@@ -50,7 +50,7 @@ fun EPAVisualizerUi() {
                     }
 
                 is ApplicationState.EpaConstructed ->
-                    EpaViewUi(
+                    EpaTreeViewUi(
                         currentState.extendedPrefixAutomata,
                         currentState.tree,
                         backgroundDispatcher,

@@ -32,7 +32,10 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.State.Root
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.SimpleTreeLayout
+import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngularPlacement
+import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
@@ -43,12 +46,13 @@ private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 val logger = KotlinLogging.logger {}
 
 @Composable
-fun RadialTidyTreeUi(
+fun TidyTreeUi(
     epa: ExtendedPrefixAutomata<Long>,
     tree: EPATreeNode<Long>,
     dispatcher: CoroutineDispatcher,
-    value: Float,
+    radius: Float,
     margin: Float,
+    layoutSelection: LayoutSelection,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
@@ -56,20 +60,35 @@ fun RadialTidyTreeUi(
     val mutex = remember { Mutex() }
 
     val textMeasurer = rememberTextMeasurer()
-    var layout by remember { mutableStateOf<SimpleTreeLayout<Long>?>(null) }
+    var layout: TreeLayout<Long>? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(epa, value, tree, margin) {
+    LaunchedEffect(epa, radius, tree, margin, layoutSelection) {
         isLoading = true
         mutex.withLock {
             withContext(dispatcher) {
                 logger.info { "margine: $margin deg" }
+
                 layout =
-                    SimpleTreeLayout(
-                        layerSpace = value,
-//                        expectedCapacity = epa.states.size,
-//                        margin = margin.degreesToRadians(),
-                    )
+                    if (layoutSelection.name == "Walker") {
+                        WalkerTreeLayout(
+                            distance = margin,
+                            yDistance = radius,
+                            expectedCapacity = epa.states.size,
+                        )
+                    } else if (layoutSelection.name == "Walker Radial Tree") {
+                        RadialWalkerTreeLayout(
+                            margin = margin.degreesToRadians(),
+                            layerSpace = radius,
+                            expectedCapacity = epa.states.size,
+                        )
+                    } else {
+                        DirectAngularPlacement(
+                            layerSpace = radius,
+                            expectedCapacity = epa.states.size,
+                        )
+                    }
+
                 layout!!.build(tree)
                 isLoading = false
             }
@@ -152,7 +171,14 @@ fun RadialTidyTreeUi(
             logger.info { "boundingBox: $boundingBox" }
 
             if (!isLoading && layout != null && layout!!.isBuilt()) {
-                drawDepthCircles(layout!!)
+                (layout as? DirectAngularPlacement)?.let {
+                    drawDepthCircles(it)
+                }
+
+                (layout as? RadialWalkerTreeLayout)?.let {
+                    drawDepthCircles(it)
+                }
+
                 val center = Offset(size.width / 2f, size.height / 2f)
                 drawEPA(epa, layout!!, textMeasurer, center, boundingBox)
             }
@@ -168,7 +194,7 @@ private fun Offset.toCoordinate(): Coordinate =
 
 private fun DrawScope.drawEPA(
     epa: ExtendedPrefixAutomata<Long>,
-    layout: RadialTreeLayout<Long>,
+    layout: TreeLayout<Long>,
     textMeasurer: TextMeasurer,
     center: Offset,
     boundingBox: Rectangle,
@@ -181,7 +207,7 @@ private fun DrawScope.drawEPA(
 }
 
 private fun DrawScope.drawState(
-    layout: RadialTreeLayout<Long>,
+    layout: TreeLayout<Long>,
     state: State,
     textMeasurer: TextMeasurer,
     center: Offset,
@@ -194,7 +220,7 @@ private fun DrawScope.drawState(
 
 private fun DrawScope.drawEdge(
     state: State,
-    layout: RadialTreeLayout<Long>,
+    layout: TreeLayout<Long>,
     coordinate: Coordinate,
 ) {
     when (state) {

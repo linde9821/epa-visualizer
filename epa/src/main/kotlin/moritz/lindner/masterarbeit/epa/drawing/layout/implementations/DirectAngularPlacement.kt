@@ -15,10 +15,11 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
-class SimpleTreeLayout<T : Comparable<T>>(
+class DirectAngularPlacement<T : Comparable<T>>(
     private val layerSpace: Float,
+    private val expectedCapacity: Int = 1000,
 ) : RadialTreeLayout<T> {
-    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>()
+    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
 
     private lateinit var finalRTree: RTree<NodePlacementInformation<T>, Point>
 
