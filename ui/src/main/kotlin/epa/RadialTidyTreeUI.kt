@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -31,6 +30,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.drawing.Coordinate
 import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.drawing.layout.Rectangle
 import moritz.lindner.masterarbeit.drawing.layout.SimpleTreeLayout
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
@@ -41,6 +41,8 @@ import kotlin.math.PI
 
 private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
+val logger = KotlinLogging.logger {}
+
 @Composable
 fun RadialTidyTreeUI(
     epa: ExtendedPrefixAutomata<Long>,
@@ -50,12 +52,10 @@ fun RadialTidyTreeUI(
     value: Float,
     margin: Float,
 ) {
-    val logger = KotlinLogging.logger {}
-
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
 
-    val mutex by remember { mutableStateOf(Mutex()) }
+    val mutex = remember { Mutex() }
 
     val textMeasurer = rememberTextMeasurer()
     var layout by remember { mutableStateOf<SimpleTreeLayout<Long>?>(null) }
@@ -122,7 +122,7 @@ fun RadialTidyTreeUI(
             val topLeft = Offset(x = t.x - ((size.width / scale) / 2f), y = t.y - ((size.height / scale) / 2f))
             val bottomRight = Offset(x = t.x + ((size.width / scale) / 2f), y = t.y + ((size.height / scale) / 2f))
 
-            val boundingBox = Rect(topLeft, bottomRight)
+            val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
             drawCircle(
                 color = Color.Red,
@@ -153,23 +153,32 @@ fun RadialTidyTreeUI(
             logger.info { "bottom right: $bottomRight" }
             logger.info { "boundingBox: $boundingBox" }
 
-            if (!isLoading) {
+            if (!isLoading && layout != null && layout!!.isBuilt()) {
                 drawDepthCircles(layout!!)
                 val center = Offset(size.width / 2f, size.height / 2f)
-                drawEPA(epa, layout!!, textMeasurer, center)
+                drawEPA(epa, layout!!, textMeasurer, center, boundingBox)
             }
         }
     }
 }
+
+private fun Offset.toCoordinate(): Coordinate =
+    Coordinate(
+        x = this.x,
+        y = this.y,
+    )
 
 private fun DrawScope.drawEPA(
     epa: ExtendedPrefixAutomata<Long>,
     layout: RadialTreeLayout<Long>,
     textMeasurer: TextMeasurer,
     center: Offset,
+    boundingBox: Rectangle,
 ) {
-    epa.states.forEach { state ->
-        drawState(layout, state, textMeasurer, center, epa)
+    val search = layout.search(boundingBox)
+    logger.info { "drawing ${search.size} nodes" }
+    search.forEach {
+        drawState(layout, it.node.state, textMeasurer, center, epa, it.coordinate)
     }
 }
 
@@ -179,8 +188,8 @@ private fun DrawScope.drawState(
     textMeasurer: TextMeasurer,
     center: Offset,
     epa: ExtendedPrefixAutomata<Long>,
+    coordinate: Coordinate,
 ) {
-    val coordinate = layout.getCoordinate(state)
     drawNode(state, textMeasurer, coordinate, center, epa)
     drawEdge(state, layout, coordinate)
 }
@@ -193,8 +202,8 @@ private fun DrawScope.drawEdge(
     when (state) {
         is PrefixState -> {
             val parentCoordinate = layout.getCoordinate(state.from)
-            val start = Offset(parentCoordinate.x, parentCoordinate.y)
-            val end = Offset(coordinate.x, coordinate.y)
+            val start = Offset(parentCoordinate.x, parentCoordinate.y * -1)
+            val end = Offset(coordinate.x, coordinate.y * -1)
 
             val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
 
@@ -203,9 +212,9 @@ private fun DrawScope.drawEdge(
                     moveTo(start.x, start.y)
                     cubicTo(
                         c1.x,
-                        c1.y,
+                        c1.y * -1,
                         c2.x,
-                        c2.y,
+                        c2.y * -1,
                         end.x,
                         end.y,
                     )
@@ -258,7 +267,7 @@ fun DrawScope.drawNode(
     drawCircle(
         color = Color.Black,
         radius = 10f,
-        center = Offset(coordinate.x, coordinate.y),
+        center = Offset(coordinate.x, coordinate.y * -1),
 //        style = Stroke(width = 4f), // Adjust the stroke width as needed
     )
 

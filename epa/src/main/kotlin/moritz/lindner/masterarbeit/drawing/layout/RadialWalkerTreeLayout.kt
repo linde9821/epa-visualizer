@@ -51,4 +51,6 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
     }
 
     override fun getCircleRadius(): Float = layerSpace
+
+    override fun isBuilt(): Boolean = super.isBuilt()
 }

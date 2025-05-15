@@ -19,6 +19,8 @@ dependencies {
     implementation(libs.jaxb.api)
     implementation(libs.openxes)
     implementation(libs.progressbar)
+
+    implementation("com.github.davidmoten:rtree2:0.9.3")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

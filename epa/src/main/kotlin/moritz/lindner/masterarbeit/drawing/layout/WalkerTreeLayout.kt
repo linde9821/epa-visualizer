@@ -5,66 +5,13 @@ import moritz.lindner.masterarbeit.drawing.Coordinate
 import moritz.lindner.masterarbeit.drawing.NodePlacementInformation
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.domain.State
-import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
-
-class SimpleTreeLayout<T : Comparable<T>>(
-    private val layerSpace: Float,
-) : RadialTreeLayout<T> {
-    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>()
-
-    private var maxDepth = 0
-
-    override fun build(tree: EPATreeNode<T>) {
-        walk(tree, 0f, 2f * PI.toFloat())
-    }
-
-    fun walk(
-        tree: EPATreeNode<T>,
-        start: Float,
-        end: Float,
-    ) {
-        maxDepth = max(maxDepth, tree.depth)
-
-        if (tree.parent == null) {
-            nodePlacementInformationByState[tree.state] = NodePlacementInformation(Coordinate(0f, 0f), tree)
-        } else {
-            val radius = layerSpace * tree.depth
-            val theta = (start + end) / 2f
-
-            nodePlacementInformationByState[tree.state] =
-                NodePlacementInformation(
-                    Coordinate(
-                        x = radius * cos(theta),
-                        y = radius * sin(theta),
-                    ),
-                    tree,
-                )
-        }
-
-        val anglePerChild = (end - start) / (tree.children().size.toFloat())
-
-        tree.children().forEach { child ->
-            val childStart = start + child.number() * anglePerChild
-            val childEnd = childStart + anglePerChild
-            walk(child, childStart, childEnd)
-        }
-    }
-
-    override fun getCircleRadius(): Float = layerSpace
-
-    override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
-
-    override fun getMaxDepth(): Int = maxDepth
-}
 
 open class WalkerTreeLayout<T : Comparable<T>>(
     private val distance: Float,
     private val yDistance: Float,
-    private val expectedCapacity: Int = 1000,
+    expectedCapacity: Int = 1000,
 ) : TreeLayout<T> {
     private val logger = KotlinLogging.logger {}
 
@@ -77,6 +24,8 @@ open class WalkerTreeLayout<T : Comparable<T>>(
     protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
 
     private var maxDepth = Int.MIN_VALUE
+
+    private var isBuilt = false
 
     protected var xMin = Float.MAX_VALUE
     protected var xMax = Float.MIN_VALUE
@@ -339,11 +288,17 @@ open class WalkerTreeLayout<T : Comparable<T>>(
         logger.info { "second walk" }
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
-
+        isBuilt = true
         logger.info { "finished layout construction" }
     }
 
     override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
 
+    override fun search(boundingBox: Rectangle): List<NodePlacementInformation<T>> {
+        TODO("Not yet implemented")
+    }
+
     override fun getMaxDepth(): Int = maxDepth
+
+    override fun isBuilt(): Boolean = isBuilt
 }
