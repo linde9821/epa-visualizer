@@ -1,8 +1,10 @@
-package moritz.lindner.masterarbeit.drawing.layout
+package moritz.lindner.masterarbeit.drawing.layout.implementations
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.drawing.Coordinate
 import moritz.lindner.masterarbeit.drawing.NodePlacementInformation
+import moritz.lindner.masterarbeit.drawing.layout.Rectangle
+import moritz.lindner.masterarbeit.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.domain.State
 import kotlin.math.max

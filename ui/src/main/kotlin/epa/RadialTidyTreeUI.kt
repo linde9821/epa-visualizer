@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.drawing.Coordinate
 import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.drawing.layout.Rectangle
-import moritz.lindner.masterarbeit.drawing.layout.SimpleTreeLayout
+import moritz.lindner.masterarbeit.drawing.layout.implementations.SimpleTreeLayout
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State

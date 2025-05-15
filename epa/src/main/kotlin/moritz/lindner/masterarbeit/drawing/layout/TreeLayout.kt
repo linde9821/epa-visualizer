@@ -21,7 +21,3 @@ interface TreeLayout<T : Comparable<T>> {
 
     fun isBuilt(): Boolean
 }
-
-interface RadialTreeLayout<T : Comparable<T>> : TreeLayout<T> {
-    fun getCircleRadius(): Float
-}

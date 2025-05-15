@@ -1,7 +1,8 @@
-package moritz.lindner.masterarbeit.drawing.layout
+package moritz.lindner.masterarbeit.drawing.layout.implementations
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.drawing.Coordinate
+import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import kotlin.math.PI
 import kotlin.math.cos
@@ -24,6 +25,8 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
     private val logger = KotlinLogging.logger {}
     private val usableAngle =
         2 * PI.toFloat() - margin
+
+    private var isBuilt: Boolean = false
 
     private fun convertToAngles() {
         nodePlacementInformationByState.replaceAll { _, nodePlacementInformation ->
@@ -48,9 +51,10 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
         super.build(tree)
         logger.info { "assign angles" }
         convertToAngles()
+        isBuilt = true
     }
 
     override fun getCircleRadius(): Float = layerSpace
 
-    override fun isBuilt(): Boolean = super.isBuilt()
+    override fun isBuilt(): Boolean = isBuilt
 }
