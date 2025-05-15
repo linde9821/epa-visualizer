@@ -1,10 +1,10 @@
 package moritz.lindner.masterarbeit.drawing.layout.implementations
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import moritz.lindner.masterarbeit.drawing.Coordinate
-import moritz.lindner.masterarbeit.drawing.NodePlacementInformation
-import moritz.lindner.masterarbeit.drawing.layout.Rectangle
 import moritz.lindner.masterarbeit.drawing.layout.TreeLayout
+import moritz.lindner.masterarbeit.drawing.placement.Coordinate
+import moritz.lindner.masterarbeit.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.domain.State
 import kotlin.math.max
@@ -296,7 +296,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
 
     override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
 
-    override fun search(boundingBox: Rectangle): List<NodePlacementInformation<T>> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>> {
         TODO("Not yet implemented")
     }
 

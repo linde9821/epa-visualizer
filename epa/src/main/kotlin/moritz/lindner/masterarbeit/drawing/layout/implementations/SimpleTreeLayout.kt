@@ -4,10 +4,10 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.Point
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
-import moritz.lindner.masterarbeit.drawing.Coordinate
-import moritz.lindner.masterarbeit.drawing.NodePlacementInformation
 import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.drawing.layout.Rectangle
+import moritz.lindner.masterarbeit.drawing.placement.Coordinate
+import moritz.lindner.masterarbeit.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.domain.State
 import kotlin.math.PI
@@ -85,15 +85,15 @@ class SimpleTreeLayout<T : Comparable<T>>(
 
     override fun isBuilt(): Boolean = isBuilt
 
-    override fun search(boundingBox: Rectangle): List<NodePlacementInformation<T>> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>> {
         val search =
             finalRTree
                 .search(
                     Geometries.rectangle(
-                        boundingBox.topLeft.x,
-                        boundingBox.topLeft.y,
-                        boundingBox.bottomRight.x,
-                        boundingBox.bottomRight.y,
+                        rectangle.topLeft.x,
+                        rectangle.topLeft.y,
+                        rectangle.bottomRight.x,
+                        rectangle.bottomRight.y,
                     ),
                 ).toList()
         return search.map { it.value() }

@@ -1,8 +1,8 @@
 package moritz.lindner.masterarbeit.drawing.layout.implementations
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import moritz.lindner.masterarbeit.drawing.Coordinate
 import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import kotlin.math.PI
 import kotlin.math.cos

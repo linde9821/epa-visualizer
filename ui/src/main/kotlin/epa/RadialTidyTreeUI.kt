@@ -28,10 +28,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import moritz.lindner.masterarbeit.drawing.Coordinate
 import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.drawing.layout.Rectangle
 import moritz.lindner.masterarbeit.drawing.layout.implementations.SimpleTreeLayout
+import moritz.lindner.masterarbeit.drawing.placement.Coordinate
+import moritz.lindner.masterarbeit.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -175,7 +175,7 @@ private fun DrawScope.drawEPA(
     center: Offset,
     boundingBox: Rectangle,
 ) {
-    val search = layout.search(boundingBox)
+    val search = layout.getCoordinatesInRectangle(boundingBox)
     logger.info { "drawing ${search.size} nodes" }
     search.forEach {
         drawState(layout, it.node.state, textMeasurer, center, epa, it.coordinate)
