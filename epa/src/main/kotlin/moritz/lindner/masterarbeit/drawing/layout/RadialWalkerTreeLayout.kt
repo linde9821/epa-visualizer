@@ -7,15 +7,18 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
+
 class RadialWalkerTreeLayout<T : Comparable<T>>(
-    val depthDistance: Float,
+    val layerSpace: Float,
     expectedCapacity: Int = 1000,
     val margin: Float,
 ) : WalkerTreeLayout<T>(
         distance = 10f,
         yDistance = 1.0f,
         expectedCapacity = expectedCapacity,
-    ) {
+    ),
+    RadialTreeLayout<T> {
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
     private val logger = KotlinLogging.logger {}
@@ -28,8 +31,8 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
             val (x, _) = cartesianCoordinate
 
             val normalizedX = (x - xMin) / (xMax - xMin)
-            val radius = node.depth * depthDistance
-            val theta = normalizedX * usableAngle
+            val radius = node.depth * layerSpace
+            val theta = (normalizedX * usableAngle) + 90f.degreesToRadians()
 
             nodePlacementInformation.copy(
                 coordinate =
@@ -46,4 +49,6 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
         logger.info { "assign angles" }
         convertToAngles()
     }
+
+    override fun getCircleRadius(): Float = layerSpace
 }

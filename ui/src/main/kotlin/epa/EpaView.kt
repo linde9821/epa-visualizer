@@ -63,7 +63,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTree(epa, tree, backgroundDispatcher, scope, radius, margin)
+                RadialTidyTreeUI(epa, tree, backgroundDispatcher, scope, radius, margin)
             }
             // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {

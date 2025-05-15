@@ -6,17 +6,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -29,7 +30,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.drawing.Coordinate
-import moritz.lindner.masterarbeit.drawing.layout.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.drawing.layout.SimpleTreeLayout
 import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -40,7 +42,7 @@ import kotlin.math.PI
 private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
 @Composable
-fun RadialTidyTree(
+fun RadialTidyTreeUI(
     epa: ExtendedPrefixAutomata<Long>,
     tree: EPATreeNode<Long>,
     dispatcher: CoroutineDispatcher,
@@ -50,11 +52,13 @@ fun RadialTidyTree(
 ) {
     val logger = KotlinLogging.logger {}
 
-    val mutex by remember { mutableStateOf(Mutex()) }
-    var zoom by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+
+    val mutex by remember { mutableStateOf(Mutex()) }
+
     val textMeasurer = rememberTextMeasurer()
-    var layout by remember { mutableStateOf<RadialWalkerTreeLayout<Long>?>(null) }
+    var layout by remember { mutableStateOf<SimpleTreeLayout<Long>?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(epa, value, tree, margin) {
@@ -63,10 +67,10 @@ fun RadialTidyTree(
             withContext(dispatcher) {
                 logger.info { "margine: $margin deg" }
                 layout =
-                    RadialWalkerTreeLayout(
-                        depthDistance = value,
-                        expectedCapacity = epa.states.size,
-                        margin = margin.degreesToRadians(),
+                    SimpleTreeLayout(
+                        layerSpace = value,
+//                        expectedCapacity = epa.states.size,
+//                        margin = margin.degreesToRadians(),
                     )
                 layout!!.build(tree)
                 isLoading = false
@@ -78,9 +82,9 @@ fun RadialTidyTree(
         Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
-                detectTransformGestures { _, pan, gestureZoom, _ ->
-                    zoom = (zoom * gestureZoom)
-                    offset += pan
+                detectTransformGestures { centroid, pan, zoom, _ ->
+                    scale *= zoom
+                    offset += (centroid - offset) * (1f - zoom) + pan
                 }
             }.pointerInput(Unit) {
                 awaitPointerEventScope {
@@ -93,12 +97,12 @@ fun RadialTidyTree(
                                 ?.y ?: 0f
 
                         if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
-                            val newZoom = (zoom * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.0005f, 10f)
+                            val newZoom = (scale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.0005f, 10f)
 
-                            val scaleChange = newZoom / zoom
+                            val scaleChange = newZoom / scale
                             offset *= scaleChange
 
-                            zoom = newZoom
+                            scale = newZoom
                         }
                     }
                 }
@@ -107,8 +111,48 @@ fun RadialTidyTree(
     Canvas(modifier = canvasModifier) {
         withTransform({
             translate(offset.x, offset.y)
-            scale(zoom)
+            scale(
+                scaleX = scale,
+                scaleY = scale,
+                pivot = Offset.Zero,
+            )
         }) {
+            val t = (center - offset) / scale
+
+            val topLeft = Offset(x = t.x - ((size.width / scale) / 2f), y = t.y - ((size.height / scale) / 2f))
+            val bottomRight = Offset(x = t.x + ((size.width / scale) / 2f), y = t.y + ((size.height / scale) / 2f))
+
+            val boundingBox = Rect(topLeft, bottomRight)
+
+            drawCircle(
+                color = Color.Red,
+                center = t,
+                radius = 5.0f,
+            )
+
+            drawCircle(
+                color = Color.Green,
+                center = topLeft,
+                radius = 50.0f,
+            )
+
+            drawCircle(
+                color = Color.Blue,
+                center = bottomRight,
+                radius = 50.0f,
+            )
+
+            drawLine(
+                color = Color.Blue,
+                start = Offset(x = topLeft.x, y = topLeft.y),
+                end = Offset(x = topLeft.x, y = topLeft.y),
+            )
+
+            logger.info { "center: $t" }
+            logger.info { "top left: $topLeft" }
+            logger.info { "bottom right: $bottomRight" }
+            logger.info { "boundingBox: $boundingBox" }
+
             if (!isLoading) {
                 drawDepthCircles(layout!!)
                 val center = Offset(size.width / 2f, size.height / 2f)
@@ -120,7 +164,7 @@ fun RadialTidyTree(
 
 private fun DrawScope.drawEPA(
     epa: ExtendedPrefixAutomata<Long>,
-    layout: RadialWalkerTreeLayout<Long>,
+    layout: RadialTreeLayout<Long>,
     textMeasurer: TextMeasurer,
     center: Offset,
 ) {
@@ -130,7 +174,7 @@ private fun DrawScope.drawEPA(
 }
 
 private fun DrawScope.drawState(
-    layout: RadialWalkerTreeLayout<Long>,
+    layout: RadialTreeLayout<Long>,
     state: State,
     textMeasurer: TextMeasurer,
     center: Offset,
@@ -143,7 +187,7 @@ private fun DrawScope.drawState(
 
 private fun DrawScope.drawEdge(
     state: State,
-    layout: RadialWalkerTreeLayout<Long>,
+    layout: RadialTreeLayout<Long>,
     coordinate: Coordinate,
 ) {
     when (state) {
@@ -192,11 +236,11 @@ fun getControlPoints(
     return Pair(c1, c2)
 }
 
-private fun DrawScope.drawDepthCircles(layout: RadialWalkerTreeLayout<Long>) {
-    (0..layout.maxDepth).forEach { depth ->
+private fun DrawScope.drawDepthCircles(layout: RadialTreeLayout<Long>) {
+    (0..layout.getMaxDepth()).forEach { depth ->
         drawCircle(
             color = Color.Gray,
-            radius = depth * layout!!.depthDistance,
+            radius = depth * layout.getCircleRadius(),
             center = Offset(0f, 0.0f),
             style = Stroke(width = 2f), // Adjust the stroke width as needed
         )
