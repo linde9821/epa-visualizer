@@ -11,14 +11,14 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  */
 // TODO: specify collection implementations
 class ExtendedPrefixAutomata<T : Comparable<T>>(
-    val states: Set<State>,
-    val activities: Set<Activity>,
-    val transitions: Set<Transition>,
-    private val partitionByState: Map<State, Int>,
-    private val sequenceByState: Map<State, Set<Event<T>>>,
+    val states: HashSet<State>,
+    val activities: HashSet<Activity>,
+    val transitions: HashSet<Transition>,
+    private val partitionByState: HashMap<State, Int>,
+    private val sequenceByState: HashMap<State, HashSet<Event<T>>>,
 ) {
     // for improved visitor speed
-    val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
+    private val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
 
     fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 

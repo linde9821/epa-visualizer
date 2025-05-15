@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.jaxb.api)
     implementation(libs.openxes)
     implementation(libs.progressbar)
+    implementation(libs.rtree)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

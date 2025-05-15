@@ -1,80 +1,42 @@
-package moritz.lindner.masterarbeit.treelayout
+package moritz.lindner.masterarbeit.epa.drawing.layout.implementations
 
+import com.github.davidmoten.rtree2.RTree
+import com.github.davidmoten.rtree2.geometry.Geometries
+import com.github.davidmoten.rtree2.geometry.Point
+import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
-import kotlin.math.PI
-import kotlin.math.cos
+import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 
-class TreeLayout<T : Comparable<T>>(
-    private val tree: EPATreeNode<T>,
+open class WalkerTreeLayout<T : Comparable<T>>(
     private val distance: Float,
-    val RADIUS_INCREMENT: Float,
-) {
+    private val yDistance: Float,
+    expectedCapacity: Int = 1000,
+) : TreeLayout<T> {
     private val logger = KotlinLogging.logger {}
 
-    private val threads = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>?>()
-    private val modifiers = mutableMapOf<EPATreeNode<T>, Float>()
-    private val ancestor = mutableMapOf<EPATreeNode<T>, EPATreeNode<T>>()
-    private val prelim = mutableMapOf<EPATreeNode<T>, Float>()
+    private val threads = HashMap<EPATreeNode<T>, EPATreeNode<T>?>(expectedCapacity)
+    private val modifiers = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    private val ancestor = HashMap<EPATreeNode<T>, EPATreeNode<T>>(expectedCapacity)
+    private val prelim = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    private val shifts = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    private val changes = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
+    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
 
-    private val shifts = mutableMapOf<EPATreeNode<T>, Float>()
-    private val changes = mutableMapOf<EPATreeNode<T>, Float>()
+    private lateinit var finalRTree: RTree<NodePlacementInformation<T>, Point>
 
-    private var xMin = Float.MAX_VALUE
-    private var xMax = Float.MIN_VALUE
-    var maxDepth = Int.MIN_VALUE
+    private var maxDepth = Int.MIN_VALUE
 
-    private val coordinatesByState = hashMapOf<State, Coordinate>()
+    private var isBuilt = false
 
-    fun build() {
-        logger.info { "Building tree layout" }
-        logger.info { "initializing" }
-        // for all nodes v of T
-        tree.forEach { v ->
-            // let mod(v) = thread(v) = 0
-            modifiers[v] = 0.0f
-            threads[v] = null
-            // let ancestor (v) = v
-            ancestor[v] = v
-
-            shifts[v] = 0.0f
-            changes[v] = 0.0f
-        }
-        // let r be the root of T
-        val r = tree
-
-        // FirstWalk(r)
-        logger.info { "first walk" }
-        firstWalk(r)
-        logger.info { "second walk" }
-        // SecondWalk(r, −prelim(r))
-        secondWalk(r, -prelim[r]!!)
-
-        assignAngles()
-
-        logger.info { "polar coordinates" }
-        logger.info { "finished layout construction" }
-    }
-
-    private fun assignAngles() {
-        val margin = 0.1 * PI
-
-        coordinatesByState.forEach { (_, coord) ->
-            val adjustedX = (coord.x - xMin) / (xMax - xMin)
-
-            val radius = coord.depth * RADIUS_INCREMENT
-            val usableAngle = 2 * PI * (1 - margin)
-            val angleOffset = PI * margin
-            val angle = angleOffset + adjustedX * usableAngle
-            coord.angle = angle.toFloat()
-            coord.x = radius * cos(angle).toFloat()
-            coord.y = radius * sin(angle).toFloat()
-        }
-    }
+    protected var xMin = Float.MAX_VALUE
+    protected var xMax = Float.MIN_VALUE
 
     private fun firstWalk(v: EPATreeNode<T>) {
         // if v is a leaf
@@ -201,6 +163,7 @@ class TreeLayout<T : Comparable<T>>(
         return null
     }
 
+    // might be tweaked for better results
     private fun adjustedDistance(
         a: EPATreeNode<T>,
         b: EPATreeNode<T>,
@@ -295,13 +258,13 @@ class TreeLayout<T : Comparable<T>>(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.level.toFloat()
+        val y = v.depth.toFloat() * yDistance
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)
-        maxDepth = max(maxDepth, v.level)
+        maxDepth = max(maxDepth, v.depth)
 
-        coordinatesByState[v.state] = Coordinate(x, y, v.level, 0f)
+        nodePlacementInformationByState[v.state] = NodePlacementInformation(Coordinate(x, y), v)
 
         // for all children w of v
         v.children().forEach { w ->
@@ -310,5 +273,66 @@ class TreeLayout<T : Comparable<T>>(
         }
     }
 
-    fun getCoordinates(state: State): Coordinate = coordinatesByState[state]!!
+    override fun build(tree: EPATreeNode<T>) {
+        logger.info { "Building tree layout" }
+        logger.info { "initializing" }
+        // for all nodes v of T
+        tree.forEach { v ->
+            // let mod(v) = thread(v) = 0
+            modifiers[v] = 0.0f
+            threads[v] = null
+            // let ancestor (v) = v
+            ancestor[v] = v
+
+            shifts[v] = 0.0f
+            changes[v] = 0.0f
+        }
+        // let r be the root of T
+        val r = tree
+
+        // FirstWalk(r)
+        logger.info { "first walk" }
+        firstWalk(r)
+        logger.info { "second walk" }
+        // SecondWalk(r, −prelim(r))
+        secondWalk(r, -prelim[r]!!)
+
+        var rTree = RTree.create<NodePlacementInformation<T>, Point>()
+
+        nodePlacementInformationByState.forEach { (state, info) ->
+            rTree =
+                rTree.add(
+                    info,
+                    PointFloat.create(
+                        info.coordinate.x,
+                        info.coordinate.y * -1,
+                    ),
+                )
+        }
+
+        finalRTree = rTree
+
+        isBuilt = true
+        logger.info { "finished layout construction" }
+    }
+
+    override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
+
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>> {
+        val search =
+            finalRTree
+                .search(
+                    Geometries.rectangle(
+                        rectangle.topLeft.x,
+                        rectangle.topLeft.y,
+                        rectangle.bottomRight.x,
+                        rectangle.bottomRight.y,
+                    ),
+                ).toList()
+        return search.map { it.value() }
+    }
+
+    override fun getMaxDepth(): Int = maxDepth
+
+    override fun isBuilt(): Boolean = isBuilt
 }

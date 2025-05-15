@@ -1,4 +1,4 @@
-package epa
+package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -7,12 +7,12 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.launch
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.treelayout.tree.EPATreeNode
-import moritz.lindner.masterarbeit.treelayout.tree.TreeBuildingVisitor
 
 @Composable
-fun ConstructEpa(
+fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     builder: ExtendedPrefixAutomataBuilder<Long>,

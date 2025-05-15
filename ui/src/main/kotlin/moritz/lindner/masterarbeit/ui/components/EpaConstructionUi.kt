@@ -1,4 +1,4 @@
-package epa
+package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +13,7 @@ import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import java.io.File
 
 @Composable
-fun EpaConstruction(
+fun EpaConstructionUi(
     file: File,
     onAbort: () -> Unit,
     onStartConstructionStart: (ExtendedPrefixAutomataBuilder<Long>) -> Unit,
