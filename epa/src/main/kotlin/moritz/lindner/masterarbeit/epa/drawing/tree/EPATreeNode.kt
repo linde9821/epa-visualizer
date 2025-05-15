@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.drawing.tree
+package moritz.lindner.masterarbeit.epa.drawing.tree
 
 import moritz.lindner.masterarbeit.epa.domain.State
 

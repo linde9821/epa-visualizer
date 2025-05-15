@@ -1,4 +1,4 @@
-package epa
+package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,16 +16,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 
 @Composable
-fun EpaView(
+fun EpaViewUi(
     epa: ExtendedPrefixAutomata<Long>,
     tree: EPATreeNode<Long>,
-    scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
@@ -63,7 +61,7 @@ fun EpaView(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
             Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
-                RadialTidyTreeUI(epa, tree, backgroundDispatcher, scope, radius, margin)
+                RadialTidyTreeUi(epa, tree, backgroundDispatcher, radius, margin)
             }
             // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {

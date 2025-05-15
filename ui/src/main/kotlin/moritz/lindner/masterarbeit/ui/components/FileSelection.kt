@@ -1,4 +1,4 @@
-package epa
+package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
@@ -15,7 +15,7 @@ import java.io.File
 import java.io.FilenameFilter
 
 @Composable
-fun FileSelection(onFileSelected: (file: File) -> Unit) {
+fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
 
     Column {

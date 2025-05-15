@@ -1,12 +1,12 @@
 package moritz.lindner.masterarbeit
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import moritz.lindner.masterarbeit.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.DotExporter
 import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor

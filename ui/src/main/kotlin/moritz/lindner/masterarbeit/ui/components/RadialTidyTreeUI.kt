@@ -1,4 +1,4 @@
-package epa
+package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -24,19 +24,18 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import moritz.lindner.masterarbeit.drawing.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.drawing.layout.implementations.SimpleTreeLayout
-import moritz.lindner.masterarbeit.drawing.placement.Coordinate
-import moritz.lindner.masterarbeit.drawing.placement.Rectangle
-import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.State.Root
+import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.SimpleTreeLayout
+import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.PI
 
 private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
@@ -44,11 +43,10 @@ private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 val logger = KotlinLogging.logger {}
 
 @Composable
-fun RadialTidyTreeUI(
+fun RadialTidyTreeUi(
     epa: ExtendedPrefixAutomata<Long>,
     tree: EPATreeNode<Long>,
     dispatcher: CoroutineDispatcher,
-    scope: CoroutineScope,
     value: Float,
     margin: Float,
 ) {

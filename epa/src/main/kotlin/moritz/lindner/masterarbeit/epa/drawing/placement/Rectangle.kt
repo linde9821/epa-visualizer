@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.drawing.placement
+package moritz.lindner.masterarbeit.epa.drawing.placement
 
 data class Rectangle(
     val topLeft: Coordinate,

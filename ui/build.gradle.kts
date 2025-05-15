@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "0.1.0"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -27,7 +27,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "EPAVisualizerKt"
+        mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

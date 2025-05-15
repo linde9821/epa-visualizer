@@ -1,6 +1,6 @@
-package moritz.lindner.masterarbeit.drawing.placement
+package moritz.lindner.masterarbeit.epa.drawing.placement
 
-import moritz.lindner.masterarbeit.drawing.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 
 data class NodePlacementInformation<T : Comparable<T>>(
     val coordinate: Coordinate,
