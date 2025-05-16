@@ -6,10 +6,9 @@ import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.DotExporter
-import moritz.lindner.masterarbeit.epa.visitor.StatisticsVisitor
+import moritz.lindner.masterarbeit.epa.visitor.BranchFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.visitor.ChainLengthVisitor
 import java.io.File
 
 fun main() {
@@ -24,7 +23,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = loops
+    val (file, mapper) = sample
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -34,24 +33,17 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
+    val visitor = BranchFrequencyVisitor<Long>()
+    epa.acceptDepthFirst(
+        AutomataVisitorProgressBar(visitor, "Branch Frequency Frequencies"),
+    )
+
+    val chainVisitor = ChainLengthVisitor<Long>()
+    epa.acceptDepthFirst(chainVisitor)
+
+    println(chainVisitor.chains.joinToString("\n"))
+
     logger.info { "build EPA successfully" }
 
-    val visitor = DotExporter(epa)
-    epa.acceptDepthFirst(visitor)
-    File("./dia.dot").writeText(visitor.buildDot())
-    logger.info { "\nWrote dia to ${file.absolutePath} of size ${file.length()} bytes" }
-
-    logger.info { "Statistics:" }
-    val visitor1 = StatisticsVisitor(epa)
-    val statisticsVisitor = AutomataVisitorProgressBar(visitor1, "statistics")
-    epa.acceptDepthFirst(statisticsVisitor)
-    logger.info { visitor1.report() }
-    val treeBuildingVisitor = TreeBuildingVisitor<Long>()
-
-//    epa.acceptBreadthFirst(
-//        PrintingVisitor(
-//            printTransition = false,
-//            printEvent = false,
-//        ),
-//    )
+    visitor.report("/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/frequency.csv")
 }
