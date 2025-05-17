@@ -23,7 +23,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = sample
+    val (file, mapper) = challenge2018
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -37,13 +37,16 @@ fun main() {
     epa.acceptDepthFirst(
         AutomataVisitorProgressBar(visitor, "Branch Frequency Frequencies"),
     )
+    visitor.report(
+        "/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/frequency_challenge_2018.csv",
+    )
 
     val chainVisitor = ChainLengthVisitor<Long>()
-    epa.acceptDepthFirst(chainVisitor)
+    epa.acceptDepthFirst(AutomataVisitorProgressBar(chainVisitor, "unchaining"))
 
-    println(chainVisitor.chains.joinToString("\n"))
+    chainVisitor.report(
+        "/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/chained_challenge_2018.csv",
+    )
 
     logger.info { "build EPA successfully" }
-
-    visitor.report("/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/frequency.csv")
 }

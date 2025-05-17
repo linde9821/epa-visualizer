@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.openxes)
     implementation(libs.progressbar)
     implementation(libs.rtree)
+    implementation(libs.csv)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
