@@ -30,9 +30,9 @@ Nodes with less than 1% 4549
 ## 2017
 
 Nodes with more than 1% 228
-Nodes with less than 1% 279570
+Nodes with less than 1% 279.570
 
 ## 2018
 
-Nodes with more than 1% 1383
-Nodes with less than 1% 1199244
+Nodes with more than 1% 1.383
+Nodes with less than 1% 1.199.244
