@@ -1,10 +1,10 @@
-package moritz.lindner.masterarbeit.epa.visitor
+package moritz.lindner.masterarbeit.epa.visitor.statistics
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
 class BranchFrequencyVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val eventsByState = HashMap<State, Int>()
@@ -42,19 +42,25 @@ class BranchFrequencyVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     }
 
     fun report(path: String) {
-        csvWriter().open(path) {
-            writeRow("state name", "frequency", "total events")
+        val bigger1P = frequencyByState.values.filter { it > 0.01 }.count()
+        val smaller1P = frequencyByState.values.filter { it <= 0.01 }.count()
 
-            writeRow("all", 1.0f, totalEventsOfActivity.values.sum())
+        println("Nodes with more than 1% $bigger1P")
+        println("Nodes with less than 1% $smaller1P")
 
-            frequencyByState.entries.sortedByDescending { it.value }.forEach { (state, frequency) ->
-                val stateName =
-                    when (state) {
-                        is State.PrefixState -> "${state.name} from ${state.from} via ${state.via}"
-                        State.Root -> "root"
-                    }
-                writeRow(stateName, frequency, eventsByState[state])
-            }
-        }
+//        csvWriter().open(path) {
+//            writeRow("state name", "frequency", "total events")
+//
+//            writeRow("all", 1.0f, totalEventsOfActivity.values.sum())
+//
+//            frequencyByState.entries.sortedByDescending { it.value }.forEach { (state, frequency) ->
+//                val stateName =
+//                    when (state) {
+//                        is State.PrefixState -> "${state.name} from ${state.from} via ${state.via}"
+//                        State.Root -> "root"
+//                    }
+//                writeRow(stateName, frequency, eventsByState[state])
+//            }
+//        }
     }
 }

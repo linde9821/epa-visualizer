@@ -9,7 +9,6 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 /**
  * Not thread safe to visit
  */
-// TODO: specify collection implementations
 class ExtendedPrefixAutomata<T : Comparable<T>>(
     val states: HashSet<State>,
     val activities: HashSet<Activity>,
@@ -18,7 +17,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     private val sequenceByState: HashMap<State, HashSet<Event<T>>>,
 ) {
     // for improved visitor speed
-    val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
+    private val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
 
     fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 
@@ -41,13 +40,13 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     }
 
     private fun visitBreadthFirst(visitor: AutomataVisitor<T>) {
-        data class Inner(
+        data class StateAndDepth(
             val state: State,
             val depth: Int,
         )
 
-        val deque = ArrayDeque<Inner>(states.size / 2)
-        deque.add(Inner(State.Root, 0))
+        val deque = ArrayDeque<StateAndDepth>(states.size / 2)
+        deque.add(StateAndDepth(State.Root, 0))
 
         while (deque.isNotEmpty()) {
             visitedStates++
@@ -65,7 +64,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
 
             transitions.forEach { transition ->
                 visitor.visit(this, transition, depth)
-                deque.addLast(Inner(transition.end, depth + 1))
+                deque.addLast(StateAndDepth(transition.end, depth + 1))
             }
         }
     }

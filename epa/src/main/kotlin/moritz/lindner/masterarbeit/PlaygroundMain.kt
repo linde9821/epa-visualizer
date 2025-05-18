@@ -7,8 +7,7 @@ import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.BranchFrequencyVisitor
-import moritz.lindner.masterarbeit.epa.visitor.ChainLengthVisitor
+import moritz.lindner.masterarbeit.epa.visitor.dot.DotExportVisitor
 import java.io.File
 
 fun main() {
@@ -23,7 +22,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = challenge2018
+    val (file, mapper) = sample
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -33,20 +32,19 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-    val visitor = BranchFrequencyVisitor<Long>()
+    val visitor = DotExportVisitor<Long>(epa)
     epa.acceptDepthFirst(
         AutomataVisitorProgressBar(visitor, "Branch Frequency Frequencies"),
     )
-    visitor.report(
-        "/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/frequency_challenge_2018.csv",
-    )
+    val dot = visitor.buildDot()
 
-    val chainVisitor = ChainLengthVisitor<Long>()
-    epa.acceptDepthFirst(AutomataVisitorProgressBar(chainVisitor, "unchaining"))
-
-    chainVisitor.report(
-        "/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/chained_challenge_2018.csv",
-    )
+    File("./dia.dot").writeText(dot)
+//    val chainVisitor = ChainLengthVisitor<Long>()
+//    epa.acceptDepthFirst(AutomataVisitorProgressBar(chainVisitor, "unchaining"))
+//
+//    chainVisitor.report(
+//        "/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/chained_challenge_2018.csv",
+//    )
 
     logger.info { "build EPA successfully" }
 }

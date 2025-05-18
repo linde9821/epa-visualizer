@@ -1,15 +1,14 @@
-package moritz.lindner.masterarbeit.epa.visitor
+package moritz.lindner.masterarbeit.epa.visitor.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 import kotlin.math.max
 
-class StatisticsVisitor<T : Comparable<T>>(
-    private val extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
-) : AutomataVisitor<T> {
+class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
     private val visitedTransitions = mutableSetOf<Transition>()
     private var eventCount = 0

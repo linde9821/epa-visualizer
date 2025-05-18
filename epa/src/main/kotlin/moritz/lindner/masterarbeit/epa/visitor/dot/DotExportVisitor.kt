@@ -1,13 +1,11 @@
-package moritz.lindner.masterarbeit.epa.visitor
+package moritz.lindner.masterarbeit.epa.visitor.dot
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
-class DotExporter<T : Comparable<T>>(
-    private val epa: ExtendedPrefixAutomata<T>,
-) : AutomataVisitor<T> {
+class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val labelByState = mutableMapOf<State, String>()
     private val transitions = mutableListOf<String>()
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
@@ -21,13 +19,13 @@ class DotExporter<T : Comparable<T>>(
             when (state) {
                 is State.Root -> "Root"
                 is State.PrefixState ->
-                    epa
+                    extendedPrefixAutomata
                         .sequence(state)
                         .joinToString("\\n") { "${it.activity.name} ${it.caseIdentifier}" }
             }
         labelByState[state] = label
 
-        val partition = epa.partition(state)
+        val partition = extendedPrefixAutomata.partition(state)
         statesByPartition.getOrPut(partition) { mutableSetOf() }.add(state)
     }
 
@@ -37,14 +35,6 @@ class DotExporter<T : Comparable<T>>(
         depth: Int,
     ) {
         transitions.add("\"${transition.start.hashCode()}\" -> \"${transition.end.hashCode()}\" [label=\"${transition.activity.name}\"];")
-    }
-
-    override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
-        event: Event<T>,
-        depth: Int,
-    ) {
-        // nothing todo
     }
 
     fun buildDot(): String {
