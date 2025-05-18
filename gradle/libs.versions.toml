@@ -11,6 +11,7 @@ jaxb-api = "2.4.0-b180830.0359"
 progressbar = "0.10.1"
 rtree2 = "0.9.3"
 csv-jvm = "1.10.0"
+selfie = "2.5.2"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -24,6 +25,7 @@ jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb-api" }
 progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 rtree = { module = "com.github.davidmoten:rtree2", version.ref = "rtree2" }
 csv = { module = "com.jsoizo:kotlin-csv-jvm", version.ref = "csv-jvm" }
+selfie-runner = { module = "com.diffplug.selfie:selfie-runner-junit5", version.ref = "selfie" }
 
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]

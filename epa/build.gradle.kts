@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.selfie.runner)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation(libs.guava)
@@ -30,7 +31,13 @@ java {
     }
 }
 
-tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
+tasks.test {
     useJUnitPlatform()
+    environment(properties.filter { it.key == "selfie" }) // optional, see "Overwrite everything" below
+    inputs.files(
+        fileTree("src/test") {
+            // optional, improves up-to-date checking
+            include("**/*.ss")
+        },
+    )
 }
