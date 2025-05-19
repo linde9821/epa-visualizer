@@ -100,19 +100,19 @@ fun EpaTreeViewUi(
             )
         }
     }
+
     Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
         Column(
-            modifier = Modifier.background(Color.Red).fillMaxWidth(0.2f).fillMaxHeight(),
+            modifier = Modifier.background(Color.Red).fillMaxWidth(0.1f).fillMaxHeight(),
         ) {
             Text("UI Component Filter")
         }
         Column(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
-            Row(modifier = Modifier.background(Color.White).fillMaxWidth()) {
+            Row(modifier = Modifier.background(Color.White).fillMaxWidth().fillMaxHeight(0.9f)) {
                 TidyTreeUi(epa, tree, backgroundDispatcher, radius, margin, layout)
             }
-            // TODO: why is this not rendered
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")
             }

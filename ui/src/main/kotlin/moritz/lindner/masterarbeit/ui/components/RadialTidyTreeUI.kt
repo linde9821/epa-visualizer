@@ -21,15 +21,12 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.rememberTextMeasurer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
@@ -39,7 +36,6 @@ import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.WalkerTree
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
-import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
@@ -64,7 +60,6 @@ fun TidyTreeUi(
 
     val mutex = remember { Mutex() }
 
-    val textMeasurer = rememberTextMeasurer()
     var layout: TreeLayout<Long>? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -140,37 +135,11 @@ fun TidyTreeUi(
                 pivot = Offset.Zero,
             )
         }) {
-            val t = (center - offset) / scale
-
-            val topLeft = Offset(x = t.x - ((size.width / scale) / 2f), y = t.y - ((size.height / scale) / 2f))
-            val bottomRight = Offset(x = t.x + ((size.width / scale) / 2f), y = t.y + ((size.height / scale) / 2f))
+            val center = (center - offset) / scale
+            val topLeft = Offset(x = center.x - ((size.width / scale) / 2f), y = center.y - ((size.height / scale) / 2f))
+            val bottomRight = Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
 
             val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
-
-            drawCircle(
-                color = Color.Red,
-                center = t,
-                radius = 5.0f,
-            )
-
-            drawCircle(
-                color = Color.Green,
-                center = topLeft,
-                radius = 50.0f,
-            )
-
-            drawCircle(
-                color = Color.Blue,
-                center = bottomRight,
-                radius = 50.0f,
-            )
-
-            drawLine(
-                color = Color.Blue,
-                start = Offset(x = topLeft.x, y = topLeft.y),
-                end = Offset(x = topLeft.x, y = topLeft.y),
-            )
-
             if (!isLoading && layout != null && layout!!.isBuilt()) {
                 (layout as? DirectAngularPlacement)?.let {
                     drawDepthCircles(it)
@@ -180,83 +149,56 @@ fun TidyTreeUi(
                     drawDepthCircles(it)
                 }
 
-                val center = Offset(size.width / 2f, size.height / 2f)
-                drawEPA(epa, layout!!, textMeasurer, center, boundingBox)
+                drawEPA(layout!!, boundingBox)
             }
         }
     }
 }
 
-private fun Offset.toCoordinate(): Coordinate =
-    Coordinate(
-        x = this.x,
-        y = this.y,
-    )
-
 private fun DrawScope.drawEPA(
-    epa: ExtendedPrefixAutomata<Long>,
     layout: TreeLayout<Long>,
-    textMeasurer: TextMeasurer,
-    center: Offset,
     boundingBox: Rectangle,
 ) {
     val search = layout.getCoordinatesInRectangle(boundingBox)
     logger.info { "drawing ${search.size} nodes" }
-    search.forEach {
-        drawState(layout, it.node.state, textMeasurer, center, epa, it.coordinate)
+    drawIntoCanvas { canvas ->
+        search.forEach { (coordinate, node) ->
+            val state = node.state
+            val paint =
+                Paint().apply {
+                    color = SkiaColor.BLACK
+                    mode = PaintMode.FILL
+                    isAntiAlias = true
+                }
+
+            canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
+
+            if (state is PrefixState) {
+                val parentCoordinate = layout.getCoordinate(state.from)
+                val start = Offset(parentCoordinate.x, -parentCoordinate.y)
+                val end = Offset(coordinate.x, -coordinate.y)
+
+                val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+
+                val paint2 =
+                    Paint().apply {
+                        color = SkiaColor.BLACK
+                        mode = PaintMode.STROKE
+                        strokeWidth = 4f
+                        isAntiAlias = true
+                    }
+
+                val path =
+                    Path().apply {
+                        moveTo(start.x, start.y)
+                        cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
+                    }
+
+                canvas.nativeCanvas.drawPath(path, paint2)
+            }
+        }
     }
 }
-
-private fun DrawScope.drawState(
-    layout: TreeLayout<Long>,
-    state: State,
-    textMeasurer: TextMeasurer,
-    center: Offset,
-    epa: ExtendedPrefixAutomata<Long>,
-    coordinate: Coordinate,
-) {
-//    drawNode(state, textMeasurer, coordinate, center, epa)
-//    drawEdge(state, layout, coordinate)
-    drawNodeLowLevel(coordinate)
-    drawEdgeLowLevel(state, layout, coordinate)
-}
-
-// private fun DrawScope.drawEdge(
-//    state: State,
-//    layout: TreeLayout<Long>,
-//    coordinate: Coordinate,
-// ) {
-//    when (state) {
-//        is PrefixState -> {
-//            val parentCoordinate = layout.getCoordinate(state.from)
-//            val start = Offset(parentCoordinate.x, parentCoordinate.y * -1)
-//            val end = Offset(coordinate.x, coordinate.y * -1)
-//
-//            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-//
-//            val path =
-//                Path().apply {
-//                    moveTo(start.x, start.y)
-//                    cubicTo(
-//                        c1.x,
-//                        c1.y * -1,
-//                        c2.x,
-//                        c2.y * -1,
-//                        end.x,
-//                        end.y,
-//                    )
-//                }
-//
-//            drawPath(
-//                path = path,
-//                color = Color.Black,
-//                style = Stroke(width = 4f),
-//            )
-//        }
-//
-//        Root -> {}
-//    }
-// }
 
 fun getControlPoints(
     parentCoordinate: Coordinate,
@@ -277,8 +219,8 @@ private fun DrawScope.drawDepthCircles(layout: RadialTreeLayout<Long>) {
         drawCircle(
             color = Color.Gray,
             radius = depth * layout.getCircleRadius(),
-            center = Offset(0f, 0.0f),
-            style = Stroke(width = 2f), // Adjust the stroke width as needed
+            center = Offset.Zero,
+            style = Stroke(width = 2f),
         )
     }
 }
@@ -296,81 +238,17 @@ fun DrawScope.drawNodeLowLevel(coordinate: Coordinate) {
     }
 }
 
-fun DrawScope.drawNode(
-    node: State,
-    textMeasurer: TextMeasurer,
-    coordinate: Coordinate,
-    center: Offset,
-    epa: ExtendedPrefixAutomata<Long>,
-) {
-    // Draw circle
+fun DrawScope.drawNode(coordinate: Coordinate) {
     drawCircle(
         color = Color.Black,
         radius = 10f,
         center = Offset(coordinate.x, coordinate.y * -1),
-//        style = Stroke(width = 4f), // Adjust the stroke width as needed
+        style = Stroke(width = 4f),
     )
-
-//    // Prepare the label
-//    val label = epa.sequence(node).joinToString { it.activity.name }
-//
-//    // Define text style
-//    val textStyle =
-//        TextStyle(
-//            fontSize = 20.sp,
-//            fontWeight = FontWeight.Normal,
-//            color = Color.Red,
-//        )
-//
-//    // Measure the text
-//    val textLayoutResult =
-//        textMeasurer.measure(
-//            text = AnnotatedString(label),
-//            style = textStyle,
-//        )
-//
-//    // Calculate position to draw text next to the node
-//    val textPosition =
-//        Offset(
-//            x = coordinate.x + 30f,
-//            y = coordinate.y - textLayoutResult.size.height / 2,
-//        )
-//
-//    // Draw the text
-//    drawText(
-//        textLayoutResult = textLayoutResult,
-//        topLeft = textPosition,
-//    )
 }
 
-fun DrawScope.drawEdgeLowLevel(
-    state: State,
-    layout: TreeLayout<Long>,
-    coordinate: Coordinate,
-) {
-    if (state !is PrefixState) return
-
-    val parentCoordinate = layout.getCoordinate(state.from)
-    val start = Offset(parentCoordinate.x, -parentCoordinate.y)
-    val end = Offset(coordinate.x, -coordinate.y)
-
-    val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-
-    drawIntoCanvas { canvas ->
-        val paint =
-            Paint().apply {
-                color = SkiaColor.BLACK
-                mode = PaintMode.STROKE
-                strokeWidth = 4f
-                isAntiAlias = true
-            }
-
-        val path =
-            Path().apply {
-                moveTo(start.x, start.y)
-                cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
-            }
-
-        canvas.nativeCanvas.drawPath(path, paint)
-    }
-}
+private fun Offset.toCoordinate(): Coordinate =
+    Coordinate(
+        x = this.x,
+        y = this.y,
+    )
