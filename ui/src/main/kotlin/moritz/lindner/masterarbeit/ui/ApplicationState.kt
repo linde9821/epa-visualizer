@@ -13,6 +13,7 @@ sealed class ApplicationState {
     ) : ApplicationState()
 
     data class EpaConstructionRunning(
+        val selectedFile: File,
         val builder: ExtendedPrefixAutomataBuilder<Long>,
     ) : ApplicationState()
 

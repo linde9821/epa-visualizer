@@ -3,7 +3,10 @@ package moritz.lindner.masterarbeit.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +24,9 @@ fun EPAVisualizerUi() {
     val backgroundDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     var state: ApplicationState by remember { mutableStateOf(ApplicationState.NoFileSelected) }
     val scope = rememberCoroutineScope()
+
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("Unknown error") }
 
     MaterialTheme {
         Column(
@@ -40,15 +46,38 @@ fun EPAVisualizerUi() {
                         file = currentState.file,
                         onAbort = { state = ApplicationState.NoFileSelected },
                         onStartConstructionStart = { builder ->
-                            state = ApplicationState.EpaConstructionRunning(builder)
+                            state = ApplicationState.EpaConstructionRunning(currentState.file, builder)
                         },
                     )
 
-                is ApplicationState.EpaConstructionRunning ->
-                    ConstructEpaUi(scope, backgroundDispatcher, currentState.builder) { epa, tree ->
+                is ApplicationState.EpaConstructionRunning -> {
+                    ConstructEpaUi(scope, backgroundDispatcher, currentState.builder, { epa, tree ->
                         state = ApplicationState.EpaConstructed(epa, tree)
+                    }) { error, e ->
+                        showErrorDialog = true
+                        errorMessage = error
                     }
 
+                    if (showErrorDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showErrorDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showErrorDialog = false
+                                    state = ApplicationState.FileSelected(currentState.selectedFile)
+                                }) {
+                                    Text("OK")
+                                }
+                            },
+                            title = {
+                                Text("Error")
+                            },
+                            text = {
+                                Text(errorMessage)
+                            },
+                        )
+                    }
+                }
                 is ApplicationState.EpaConstructed ->
                     EpaTreeViewUi(
                         currentState.extendedPrefixAutomata,
