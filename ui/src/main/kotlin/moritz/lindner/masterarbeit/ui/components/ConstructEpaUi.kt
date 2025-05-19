@@ -17,15 +17,20 @@ fun ConstructEpaUi(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     builder: ExtendedPrefixAutomataBuilder<Long>,
     onEPAConstructed: (ExtendedPrefixAutomata<Long>, EPATreeNode<Long>) -> Unit,
+    onError: (String, Throwable) -> Unit,
 ) {
     val visitor = TreeBuildingVisitor<Long>()
 
     scope.launch(backgroundDispatcher) {
-        val epa = builder.build()
-
-        epa.acceptDepthFirst(AutomataVisitorProgressBar(visitor, "tree"))
-
-        onEPAConstructed(epa, visitor.root)
+        try {
+            val epa = builder.build()
+            epa.acceptDepthFirst(AutomataVisitorProgressBar(visitor, "tree"))
+            onEPAConstructed(epa, visitor.root)
+        } catch (e: NullPointerException) {
+            onError("Check Mapper", e)
+        } catch (e: Exception) {
+            onError(e.toString(), e)
+        }
     }
 
     LinearProgressIndicator()
