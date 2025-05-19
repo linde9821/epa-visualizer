@@ -14,10 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextMeasurer
@@ -30,7 +31,6 @@ import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
-import moritz.lindner.masterarbeit.epa.domain.State.Root
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngularPlacement
@@ -39,7 +39,12 @@ import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.WalkerTree
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
+import org.jetbrains.skia.Canvas
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.PaintMode
+import org.jetbrains.skia.Path
 import kotlin.math.PI
+import org.jetbrains.skia.Color as SkiaColor
 
 private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
@@ -62,14 +67,11 @@ fun TidyTreeUi(
     val textMeasurer = rememberTextMeasurer()
     var layout: TreeLayout<Long>? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
-    var zoomPivot by remember { mutableStateOf(Offset.Zero) }
 
     LaunchedEffect(epa, radius, tree, margin, layoutSelection) {
         isLoading = true
         mutex.withLock {
             withContext(dispatcher) {
-                logger.info { "margine: $margin deg" }
-
                 layout =
                     if (layoutSelection.name == "Walker") {
                         WalkerTreeLayout(
@@ -103,7 +105,6 @@ fun TidyTreeUi(
                 detectTransformGestures { centroid, pan, zoom, _ ->
                     scale *= zoom
                     offset += (centroid - offset) * (1f - zoom) + pan
-                    zoomPivot = centroid
                 }
             }.pointerInput(Unit) {
                 awaitPointerEventScope {
@@ -121,7 +122,6 @@ fun TidyTreeUi(
 
                             val oldScale = scale
                             val newScale = (oldScale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.0005f, 10f)
-                            val scaleChange = newScale / oldScale
                             scale = newScale
 
                             val worldPosAfter = worldPosBefore * scale
@@ -171,11 +171,6 @@ fun TidyTreeUi(
                 end = Offset(x = topLeft.x, y = topLeft.y),
             )
 
-            logger.info { "center: $t" }
-            logger.info { "top left: $topLeft" }
-            logger.info { "bottom right: $bottomRight" }
-            logger.info { "boundingBox: $boundingBox" }
-
             if (!isLoading && layout != null && layout!!.isBuilt()) {
                 (layout as? DirectAngularPlacement)?.let {
                     drawDepthCircles(it)
@@ -220,46 +215,48 @@ private fun DrawScope.drawState(
     epa: ExtendedPrefixAutomata<Long>,
     coordinate: Coordinate,
 ) {
-    drawNode(state, textMeasurer, coordinate, center, epa)
-    drawEdge(state, layout, coordinate)
+//    drawNode(state, textMeasurer, coordinate, center, epa)
+//    drawEdge(state, layout, coordinate)
+    drawNodeLowLevel(coordinate)
+    drawEdgeLowLevel(state, layout, coordinate)
 }
 
-private fun DrawScope.drawEdge(
-    state: State,
-    layout: TreeLayout<Long>,
-    coordinate: Coordinate,
-) {
-    when (state) {
-        is PrefixState -> {
-            val parentCoordinate = layout.getCoordinate(state.from)
-            val start = Offset(parentCoordinate.x, parentCoordinate.y * -1)
-            val end = Offset(coordinate.x, coordinate.y * -1)
-
-            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-
-            val path =
-                Path().apply {
-                    moveTo(start.x, start.y)
-                    cubicTo(
-                        c1.x,
-                        c1.y * -1,
-                        c2.x,
-                        c2.y * -1,
-                        end.x,
-                        end.y,
-                    )
-                }
-
-            drawPath(
-                path = path,
-                color = Color.Black,
-                style = Stroke(width = 4f),
-            )
-        }
-
-        Root -> {}
-    }
-}
+// private fun DrawScope.drawEdge(
+//    state: State,
+//    layout: TreeLayout<Long>,
+//    coordinate: Coordinate,
+// ) {
+//    when (state) {
+//        is PrefixState -> {
+//            val parentCoordinate = layout.getCoordinate(state.from)
+//            val start = Offset(parentCoordinate.x, parentCoordinate.y * -1)
+//            val end = Offset(coordinate.x, coordinate.y * -1)
+//
+//            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+//
+//            val path =
+//                Path().apply {
+//                    moveTo(start.x, start.y)
+//                    cubicTo(
+//                        c1.x,
+//                        c1.y * -1,
+//                        c2.x,
+//                        c2.y * -1,
+//                        end.x,
+//                        end.y,
+//                    )
+//                }
+//
+//            drawPath(
+//                path = path,
+//                color = Color.Black,
+//                style = Stroke(width = 4f),
+//            )
+//        }
+//
+//        Root -> {}
+//    }
+// }
 
 fun getControlPoints(
     parentCoordinate: Coordinate,
@@ -283,6 +280,19 @@ private fun DrawScope.drawDepthCircles(layout: RadialTreeLayout<Long>) {
             center = Offset(0f, 0.0f),
             style = Stroke(width = 2f), // Adjust the stroke width as needed
         )
+    }
+}
+
+fun DrawScope.drawNodeLowLevel(coordinate: Coordinate) {
+    drawIntoCanvas { canvas ->
+        val paint =
+            Paint().apply {
+                color = SkiaColor.BLACK
+                mode = PaintMode.FILL
+                isAntiAlias = true
+            }
+
+        canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
     }
 }
 
@@ -331,4 +341,36 @@ fun DrawScope.drawNode(
 //        textLayoutResult = textLayoutResult,
 //        topLeft = textPosition,
 //    )
+}
+
+fun DrawScope.drawEdgeLowLevel(
+    state: State,
+    layout: TreeLayout<Long>,
+    coordinate: Coordinate,
+) {
+    if (state !is PrefixState) return
+
+    val parentCoordinate = layout.getCoordinate(state.from)
+    val start = Offset(parentCoordinate.x, -parentCoordinate.y)
+    val end = Offset(coordinate.x, -coordinate.y)
+
+    val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+
+    drawIntoCanvas { canvas ->
+        val paint =
+            Paint().apply {
+                color = SkiaColor.BLACK
+                mode = PaintMode.STROKE
+                strokeWidth = 4f
+                isAntiAlias = true
+            }
+
+        val path =
+            Path().apply {
+                moveTo(start.x, start.y)
+                cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
+            }
+
+        canvas.nativeCanvas.drawPath(path, paint)
+    }
 }
