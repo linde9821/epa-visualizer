@@ -93,4 +93,13 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
                 )
             }
     }
+
+    override fun toString(): String =
+        buildString {
+            appendLine(states.joinToString(","))
+            appendLine(activities.joinToString(","))
+            appendLine(transitions.joinToString(","))
+            appendLine(partitionByState.map { "${it.key}:${it.value}" }.joinToString(","))
+            appendLine(sequenceByState.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(","))
+        }
 }
