@@ -10,11 +10,11 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * Not thread safe to visit
  */
 class ExtendedPrefixAutomata<T : Comparable<T>>(
-    val states: HashSet<State>,
-    val activities: HashSet<Activity>,
-    val transitions: HashSet<Transition>,
-    private val partitionByState: HashMap<State, Int>,
-    private val sequenceByState: HashMap<State, HashSet<Event<T>>>,
+    val states: Set<State>,
+    val activities: Set<Activity>,
+    val transitions: Set<Transition>,
+    private val partitionByState: Map<State, Int>,
+    private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
     // for improved visitor speed
     private val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
