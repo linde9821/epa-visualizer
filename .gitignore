@@ -107,7 +107,7 @@ fabric.properties
 *.war
 *.nar
 *.ear
-*.zip
+#*.zip
 *.tar.gz
 *.rar
 
@@ -422,3 +422,4 @@ gradle-app.setting
 build
 /.kotlin/
 ui/.run/desktop.run.xml
+*.csv

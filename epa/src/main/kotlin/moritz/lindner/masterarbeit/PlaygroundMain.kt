@@ -6,7 +6,6 @@ import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.dot.DotExportVisitor
 import java.io.File
 
@@ -32,19 +31,13 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-    val visitor = DotExportVisitor<Long>(epa)
-    epa.acceptDepthFirst(
-        AutomataVisitorProgressBar(visitor, "Branch Frequency Frequencies"),
-    )
-    val dot = visitor.buildDot()
+    val visitor = DotExportVisitor<Long>()
+    val visitor2 = DotExportVisitor<Long>()
+    epa.acceptDepthFirst(visitor)
+    epa.acceptBreadthFirst(visitor2)
 
-    File("./dia.dot").writeText(dot)
-//    val chainVisitor = ChainLengthVisitor<Long>()
-//    epa.acceptDepthFirst(AutomataVisitorProgressBar(chainVisitor, "unchaining"))
-//
-//    chainVisitor.report(
-//        "/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/epa/src/main/resources/statistics/chained_challenge_2018.csv",
-//    )
+    File("./test1.dot").writeText(visitor.dot)
+    File("./test2.dot").writeText(visitor2.dot)
 
     logger.info { "build EPA successfully" }
 }
