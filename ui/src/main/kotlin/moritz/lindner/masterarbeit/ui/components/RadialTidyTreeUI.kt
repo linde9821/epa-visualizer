@@ -62,6 +62,7 @@ fun TidyTreeUi(
     val textMeasurer = rememberTextMeasurer()
     var layout: TreeLayout<Long>? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var zoomPivot by remember { mutableStateOf(Offset.Zero) }
 
     LaunchedEffect(epa, radius, tree, margin, layoutSelection) {
         isLoading = true
@@ -102,6 +103,7 @@ fun TidyTreeUi(
                 detectTransformGestures { centroid, pan, zoom, _ ->
                     scale *= zoom
                     offset += (centroid - offset) * (1f - zoom) + pan
+                    zoomPivot = centroid
                 }
             }.pointerInput(Unit) {
                 awaitPointerEventScope {
@@ -114,12 +116,16 @@ fun TidyTreeUi(
                                 ?.y ?: 0f
 
                         if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
-                            val newZoom = (scale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.0005f, 10f)
+                            val cursorPosition = event.changes.first().position
+                            val worldPosBefore = (cursorPosition - offset) / scale
 
-                            val scaleChange = newZoom / scale
-                            offset *= scaleChange
+                            val oldScale = scale
+                            val newScale = (oldScale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.0005f, 10f)
+                            val scaleChange = newScale / oldScale
+                            scale = newScale
 
-                            scale = newZoom
+                            val worldPosAfter = worldPosBefore * scale
+                            offset = cursorPosition - worldPosAfter
                         }
                     }
                 }

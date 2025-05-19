@@ -11,7 +11,9 @@ repositories {
 
 dependencies {
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.selfie.runner)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.assertj:assertj-core:4.0.0-M1")
 
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
@@ -20,6 +22,7 @@ dependencies {
     implementation(libs.openxes)
     implementation(libs.progressbar)
     implementation(libs.rtree)
+    implementation(libs.csv)
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -29,7 +32,13 @@ java {
     }
 }
 
-tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
+tasks.test {
     useJUnitPlatform()
+    environment(properties.filter { it.key == "selfie" }) // optional, see "Overwrite everything" below
+    inputs.files(
+        fileTree("src/test") {
+            // optional, improves up-to-date checking
+            include("**/*.ss")
+        },
+    )
 }

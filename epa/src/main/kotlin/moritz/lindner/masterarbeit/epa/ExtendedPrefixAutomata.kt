@@ -9,13 +9,12 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 /**
  * Not thread safe to visit
  */
-// TODO: specify collection implementations
 class ExtendedPrefixAutomata<T : Comparable<T>>(
-    val states: HashSet<State>,
-    val activities: HashSet<Activity>,
-    val transitions: HashSet<Transition>,
-    private val partitionByState: HashMap<State, Int>,
-    private val sequenceByState: HashMap<State, HashSet<Event<T>>>,
+    val states: Set<State>,
+    val activities: Set<Activity>,
+    val transitions: Set<Transition>,
+    private val partitionByState: Map<State, Int>,
+    private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
     // for improved visitor speed
     private val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
@@ -41,13 +40,13 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     }
 
     private fun visitBreadthFirst(visitor: AutomataVisitor<T>) {
-        data class Inner(
+        data class StateAndDepth(
             val state: State,
             val depth: Int,
         )
 
-        val deque = ArrayDeque<Inner>(states.size / 2)
-        deque.add(Inner(State.Root, 0))
+        val deque = ArrayDeque<StateAndDepth>(states.size / 2)
+        deque.add(StateAndDepth(State.Root, 0))
 
         while (deque.isNotEmpty()) {
             visitedStates++
@@ -65,7 +64,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
 
             transitions.forEach { transition ->
                 visitor.visit(this, transition, depth)
-                deque.addLast(Inner(transition.end, depth + 1))
+                deque.addLast(StateAndDepth(transition.end, depth + 1))
             }
         }
     }
@@ -94,4 +93,13 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
                 )
             }
     }
+
+    override fun toString(): String =
+        buildString {
+            appendLine(states.joinToString(","))
+            appendLine(activities.joinToString(","))
+            appendLine(transitions.joinToString(","))
+            appendLine(partitionByState.map { "${it.key}:${it.value}" }.joinToString(","))
+            appendLine(sequenceByState.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(","))
+        }
 }

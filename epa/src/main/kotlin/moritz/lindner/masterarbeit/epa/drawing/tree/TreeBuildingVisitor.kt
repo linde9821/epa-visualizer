@@ -9,7 +9,7 @@ class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     lateinit var root: EPATreeNode<T>
         private set
 
-    private val stateToNode = hashMapOf<State, EPATreeNode<T>>()
+    private val stateToNode = HashMap<State, EPATreeNode<T>>()
     private var currentState: State? = null
 
     override fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {

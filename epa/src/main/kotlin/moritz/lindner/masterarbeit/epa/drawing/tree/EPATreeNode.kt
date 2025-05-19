@@ -3,9 +3,9 @@ package moritz.lindner.masterarbeit.epa.drawing.tree
 import moritz.lindner.masterarbeit.epa.domain.State
 
 /**
- * EPATreeNode represents a node (state) of the EPA in  a tree structure.
+ * EPATreeNode represents a node (state) of the EPA as a tree structure.
  * It has a reference to its parent (null for root) and its children and
- * provides functionality to construct tree layouts efficiently
+ * provides functionality to construct tree layouts efficiently.
  */
 class EPATreeNode<T : Comparable<T>>(
     val state: State,
@@ -45,7 +45,7 @@ class EPATreeNode<T : Comparable<T>>(
 
     /**
      *  returns the index of the nodes in its parent’s child list.
-     *  */
+     **/
     fun number(): Int = childIndex
 
     fun children(): List<EPATreeNode<T>> = children

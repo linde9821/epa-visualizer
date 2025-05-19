@@ -422,3 +422,4 @@ gradle-app.setting
 build
 /.kotlin/
 ui/.run/desktop.run.xml
+*.csv
