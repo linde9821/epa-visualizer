@@ -10,6 +10,35 @@ class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val transitions = mutableListOf<String>()
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
 
+    lateinit var dot: String
+        private set
+
+    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+        dot =
+            buildString {
+                appendLine("digraph EPA {")
+                appendLine("    rankdir=LR;")
+                appendLine("    // states (nodes)")
+
+                labelByState
+                    .forEach { (state, label) -> appendLine("    \"${state.hashCode()}\" [label=\"$label\"];") }
+
+                appendLine("    // transitions")
+                transitions.forEach { appendLine("    $it") }
+
+                appendLine("    // partitions")
+                statesByPartition.forEach { (partition, states) ->
+                    appendLine("    subgraph cluster_partition$partition {")
+                    appendLine("        label = \"Partition $partition\";")
+                    appendLine("        color=black;")
+                    states.forEach { appendLine("        \"${it.hashCode()}\"") }
+                    appendLine("    }")
+                }
+
+                appendLine("}")
+            }
+    }
+
     override fun visit(
         extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         state: State,
@@ -35,29 +64,5 @@ class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         depth: Int,
     ) {
         transitions.add("\"${transition.start.hashCode()}\" -> \"${transition.end.hashCode()}\" [label=\"${transition.activity.name}\"];")
-    }
-
-    fun buildDot(): String {
-        val sb = StringBuilder()
-        sb.appendLine("digraph EPA {")
-        sb.appendLine("    rankdir=LR;")
-        sb.appendLine("    // states (nodes)")
-
-        labelByState.forEach { (state, label) -> sb.appendLine("    \"${state.hashCode()}\" [label=\"$label\"];") }
-
-        sb.appendLine("    // transitions")
-        transitions.forEach { sb.appendLine("    $it") }
-
-        sb.appendLine("    // partitions")
-        statesByPartition.forEach { (partition, states) ->
-            sb.appendLine("    subgraph cluster_partition$partition {")
-            sb.appendLine("        label = \"Partition $partition\";")
-            sb.appendLine("        color=black;")
-            states.forEach { sb.appendLine("        \"${it.hashCode()}\"") }
-            sb.appendLine("    }")
-        }
-
-        sb.appendLine("}")
-        return sb.toString()
     }
 }

@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.parser
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import me.tongfei.progressbar.ConsoleProgressBarConsumer
 import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
@@ -14,8 +13,6 @@ import java.io.InputStream
 class EPAXesParser : XesXmlParser() {
     private val parserStrategyByExtension = mapOf("xes" to XesXmlParser(), "gz" to XesXmlGZIPParser())
     private lateinit var parser: XesXmlParser
-
-    private val logger = KotlinLogging.logger { }
 
     override fun name(): String = "XES XML with progress"
 

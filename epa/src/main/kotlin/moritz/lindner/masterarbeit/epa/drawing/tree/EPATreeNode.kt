@@ -45,7 +45,7 @@ class EPATreeNode<T : Comparable<T>>(
 
     /**
      *  returns the index of the nodes in its parent’s child list.
-     *  */
+     **/
     fun number(): Int = childIndex
 
     fun children(): List<EPATreeNode<T>> = children

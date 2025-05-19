@@ -13,6 +13,7 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.assertj:assertj-core:4.0.0-M1")
 
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
