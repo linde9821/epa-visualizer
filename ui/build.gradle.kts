@@ -27,7 +27,7 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerKt"
+        mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
