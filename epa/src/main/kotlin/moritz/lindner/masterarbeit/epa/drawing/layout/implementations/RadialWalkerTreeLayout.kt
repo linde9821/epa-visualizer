@@ -14,8 +14,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
-
 class RadialWalkerTreeLayout<T : Comparable<T>>(
     val layerSpace: Float,
     expectedCapacity: Int = 1000,
