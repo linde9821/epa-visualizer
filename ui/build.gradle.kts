@@ -29,10 +29,24 @@ compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
 
+        jvmArgs +=
+            listOf(
+                "-XX:+UseG1GC",
+                "-XX:+TieredCompilation",
+                "-XX:+UseStringDeduplication",
+                "-XX:MaxInlineSize=60",
+                "-XX:FreqInlineSize=650",
+            )
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "ui"
+            packageName = "EPA Visualizer"
             packageVersion = "1.0.0"
+
+            macOS {
+                iconFile.set(project.file("src/main/resources/logo.png"))
+                bundleID = "moritz.lindner.masterarbeit"
+            }
         }
     }
 }
