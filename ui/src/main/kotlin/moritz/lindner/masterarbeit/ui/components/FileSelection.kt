@@ -2,12 +2,17 @@ package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Upload
@@ -30,25 +35,38 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center, // Optional: center vertically too
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(48.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Button(
-            shape = RoundedCornerShape(50),
-            onClick = {
-                showDialog = true
-            },
-        ) {
-            Icon(Icons.Default.Upload, contentDescription = null)
-            Spacer(Modifier.width(20.dp))
-            Text("Select File")
-        }
+        Text(
+            text = "EPA Visualizer",
+            style = MaterialTheme.typography.h3,
+            modifier = Modifier.padding(bottom = 50.dp),
+        )
 
+        Button(
+            shape = RoundedCornerShape(24.dp),
+            onClick = { showDialog = true },
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.height(48.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Upload,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text("Select event log", style = MaterialTheme.typography.button)
+        }
         if (showDialog) {
             FileDialog { path ->
                 val file = File(path)
                 onFileSelected(file)
+                showDialog = false
             }
         }
     }
@@ -64,8 +82,8 @@ private fun FileDialog(
             override fun isMultipleMode(): Boolean = false
 
             override fun getFilenameFilter(): FilenameFilter =
-                FilenameFilter { _, name ->
-                    name.endsWith("xes") || name.endsWith("gz")
+                FilenameFilter { file, name ->
+                    file.extension == "xes" || file.extension == "gz"
                 }
 
             override fun setVisible(value: Boolean) {
