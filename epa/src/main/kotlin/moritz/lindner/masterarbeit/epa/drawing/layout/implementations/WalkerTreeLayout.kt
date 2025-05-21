@@ -4,6 +4,7 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.Point
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
+import com.github.davidmoten.rtree2.internal.EntryDefault
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
@@ -297,20 +298,18 @@ open class WalkerTreeLayout(
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
-        var rTree = RTree.create<NodePlacementInformation, Point>()
-
-        nodePlacementInformationByState.forEach { (state, info) ->
-            rTree =
-                rTree.add(
-                    info,
-                    PointFloat.create(
-                        info.coordinate.x,
-                        info.coordinate.y * -1,
-                    ),
-                )
-        }
-
-        finalRTree = rTree
+        finalRTree =
+            RTree.create(
+                nodePlacementInformationByState.map { (_, info) ->
+                    EntryDefault(
+                        info,
+                        PointFloat.create(
+                            info.coordinate.x,
+                            info.coordinate.y * -1,
+                        ),
+                    )
+                },
+            )
 
         isBuilt = true
         logger.info { "finished layout construction" }

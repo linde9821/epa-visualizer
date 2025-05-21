@@ -2,16 +2,14 @@ package moritz.lindner.masterarbeit.epa.domain
 
 sealed class State(
     val name: String,
-): Comparable<State> {
-
-    override fun compareTo(other: State): Int {
-        return this.name.compareTo(other.name)
-    }
+) : Comparable<State> {
+    override fun compareTo(other: State): Int = this.name.compareTo(other.name)
 
     data object Root : State("root") {
         override fun toString() = name
     }
 
+    // TODO: hashing is kind of hard because of deep recursion
     class PrefixState(
         val from: State,
         val via: Activity,

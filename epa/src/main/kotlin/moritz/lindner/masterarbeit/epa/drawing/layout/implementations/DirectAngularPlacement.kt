@@ -4,6 +4,7 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.Point
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
+import com.github.davidmoten.rtree2.internal.EntryDefault
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
@@ -29,20 +30,19 @@ class DirectAngularPlacement(
     override fun build(tree: EPATreeNode) {
         assignAngles(tree, 0f, 2f * PI.toFloat())
 
-        var rTree = RTree.create<NodePlacementInformation, Point>()
+        finalRTree =
+            RTree.create(
+                nodePlacementInformationByState.map { (_, info) ->
+                    EntryDefault(
+                        info,
+                        PointFloat.create(
+                            info.coordinate.x,
+                            info.coordinate.y * -1,
+                        ),
+                    )
+                },
+            )
 
-        nodePlacementInformationByState.forEach { (_, info) ->
-            rTree =
-                rTree.add(
-                    info,
-                    PointFloat.create(
-                        info.coordinate.x,
-                        info.coordinate.y * -1,
-                    ),
-                )
-        }
-
-        finalRTree = rTree
         isBuilt = true
     }
 
