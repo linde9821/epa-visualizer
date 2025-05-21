@@ -22,7 +22,7 @@ fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     builder: ExtendedPrefixAutomataBuilder<Long>,
-    onEPAConstructed: (ExtendedPrefixAutomata<Long>, EPATreeNode<Long>) -> Unit,
+    onEPAConstructed: (ExtendedPrefixAutomata<Long>, EPATreeNode) -> Unit,
     onError: (String, Throwable) -> Unit,
 ) {
     val visitor = TreeBuildingVisitor<Long>()

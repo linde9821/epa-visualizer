@@ -14,19 +14,19 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-class RadialWalkerTreeLayout<T : Comparable<T>>(
+class RadialWalkerTreeLayout(
     val layerSpace: Float,
     expectedCapacity: Int = 1000,
     val margin: Float,
-) : WalkerTreeLayout<T>(
+) : WalkerTreeLayout(
         distance = 10f,
         yDistance = 1.0f,
         expectedCapacity = expectedCapacity,
     ),
-    RadialTreeLayout<T> {
+    RadialTreeLayout {
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
-    private lateinit var finalRTree: RTree<NodePlacementInformation<T>, Point>
+    private lateinit var finalRTree: RTree<NodePlacementInformation, Point>
 
     private val logger = KotlinLogging.logger {}
     private val usableAngle =
@@ -53,12 +53,12 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
         }
     }
 
-    override fun build(tree: EPATreeNode<T>) {
+    override fun build(tree: EPATreeNode) {
         super.build(tree)
         logger.info { "assign angles" }
         convertToAngles()
 
-        var rTree = RTree.create<NodePlacementInformation<T>, Point>()
+        var rTree = RTree.create<NodePlacementInformation, Point>()
 
         nodePlacementInformationByState.forEach { (state, info) ->
             rTree =
@@ -80,7 +80,7 @@ class RadialWalkerTreeLayout<T : Comparable<T>>(
 
     override fun isBuilt(): Boolean = isBuilt
 
-    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation> {
         val search =
             finalRTree
                 .search(

@@ -14,22 +14,22 @@ import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.max
 import kotlin.math.min
 
-open class WalkerTreeLayout<T : Comparable<T>>(
+open class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,
     expectedCapacity: Int = 1000,
-) : TreeLayout<T> {
+) : TreeLayout {
     private val logger = KotlinLogging.logger {}
 
-    private val threads = HashMap<EPATreeNode<T>, EPATreeNode<T>?>(expectedCapacity)
-    private val modifiers = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
-    private val ancestor = HashMap<EPATreeNode<T>, EPATreeNode<T>>(expectedCapacity)
-    private val prelim = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
-    private val shifts = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
-    private val changes = HashMap<EPATreeNode<T>, Float>(expectedCapacity)
-    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
+    private val threads = HashMap<EPATreeNode, EPATreeNode?>(expectedCapacity)
+    private val modifiers = HashMap<EPATreeNode, Float>(expectedCapacity)
+    private val ancestor = HashMap<EPATreeNode, EPATreeNode>(expectedCapacity)
+    private val prelim = HashMap<EPATreeNode, Float>(expectedCapacity)
+    private val shifts = HashMap<EPATreeNode, Float>(expectedCapacity)
+    private val changes = HashMap<EPATreeNode, Float>(expectedCapacity)
+    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation>(expectedCapacity)
 
-    private lateinit var finalRTree: RTree<NodePlacementInformation<T>, Point>
+    private lateinit var finalRTree: RTree<NodePlacementInformation, Point>
 
     private var maxDepth = Int.MIN_VALUE
 
@@ -38,7 +38,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
     protected var xMin = Float.MAX_VALUE
     protected var xMax = Float.MIN_VALUE
 
-    private fun firstWalk(v: EPATreeNode<T>) {
+    private fun firstWalk(v: EPATreeNode) {
         // if v is a leaf
         if (v.isLeaf()) {
             // let prelim(v) = 0
@@ -85,19 +85,19 @@ open class WalkerTreeLayout<T : Comparable<T>>(
     }
 
     private fun apportion(
-        v: EPATreeNode<T>,
-        defaultAncestor: EPATreeNode<T>,
-    ): EPATreeNode<T>? {
+        v: EPATreeNode,
+        defaultAncestor: EPATreeNode,
+    ): EPATreeNode? {
         // if v has a left sibling w
         val w = v.leftSibling
         if (w != null) {
             // let vi+ = vo+ = v
-            var viPlus: EPATreeNode<T> = v
-            var voPlus: EPATreeNode<T> = v
+            var viPlus: EPATreeNode = v
+            var voPlus: EPATreeNode = v
             // let viMinus = w
-            var viMinus: EPATreeNode<T> = w
+            var viMinus: EPATreeNode = w
             // let voMinus be the leftmost sibling of viPlus
-            var voMinus: EPATreeNode<T> = viPlus.leftmostSibling!!
+            var voMinus: EPATreeNode = viPlus.leftmostSibling!!
             // let siPlus = mod(viPlus)
             var siPlus = modifiers[viPlus]!!
             // let soPlus = mod(voPlus)
@@ -165,8 +165,8 @@ open class WalkerTreeLayout<T : Comparable<T>>(
 
     // might be tweaked for better results
     private fun adjustedDistance(
-        a: EPATreeNode<T>,
-        b: EPATreeNode<T>,
+        a: EPATreeNode,
+        b: EPATreeNode,
     ): Float {
 //        val depth = max(a.level, b.level).coerceAtLeast(1)
 //        val weightA = countLeaves(a)
@@ -175,7 +175,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
         return distance
     }
 
-    private fun nextLeft(v: EPATreeNode<T>): EPATreeNode<T>? {
+    private fun nextLeft(v: EPATreeNode): EPATreeNode? {
         // if v has a child
         return if (v.hasChildren()) {
             // return the leftmost child of v
@@ -186,7 +186,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
         }
     }
 
-    private fun nextRight(v: EPATreeNode<T>): EPATreeNode<T>? {
+    private fun nextRight(v: EPATreeNode): EPATreeNode? {
         // if v has a child
         return if (v.hasChildren()) {
             // return the rightmost child of v
@@ -198,8 +198,8 @@ open class WalkerTreeLayout<T : Comparable<T>>(
     }
 
     private fun moveSubtree(
-        wMinus: EPATreeNode<T>,
-        wPlus: EPATreeNode<T>,
+        wMinus: EPATreeNode,
+        wPlus: EPATreeNode,
         shift: Float,
     ) {
         // let subtrees = number(w+) − number(w−)
@@ -216,7 +216,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
         modifiers[wPlus] = modifiers[wPlus]!! + shift
     }
 
-    private fun executeShifts(v: EPATreeNode<T>) {
+    private fun executeShifts(v: EPATreeNode) {
         // let shift = 0
         var shift = 0.0f
         // let change = 0
@@ -236,10 +236,10 @@ open class WalkerTreeLayout<T : Comparable<T>>(
     }
 
     private fun ancestor(
-        viMinus: EPATreeNode<T>,
-        v: EPATreeNode<T>,
-        defaultAncestor: EPATreeNode<T>,
-    ): EPATreeNode<T> {
+        viMinus: EPATreeNode,
+        v: EPATreeNode,
+        defaultAncestor: EPATreeNode,
+    ): EPATreeNode {
         // if ancestor (viMinus) is a sibling of v
         val a = ancestor[viMinus]!!
         return if (a.parent == v.parent) {
@@ -252,7 +252,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
     }
 
     private fun secondWalk(
-        v: EPATreeNode<T>,
+        v: EPATreeNode,
         m: Float,
     ) {
         // let x(v) = prelim(v) + m
@@ -273,7 +273,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
         }
     }
 
-    override fun build(tree: EPATreeNode<T>) {
+    override fun build(tree: EPATreeNode) {
         logger.info { "Building tree layout" }
         logger.info { "initializing" }
         // for all nodes v of T
@@ -297,7 +297,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
-        var rTree = RTree.create<NodePlacementInformation<T>, Point>()
+        var rTree = RTree.create<NodePlacementInformation, Point>()
 
         nodePlacementInformationByState.forEach { (state, info) ->
             rTree =
@@ -318,7 +318,7 @@ open class WalkerTreeLayout<T : Comparable<T>>(
 
     override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
 
-    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation> {
         val search =
             finalRTree
                 .search(

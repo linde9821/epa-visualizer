@@ -1,5 +1,5 @@
 package moritz.lindner.masterarbeit.epa.drawing.layout
 
-interface RadialTreeLayout<T : Comparable<T>> : TreeLayout<T> {
+interface RadialTreeLayout : TreeLayout {
     fun getCircleRadius(): Float
 }

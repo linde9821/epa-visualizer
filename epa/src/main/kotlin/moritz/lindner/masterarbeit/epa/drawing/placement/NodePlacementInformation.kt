@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.epa.drawing.placement
 
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 
-data class NodePlacementInformation<T : Comparable<T>>(
+data class NodePlacementInformation(
     val coordinate: Coordinate,
-    val node: EPATreeNode<T>,
+    val node: EPATreeNode,
 )

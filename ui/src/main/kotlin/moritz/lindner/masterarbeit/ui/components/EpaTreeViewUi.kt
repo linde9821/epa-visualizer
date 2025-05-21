@@ -35,7 +35,7 @@ data class LayoutSelection(
 @Composable
 fun EpaTreeViewUi(
     epa: ExtendedPrefixAutomata<Long>,
-    tree: EPATreeNode<Long>,
+    tree: EPATreeNode,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {

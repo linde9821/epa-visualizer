@@ -15,23 +15,23 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
-class DirectAngularPlacement<T : Comparable<T>>(
+class DirectAngularPlacement(
     private val layerSpace: Float,
     expectedCapacity: Int = 1000,
-) : RadialTreeLayout<T> {
-    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation<T>>(expectedCapacity)
+) : RadialTreeLayout {
+    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation>(expectedCapacity)
 
-    private lateinit var finalRTree: RTree<NodePlacementInformation<T>, Point>
+    private lateinit var finalRTree: RTree<NodePlacementInformation, Point>
 
     private var isBuilt = false
     private var maxDepth = 0
 
-    override fun build(tree: EPATreeNode<T>) {
+    override fun build(tree: EPATreeNode) {
         assignAngles(tree, 0f, 2f * PI.toFloat())
 
-        var rTree = RTree.create<NodePlacementInformation<T>, Point>()
+        var rTree = RTree.create<NodePlacementInformation, Point>()
 
-        nodePlacementInformationByState.forEach { (state, info) ->
+        nodePlacementInformationByState.forEach { (_, info) ->
             rTree =
                 rTree.add(
                     info,
@@ -47,7 +47,7 @@ class DirectAngularPlacement<T : Comparable<T>>(
     }
 
     private fun assignAngles(
-        tree: EPATreeNode<T>,
+        tree: EPATreeNode,
         start: Float,
         end: Float,
     ) {
@@ -86,7 +86,7 @@ class DirectAngularPlacement<T : Comparable<T>>(
 
     override fun isBuilt(): Boolean = isBuilt
 
-    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation> {
         val search =
             finalRTree
                 .search(

@@ -49,7 +49,7 @@ val logger = KotlinLogging.logger {}
 @Composable
 fun TidyTreeUi(
     epa: ExtendedPrefixAutomata<Long>,
-    tree: EPATreeNode<Long>,
+    tree: EPATreeNode,
     dispatcher: CoroutineDispatcher,
     radius: Float,
     margin: Float,
@@ -60,7 +60,7 @@ fun TidyTreeUi(
 
     val mutex = remember { Mutex() }
 
-    var layout: TreeLayout<Long>? by remember { mutableStateOf(null) }
+    var layout: TreeLayout? by remember { mutableStateOf(null) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(epa, radius, tree, margin, layoutSelection) {
@@ -116,7 +116,7 @@ fun TidyTreeUi(
                             val worldPosBefore = (cursorPosition - offset) / scale
 
                             val oldScale = scale
-                            val newScale = (oldScale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.0005f, 10f)
+                            val newScale = (oldScale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.01f, 14f)
                             scale = newScale
 
                             val worldPosAfter = worldPosBefore * scale
@@ -156,7 +156,7 @@ fun TidyTreeUi(
 }
 
 private fun DrawScope.drawEPA(
-    layout: TreeLayout<Long>,
+    layout: TreeLayout,
     boundingBox: Rectangle,
 ) {
     val search = layout.getCoordinatesInRectangle(boundingBox)
@@ -175,6 +175,7 @@ private fun DrawScope.drawEPA(
 
             if (state is PrefixState) {
                 val parentCoordinate = layout.getCoordinate(state.from)
+
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(coordinate.x, -coordinate.y)
 
@@ -214,7 +215,7 @@ fun getControlPoints(
     return Pair(c1, c2)
 }
 
-private fun DrawScope.drawDepthCircles(layout: RadialTreeLayout<Long>) {
+private fun DrawScope.drawDepthCircles(layout: RadialTreeLayout) {
     (0..layout.getMaxDepth()).forEach { depth ->
         drawCircle(
             color = Color.Gray,

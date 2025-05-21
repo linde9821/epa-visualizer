@@ -19,6 +19,6 @@ sealed class ApplicationState {
 
     data class EpaConstructed(
         val extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
-        val tree: EPATreeNode<Long>,
+        val tree: EPATreeNode,
     ) : ApplicationState()
 }

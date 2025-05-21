@@ -6,12 +6,12 @@ import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacementInformatio
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 
-interface TreeLayout<T : Comparable<T>> {
-    fun build(tree: EPATreeNode<T>)
+interface TreeLayout {
+    fun build(tree: EPATreeNode)
 
     fun getCoordinate(state: State): Coordinate
 
-    fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation<T>>
+    fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation>
 
     fun getMaxDepth(): Int
 

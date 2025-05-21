@@ -11,7 +11,6 @@ import org.jetbrains.skiko.SkikoProperties
 val logger = KotlinLogging.logger {}
 
 fun main() =
-
     application {
         Window(
             onCloseRequest = ::exitApplication,
