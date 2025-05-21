@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -26,11 +28,14 @@ fun RadioButtonSingleSelection(
 ) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
     // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-    Column(modifier.selectableGroup()) {
+    Column(
+        modifier.selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         radioOptions.forEach { text ->
             Row(
                 Modifier.Companion
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.6f)
                     .height(56.dp)
                     .selectable(
                         selected = (text == selectedOption),
@@ -48,7 +53,8 @@ fun RadioButtonSingleSelection(
                 )
                 Text(
                     text = text,
-                    modifier = Modifier.Companion.padding(start = 16.dp),
+                    modifier = Modifier.padding(start = 16.dp),
+                    style = MaterialTheme.typography.body1,
                 )
             }
         }

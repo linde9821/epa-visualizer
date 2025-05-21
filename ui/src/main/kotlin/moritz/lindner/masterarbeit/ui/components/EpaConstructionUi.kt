@@ -1,14 +1,26 @@
 package moritz.lindner.masterarbeit.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ArrowCircleLeft
+import androidx.compose.material.icons.filled.BuildCircle
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
@@ -25,10 +37,24 @@ fun EpaConstructionUi(
 ) {
     var selectedMapper: EventLogMapper<Long> = remember { SampleEventMapper() }
 
-    Column {
-        Text("Selected file: ${file.name}")
-        Row {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Selected file: ${file.name}",
+            style = MaterialTheme.typography.h6,
+            modifier = Modifier.padding(bottom = 16.dp),
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
             Button(
+                shape = RoundedCornerShape(50),
                 onClick = {
                     val builder =
                         ExtendedPrefixAutomataBuilder<Long>().apply {
@@ -38,9 +64,25 @@ fun EpaConstructionUi(
                     onStartConstructionStart(builder)
                 },
             ) {
+                Icon(Icons.Default.BuildCircle, contentDescription = null)
+                Spacer(Modifier.width(20.dp))
                 Text("Construct EPA")
             }
 
+            Button(
+                shape = RoundedCornerShape(50),
+                onClick = {
+                    onAbort()
+                },
+            ) {
+                Icon(Icons.Default.ArrowCircleLeft, contentDescription = null)
+                Spacer(Modifier.width(20.dp))
+                Text("Change file")
+            }
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             val mapperNames = listOf("Sample", "Challenge Offer 2017", "Challenge 2017", "Challenge 2018")
             val mappers =
                 listOf(
@@ -49,16 +91,19 @@ fun EpaConstructionUi(
                     BPI2017ChallengeEventMapper(),
                     BPI2018ChallangeMapper(),
                 )
-            RadioButtonSingleSelection(mapperNames) { _, index ->
-                selectedMapper = mappers[index]
+
+            Row {
+                Icon(Icons.Default.Map, contentDescription = null)
+                Spacer(Modifier.width(20.dp))
+                Text(
+                    "Select Event Log Mapper:",
+                    style = MaterialTheme.typography.subtitle1,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
             }
 
-            Button(
-                onClick = {
-                    onAbort()
-                },
-            ) {
-                Icon(Icons.Default.Close, "Abort")
+            RadioButtonSingleSelection(mapperNames) { _, index ->
+                selectedMapper = mappers[index]
             }
         }
     }

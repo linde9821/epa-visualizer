@@ -136,8 +136,10 @@ fun TidyTreeUi(
             )
         }) {
             val center = (center - offset) / scale
-            val topLeft = Offset(x = center.x - ((size.width / scale) / 2f), y = center.y - ((size.height / scale) / 2f))
-            val bottomRight = Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
+            val topLeft =
+                Offset(x = center.x - ((size.width / scale) / 2f), y = center.y - ((size.height / scale) / 2f))
+            val bottomRight =
+                Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
 
             val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
             if (!isLoading && layout != null && layout!!.isBuilt()) {
