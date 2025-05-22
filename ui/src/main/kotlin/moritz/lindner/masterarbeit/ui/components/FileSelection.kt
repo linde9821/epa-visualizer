@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
 import java.awt.FileDialog
@@ -48,6 +50,15 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
             modifier = Modifier.padding(bottom = 50.dp),
         )
 
+        Image(
+            painter = painterResource("logo.png"),
+            contentDescription = "App Logo",
+            modifier =
+                Modifier
+                    .size(500.dp)
+                    .padding(bottom = 50.dp),
+        )
+
         Button(
             shape = RoundedCornerShape(24.dp),
             onClick = { showDialog = true },
@@ -64,9 +75,11 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         }
         if (showDialog) {
             FileDialog { path ->
-                val file = File(path)
-                onFileSelected(file)
                 showDialog = false
+                if (path != null) {
+                    val file = File(path)
+                    onFileSelected(file)
+                }
             }
         }
     }
@@ -75,7 +88,7 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
 @Composable
 private fun FileDialog(
     parent: Frame? = null,
-    onCloseRequest: (result: String) -> Unit,
+    onCloseRequest: (result: String?) -> Unit,
 ) = AwtWindow(
     create = {
         object : FileDialog(parent, "Choose a file", LOAD) {
@@ -90,6 +103,8 @@ private fun FileDialog(
                 super.setVisible(value)
                 if (value && directory != null && file != null) {
                     onCloseRequest(directory + file)
+                } else {
+                    onCloseRequest(null)
                 }
             }
         }

@@ -22,6 +22,7 @@ fun main() {
     val executor = Executors.newSingleThreadExecutor(threadFactory)
     val backgroundDispatcher = executor.asCoroutineDispatcher()
     application {
+        logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
         Window(
             onCloseRequest = ::exitApplication,
             state =
@@ -32,7 +33,6 @@ fun main() {
             title = "EPA Visualizer",
             icon = painterResource("logo.png"),
         ) {
-            logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
             EPAVisualizerUi(backgroundDispatcher)
         }
     }
