@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,76 +21,24 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngularPlacement
+import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
-import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
-import kotlin.math.PI
 import org.jetbrains.skia.Color as SkiaColor
-
-private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
 val logger = KotlinLogging.logger {}
 
 @Composable
-fun TidyTreeUi(
-    epa: ExtendedPrefixAutomata<Long>,
-    tree: EPATreeNode,
-    dispatcher: CoroutineDispatcher,
-    radius: Float,
-    margin: Float,
-    layoutSelection: LayoutSelection,
-) {
+fun TidyTreeUi(layout: TreeLayout) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
-
-    val mutex = remember { Mutex() }
-
-    var layout: TreeLayout? by remember { mutableStateOf(null) }
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(epa, radius, tree, margin, layoutSelection) {
-        isLoading = true
-        mutex.withLock {
-            withContext(dispatcher) {
-                layout =
-                    if (layoutSelection.name == "Walker") {
-                        WalkerTreeLayout(
-                            distance = margin,
-                            yDistance = radius,
-                            expectedCapacity = epa.states.size,
-                        )
-                    } else if (layoutSelection.name == "Walker Radial Tree") {
-                        RadialWalkerTreeLayout(
-                            margin = margin.degreesToRadians(),
-                            layerSpace = radius,
-                            expectedCapacity = epa.states.size,
-                        )
-                    } else {
-                        DirectAngularPlacement(
-                            layerSpace = radius,
-                            expectedCapacity = epa.states.size,
-                        )
-                    }
-
-                layout!!.build(tree)
-                isLoading = false
-            }
-        }
-    }
 
     val canvasModifier =
         Modifier
@@ -142,8 +89,8 @@ fun TidyTreeUi(
                 Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
 
             val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
-            if (!isLoading && layout != null && layout!!.isBuilt()) {
-                (layout as? DirectAngularPlacement)?.let {
+            if (layout.isBuilt()) {
+                (layout as? DirectAngularPlacementTreeLayout)?.let {
                     drawDepthCircles(it)
                 }
 

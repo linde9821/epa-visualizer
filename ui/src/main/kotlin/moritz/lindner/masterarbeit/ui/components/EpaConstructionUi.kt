@@ -99,6 +99,8 @@ fun EpaConstructionUi(
                     BPI2018ChallangeMapper(),
                 )
 
+            val param = mappers.zip(mapperNames)
+
             Row {
                 Icon(Icons.Default.Map, contentDescription = null)
                 Spacer(Modifier.width(20.dp))
@@ -109,7 +111,7 @@ fun EpaConstructionUi(
                 )
             }
 
-            RadioButtonSingleSelection(mapperNames) { _, index ->
+            RadioButtonSingleSelectionColumn(param) { _, index ->
                 selectedMapper = mappers[index]
             }
         }

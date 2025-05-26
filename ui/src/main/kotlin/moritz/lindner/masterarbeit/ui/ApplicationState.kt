@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.ui
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
-import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import java.io.File
 
 sealed class ApplicationState {
@@ -19,6 +18,5 @@ sealed class ApplicationState {
 
     data class EpaConstructed(
         val extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
-        val tree: EPATreeNode,
     ) : ApplicationState()
 }

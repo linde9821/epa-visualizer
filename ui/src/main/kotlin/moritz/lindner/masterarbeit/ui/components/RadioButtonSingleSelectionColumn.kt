@@ -21,10 +21,10 @@ import androidx.compose.ui.unit.dp
 
 // https://developer.android.com/develop/ui/compose/components/radio-button?hl=def
 @Composable
-fun RadioButtonSingleSelection(
-    radioOptions: List<String> = listOf("Calls", "Missed", "Friends"),
+fun <T> RadioButtonSingleSelectionColumn(
+    radioOptions: List<Pair<T, String>>,
     modifier: Modifier = Modifier.Companion,
-    onSelection: (String, Int) -> Unit,
+    onSelection: (T, Int) -> Unit,
 ) {
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
     // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
@@ -32,27 +32,27 @@ fun RadioButtonSingleSelection(
         modifier.selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        radioOptions.forEach { text ->
+        radioOptions.forEach { option ->
             Row(
                 Modifier.Companion
                     .fillMaxWidth(0.6f)
                     .height(56.dp)
                     .selectable(
-                        selected = (text == selectedOption),
+                        selected = (option == selectedOption),
                         onClick = {
-                            onOptionSelected(text)
-                            onSelection(text, radioOptions.indexOf(text))
+                            onOptionSelected(option)
+                            onSelection(option.first, radioOptions.indexOf(option))
                         },
                         role = Role.Companion.RadioButton,
                     ).padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.Companion.CenterVertically,
             ) {
                 RadioButton(
-                    selected = (text == selectedOption),
+                    selected = (option == selectedOption),
                     onClick = null, // null recommended for accessibility with screen readers
                 )
                 Text(
-                    text = text,
+                    text = option.second,
                     modifier = Modifier.padding(start = 16.dp),
                     style = MaterialTheme.typography.body1,
                 )

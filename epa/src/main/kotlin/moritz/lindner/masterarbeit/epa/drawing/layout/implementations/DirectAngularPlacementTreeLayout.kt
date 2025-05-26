@@ -16,7 +16,7 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
-class DirectAngularPlacement(
+class DirectAngularPlacementTreeLayout(
     private val layerSpace: Float,
     expectedCapacity: Int = 1000,
 ) : RadialTreeLayout {
