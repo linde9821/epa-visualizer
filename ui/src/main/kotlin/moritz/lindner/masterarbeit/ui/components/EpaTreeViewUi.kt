@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -17,6 +20,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,6 +37,8 @@ import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalk
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
+import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
+import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import kotlin.math.PI
 
 data class LayoutSelection<T : TreeLayout>(
@@ -80,16 +86,25 @@ fun EpaTreeViewUi(
     var layoutSelection by remember { mutableStateOf(layouts.first()) }
     var showLayoutOptions by remember { mutableStateOf(false) }
 
+    var filter by remember { mutableStateOf<EpaFilter<Long>?>(null) }
+
     var tree by remember { mutableStateOf<EPATreeNode?>(null) }
     var treeLayout by remember { mutableStateOf<TreeLayout?>(null) }
 
-    LaunchedEffect(epa, layoutSelection, radius, margin) {
+    LaunchedEffect(epa, layoutSelection, radius, margin, filter) {
+        // filter epa
+        val filteredEpa =
+            if (filter != null) {
+                filter!!.apply(epa)
+            } else {
+                epa
+            }
+
         logger.info { "building layout" }
-        // TODO: filter epa
 
         // build tree
         val treeVisitor = TreeBuildingVisitor<Long>()
-        epa.acceptDepthFirst(treeVisitor)
+        filteredEpa.acceptDepthFirst(treeVisitor)
 
         tree = treeVisitor.root
 
@@ -135,8 +150,11 @@ fun EpaTreeViewUi(
         Column(
             modifier = Modifier.background(Color.Red).fillMaxWidth(0.1f).fillMaxHeight(),
         ) {
-            Text("UI Component Filter")
+            FilterUi(epa) {
+                filter = it
+            }
         }
+
         Column(
             modifier = Modifier.background(Color.Blue).fillMaxSize(),
         ) {
@@ -149,6 +167,43 @@ fun EpaTreeViewUi(
             }
             Row(modifier = Modifier.background(Color.Yellow).fillMaxWidth()) {
                 Text("UI Component Timeline")
+            }
+        }
+    }
+}
+
+@Composable
+fun FilterUi(
+    epa: ExtendedPrefixAutomata<Long>,
+    onApply: (EpaFilter<Long>) -> Unit,
+) {
+    val a =
+        remember {
+            mutableStateListOf(*epa.activities.map { it to true }.toTypedArray())
+        }
+
+    Button(onClick = {
+        val f = a.toList().filter { it.second == true }.map { it.first }
+        val filters =
+            ActivityFilter<Long>(
+                hashSetOf(
+                    *f.toTypedArray(),
+                ),
+            )
+        onApply(filters)
+    }) {
+        Text("Apply")
+    }
+
+    // activities
+    LazyColumn {
+        itemsIndexed(a) { index, (activity, enabled) ->
+
+            Row {
+                Text(activity.name)
+                Checkbox(checked = enabled, onCheckedChange = {
+                    a[index] = activity to it
+                })
             }
         }
     }
