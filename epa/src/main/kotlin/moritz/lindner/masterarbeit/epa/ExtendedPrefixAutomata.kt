@@ -25,6 +25,8 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
 
     private var visitedStates = 0L
 
+    fun getAllPartitions(): List<Int> = partitionByState.values.distinct().toList()
+
     fun acceptDepthFirst(visitor: AutomataVisitor<T>) {
         visitedStates = 0
         visitor.onStart(this)
