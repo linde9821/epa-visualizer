@@ -64,8 +64,8 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                         )
 
                     is ApplicationState.EpaConstructionRunning -> {
-                        ConstructEpaUi(scope, backgroundDispatcher, currentState.builder, { epa, tree ->
-                            state = ApplicationState.EpaConstructed(epa, tree)
+                        ConstructEpaUi(scope, backgroundDispatcher, currentState.builder, { epa ->
+                            state = ApplicationState.EpaConstructed(epa)
                         }, {
                             state = ApplicationState.FileSelected(currentState.selectedFile)
                         }) { error, e ->
@@ -97,7 +97,6 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                     is ApplicationState.EpaConstructed ->
                         EpaTreeViewUi(
                             currentState.extendedPrefixAutomata,
-                            currentState.tree,
                             backgroundDispatcher,
                             onClose = {
                                 state = ApplicationState.NoFileSelected

@@ -36,9 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
-import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
-import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
@@ -46,26 +43,18 @@ fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     builder: ExtendedPrefixAutomataBuilder<Long>,
-    onEPAConstructed: (ExtendedPrefixAutomata<Long>, EPATreeNode) -> Unit,
+    onEPAConstructed: (ExtendedPrefixAutomata<Long>) -> Unit,
     onAbort: () -> Unit,
     onError: (String, Throwable) -> Unit,
 ) {
-    val visitor = TreeBuildingVisitor<Long>()
+    var epaConstructionJob by remember { mutableStateOf<Job?>(null) }
 
-    var job by remember { mutableStateOf<Job?>(null) }
-    var abort = false
-
-    job =
+    epaConstructionJob =
         scope.launch(backgroundDispatcher) {
-            abort = false
             try {
                 val epa = builder.build()
                 yield()
-                epa.acceptDepthFirst(AutomataVisitorProgressBar(visitor, "tree"))
-                yield()
-                if (!abort) {
-                    onEPAConstructed(epa, visitor.root)
-                }
+                onEPAConstructed.invoke(epa)
             } catch (e: NullPointerException) {
                 onError("Check Mapper", e)
             } catch (_: CancellationException) {
@@ -108,9 +97,8 @@ fun ConstructEpaUi(
                 Button(
                     shape = RoundedCornerShape(24.dp),
                     onClick = {
-                        job?.cancel()
-                        job = null
-                        abort = true
+                        epaConstructionJob?.cancel()
+                        epaConstructionJob = null
                         onAbort()
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFD32F2F)),
