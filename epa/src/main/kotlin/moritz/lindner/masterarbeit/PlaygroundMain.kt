@@ -6,6 +6,8 @@ import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.domain.Activity
+import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
 import moritz.lindner.masterarbeit.epa.visitor.dot.DotExportVisitor
 import java.io.File
 
@@ -31,13 +33,22 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-    val visitor = DotExportVisitor<Long>()
-    val visitor2 = DotExportVisitor<Long>()
-    epa.acceptDepthFirst(visitor)
-    epa.acceptBreadthFirst(visitor2)
+    val filteredEpa =
+        ActivityFilter<Long>(
+            hashSetOf(
+                Activity("a"),
+                Activity("b"),
+                Activity("c"),
+            ),
+        ).apply(epa)
 
-    File("./test1.dot").writeText(visitor.dot)
-    File("./test2.dot").writeText(visitor2.dot)
+    val dot1 = DotExportVisitor<Long>()
+    val dot2 = DotExportVisitor<Long>()
+    epa.acceptDepthFirst(dot1)
+    filteredEpa.acceptDepthFirst(dot2)
+
+    File("./test1.dot").writeText(dot1.dot)
+    File("./test2.dot").writeText(dot2.dot)
 
     logger.info { "build EPA successfully" }
 }

@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.builder
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import me.tongfei.progressbar.ConsoleProgressBarConsumer
 import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
@@ -20,8 +19,6 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
     private val parser: XesXmlParser = EPAXesParser()
 
     private var nextPartition = 1
-
-    private val logger = KotlinLogging.logger { }
 
     inner class StateActivityKey(
         val state: State,
