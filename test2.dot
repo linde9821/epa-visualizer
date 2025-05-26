@@ -1,0 +1,35 @@
+digraph EPA {
+    rankdir=LR;
+    // states (nodes)
+    "-955356007" [label="Root"];
+    "448734952" [label="a 1\na 2\na 3\na 4"];
+    "1025881722" [label="b 1\nb 4"];
+    "1737562409" [label="c 1\nc 4"];
+    "1025881723" [label="c 2\nc 3"];
+    "1737562439" [label="b 2\nb 3"];
+    // transitions
+    "-955356007" -> "448734952" [label="a"];
+    "448734952" -> "1025881722" [label="b"];
+    "448734952" -> "1025881723" [label="c"];
+    "1025881722" -> "1737562409" [label="c"];
+    "1025881723" -> "1737562439" [label="b"];
+    // partitions
+    subgraph cluster_partition0 {
+        label = "Partition 0";
+        color=black;
+        "-955356007"
+    }
+    subgraph cluster_partition1 {
+        label = "Partition 1";
+        color=black;
+        "448734952"
+        "1025881722"
+        "1737562409"
+    }
+    subgraph cluster_partition2 {
+        label = "Partition 2";
+        color=black;
+        "1025881723"
+        "1737562439"
+    }
+}
