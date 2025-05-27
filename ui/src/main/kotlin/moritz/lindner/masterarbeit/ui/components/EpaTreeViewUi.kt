@@ -20,10 +20,10 @@ import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Slider
 import androidx.compose.material.Surface
 import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -247,7 +247,7 @@ fun FilterUi(
             mutableStateListOf(*epa.activities.map { it to true }.toTypedArray())
         }
 
-    val tabs = listOf("Activity Filter", "Future Filter")
+    val tabs = listOf("Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
     var selectedIndex by remember { mutableStateOf(0) }
 
     Column(
@@ -277,7 +277,7 @@ fun FilterUi(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TabRow(selectedTabIndex = selectedIndex, backgroundColor = Color.White) {
+        ScrollableTabRow(selectedTabIndex = selectedIndex, backgroundColor = Color.White) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedIndex == index,
@@ -291,7 +291,9 @@ fun FilterUi(
 
         when (selectedIndex) {
             0 -> ActivityFilterTab(activities)
-            else -> {}
+            else -> {
+                Text("TODO: implement ${tabs[selectedIndex]}")
+            }
         }
     }
 }
