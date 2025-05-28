@@ -22,7 +22,7 @@ class ActivityFilter<T : Comparable<T>>(
             statesWithAllowedActivities
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> state.from in statesWithAllowedActivities
+                        is State.PrefixState -> chainIsValid(state)
                         State.Root -> true
                     }
                 }.toSet()
@@ -47,5 +47,16 @@ class ActivityFilter<T : Comparable<T>>(
             partitionByState = partitionByState,
             sequenceByState = sequenceByState,
         )
+    }
+
+    private fun chainIsValid(state: State.PrefixState): Boolean {
+        return if (state.via in allowedActivities) {
+            when (state.from) {
+                is State.PrefixState -> chainIsValid(state.from)
+                State.Root -> true
+            }
+        } else {
+            false
+        }
     }
 }
