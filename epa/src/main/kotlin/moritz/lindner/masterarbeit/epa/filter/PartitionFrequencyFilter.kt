@@ -17,7 +17,7 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
                 .getAllPartitions()
                 .associateWith { partition ->
                     normalizedPartitionFrequencyVisitor.frequencyByPartition(partition)
-                }.filter { (a, b) -> b > threshold || a == 0 }
+                }.filter { (a, b) -> b >= threshold || a == 0 }
                 .keys
                 .toList()
 
@@ -60,6 +60,4 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
             sequenceByState = sequenceByState,
         )
     }
-
-    override fun name(): String = "Partition Frequency"
 }

@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -44,12 +43,10 @@ fun EpaTreeViewUi(
     onClose: () -> Unit,
 ) {
     val viewModel =
-        remember {
-            EpaViewModel(
-                completeEpa = epa,
-                backgroundDispatcher = backgroundDispatcher,
-            )
-        }
+        EpaViewModel(
+            completeEpa = epa,
+            backgroundDispatcher = backgroundDispatcher,
+        )
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -92,12 +89,12 @@ fun EpaTreeViewUi(
                 modifier =
                     Modifier
                         .fillMaxHeight()
-                        .width(250.dp)
-                        .padding(8.dp),
+                        .width(350.dp)
+                        .padding(2.dp),
                 elevation = 4.dp,
                 shape = RoundedCornerShape(12.dp),
             ) {
-                FilterUi(epa = epa, onApply = {
+                FilterUi(epa = epa, backgroundDispatcher, onApply = {
                     viewModel.updateFilter(it)
                 })
             }

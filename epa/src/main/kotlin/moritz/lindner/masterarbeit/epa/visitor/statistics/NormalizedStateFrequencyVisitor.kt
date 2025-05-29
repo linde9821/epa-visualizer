@@ -36,4 +36,8 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomataVisitor<T> {
             extendedPrefixAutomata.sequence(state).size
         }
     }
+
+    fun min(): Float = relativeFrequencyByState.values.min()
+
+    fun max(): Float = relativeFrequencyByState.values.max()
 }
