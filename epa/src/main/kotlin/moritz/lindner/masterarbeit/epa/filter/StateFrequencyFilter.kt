@@ -61,4 +61,6 @@ class StateFrequencyFilter<T : Comparable<T>>(
             sequenceByState = sequenceByState,
         )
     }
+
+    override fun name(): String = "State Frequency"
 }

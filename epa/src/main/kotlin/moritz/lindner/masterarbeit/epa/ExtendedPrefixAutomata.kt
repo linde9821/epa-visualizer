@@ -104,4 +104,13 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
             appendLine(partitionByState.map { "${it.key}:${it.value}" }.joinToString(","))
             appendLine(sequenceByState.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(","))
         }
+
+    fun copy(): ExtendedPrefixAutomata<T> =
+        ExtendedPrefixAutomata(
+            states = states.toSet(),
+            activities = activities.toSet(),
+            transitions = transitions.map { it.copy() }.toSet(),
+            partitionByState = partitionByState.toMap(),
+            sequenceByState = sequenceByState.mapValues { it.value.toSet() },
+        )
 }

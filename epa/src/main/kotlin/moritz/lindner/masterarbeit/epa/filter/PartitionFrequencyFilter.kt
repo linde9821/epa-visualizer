@@ -7,9 +7,9 @@ import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFre
 class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
-    private val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
-
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
+        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
+
         epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
 
         val partitions =
@@ -60,4 +60,6 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
             sequenceByState = sequenceByState,
         )
     }
+
+    override fun name(): String = "Partition Frequency"
 }

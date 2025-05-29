@@ -3,7 +3,6 @@ package moritz.lindner.masterarbeit.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,7 +30,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,29 +41,183 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
+import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFrequencyVisitor
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.PI
 
-data class LayoutSelection<T : TreeLayout>(
+data class LayoutSelection(
     val name: String,
-    val construct: () -> T,
 )
 
 private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
+
+data class LayoutConfig(
+    val radius: Float,
+    val margin: Float,
+    val layout: LayoutSelection,
+)
+
+object TreeLayoutConstructionHelper {
+    fun build(
+        config: LayoutConfig,
+        epa: ExtendedPrefixAutomata<Long>,
+    ): TreeLayout =
+        when (config.layout.name) {
+            "Walker Radial Tree" -> {
+                RadialWalkerTreeLayout(
+                    layerSpace = config.radius,
+                    expectedCapacity = epa.states.size,
+                    margin = config.margin,
+                )
+            }
+
+            "Walker" -> {
+                WalkerTreeLayout(
+                    distance = config.margin,
+                    yDistance = config.radius,
+                    expectedCapacity = epa.states.size,
+                )
+            }
+
+            "Direct Angular Placement" -> {
+                DirectAngularPlacementTreeLayout(config.radius, epa.states.size)
+            }
+
+            else -> {
+                TODO()
+            }
+        }
+}
+
+data class UiState(
+    val layout: TreeLayout?,
+    val isLoading: Boolean,
+    val statistics: Float?,
+)
+
+class EpaViewModel(
+    val completeEpa: ExtendedPrefixAutomata<Long>,
+    val backgroundDispatcher: ExecutorCoroutineDispatcher,
+) {
+    private val _filter: MutableStateFlow<EpaFilter<Long>> = MutableStateFlow(DoNothingFilter<Long>())
+    val filter: StateFlow<EpaFilter<Long>> = _filter
+
+    fun updateFilter(filter: EpaFilter<Long>) {
+        _filter.value = filter
+    }
+
+    fun updateLayout(layoutConfig: LayoutConfig) {
+        _layout.value = layoutConfig
+    }
+
+    private val _layout =
+        MutableStateFlow(
+            LayoutConfig(
+                200.0f,
+                5f.degreesToRadians(),
+                LayoutSelection("Walker Radial Tree"),
+            ),
+        )
+    val layout: StateFlow<LayoutConfig> = _layout
+
+    private val _uiState =
+        MutableStateFlow(
+            UiState(
+                null,
+                true,
+                null,
+            ),
+        )
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    init {
+        CoroutineScope(backgroundDispatcher + SupervisorJob()).launch {
+            var lastFilter: EpaFilter<Long>? = null
+            var lastLayoutConfig: LayoutConfig? = null
+            var lastFilterEpa: ExtendedPrefixAutomata<Long>? = null
+            var lastLayout: TreeLayout? = null
+
+            combine(
+                _filter,
+                _layout.distinctUntilChanged { a, b ->
+                    a.radius == b.radius && a.margin == b.margin && a.layout == b.layout
+                },
+            ) { filter, layout ->
+                Pair(filter, layout)
+            }.collectLatest { (filter, layoutConfig) ->
+                logger.info { "running state update" }
+                logger.info { "filter: ${filter.name()}" }
+                logger.info { "layout: $layoutConfig" }
+                _uiState.update { it.copy(isLoading = true) }
+
+                try {
+                    val layout =
+                        withContext(backgroundDispatcher) {
+                            val filteredEpa = filter.apply(completeEpa.copy())
+                            logger.info { "Prefilter ${completeEpa.states.size}\nPostfilter ${filteredEpa.states.size}\n" }
+                            yield()
+
+                            val layout = TreeLayoutConstructionHelper.build(layoutConfig, filteredEpa)
+                            yield()
+
+                            val treeVisitor = TreeBuildingVisitor<Long>()
+                            filteredEpa.copy().acceptDepthFirst(treeVisitor)
+                            yield()
+
+                            layout.build(treeVisitor.root)
+                            yield()
+
+                            lastFilter = filter
+                            lastFilterEpa = filteredEpa
+                            lastLayoutConfig = layoutConfig
+                            lastLayout = layout
+                            layout
+                        }
+
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            layout = layout,
+                            statistics = null,
+                        )
+                    }
+                } catch (e: CancellationException) {
+                    logger.warn { "Cancellation Exception ${e.message}" }
+                } catch (e: Exception) {
+                    // optional: handle error (show in UI, log, etc.)
+                    logger.error { "Error building layout: ${e.message}" }
+                    _uiState.update {
+                        it.copy(isLoading = false, layout = null, statistics = null)
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun EpaTreeViewUi(
@@ -72,65 +225,15 @@ fun EpaTreeViewUi(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    val logger = remember { KotlinLogging.logger { } }
+    val viewModel =
+        remember {
+            EpaViewModel(
+                completeEpa = epa,
+                backgroundDispatcher = backgroundDispatcher,
+            )
+        }
 
-    val mutex = remember { Mutex() }
-
-    var radius by remember { mutableStateOf(120.0f) }
-    var margin by remember { mutableStateOf(3.0f) }
-    val layouts =
-        listOf(
-            LayoutSelection(
-                "Direct Angular Placement",
-            ) {
-                DirectAngularPlacementTreeLayout(radius, epa.states.size)
-            },
-            LayoutSelection("Walker") {
-                WalkerTreeLayout(
-                    distance = margin,
-                    yDistance = radius,
-                    expectedCapacity = epa.states.size,
-                )
-            },
-            LayoutSelection("Walker Radial Tree") {
-                RadialWalkerTreeLayout(
-                    radius,
-                    epa.states.size,
-                    margin = margin.degreesToRadians(),
-                )
-            },
-        )
-
-    var layoutSelection by remember { mutableStateOf(layouts.first()) }
-    var showLayoutOptions by remember { mutableStateOf(false) }
-
-    var filter by remember { mutableStateOf<EpaFilter<Long>?>(null) }
-
-    var tree by remember { mutableStateOf<EPATreeNode?>(null) }
-    var treeLayout by remember { mutableStateOf<TreeLayout?>(null) }
-
-    LaunchedEffect(epa, layoutSelection, radius, margin, filter) {
-        // filter epa
-        val filteredEpa =
-            if (filter != null) {
-                filter!!.apply(epa)
-            } else {
-                epa
-            }
-
-        logger.info { "building layout" }
-
-        // build tree
-        val treeVisitor = TreeBuildingVisitor<Long>()
-        filteredEpa.acceptDepthFirst(treeVisitor)
-
-        tree = treeVisitor.root
-
-        // build layout
-        treeLayout = layoutSelection.construct()
-        treeLayout!!.build(tree!!)
-        logger.info { "layout build" }
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier =
@@ -150,33 +253,8 @@ fun EpaTreeViewUi(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Button(
-                    shape = RoundedCornerShape(24.dp),
-                    onClick = onClose,
-                    modifier = Modifier.height(48.dp),
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
-                }
-
-                Column(horizontalAlignment = Alignment.End) {
-                    if (showLayoutOptions) {
-                        LayoutOptions(
-                            radius = radius,
-                            onRadiusChange = { radius = it },
-                            margin = margin,
-                            onMarginChange = { margin = it },
-                            layouts = layouts,
-                            onLayoutSelectionChange = { layoutSelection = it },
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Toggle layout options",
-                        modifier =
-                            Modifier
-                                .clickable { showLayoutOptions = !showLayoutOptions }
-                                .padding(top = 8.dp),
-                    )
+                LayoutOptionUi {
+                    viewModel.updateLayout(it)
                 }
             }
         }
@@ -191,7 +269,9 @@ fun EpaTreeViewUi(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(12.dp),
             ) {
-                FilterUi(epa = epa, onApply = { filter = it })
+                FilterUi(epa = epa, onApply = {
+                    viewModel.updateFilter(it)
+                })
             }
 
             Column(
@@ -208,16 +288,7 @@ fun EpaTreeViewUi(
                     shape = RoundedCornerShape(12.dp),
                     elevation = 4.dp,
                 ) {
-                    if (treeLayout != null) {
-                        TidyTreeUi(layout = treeLayout!!)
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text("No tree layout available")
-                        }
-                    }
+                    TidyTreeUi(uiState)
                 }
 
 //                Surface(
@@ -249,15 +320,6 @@ fun FilterUi(
         remember {
             mutableStateListOf(*epa.activities.map { it to true }.toTypedArray())
         }
-
-//    val frequencyStateVisitor = NormalizedStateFrequencyVisitor<Long>()
-    val frequencyParitionVisitor by remember {
-        mutableStateOf(NormalizedPartitionFrequencyVisitor<Long>())
-    }
-//    epa.acceptDepthFirst(frequencyStateVisitor)
-    LaunchedEffect(epa) {
-        epa.acceptDepthFirst(frequencyParitionVisitor)
-    }
 
     val tabs = listOf("Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
     var selectedIndex by remember { mutableStateOf(0) }
@@ -333,6 +395,10 @@ fun FilterUi(
             2 -> {
                 Column {
                     // State Frequency
+
+                    val frequencyParitionVisitor = NormalizedPartitionFrequencyVisitor<Long>()
+                    epa.copy().acceptDepthFirst(frequencyParitionVisitor)
+
                     Text("Frequency $partitionFrequencyThreashold")
                     Slider(
                         value = partitionFrequencyThreashold,
@@ -340,7 +406,7 @@ fun FilterUi(
                         valueRange = 0.0f..100f,
                     )
                     LazyColumn {
-                        items(epa.getAllPartitions()) {
+                        items(epa.getAllPartitions().sorted()) {
                             Text("$it: ${frequencyParitionVisitor.frequencyByPartition(it)}")
                         }
                     }
@@ -378,13 +444,87 @@ fun ActivityFilterTab(activities: SnapshotStateList<Pair<Activity, Boolean>>) {
 }
 
 @Composable
+fun LayoutOptionUi(onUpdate: (LayoutConfig) -> Unit) {
+    var showLayoutOptions by remember { mutableStateOf(false) }
+    var radius by remember { mutableStateOf(120.0f) }
+    var margin by remember { mutableStateOf(3.0f) }
+    val layouts: List<LayoutSelection> =
+        listOf(
+            LayoutSelection("Walker Radial Tree"),
+            LayoutSelection("Walker"),
+            LayoutSelection(
+                "Direct Angular Placement",
+            ),
+        )
+
+    var layoutSelection by remember { mutableStateOf(layouts.first()) }
+
+    Button(
+        shape = RoundedCornerShape(24.dp),
+        onClick = { showLayoutOptions = !showLayoutOptions },
+        modifier = Modifier.height(48.dp),
+    ) {
+        Icon(Icons.Default.Close, contentDescription = "Close")
+    }
+
+    Column(horizontalAlignment = Alignment.End) {
+        if (showLayoutOptions) {
+            LayoutOptions(
+                radius = radius,
+                onRadiusChange = {
+                    radius = it
+                    onUpdate(
+                        LayoutConfig(
+                            radius = radius,
+                            margin = margin.degreesToRadians(),
+                            layout = layoutSelection,
+                        ),
+                    )
+                },
+                margin = margin,
+                onMarginChange = {
+                    margin = it
+                    onUpdate(
+                        LayoutConfig(
+                            radius = radius,
+                            margin = margin.degreesToRadians(),
+                            layout = layoutSelection,
+                        ),
+                    )
+                },
+                layouts = layouts,
+                onLayoutSelectionChange = {
+                    layoutSelection = it
+                    logger.info { "setting layout to $it" }
+                    onUpdate(
+                        LayoutConfig(
+                            radius = radius,
+                            margin = margin.degreesToRadians(),
+                            layout = layoutSelection,
+                        ),
+                    )
+                },
+            )
+        }
+        Icon(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = "Toggle layout options",
+            modifier =
+                Modifier
+                    .clickable { showLayoutOptions = !showLayoutOptions }
+                    .padding(top = 8.dp),
+        )
+    }
+}
+
+@Composable
 fun LayoutOptions(
     radius: Float,
     onRadiusChange: (Float) -> Unit,
     margin: Float,
     onMarginChange: (Float) -> Unit,
-    layouts: List<LayoutSelection<*>>,
-    onLayoutSelectionChange: (LayoutSelection<*>) -> Unit,
+    layouts: List<LayoutSelection>,
+    onLayoutSelectionChange: (LayoutSelection) -> Unit,
 ) {
     Row {
         Text("radius (width): ${"%.1f".format(radius)}")
