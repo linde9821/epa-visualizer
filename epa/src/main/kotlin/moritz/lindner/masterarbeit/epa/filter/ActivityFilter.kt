@@ -49,8 +49,9 @@ class ActivityFilter<T : Comparable<T>>(
         )
     }
 
-    private fun chainIsValid(state: State.PrefixState): Boolean {
-        return if (state.via in allowedActivities) {
+    // TODO: check this works more thoroughly
+    private fun chainIsValid(state: State.PrefixState): Boolean =
+        if (state.via in allowedActivities) {
             when (state.from) {
                 is State.PrefixState -> chainIsValid(state.from)
                 State.Root -> true
@@ -58,5 +59,4 @@ class ActivityFilter<T : Comparable<T>>(
         } else {
             false
         }
-    }
 }
