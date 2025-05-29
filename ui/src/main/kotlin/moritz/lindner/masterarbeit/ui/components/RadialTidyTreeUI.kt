@@ -28,6 +28,7 @@ import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngu
 import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
+import moritz.lindner.masterarbeit.ui.components.treeview.state.UiState
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
@@ -36,7 +37,7 @@ import org.jetbrains.skia.Color as SkiaColor
 val logger = KotlinLogging.logger {}
 
 @Composable
-fun TidyTreeUi(layout: TreeLayout) {
+fun TidyTreeUi(uiState: UiState) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
 
@@ -89,16 +90,17 @@ fun TidyTreeUi(layout: TreeLayout) {
                 Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
 
             val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
-            if (layout.isBuilt()) {
-                (layout as? DirectAngularPlacementTreeLayout)?.let {
+
+            if (!uiState.isLoading && uiState.layout != null && uiState.layout.isBuilt()) {
+                (uiState.layout as? DirectAngularPlacementTreeLayout)?.let {
                     drawDepthCircles(it)
                 }
 
-                (layout as? RadialWalkerTreeLayout)?.let {
+                (uiState.layout as? RadialWalkerTreeLayout)?.let {
                     drawDepthCircles(it)
                 }
 
-                drawEPA(layout!!, boundingBox)
+                drawEPA(uiState.layout, boundingBox)
             }
         }
     }
@@ -109,7 +111,7 @@ private fun DrawScope.drawEPA(
     boundingBox: Rectangle,
 ) {
     val search = layout.getCoordinatesInRectangle(boundingBox)
-    logger.info { "drawing ${search.size} nodes" }
+//    logger.info { "drawing ${search.size} nodes" }
     drawIntoCanvas { canvas ->
         search.forEach { (coordinate, node) ->
             val state = node.state

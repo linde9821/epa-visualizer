@@ -7,9 +7,8 @@ import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedStateFrequen
 class StateFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
-    private val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
-
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
+        val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
         epa.acceptDepthFirst(normalizedStateFrequencyVisitor)
 
         val statesWithAllowedActivities =
@@ -61,4 +60,6 @@ class StateFrequencyFilter<T : Comparable<T>>(
             sequenceByState = sequenceByState,
         )
     }
+
+    override fun name(): String = "State Frequency"
 }
