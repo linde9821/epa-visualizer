@@ -15,7 +15,6 @@ import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFrequencyVisitor
 import kotlin.math.max
-import kotlin.text.format
 
 @Composable
 fun PartitionFrequencyFilterUi(
