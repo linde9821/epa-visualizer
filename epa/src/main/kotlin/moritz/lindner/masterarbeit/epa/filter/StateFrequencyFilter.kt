@@ -1,18 +1,22 @@
 package moritz.lindner.masterarbeit.epa.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedStateFrequencyVisitor
 
-class ActivityFilter<T : Comparable<T>>(
-    private val allowedActivities: HashSet<Activity>,
+class StateFrequencyFilter<T : Comparable<T>>(
+    private val threshold: Float,
 ) : EpaFilter<T> {
+    private val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
+
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
+        epa.acceptDepthFirst(normalizedStateFrequencyVisitor)
+
         val statesWithAllowedActivities =
             epa.states
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> state.via in allowedActivities
+                        is State.PrefixState -> normalizedStateFrequencyVisitor.frequencyByState(state) > threshold
                         State.Root -> true
                     }
                 }.toSet()
@@ -22,17 +26,26 @@ class ActivityFilter<T : Comparable<T>>(
             statesWithAllowedActivities
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> chainIsValid(state)
+                        is State.PrefixState -> state.from in statesWithAllowedActivities
                         State.Root -> true
                     }
                 }.toSet()
 
-        val filteredActivities = epa.activities.filter { activity -> allowedActivities.contains(activity) }.toSet()
+        val filteredActivities =
+            epa.activities
+                .filter { activity ->
+                    filteredStates.any { state ->
+                        when (state) {
+                            is State.PrefixState -> state.via == activity
+                            State.Root -> false
+                        }
+                    }
+                }.toSet()
 
         val filteredTransitions =
             epa.transitions
                 .filter { transition ->
-                    transition.activity in allowedActivities &&
+                    transition.activity in filteredActivities &&
                         transition.start in filteredStates &&
                         transition.end in filteredStates
                 }.toSet()
@@ -48,15 +61,4 @@ class ActivityFilter<T : Comparable<T>>(
             sequenceByState = sequenceByState,
         )
     }
-
-    // TODO: check this works more thoroughly
-    private fun chainIsValid(state: State.PrefixState): Boolean =
-        if (state.via in allowedActivities) {
-            when (state.from) {
-                is State.PrefixState -> chainIsValid(state.from)
-                State.Root -> true
-            }
-        } else {
-            false
-        }
 }

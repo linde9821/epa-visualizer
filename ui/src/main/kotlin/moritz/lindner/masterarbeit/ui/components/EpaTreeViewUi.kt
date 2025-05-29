@@ -14,16 +14,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Slider
 import androidx.compose.material.Surface
 import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -54,6 +55,8 @@ import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.filter.PartitionFrequencyFilter
+import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFrequencyVisitor
 import kotlin.math.PI
 
 data class LayoutSelection<T : TreeLayout>(
@@ -247,8 +250,19 @@ fun FilterUi(
             mutableStateListOf(*epa.activities.map { it to true }.toTypedArray())
         }
 
-    val tabs = listOf("Activity Filter", "Future Filter")
+//    val frequencyStateVisitor = NormalizedStateFrequencyVisitor<Long>()
+    val frequencyParitionVisitor by remember {
+        mutableStateOf(NormalizedPartitionFrequencyVisitor<Long>())
+    }
+//    epa.acceptDepthFirst(frequencyStateVisitor)
+    LaunchedEffect(epa) {
+        epa.acceptDepthFirst(frequencyParitionVisitor)
+    }
+
+    val tabs = listOf("Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
     var selectedIndex by remember { mutableStateOf(0) }
+    var stateFrequencyThreashold by remember { mutableStateOf(100f) }
+    var partitionFrequencyThreashold by remember { mutableStateOf(100f) }
 
     Column(
         modifier =
@@ -264,8 +278,17 @@ fun FilterUi(
                 shape = RoundedCornerShape(24.dp),
                 onClick = {
                     val selectedActivities = activities.filter { it.second }.map { it.first }
-                    val filters = ActivityFilter<Long>(selectedActivities.toHashSet())
-                    onApply(filters)
+                    val activityFilter = ActivityFilter<Long>(selectedActivities.toHashSet())
+
+                    val combined = PartitionFrequencyFilter<Long>(partitionFrequencyThreashold / 100f)
+//                        activityFilter
+//                            .then(
+//                                StateFrequencyFilter(stateFrequencyThreashold / 100f),
+//                            ).then(
+//                                PartitionFrequencyFilter(partitionFrequencyThreashold / 100f),
+//                            )
+
+                    onApply(combined)
                 },
                 modifier = Modifier.height(48.dp),
             ) {
@@ -277,7 +300,7 @@ fun FilterUi(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TabRow(selectedTabIndex = selectedIndex, backgroundColor = Color.White) {
+        ScrollableTabRow(selectedTabIndex = selectedIndex, backgroundColor = Color.White) {
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = selectedIndex == index,
@@ -291,7 +314,41 @@ fun FilterUi(
 
         when (selectedIndex) {
             0 -> ActivityFilterTab(activities)
-            else -> {}
+            1 -> {
+                Column {
+                    // State Frequency
+                    Text("Frequency $stateFrequencyThreashold")
+                    Slider(
+                        value = stateFrequencyThreashold,
+                        onValueChange = { stateFrequencyThreashold = it },
+                        valueRange = 0.0f..100f,
+                    )
+                    LazyColumn {
+                        items(epa.states.toList()) {
+//                            Text("${it.name}: ${frequencyStateVisitor.frequencyByState(it)}")
+                        }
+                    }
+                }
+            }
+            2 -> {
+                Column {
+                    // State Frequency
+                    Text("Frequency $partitionFrequencyThreashold")
+                    Slider(
+                        value = partitionFrequencyThreashold,
+                        onValueChange = { partitionFrequencyThreashold = it },
+                        valueRange = 0.0f..100f,
+                    )
+                    LazyColumn {
+                        items(epa.getAllPartitions()) {
+                            Text("$it: ${frequencyParitionVisitor.frequencyByPartition(it)}")
+                        }
+                    }
+                }
+            }
+            else -> {
+                Text("TODO: implement ${tabs[selectedIndex]}")
+            }
         }
     }
 }

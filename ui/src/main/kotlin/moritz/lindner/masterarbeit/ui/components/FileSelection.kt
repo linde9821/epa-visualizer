@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,7 +32,6 @@ import androidx.compose.ui.window.AwtWindow
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
-import java.io.FilenameFilter
 
 @Composable
 fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
@@ -40,14 +41,13 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(48.dp),
-        verticalArrangement = Arrangement.Center,
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "EPA Visualizer",
-            style = MaterialTheme.typography.h3,
-            modifier = Modifier.padding(bottom = 50.dp),
+            style = MaterialTheme.typography.h4,
         )
 
         Image(
@@ -55,24 +55,27 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
             contentDescription = "App Logo",
             modifier =
                 Modifier
-                    .size(500.dp)
-                    .padding(bottom = 50.dp),
+                    .fillMaxWidth(0.4f)
+                    .aspectRatio(1f),
         )
 
         Button(
             shape = RoundedCornerShape(24.dp),
             onClick = { showDialog = true },
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            modifier = Modifier.height(48.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+            modifier =
+                Modifier
+                    .height(40.dp),
         ) {
             Icon(
                 imageVector = Icons.Default.Upload,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(18.dp),
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
             Text("Select event log", style = MaterialTheme.typography.button)
         }
+
         if (showDialog) {
             FileDialog { path ->
                 showDialog = false
@@ -94,10 +97,10 @@ private fun FileDialog(
         object : FileDialog(parent, "Choose a file", LOAD) {
             override fun isMultipleMode(): Boolean = false
 
-            override fun getFilenameFilter(): FilenameFilter =
-                FilenameFilter { file, name ->
-                    file.extension == "xes" || file.extension == "gz"
-                }
+//            override fun getFilenameFilter(): FilenameFilter =
+//                FilenameFilter { file, name ->
+//                    file.extension == "xes" || file.extension == "gz"
+//                }
 
             override fun setVisible(value: Boolean) {
                 super.setVisible(value)
