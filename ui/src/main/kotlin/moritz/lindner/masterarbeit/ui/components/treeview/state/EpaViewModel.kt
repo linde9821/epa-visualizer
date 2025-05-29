@@ -75,7 +75,6 @@ class EpaViewModel(
                 Pair(filter, layout)
             }.collectLatest { (filter, layoutConfig) ->
                 logger.info { "running state update" }
-                logger.info { "filter: ${filter.name()}" }
                 logger.info { "layout: $layoutConfig" }
                 _uiState.update { it.copy(isLoading = true) }
 

@@ -15,7 +15,7 @@ class StateFrequencyFilter<T : Comparable<T>>(
             epa.states
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> normalizedStateFrequencyVisitor.frequencyByState(state) > threshold
+                        is State.PrefixState -> normalizedStateFrequencyVisitor.frequencyByState(state) >= threshold
                         State.Root -> true
                     }
                 }.toSet()
@@ -60,6 +60,4 @@ class StateFrequencyFilter<T : Comparable<T>>(
             sequenceByState = sequenceByState,
         )
     }
-
-    override fun name(): String = "State Frequency"
 }

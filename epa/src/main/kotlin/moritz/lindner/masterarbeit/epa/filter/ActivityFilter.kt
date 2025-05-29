@@ -49,10 +49,6 @@ class ActivityFilter<T : Comparable<T>>(
         )
     }
 
-    override fun name(): String {
-        return "Activity"
-    }
-
     // TODO: check this works more thoroughly
     private fun chainIsValid(state: State.PrefixState): Boolean =
         if (state.via in allowedActivities) {
