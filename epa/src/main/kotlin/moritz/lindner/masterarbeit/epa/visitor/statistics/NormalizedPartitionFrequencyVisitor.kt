@@ -35,4 +35,8 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomataVisitor<T
     ) {
         allEvents++
     }
+
+    fun min(): Float = relativeFrequencyByPartition.values.min()
+
+    fun max(): Float = relativeFrequencyByPartition.values.max()
 }

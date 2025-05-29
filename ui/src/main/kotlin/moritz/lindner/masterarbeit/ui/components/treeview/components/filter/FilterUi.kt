@@ -35,6 +35,9 @@ import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFrequencyVisitor
+import kotlin.math.log10
+import kotlin.math.max
+import kotlin.math.pow
 
 @Composable
 fun FilterUi(
@@ -49,7 +52,8 @@ fun FilterUi(
     val tabs = listOf("Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
     var selectedIndex by remember { mutableStateOf(0) }
     var stateFrequencyThreashold by remember { mutableStateOf(100f) }
-    var partitionFrequencyThreashold by remember { mutableStateOf(100f) }
+    var sliderValue by remember { mutableStateOf(0.0f) }
+    var threshold by remember { mutableStateOf(0.0f) }
 
     Column(
         modifier =
@@ -67,7 +71,7 @@ fun FilterUi(
                     val selectedActivities = activities.filter { it.second }.map { it.first }
                     val activityFilter = ActivityFilter<Long>(selectedActivities.toHashSet())
 
-                    val combined = PartitionFrequencyFilter<Long>(partitionFrequencyThreashold / 100f)
+                    val combined = PartitionFrequencyFilter<Long>(threshold)
 //                        activityFilter
 //                            .then(
 //                                StateFrequencyFilter(stateFrequencyThreashold / 100f),
@@ -120,20 +124,31 @@ fun FilterUi(
 
             2 -> {
                 Column {
-                    // State Frequency
+                    // Parition Frequency
 
-                    val frequencyParitionVisitor = NormalizedPartitionFrequencyVisitor<Long>()
-                    epa.copy().acceptDepthFirst(frequencyParitionVisitor)
+                    // TODO: run in background
+                    val frequencyPartitionVisitor = NormalizedPartitionFrequencyVisitor<Long>()
+                    epa.copy().acceptDepthFirst(frequencyPartitionVisitor)
 
-                    Text("Frequency $partitionFrequencyThreashold")
+                    val rawMinFreq = frequencyPartitionVisitor.min()
+                    val rawMaxFreq = frequencyPartitionVisitor.max() + 0.1f
+
+                    val minFreq = max(rawMinFreq, 1e-6f) // avoid zero
+                    val maxFreq = max(rawMaxFreq, minFreq * 10f) // avoid collapse
+
+                    Text("min=$minFreq, max=$maxFreq, slider=$sliderValue, threshold=${"%.4f".format(threshold)}")
+
                     Slider(
-                        value = partitionFrequencyThreashold,
-                        onValueChange = { partitionFrequencyThreashold = it },
-                        valueRange = 0.0f..100f,
+                        value = sliderValue,
+                        onValueChange = {
+                            sliderValue = it
+                            threshold = sliderToThreshold(sliderValue, minFreq, maxFreq)
+                        },
+                        valueRange = 0f..1f,
                     )
                     LazyColumn {
                         items(epa.getAllPartitions().sorted()) {
-                            Text("$it: ${frequencyParitionVisitor.frequencyByPartition(it)}")
+                            Text("$it: ${frequencyPartitionVisitor.frequencyByPartition(it)}")
                         }
                     }
                 }
@@ -145,3 +160,22 @@ fun FilterUi(
         }
     }
 }
+
+fun sliderToThreshold(
+    sliderValue: Float,
+    minThreshold: Float,
+    maxThreshold: Float,
+): Float {
+    if (minThreshold <= 0f || maxThreshold <= 0f || minThreshold >= maxThreshold) {
+        return minThreshold // fallback or handle differently
+    }
+
+    val rangeLog = log10(maxThreshold / minThreshold)
+    return 10f.pow(sliderValue * rangeLog) * minThreshold
+}
+
+fun thresholdToSlider(
+    threshold: Float,
+    minThreshold: Float,
+    maxThreshold: Float,
+): Float = log10(threshold / minThreshold) / log10(maxThreshold / minThreshold)

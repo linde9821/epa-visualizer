@@ -113,7 +113,6 @@ class EpaViewModel(
                 } catch (e: CancellationException) {
                     logger.warn { "Cancellation Exception ${e.message}" }
                 } catch (e: Exception) {
-                    // optional: handle error (show in UI, log, etc.)
                     logger.error { "Error building layout: ${e.message}" }
                     _uiState.update {
                         it.copy(isLoading = false, layout = null, statistics = null)
