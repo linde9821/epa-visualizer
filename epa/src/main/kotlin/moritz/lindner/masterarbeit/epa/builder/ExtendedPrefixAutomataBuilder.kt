@@ -8,6 +8,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.parser.EPAXesParser
 import org.deckfour.xes.`in`.XesXmlParser
@@ -92,7 +93,7 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
 
                 val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
 
-                val newState = State.PrefixState(predecessorState, event.activity)
+                val newState = PrefixState(predecessorState, event.activity)
                 states.add(newState)
                 val newTransition = Transition(predecessorState, event.activity, newState)
                 transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)] = newTransition

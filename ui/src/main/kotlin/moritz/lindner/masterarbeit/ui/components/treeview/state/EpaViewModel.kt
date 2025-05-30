@@ -14,17 +14,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.ui.components.logger
+import moritz.lindner.masterarbeit.ui.components.treeview.components.logger
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.TreeLayoutConstructionHelper
 import kotlin.coroutines.cancellation.CancellationException
+
+data class AnimationState(
+    val states: List<State>,
+)
 
 class EpaViewModel(
     val completeEpa: ExtendedPrefixAutomata<Long>,
@@ -39,6 +44,10 @@ class EpaViewModel(
 
     fun updateLayout(layoutConfig: LayoutConfig) {
         _layout.value = layoutConfig
+    }
+
+    fun updateAnimation(animationState: AnimationState) {
+        _animationState.value = animationState
     }
 
     private val _layout =
@@ -60,6 +69,15 @@ class EpaViewModel(
             ),
         )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private val _animationState =
+        MutableStateFlow(
+            AnimationState(
+                states = emptyList(),
+            ),
+        )
+    val animationState = _animationState.asStateFlow()
+
     private val coroutineScope = CoroutineScope(backgroundDispatcher + SupervisorJob())
 
     private val _statistics = MutableStateFlow<StatisticsState?>(null)
