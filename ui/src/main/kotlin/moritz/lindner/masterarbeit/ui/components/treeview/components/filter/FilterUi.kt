@@ -60,7 +60,7 @@ fun FilterUi(
             Button(
                 onClick = {
                     val combinedFilters =
-                        EpaFilter.combine<Long>(
+                        EpaFilter.combine(
                             filterByIndex.values.toList().onEach { filter ->
                                 logger.info { "Filter $filter is combined" }
                             },
@@ -90,6 +90,7 @@ fun FilterUi(
 
         Spacer(modifier = Modifier.Companion.height(8.dp))
 
+        // TODO: fix reset by using state hoisting
         when (selectedIndex) {
             0 ->
                 ActivityFilterTabUi(epa) {
@@ -97,12 +98,12 @@ fun FilterUi(
                 }
 
             1 ->
-                StateFrequencyFilterUi(epa) {
+                StateFrequencyFilterUi(epa, backgroundDispatcher) {
                     filterByIndex[selectedIndex] = it
                 }
 
             2 -> {
-                PartitionFrequencyFilterUi(epa) {
+                PartitionFrequencyFilterUi(epa, backgroundDispatcher) {
                     filterByIndex[selectedIndex] = it
                 }
             }

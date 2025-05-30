@@ -11,15 +11,18 @@ import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
 import org.jetbrains.skiko.SkikoProperties
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
+import java.util.concurrent.atomic.AtomicInteger
 
 val logger = KotlinLogging.logger {}
 
 fun main() {
+    val i = AtomicInteger(0)
+
     val threadFactory =
         ThreadFactory { runnable ->
-            Thread(runnable, "EPA-Visualizer-Background-Thread").apply {}
+            Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
         }
-    val executor = Executors.newSingleThreadExecutor(threadFactory)
+    val executor = Executors.newFixedThreadPool(3, threadFactory)
     val backgroundDispatcher = executor.asCoroutineDispatcher()
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }

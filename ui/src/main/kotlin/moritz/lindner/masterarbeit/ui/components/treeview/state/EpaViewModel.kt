@@ -18,6 +18,8 @@ import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
+import moritz.lindner.masterarbeit.epa.visitor.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.ui.components.logger
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
@@ -58,9 +60,13 @@ class EpaViewModel(
             ),
         )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    private val coroutineScope = CoroutineScope(backgroundDispatcher + SupervisorJob())
+
+    private val _statistics = MutableStateFlow<StatisticsState?>(null)
+    val statistics: StateFlow<StatisticsState?> = _statistics.asStateFlow()
 
     init {
-        CoroutineScope(backgroundDispatcher + SupervisorJob()).launch {
+        coroutineScope.launch {
             var lastFilter: EpaFilter<Long>? = null
             var lastLayoutConfig: LayoutConfig? = null
             var lastFilterEpa: ExtendedPrefixAutomata<Long>? = null
@@ -75,48 +81,73 @@ class EpaViewModel(
                 Pair(filter, layout)
             }.collectLatest { (filter, layoutConfig) ->
                 logger.info { "running state update" }
-                logger.info { "layout: $layoutConfig" }
                 _uiState.update { it.copy(isLoading = true) }
 
+                _statistics.update {
+                    null
+                }
+
                 try {
-                    val layout =
-                        withContext(backgroundDispatcher) {
-                            val filteredEpa = filter.apply(completeEpa.copy())
-                            logger.info { "Prefilter ${completeEpa.states.size}\nPostfilter ${filteredEpa.states.size}\n" }
-                            yield()
+                    withContext(backgroundDispatcher) {
+                        logger.info { "applying filter" }
+                        val filteredEpa = filter.apply(completeEpa.copy())
+                        yield()
+                        _uiState.update { it.copy(filteredEpa = filteredEpa) }
 
-                            val layout = TreeLayoutConstructionHelper.build(layoutConfig, filteredEpa)
-                            yield()
+                        logger.info { "building tree" }
+                        val treeVisitor = TreeBuildingVisitor<Long>()
+                        filteredEpa.copy().acceptDepthFirst(AutomataVisitorProgressBar(treeVisitor, "tree"))
+                        yield()
 
-                            val treeVisitor = TreeBuildingVisitor<Long>()
-                            filteredEpa.copy().acceptDepthFirst(treeVisitor)
-                            yield()
+                        logger.info { "building tree layout" }
+                        val layout = TreeLayoutConstructionHelper.build(layoutConfig, filteredEpa)
+                        yield()
 
-                            layout.build(treeVisitor.root)
-                            yield()
+                        layout.build(treeVisitor.root)
+                        yield()
 
-                            lastFilter = filter
-                            lastFilterEpa = filteredEpa
-                            lastLayoutConfig = layoutConfig
-                            lastLayout = layout
-                            layout
+                        lastFilter = filter
+                        lastFilterEpa = filteredEpa
+                        lastLayoutConfig = layoutConfig
+                        lastLayout = layout
+
+                        logger.info { "update ui" }
+
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                layout = layout,
+                            )
                         }
 
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            layout = layout,
-                            statistics = null,
-                        )
+                        logger.info { "building statistics" }
+                        computeStatistics(filteredEpa)
                     }
                 } catch (e: CancellationException) {
                     logger.warn { "Cancellation Exception ${e.message}" }
                 } catch (e: Exception) {
                     logger.error { "Error building layout: ${e.message}" }
                     _uiState.update {
-                        it.copy(isLoading = false, layout = null, statistics = null)
+                        it.copy(isLoading = false, layout = null, filteredEpa = null)
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomata<Long>?) {
+        withContext(backgroundDispatcher) {
+            val fullVisitor = StatisticsVisitor<Long>()
+            completeEpa.acceptDepthFirst(AutomataVisitorProgressBar(fullVisitor, "full-statistics"))
+
+            val filterVisitor = StatisticsVisitor<Long>()
+            filteredEpa?.acceptDepthFirst(AutomataVisitorProgressBar(filterVisitor, "filtered-statistics"))
+
+            _statistics.update {
+                StatisticsState(
+                    fullEpa = fullVisitor.build(),
+                    filteredEpa = filteredEpa?.let { filterVisitor.build() },
+                )
             }
         }
     }

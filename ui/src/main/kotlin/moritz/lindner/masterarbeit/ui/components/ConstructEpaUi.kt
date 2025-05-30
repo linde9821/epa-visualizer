@@ -85,7 +85,7 @@ fun ConstructEpaUi(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(100.dp),
+                    modifier = Modifier.size(50.dp),
                     strokeWidth = 6.dp,
                     color = MaterialTheme.colors.primary,
                 )

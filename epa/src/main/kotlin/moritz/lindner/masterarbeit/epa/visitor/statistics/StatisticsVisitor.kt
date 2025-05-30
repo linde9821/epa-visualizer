@@ -6,7 +6,6 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
-import kotlin.math.max
 
 class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
@@ -17,14 +16,16 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val activityFrequency = mutableMapOf<Activity, Int>()
     private val prefixLengths = mutableListOf<Int>()
 
+    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+        partitions = extendedPrefixAutomata.getAllPartitions().size
+    }
+
     override fun visit(
         extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
         state: State,
         depth: Int,
     ) {
         if (!visitedStates.add(state)) return
-
-        partitions = max(partitions, extendedPrefixAutomata.partition(state))
 
         val sequence = extendedPrefixAutomata.sequence(state)
         prefixLengths += sequence.size
@@ -48,6 +49,20 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     ) {
         cases.add(event.caseIdentifier)
         eventCount++
+    }
+
+    fun build(): Statistics {
+        val totalStates = visitedStates.size
+        val totalEvents = eventCount
+
+        return Statistics(
+            eventCount = totalEvents,
+            caseCount = cases.size,
+            activityCount = activityFrequency.values.size,
+            stateCount = totalStates,
+            partitionsCount = partitions,
+            activityFrequency = activityFrequency,
+        )
     }
 
     fun report(): String {
