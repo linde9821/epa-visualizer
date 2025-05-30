@@ -50,6 +50,20 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         eventCount++
     }
 
+    fun build(): Statistics {
+        val totalStates = visitedStates.size
+        val totalEvents = eventCount
+
+        return Statistics(
+            eventCount = totalEvents,
+            caseCount = cases.size,
+            activityCount = activityFrequency.values.size,
+            stateCount = totalStates,
+            partitionsCount = partitions,
+            activityFrequency = activityFrequency,
+        )
+    }
+
     fun report(): String {
         val totalStates = visitedStates.size
         val totalTransitions = visitedTransitions.size

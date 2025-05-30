@@ -23,11 +23,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.visitor.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.layout.LayoutOptionUi
@@ -42,13 +45,17 @@ fun EpaTreeViewUi(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    val viewModel =
-        EpaViewModel(
-            completeEpa = epa,
-            backgroundDispatcher = backgroundDispatcher,
+    val viewModel by remember {
+        mutableStateOf(
+            EpaViewModel(
+                completeEpa = epa,
+                backgroundDispatcher = backgroundDispatcher,
+            ),
         )
+    }
 
     val uiState by viewModel.uiState.collectAsState()
+    val statisticsState by viewModel.statistics.collectAsState()
 
     Column(
         modifier =
@@ -102,7 +109,8 @@ fun EpaTreeViewUi(
             Column(
                 modifier =
                     Modifier
-                        .fillMaxSize()
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.5f)
                         .padding(8.dp),
             ) {
                 Surface(
@@ -132,6 +140,31 @@ fun EpaTreeViewUi(
                     }
                 }
             }
+
+            Column {
+                Text("Statistics")
+
+                if (statisticsState != null) {
+                    Row {
+                        Text("full")
+                        StatisticsUi(statisticsState!!.fullEpa)
+                    }
+
+                    if (statisticsState!!.filteredEpa != null) {
+                        Row {
+                            Text("filtered")
+                            StatisticsUi(statisticsState!!.filteredEpa!!)
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun StatisticsUi(statistics: Statistics) {
+    Column {
+        Text("States: ${statistics.stateCount}")
     }
 }

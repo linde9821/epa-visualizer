@@ -60,7 +60,7 @@ fun FilterUi(
             Button(
                 onClick = {
                     val combinedFilters =
-                        EpaFilter.combine<Long>(
+                        EpaFilter.combine(
                             filterByIndex.values.toList().onEach { filter ->
                                 logger.info { "Filter $filter is combined" }
                             },
