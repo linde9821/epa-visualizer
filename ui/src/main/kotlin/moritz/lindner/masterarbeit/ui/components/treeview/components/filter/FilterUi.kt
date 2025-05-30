@@ -97,12 +97,12 @@ fun FilterUi(
                 }
 
             1 ->
-                StateFrequencyFilterUi(epa) {
+                StateFrequencyFilterUi(epa, backgroundDispatcher) {
                     filterByIndex[selectedIndex] = it
                 }
 
             2 -> {
-                PartitionFrequencyFilterUi(epa) {
+                PartitionFrequencyFilterUi(epa, backgroundDispatcher) {
                     filterByIndex[selectedIndex] = it
                 }
             }

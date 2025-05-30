@@ -3,6 +3,9 @@ package moritz.lindner.masterarbeit.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -20,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
@@ -74,33 +78,41 @@ fun TidyTreeUi(uiState: UiState) {
                 }
             }.clipToBounds()
 
-    Canvas(modifier = canvasModifier) {
-        withTransform({
-            translate(offset.x, offset.y)
-            scale(
-                scaleX = scale,
-                scaleY = scale,
-                pivot = Offset.Zero,
-            )
-        }) {
-            val center = (center - offset) / scale
-            val topLeft =
-                Offset(x = center.x - ((size.width / scale) / 2f), y = center.y - ((size.height / scale) / 2f))
-            val bottomRight =
-                Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
+    if (uiState.isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(100.dp),
+            strokeWidth = 6.dp,
+            color = MaterialTheme.colors.primary,
+        )
+    } else {
+        Canvas(modifier = canvasModifier) {
+            withTransform({
+                translate(offset.x, offset.y)
+                scale(
+                    scaleX = scale,
+                    scaleY = scale,
+                    pivot = Offset.Zero,
+                )
+            }) {
+                val center = (center - offset) / scale
+                val topLeft =
+                    Offset(x = center.x - ((size.width / scale) / 2f), y = center.y - ((size.height / scale) / 2f))
+                val bottomRight =
+                    Offset(x = center.x + ((size.width / scale) / 2f), y = center.y + ((size.height / scale) / 2f))
 
-            val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
+                val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
-            if (!uiState.isLoading && uiState.layout != null && uiState.layout.isBuilt()) {
-                (uiState.layout as? DirectAngularPlacementTreeLayout)?.let {
-                    drawDepthCircles(it)
+                if (!uiState.isLoading && uiState.layout != null && uiState.layout.isBuilt()) {
+                    (uiState.layout as? DirectAngularPlacementTreeLayout)?.let {
+                        drawDepthCircles(it)
+                    }
+
+                    (uiState.layout as? RadialWalkerTreeLayout)?.let {
+                        drawDepthCircles(it)
+                    }
+
+                    drawEPA(uiState.layout, boundingBox)
                 }
-
-                (uiState.layout as? RadialWalkerTreeLayout)?.let {
-                    drawDepthCircles(it)
-                }
-
-                drawEPA(uiState.layout, boundingBox)
             }
         }
     }
