@@ -22,7 +22,7 @@ fun ActivityFilterTabUi(
     onFilterUpdate: (ActivityFilter<Long>) -> Unit,
 ) {
     val activities =
-        remember {
+        remember(epa) {
             mutableStateListOf(*epa.activities.map { it to true }.toTypedArray())
         }
 

@@ -22,6 +22,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.filter.StateFrequencyFilter
 import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedStateFrequencyVisitor
+import moritz.lindner.masterarbeit.ui.logger
 import kotlin.math.max
 
 @Composable
@@ -38,11 +39,12 @@ fun StateFrequencyFilterUi(
     }
 
     LaunchedEffect(epa) {
+        isLoading = true
         withContext(dispatcher) {
-            isLoading = true
+            logger.info { "building state filter" }
             epa.copy().acceptDepthFirst(frequencyStateVisitor)
-            isLoading = false
         }
+        isLoading = false
     }
 
     Column {

@@ -22,6 +22,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFrequencyVisitor
+import moritz.lindner.masterarbeit.ui.logger
 import kotlin.math.max
 
 @Composable
@@ -30,17 +31,18 @@ fun PartitionFrequencyFilterUi(
     dispatcher: CoroutineDispatcher,
     onFilter: (EpaFilter<Long>) -> Unit,
 ) {
-    var sliderValue by remember { mutableStateOf(0.0f) }
-    var threshold by remember { mutableStateOf(0.0f) }
+    var sliderValue by remember(epa) { mutableStateOf(0.0f) }
+    var threshold by remember(epa) { mutableStateOf(0.0f) }
     var isLoading by remember { mutableStateOf(true) }
     val frequencyPartitionVisitor by remember(epa) { mutableStateOf(NormalizedPartitionFrequencyVisitor<Long>()) }
 
     LaunchedEffect(epa) {
+        isLoading = true
         withContext(dispatcher) {
-            isLoading = true
+            logger.info { "building partition filter" }
             epa.copy().acceptDepthFirst(frequencyPartitionVisitor)
-            isLoading = false
         }
+        isLoading = false
     }
 
     Column {

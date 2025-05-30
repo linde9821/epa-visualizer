@@ -90,6 +90,7 @@ fun FilterUi(
 
         Spacer(modifier = Modifier.Companion.height(8.dp))
 
+        // TODO: fix reset by using state hoisting
         when (selectedIndex) {
             0 ->
                 ActivityFilterTabUi(epa) {
