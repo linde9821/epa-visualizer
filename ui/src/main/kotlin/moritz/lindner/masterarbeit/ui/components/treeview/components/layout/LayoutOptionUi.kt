@@ -14,7 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.ui.components.logger
+import moritz.lindner.masterarbeit.ui.components.treeview.components.logger
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 
