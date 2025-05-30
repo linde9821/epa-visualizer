@@ -7,7 +7,8 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
 /**
- * Not thread safe to visit
+ * Not thread safe to visit. When multiple threads might access the ExtendedPrefixAutomata create a new instance of the
+ * EPA with the `copy` function and let it accept the visitor.
  */
 class ExtendedPrefixAutomata<T : Comparable<T>>(
     val states: Set<State>,
