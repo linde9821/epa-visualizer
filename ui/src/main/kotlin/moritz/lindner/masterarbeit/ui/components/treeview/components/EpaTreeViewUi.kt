@@ -30,10 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.visitor.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.layout.LayoutOptionUi
+import moritz.lindner.masterarbeit.ui.components.treeview.components.statistics.StatisticsComparisonUi
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import kotlin.math.PI
 
@@ -110,7 +110,7 @@ fun EpaTreeViewUi(
                 modifier =
                     Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(0.5f)
+                        .fillMaxWidth(0.8f)
                         .padding(8.dp),
             ) {
                 Surface(
@@ -141,30 +141,7 @@ fun EpaTreeViewUi(
                 }
             }
 
-            Column {
-                Text("Statistics")
-
-                if (statisticsState != null) {
-                    Row {
-                        Text("full")
-                        StatisticsUi(statisticsState!!.fullEpa)
-                    }
-
-                    if (statisticsState!!.filteredEpa != null) {
-                        Row {
-                            Text("filtered")
-                            StatisticsUi(statisticsState!!.filteredEpa!!)
-                        }
-                    }
-                }
-            }
+            StatisticsComparisonUi(statisticsState)
         }
-    }
-}
-
-@Composable
-fun StatisticsUi(statistics: Statistics) {
-    Column {
-        Text("States: ${statistics.stateCount}")
     }
 }
