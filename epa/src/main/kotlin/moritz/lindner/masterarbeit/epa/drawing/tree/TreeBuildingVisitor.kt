@@ -5,7 +5,20 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
+/**
+ * A visitor that constructs a tree representation of an [ExtendedPrefixAutomata],
+ * mapping each [State] to an [EPATreeNode] with parent/child relationships.
+ *
+ * The tree is rooted at [State.Root] and mirrors the traversal order.
+ * Must be used with [ExtendedPrefixAutomata.acceptDepthFirst] to ensure a valid parent-before-child visit order.
+ *
+ * @param T The timestamp type used in the automaton's events.
+ */
 class TreeBuildingVisitor<T : Comparable<T>> : AutomataVisitor<T> {
+    /**
+     * The root node of the constructed tree. Will represent [State.Root].
+     * Populated after [onStart] is invoked by the traversal.
+     */
     lateinit var root: EPATreeNode
         private set
 

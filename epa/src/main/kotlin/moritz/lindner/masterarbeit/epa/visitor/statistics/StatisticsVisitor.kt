@@ -7,6 +7,15 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
+/**
+ * A visitor that traverses an [ExtendedPrefixAutomata] to compute various statistics
+ * such as event counts, activity frequencies, state/transition counts, and partition usage.
+ *
+ * After traversal, the collected metrics can be accessed via [build] or reported
+ * in a human-readable format using [report].
+ *
+ * @param T The timestamp type used in the automaton's events.
+ */
 class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
     private val visitedTransitions = mutableSetOf<Transition>()
@@ -51,6 +60,9 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         eventCount++
     }
 
+    /**
+     * Builds a [Statistics] object containing the collected values.
+     */
     fun build(): Statistics {
         val totalStates = visitedStates.size
         val totalEvents = eventCount
@@ -65,6 +77,9 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         )
     }
 
+    /**
+     * Generates a formatted summary report of the collected statistics.
+     */
     fun report(): String {
         val totalStates = visitedStates.size
         val totalTransitions = visitedTransitions.size

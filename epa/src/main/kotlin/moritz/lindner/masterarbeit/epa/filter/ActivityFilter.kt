@@ -4,9 +4,28 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.State
 
+/**
+ * A filter that removes all states, transitions, and events from an [ExtendedPrefixAutomata]
+ * that are not associated with the specified set of allowed [Activity]s.
+ *
+ * This filter preserves only those parts of the automaton that:
+ * - Are reachable via allowed activities
+ * - Maintain valid transition chains from the root
+ *
+ * Orphaned states (those whose path includes disallowed activities) are pruned.
+ *
+ * @param T The timestamp type used in the automaton's events.
+ * @property allowedActivities The set of activity labels to retain in the filtered automaton.
+ */
 class ActivityFilter<T : Comparable<T>>(
     private val allowedActivities: HashSet<Activity>,
 ) : EpaFilter<T> {
+    /**
+     * Applies the activity-based filtering logic to the given automaton.
+     *
+     * @param epa The automaton to filter.
+     * @return A new [ExtendedPrefixAutomata] that includes only allowed activities and valid state chains.
+     */
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
         val statesWithAllowedActivities =
             epa.states

@@ -2,6 +2,12 @@ package moritz.lindner.masterarbeit.epa.drawing.placement
 
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 
+/**
+ * Associates a node in the EPA tree with a specific coordinate in a 2D layout.
+ *
+ * @property coordinate The 2D coordinate assigned to the node.
+ * @property node The tree node being placed.
+ */
 data class NodePlacementInformation(
     val coordinate: Coordinate,
     val node: EPATreeNode,
