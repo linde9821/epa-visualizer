@@ -4,9 +4,26 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedPartitionFrequencyVisitor
 
+/**
+ * Filters an [ExtendedPrefixAutomata] by removing all states and transitions
+ * that belong to partitions with a normalized frequency below a given [threshold].
+ *
+ * Partitions are evaluated using a [NormalizedPartitionFrequencyVisitor],
+ * and only those with frequency >= [threshold] (or partition 0, which is always retained)
+ * are kept.
+ *
+ * @param T The timestamp type used in the automaton's events.
+ * @property threshold The minimum normalized frequency a partition must have to be included.
+ */
 class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
+    /**
+     * Applies the frequency-based partition filtering logic to the given automaton.
+     *
+     * @param epa The automaton to filter.
+     * @return A new [ExtendedPrefixAutomata] with only frequent partitions retained.
+     */
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
         val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
 

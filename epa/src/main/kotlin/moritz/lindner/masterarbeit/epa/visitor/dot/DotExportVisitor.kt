@@ -5,11 +5,26 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
+/**
+ * A visitor that exports an [ExtendedPrefixAutomata] to the DOT graph description language,
+ * which can be rendered using tools like Graphviz.
+ *
+ * The graph includes:
+ * - Nodes labeled by event sequences per state
+ * - Directed edges labeled with activity names
+ * - Subgraphs representing partitions
+ *
+ * @param T The timestamp type used in the automaton's events.
+ */
 class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val labelByState = mutableMapOf<State, String>()
     private val transitions = mutableListOf<String>()
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
 
+    /**
+     * The final DOT string representation of the automaton.
+     * This is initialized when [onEnd] is called after traversal.
+     */
     lateinit var dot: String
         private set
 

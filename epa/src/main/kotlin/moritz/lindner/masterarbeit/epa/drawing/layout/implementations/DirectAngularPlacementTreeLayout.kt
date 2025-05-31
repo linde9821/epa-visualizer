@@ -16,6 +16,16 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
+/**
+ * A radial tree layout using direct angular partitioning per node.
+ *
+ * Unlike Walker-based layouts, this layout recursively assigns angular ranges to each subtree
+ * and places nodes evenly along concentric circles based on their depth. Each child of a node
+ * receives a proportion of its parent’s angle sector, ensuring a balanced circular appearance.
+ *
+ * @property layerSpace The radial distance between concentric depth layers.
+ * @property expectedCapacity Expected number of nodes, used to preallocate internal maps.
+ */
 class DirectAngularPlacementTreeLayout(
     private val layerSpace: Float,
     expectedCapacity: Int = 1000,
