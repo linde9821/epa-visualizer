@@ -28,8 +28,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.DirectAngularPlacementTreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.treeview.state.UiState
@@ -103,11 +101,7 @@ fun TidyTreeUi(uiState: UiState) {
                 val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
                 if (!uiState.isLoading && uiState.layout != null && uiState.layout.isBuilt()) {
-                    (uiState.layout as? DirectAngularPlacementTreeLayout)?.let {
-                        drawDepthCircles(it)
-                    }
-
-                    (uiState.layout as? RadialWalkerTreeLayout)?.let {
+                    (uiState.layout as? RadialTreeLayout)?.let {
                         drawDepthCircles(it)
                     }
 
