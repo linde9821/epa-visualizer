@@ -9,47 +9,40 @@ import java.util.TreeMap
  * @param T The type used for timestamps, which must be comparable (e.g., Int, Long, LocalDateTime).
  * @property caseIdentifier A unique identifier for the case.
  * @property stateAtTimestamp A sorted map (by timestamp) of states representing the case's history over time.
+ * @property totalAmountOfEvents The total number of state changes (events) recorded for this case.
  */
 data class CaseAnimation<T : Comparable<T>>(
-    val caseIdentifier: String,
-    val stateAtTimestamp: TreeMap<T, State>,
+    private val caseIdentifier: String,
+    private val stateAtTimestamp: TreeMap<T, State>,
     val totalAmountOfEvents: Int,
 ) {
+    private val sortedEntries = stateAtTimestamp.entries.toList()
+
     /**
-     * Returns the [State] closest to the given [timestamp].
+     * Retrieves all [State]s that occurred strictly before the given [timestamp].
      *
-     * If the exact timestamp is not found, it returns the state corresponding to the closest key — either the
-     * largest timestamp less than or equal to [timestamp] (floor), or the smallest timestamp greater than or
-     * equal to [timestamp] (ceiling), whichever is closer.
-     *
-     * @param timestamp The timestamp for which to retrieve the closest state.
-     * @return The [State] at the closest timestamp, or null if the map is empty.
+     * @param timestamp The cutoff timestamp (exclusive).
+     * @return A list of states ordered by their timestamp, occurring before [timestamp].
      */
-    fun getStateAtTimestamp(timestamp: T): Pair<T, State?> {
-        val floor = stateAtTimestamp.floorKey(timestamp)
-        val ceiling = stateAtTimestamp.ceilingKey(timestamp)
-
-        val closestKey =
-            when {
-                floor == null -> ceiling
-                ceiling == null -> floor
-                else -> if ((timestamp.compareTo(floor) < timestamp.compareTo(ceiling))) floor else ceiling
-            }
-
-        return closestKey to stateAtTimestamp[closestKey]
-    }
-
     fun getStateUpTillTimestamp(timestamp: T): List<State> = stateAtTimestamp.headMap(timestamp, false).values.toList()
 
+    /**
+     * Retrieves all [State]s that occurred strictly after the given [timestamp].
+     *
+     * @param timestamp The starting timestamp (exclusive).
+     * @return A list of states ordered by their timestamp, occurring after [timestamp].
+     */
     fun getStateFromTimestamp(timestamp: T): List<State> = stateAtTimestamp.tailMap(timestamp, false).values.toList()
 
+    /**
+     * Retrieves the N-th state and its timestamp based on chronological order of timestamps.
+     *
+     * @param n The zero-based index of the desired entry.
+     * @return A pair of timestamp and state at position [n], or `null` if [n] is out of bounds.
+     */
     fun getNthEntry(n: Int): Pair<T, State>? {
-        var i = 0
-        for (entry in stateAtTimestamp) {
-            if (i == n) return Pair(entry.key, entry.value)
-            i++
-        }
-        return null
+        val entry = sortedEntries.getOrNull(n)
+        return entry?.let { (key, value) -> key to value }
     }
 
     override fun toString(): String =

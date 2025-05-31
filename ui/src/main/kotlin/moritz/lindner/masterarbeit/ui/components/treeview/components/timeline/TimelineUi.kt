@@ -151,7 +151,7 @@ fun TimeSlider(
             value = sliderValue,
             onValueChange = {
                 sliderValue = it
-                val index = floor(sliderValue).toInt() - 1
+                val index = (floor(sliderValue).toInt() - 1).coerceAtLeast(0)
                 val state = animation!!.getNthEntry(index)
 
                 val animationState =

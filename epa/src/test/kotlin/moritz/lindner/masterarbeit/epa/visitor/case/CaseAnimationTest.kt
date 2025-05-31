@@ -8,6 +8,47 @@ import java.io.File
 
 class CaseAnimationTest {
     @Test
+    fun `getNthEntry returns the correct timestamp and state`() {
+        val builder = ExtendedPrefixAutomataBuilder<Long>()
+        builder.setFile(File("./src/test/resources/sample.xes"))
+        builder.setEventLogMapper(SampleEventMapper())
+        val epa = builder.build()
+        val visitor = CaseAnimationVisitor<Long>("1")
+
+        epa.acceptDepthFirst(visitor)
+
+        val sut = visitor.build()
+
+        val (timestamp, state) = sut.getNthEntry(0)!!
+
+        assertThat(timestamp).isNotNull()
+        assertThat(state).isNotNull()
+        assertThat(state.name).isEqualTo("a")
+    }
+
+    @Test
+    fun `getStateUpTillTimestamp and getStateFromTimestamp split timeline correctly`() {
+        val builder = ExtendedPrefixAutomataBuilder<Long>()
+        builder.setFile(File("./src/test/resources/sample.xes"))
+        builder.setEventLogMapper(SampleEventMapper())
+        val epa = builder.build()
+        val visitor = CaseAnimationVisitor<Long>("1")
+
+        epa.acceptDepthFirst(visitor)
+
+        val sut = visitor.build()
+
+        val (timestamp, state) = sut.getNthEntry(2)!!
+        val previous = sut.getStateUpTillTimestamp(timestamp)
+        val upcoming = sut.getStateFromTimestamp(timestamp)
+
+        assertThat(previous).doesNotContain(state)
+        assertThat(upcoming).doesNotContain(state)
+        assertThat(previous).doesNotContainAnyElementsOf(upcoming)
+        assertThat(previous.size + upcoming.size + 1).isEqualTo(sut.totalAmountOfEvents)
+    }
+
+    @Test
     fun `must be able to get previous, current and upcoming state from a key`() {
         val builder = ExtendedPrefixAutomataBuilder<Long>()
         builder.setFile(File("./src/test/resources/sample.xes"))
