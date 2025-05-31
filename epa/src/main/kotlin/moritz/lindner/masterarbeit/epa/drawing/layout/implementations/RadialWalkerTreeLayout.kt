@@ -15,6 +15,17 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * A radial variant of the Walker tree layout algorithm.
+ *
+ * This layout arranges nodes in concentric circles around the root node, where each tree depth
+ * level forms a ring (layer), and sibling nodes are spaced proportionally along the angle of the ring.
+ * It first computes a traditional Walker layout in Cartesian coordinates and then transforms it into polar coordinates.
+ *
+ * @property layerSpace The distance between concentric layers (depth levels).
+ * @property expectedCapacity The expected number of nodes, used for internal data structure optimization.
+ * @property margin The angular margin (in radians) subtracted from the full circle to avoid overlap or crowding.
+ */
 class RadialWalkerTreeLayout(
     val layerSpace: Float,
     expectedCapacity: Int = 1000,

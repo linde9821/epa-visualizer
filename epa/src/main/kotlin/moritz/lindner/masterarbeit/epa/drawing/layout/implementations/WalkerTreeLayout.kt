@@ -15,6 +15,18 @@ import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * A layout implementation based on the Walker algorithm for tidy tree visualization.
+ *
+ * This algorithm assigns x/y coordinates to each node in a tree such that siblings are spaced
+ * appropriately, subtrees do not overlap, and the visual structure is clear and compact.
+ *
+ * Runs with O(n)
+ *
+ * @param distance The minimum horizontal space between sibling nodes.
+ * @param yDistance The vertical distance between nodes of different depth levels.
+ * @param expectedCapacity An optimization hint for internal map sizing.
+ */
 open class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,

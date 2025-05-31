@@ -7,7 +7,20 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
 /**
- * Not thread safe to visit
+ * A non-mutable, non-thread-safe data structure representing an Extended Prefix Automaton (EPA).
+ *
+ * The automaton is built from a set of [State]s, [Activity] labels, and [Transition] edges,
+ * along with mappings that associate states with partitions and sequences of events.
+ *
+ * It supports both depth-first and breadth-first traversal via a [AutomataVisitor], and maintains
+ * efficient access to outgoing transitions for fast traversal.
+ *
+ * **Note:** This class is not thread-safe for concurrent visiting or mutation.
+ *
+ * @param T The timestamp type used in the associated events.
+ * @property states All states in the automaton, including the root.
+ * @property activities All distinct activities appearing in transitions.
+ * @property transitions All transitions between states, each labeled with an activity.
  */
 class ExtendedPrefixAutomata<T : Comparable<T>>(
     val states: Set<State>,
@@ -16,17 +29,40 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     private val partitionByState: Map<State, Int>,
     private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
-    // for improved visitor speed
+    // Cached grouping of transitions by their source state
     private val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
 
+    /**
+     * Returns the partition index assigned to the given state.
+     *
+     * @throws IllegalStateException If the state is not part of the automaton.
+     */
     fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 
+    /**
+     * Returns all events associated with the given state.
+     *
+     * @throws IllegalStateException If the state is not part of the automaton.
+     */
     fun sequence(state: State): Set<Event<T>> = sequenceByState[state] ?: throw IllegalStateException("No sequence for state $state")
 
     private var visitedStates = 0L
 
+    /**
+     * Returns a list of all unique partition indices present in the automaton.
+     */
     fun getAllPartitions(): List<Int> = partitionByState.values.distinct().toList()
 
+    /**
+     * Traverses the automaton in depth-first order using the provided [AutomataVisitor].
+     *
+     * The visitor will be invoked in the following order for each state:
+     * 1. [State]
+     * 2. Events of the state
+     * 3. Transitions from the state
+     *
+     * Starts at the [State.Root].
+     */
     fun acceptDepthFirst(visitor: AutomataVisitor<T>) {
         visitedStates = 0
         visitor.onStart(this)
@@ -34,6 +70,14 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
         visitor.onEnd(this)
     }
 
+    /**
+     * Traverses the automaton in breadth-first order using the provided [AutomataVisitor].
+     *
+     * The visitor will be invoked in the following order for each state:
+     * 1. [State]
+     * 2. Events of the state
+     * 3. Transitions from the state
+     */
     fun acceptBreadthFirst(visitor: AutomataVisitor<T>) {
         visitedStates = 0
         visitor.onStart(this)
@@ -105,6 +149,9 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
             appendLine(sequenceByState.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(","))
         }
 
+    /**
+     * Returns a deep copy of this automaton.
+     */
     fun copy(): ExtendedPrefixAutomata<T> =
         ExtendedPrefixAutomata(
             states = states.toSet(),
