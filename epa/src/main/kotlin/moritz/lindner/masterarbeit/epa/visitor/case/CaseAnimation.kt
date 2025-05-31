@@ -25,7 +25,7 @@ data class CaseAnimation<T : Comparable<T>>(
      * @param timestamp The timestamp for which to retrieve the closest state.
      * @return The [State] at the closest timestamp, or null if the map is empty.
      */
-    fun getStateAtTimestamp(timestamp: T): State? {
+    fun getStateAtTimestamp(timestamp: T): Pair<T, State?> {
         val floor = stateAtTimestamp.floorKey(timestamp)
         val ceiling = stateAtTimestamp.ceilingKey(timestamp)
 
@@ -36,13 +36,17 @@ data class CaseAnimation<T : Comparable<T>>(
                 else -> if ((timestamp.compareTo(floor) < timestamp.compareTo(ceiling))) floor else ceiling
             }
 
-        return stateAtTimestamp[closestKey]
+        return closestKey to stateAtTimestamp[closestKey]
     }
 
-    fun getNthEntry(n: Int): State? {
+    fun getStateUpTillTimestamp(timestamp: T): List<State> = stateAtTimestamp.headMap(timestamp, false).values.toList()
+
+    fun getStateFromTimestamp(timestamp: T): List<State> = stateAtTimestamp.tailMap(timestamp, false).values.toList()
+
+    fun getNthEntry(n: Int): Pair<T, State>? {
         var i = 0
         for (entry in stateAtTimestamp) {
-            if (i == n) return entry.value
+            if (i == n) return Pair(entry.key, entry.value)
             i++
         }
         return null
