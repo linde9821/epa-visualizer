@@ -37,7 +37,6 @@ import moritz.lindner.masterarbeit.epa.visitor.case.CaseAnimationVisitor
 import moritz.lindner.masterarbeit.epa.visitor.case.CaseVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
-import moritz.lindner.masterarbeit.ui.logger
 import kotlin.math.floor
 
 @Composable
@@ -152,14 +151,28 @@ fun TimeSlider(
             value = sliderValue,
             onValueChange = {
                 sliderValue = it
-                val x = floor(sliderValue).toInt() - 1
-                logger.info { "total ${animation!!.totalAmountOfEvents}" }
-                logger.info { "state $sliderValue" }
-                val state = animation!!.getNthEntry(x)
-                viewModel.updateAnimation(
-                    if (state == null) AnimationState(emptyList()) else AnimationState(listOf(state)),
-                )
-                logger.info { "Event: $state for $x" }
+                val index = floor(sliderValue).toInt() - 1
+                val state = animation!!.getNthEntry(index)
+
+                val animationState =
+                    if (state == null) {
+                        AnimationState(
+                            current = emptyList(),
+                            previous = emptyList(),
+                            upComing = emptyList(),
+                        )
+                    } else {
+                        val previous = animation!!.getStateUpTillTimestamp(state.first)
+                        val upComing = animation!!.getStateFromTimestamp(state.first)
+
+                        AnimationState(
+                            current = listOf(state.second),
+                            previous = previous,
+                            upComing = upComing,
+                        )
+                    }
+
+                viewModel.updateAnimation(animationState)
             },
             modifier = Modifier.Companion.fillMaxWidth(),
             valueRange = 0f..animation!!.totalAmountOfEvents.toFloat(),

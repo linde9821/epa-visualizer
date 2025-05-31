@@ -134,8 +134,12 @@ private fun DrawScope.drawEPA(
             val state = node.state
 
             val col =
-                if (animationState.states.contains(state)) {
+                if (animationState.current.contains(state)) {
                     SkiaColor.RED
+                } else if (animationState.upComing.contains(state)) {
+                    SkiaColor.GREEN
+                } else if (animationState.previous.contains(state)) {
+                    SkiaColor.MAGENTA
                 } else {
                     SkiaColor.BLACK
                 }
@@ -147,6 +151,9 @@ private fun DrawScope.drawEPA(
                     isAntiAlias = true
                 }
 
+            if (col == SkiaColor.RED) {
+                canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 20f, paint)
+            }
             canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
 
             if (state is PrefixState) {

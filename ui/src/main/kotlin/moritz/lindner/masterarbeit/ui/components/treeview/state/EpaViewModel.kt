@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
 import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
@@ -26,10 +25,6 @@ import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.TreeLayoutConstructionHelper
 import kotlin.coroutines.cancellation.CancellationException
-
-data class AnimationState(
-    val states: List<State>,
-)
 
 class EpaViewModel(
     val completeEpa: ExtendedPrefixAutomata<Long>,
@@ -73,7 +68,9 @@ class EpaViewModel(
     private val _animationState =
         MutableStateFlow(
             AnimationState(
-                states = emptyList(),
+                current = emptyList(),
+                upComing = emptyList(),
+                previous = emptyList(),
             ),
         )
     val animationState = _animationState.asStateFlow()
