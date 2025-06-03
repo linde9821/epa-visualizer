@@ -37,7 +37,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
      *
      * @throws IllegalStateException If the state is not part of the automaton.
      */
-    fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
+    fun partition(state: State): Int = partitionByState[state] ?: throw IllegalStateException("No partition with state $state")
 
     /**
      * Returns all events associated with the given state.
