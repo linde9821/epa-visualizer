@@ -47,6 +47,7 @@ sealed class State(
          */
         override fun toString(): String = "$from -> $via"
 
+        // TODO: add documentation
         fun isDescendantOf(state: State): Boolean {
             return if (state == from) {
                 return true

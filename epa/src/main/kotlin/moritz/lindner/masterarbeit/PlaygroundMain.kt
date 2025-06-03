@@ -6,8 +6,7 @@ import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.domain.Activity
-import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
+import moritz.lindner.masterarbeit.epa.filter.ChainFilter
 import moritz.lindner.masterarbeit.epa.visitor.dot.DotExportVisitor
 import java.io.File
 
@@ -33,14 +32,17 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
+//    val filteredEpa =
+//        ActivityFilter<Long>(
+//            hashSetOf(
+//                Activity("a"),
+//                Activity("b"),
+//                Activity("c"),
+//            ),
+//        ).apply(epa)
+
     val filteredEpa =
-        ActivityFilter<Long>(
-            hashSetOf(
-                Activity("a"),
-                Activity("b"),
-                Activity("c"),
-            ),
-        ).apply(epa)
+        ChainFilter<Long>().apply(epa)
 
     val dot1 = DotExportVisitor<Long>()
     val dot2 = DotExportVisitor<Long>()
