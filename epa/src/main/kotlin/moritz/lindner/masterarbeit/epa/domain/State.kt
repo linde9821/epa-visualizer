@@ -47,6 +47,17 @@ sealed class State(
          */
         override fun toString(): String = "$from -> $via"
 
+        fun isDescendantOf(state: State): Boolean {
+            return if (state == from) {
+                return true
+            } else {
+                when (from) {
+                    is PrefixState -> from.isDescendantOf(state)
+                    Root -> false
+                }
+            }
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
