@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
@@ -36,8 +35,6 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.Color as SkiaColor
-
-val logger = KotlinLogging.logger {}
 
 @Composable
 fun TidyTreeUi(
@@ -122,7 +119,6 @@ private fun DrawScope.drawEPA(
     animationState: AnimationState,
 ) {
     val search = layout.getCoordinatesInRectangle(boundingBox)
-//    logger.info { "drawing ${search.size} nodes" }
     drawIntoCanvas { canvas ->
         search.forEach { (coordinate, node) ->
             val state = node.state

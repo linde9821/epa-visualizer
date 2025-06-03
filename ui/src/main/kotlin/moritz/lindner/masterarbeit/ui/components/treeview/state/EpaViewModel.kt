@@ -20,10 +20,10 @@ import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.ui.components.treeview.components.logger
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.TreeLayoutConstructionHelper
+import moritz.lindner.masterarbeit.ui.logger
 import kotlin.coroutines.cancellation.CancellationException
 
 class EpaViewModel(
