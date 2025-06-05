@@ -96,6 +96,7 @@ class EpaViewModel(
                 Pair(filter, layout)
             }.collectLatest { (filter, layoutConfig) ->
                 logger.info { "running state update" }
+
                 _uiState.update { it.copy(isLoading = true) }
 
                 _statistics.update {
@@ -155,8 +156,12 @@ class EpaViewModel(
             val fullVisitor = StatisticsVisitor<Long>()
             completeEpa.acceptDepthFirst(AutomataVisitorProgressBar(fullVisitor, "full-statistics"))
 
+            yield()
+
             val filterVisitor = StatisticsVisitor<Long>()
             filteredEpa?.acceptDepthFirst(AutomataVisitorProgressBar(filterVisitor, "filtered-statistics"))
+
+            yield()
 
             _statistics.update {
                 StatisticsState(
