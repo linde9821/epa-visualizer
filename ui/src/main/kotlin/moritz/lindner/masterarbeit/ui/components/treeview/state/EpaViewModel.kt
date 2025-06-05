@@ -20,10 +20,10 @@ import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
 import moritz.lindner.masterarbeit.epa.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.ui.components.logger
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.TreeLayoutConstructionHelper
+import moritz.lindner.masterarbeit.ui.logger
 import kotlin.coroutines.cancellation.CancellationException
 
 class EpaViewModel(
@@ -39,6 +39,10 @@ class EpaViewModel(
 
     fun updateLayout(layoutConfig: LayoutConfig) {
         _layout.value = layoutConfig
+    }
+
+    fun updateAnimation(animationState: AnimationState) {
+        _animationState.value = animationState
     }
 
     private val _layout =
@@ -60,6 +64,17 @@ class EpaViewModel(
             ),
         )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    private val _animationState =
+        MutableStateFlow(
+            AnimationState(
+                current = emptyList(),
+                upComing = emptyList(),
+                previous = emptyList(),
+            ),
+        )
+    val animationState = _animationState.asStateFlow()
+
     private val coroutineScope = CoroutineScope(backgroundDispatcher + SupervisorJob())
 
     private val _statistics = MutableStateFlow<StatisticsState?>(null)
@@ -81,6 +96,7 @@ class EpaViewModel(
                 Pair(filter, layout)
             }.collectLatest { (filter, layoutConfig) ->
                 logger.info { "running state update" }
+
                 _uiState.update { it.copy(isLoading = true) }
 
                 _statistics.update {
@@ -140,8 +156,12 @@ class EpaViewModel(
             val fullVisitor = StatisticsVisitor<Long>()
             completeEpa.acceptDepthFirst(AutomataVisitorProgressBar(fullVisitor, "full-statistics"))
 
+            yield()
+
             val filterVisitor = StatisticsVisitor<Long>()
             filteredEpa?.acceptDepthFirst(AutomataVisitorProgressBar(filterVisitor, "filtered-statistics"))
+
+            yield()
 
             _statistics.update {
                 StatisticsState(

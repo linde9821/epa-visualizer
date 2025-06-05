@@ -15,7 +15,9 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * It supports both depth-first and breadth-first traversal via a [AutomataVisitor], and maintains
  * efficient access to outgoing transitions for fast traversal.
  *
- * **Note:** This class is not thread-safe for concurrent visiting or mutation.
+ * **Note:** This class is not thread-safe for concurrent visiting or mutation. When multiple threads might
+ * access the ExtendedPrefixAutomata create a new instance of the EPA with the `copy` function and let it
+ * accept the visitor.
  *
  * @param T The timestamp type used in the associated events.
  * @property states All states in the automaton, including the root.

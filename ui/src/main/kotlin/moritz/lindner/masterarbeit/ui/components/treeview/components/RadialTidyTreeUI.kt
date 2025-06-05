@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components
+package moritz.lindner.masterarbeit.ui.components.treeview.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -24,22 +24,23 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
+import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.UiState
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.Color as SkiaColor
 
-val logger = KotlinLogging.logger {}
-
 @Composable
-fun TidyTreeUi(uiState: UiState) {
+fun TidyTreeUi(
+    uiState: UiState,
+    animationState: AnimationState,
+) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
 
@@ -105,7 +106,7 @@ fun TidyTreeUi(uiState: UiState) {
                         drawDepthCircles(it)
                     }
 
-                    drawEPA(uiState.layout, boundingBox)
+                    drawEPA(uiState.layout, boundingBox, animationState)
                 }
             }
         }
@@ -115,19 +116,34 @@ fun TidyTreeUi(uiState: UiState) {
 private fun DrawScope.drawEPA(
     layout: TreeLayout,
     boundingBox: Rectangle,
+    animationState: AnimationState,
 ) {
     val search = layout.getCoordinatesInRectangle(boundingBox)
-//    logger.info { "drawing ${search.size} nodes" }
     drawIntoCanvas { canvas ->
         search.forEach { (coordinate, node) ->
             val state = node.state
+
+            val col =
+                if (animationState.current.contains(state)) {
+                    SkiaColor.RED
+                } else if (animationState.upComing.contains(state)) {
+                    SkiaColor.GREEN
+                } else if (animationState.previous.contains(state)) {
+                    SkiaColor.MAGENTA
+                } else {
+                    SkiaColor.BLACK
+                }
+
             val paint =
                 Paint().apply {
-                    color = SkiaColor.BLACK
+                    color = col
                     mode = PaintMode.FILL
                     isAntiAlias = true
                 }
 
+            if (col == SkiaColor.RED) {
+                canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 20f, paint)
+            }
             canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
 
             if (state is PrefixState) {
@@ -140,7 +156,7 @@ private fun DrawScope.drawEPA(
 
                 val paint2 =
                     Paint().apply {
-                        color = SkiaColor.BLACK
+                        color = col
                         mode = PaintMode.STROKE
                         strokeWidth = 4f
                         isAntiAlias = true
