@@ -34,8 +34,6 @@ compose.desktop {
                 "-XX:+UseG1GC",
                 "-XX:+TieredCompilation",
                 "-XX:+UseStringDeduplication",
-                "-XX:MaxInlineSize=60",
-                "-XX:FreqInlineSize=650",
             )
 
         nativeDistributions {

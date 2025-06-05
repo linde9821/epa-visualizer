@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.ui.components.treeview.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +16,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -30,10 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.ui.components.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.layout.LayoutOptionUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.statistics.StatisticsComparisonUi
+import moritz.lindner.masterarbeit.ui.components.treeview.components.timeline.TimelineUi
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import kotlin.math.PI
 
@@ -56,6 +54,7 @@ fun EpaTreeViewUi(
 
     val uiState by viewModel.uiState.collectAsState()
     val statisticsState by viewModel.statistics.collectAsState()
+    val animationState by viewModel.animationState.collectAsState()
 
     Column(
         modifier =
@@ -121,23 +120,18 @@ fun EpaTreeViewUi(
                     shape = RoundedCornerShape(12.dp),
                     elevation = 4.dp,
                 ) {
-                    TidyTreeUi(uiState)
+                    TidyTreeUi(uiState, animationState)
                 }
 
                 Surface(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(80.dp),
+                            .height(120.dp),
                     elevation = 4.dp,
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("UI Component Timeline")
-                    }
+                    TimelineUi(uiState.filteredEpa, viewModel, backgroundDispatcher)
                 }
             }
 
