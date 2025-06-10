@@ -5,6 +5,8 @@ import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.builder.plugin.EventMapperPlugin
+import moritz.lindner.masterarbeit.epa.builder.plugin.EventMapperRegistry
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -12,6 +14,7 @@ import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.parser.EPAXesParser
 import org.deckfour.xes.`in`.XesXmlParser
+import org.deckfour.xes.model.XLog
 import java.io.File
 
 /**
@@ -26,6 +29,7 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
     private var eventLogMapper: EventLogMapper<T>? = null
     private var file: File? = null
     private val parser: XesXmlParser = EPAXesParser()
+    private var autoDetectMapper: Boolean = false
 
     private var nextPartition = 1
 
@@ -37,6 +41,24 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
      */
     fun setEventLogMapper(mapper: EventLogMapper<T>): ExtendedPrefixAutomataBuilder<T> {
         eventLogMapper = mapper
+        autoDetectMapper = false
+        return this
+    }
+
+    /**
+     * Enables automatic detection of an appropriate [EventMapperPlugin] based on the log format.
+     * 
+     * When enabled, the builder will use the [EventMapperRegistry] to find a suitable mapper
+     * for the given log file. If no suitable mapper is found, an exception will be thrown.
+     * 
+     * Note: This method requires that the mapper plugins have been properly registered with
+     * the [EventMapperRegistry].
+     * 
+     * @return This builder instance for chaining.
+     */
+    fun useAutoDetectMapper(): ExtendedPrefixAutomataBuilder<T> {
+        autoDetectMapper = true
+        eventLogMapper = null
         return this
     }
 
@@ -56,19 +78,31 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
      *
      * This method performs several steps:
      * - Parses the XES file
-     * - Maps each event using the configured [EventLogMapper]
+     * - Maps each event using the configured [EventLogMapper] or auto-detects an appropriate mapper
      * - constructs extended prefix automaton
      *
      * @throws IllegalArgumentException if required configuration is missing or the file cannot be parsed.
+     * @throws IllegalStateException if auto-detection is enabled but no suitable mapper is found.
      * @return A fully constructed [ExtendedPrefixAutomata] instance.
      */
     fun build(): ExtendedPrefixAutomata<T> {
-        require(eventLogMapper != null) { "plainEventLog cannot be null" }
         require(file != null) { "file cannot be null" }
         require(file!!.exists()) { "file must exist" }
         require(parser.canParse(file!!)) { "file can't be parsed" }
 
         val log = parser.parse(file!!.inputStream()).first()
+
+        if (autoDetectMapper) {
+            // Auto-detect an appropriate mapper
+            val plugin = EventMapperRegistry.findSuitablePlugin(log!!)
+                ?: throw IllegalStateException("No suitable event mapper plugin found for the given log format")
+
+            @Suppress("UNCHECKED_CAST")
+            eventLogMapper = plugin as EventLogMapper<T>
+            println("Auto-detected event mapper: ${(plugin as EventMapperPlugin<*>).name}")
+        }
+
+        require(eventLogMapper != null) { "No event mapper available. Either set one explicitly or enable auto-detection." }
 
         val plainEventLog =
             eventLogMapper!!.build(
