@@ -5,12 +5,6 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 import java.util.TreeMap
 
-data class TimedState<T : Comparable<T>>(
-    val state: State,
-    val from: T,
-    var to: T? = null, // null means still active
-)
-
 class WholeEventLogAnimationVisitor<T : Comparable<T>>(
     private val name: String,
 ) : AutomataVisitor<T> {

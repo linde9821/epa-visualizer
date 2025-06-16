@@ -41,6 +41,7 @@ import moritz.lindner.masterarbeit.epa.visitor.case.CaseEventCollectorVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
+import kotlin.math.roundToInt
 
 sealed class AnimationSelectionState {
     data object NothingSelected : AnimationSelectionState()
@@ -410,31 +411,31 @@ fun TimelineSliderSingleCaseUi(
     if (isLoading) {
         CircularProgressIndicator()
     } else if (animation != null) {
-//        Slider(
-//            value = sliderValue,
-//            onValueChange = { newValue ->
-//                sliderValue = newValue
-//
-//                val index = sliderValue.roundToInt().coerceIn(0, animation!!.totalAmountOfEvents - 1)
-//                val state = animation!!.getNthEntry(index)
-//
-//                logger.info { "Getting state at $index" }
-//
-//                val animationState =
-//                    if (state == null) {
-//                        AnimationState(
-//                            current = emptyList(),
-//                        )
-//                    } else {
-//                        AnimationState(
-//                            current = listOf(state.second),
-//                        )
-//                    }
-//                viewModel.updateAnimation(animationState)
-//            },
-//            modifier = Modifier.Companion.fillMaxWidth(),
-//            valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
-//            steps = animation!!.totalAmountOfEvents,
-//        )
+        Slider(
+            value = sliderValue,
+            onValueChange = { newValue ->
+                sliderValue = newValue
+
+                val index = sliderValue.roundToInt().coerceIn(0, animation!!.totalAmountOfEvents - 1)
+                val state = animation!!.getNthEntry(index)
+
+                logger.info { "Getting state at $index" }
+
+                val animationState =
+                    if (state == null) {
+                        AnimationState(
+                            current = emptyList(),
+                        )
+                    } else {
+                        AnimationState(
+                            current = listOf(state.second),
+                        )
+                    }
+                viewModel.updateAnimation(animationState)
+            },
+            modifier = Modifier.Companion.fillMaxWidth(),
+            valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
+            steps = animation!!.totalAmountOfEvents,
+        )
     }
 }

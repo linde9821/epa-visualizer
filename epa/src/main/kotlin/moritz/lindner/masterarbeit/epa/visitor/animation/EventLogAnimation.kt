@@ -39,4 +39,6 @@ data class EventLogAnimation<T : Comparable<T>>(
         val endTimestamp = last.to ?: last.from
         return endTimestamp to last.state
     }
+
+    fun getNthEntry(n: Int): Pair<T, State>? = timedStates.getOrNull(n)?.let { it.from to it.state }
 }
