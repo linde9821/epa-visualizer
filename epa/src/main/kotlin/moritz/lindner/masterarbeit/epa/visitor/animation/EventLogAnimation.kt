@@ -41,9 +41,9 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @param timestamp The point in time to check for active states.
      * @return A list of active states at the given timestamp.
      */
-    fun getActiveStatesAt(timestamp: T): List<State> {
+    fun getActiveStatesAt(timestamp: T): List<TimedState<T>> {
         val relevantEntries = statesByInterval.headMap(timestamp, true).values.flatten()
-        return relevantEntries.filter { it.to == null || timestamp < it.to!! }.map { it.state }
+        return relevantEntries.filter { it.to == null || timestamp < it.to!! }
     }
 
     /**
@@ -52,11 +52,11 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @return A [Pair] of (timestamp, state) for the first interval.
      * @throws IllegalStateException if the animation contains no states.
      */
-    fun getFirst(): Pair<T, State> {
+    fun getFirst(): Pair<T, TimedState<T>> {
         val first =
             sortedStates.firstOrNull()
                 ?: throw IllegalStateException("No states in animation")
-        return first.from to first.state
+        return first.from to first
     }
 
     /**
@@ -64,15 +64,15 @@ data class EventLogAnimation<T : Comparable<T>>(
      *
      * If a state has no defined `to` timestamp, its `from` timestamp is used instead.
      *
-     * @return A [Pair] of (timestamp, state) for the last interval.
+     * @return A [Pair] of (timestamp, TimedState) for the last interval.
      * @throws IllegalStateException if the animation contains no states.
      */
-    fun getLast(): Pair<T, State> {
+    fun getLast(): Pair<T, TimedState<T>> {
         val last =
             sortedStates.maxByOrNull { it.to ?: it.from }
                 ?: throw IllegalStateException("No states in animation")
         val endTimestamp = last.to ?: last.from
-        return endTimestamp to last.state
+        return endTimestamp to last
     }
 
     /**
@@ -81,5 +81,5 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @param n The zero-based index of the state interval.
      * @return A [Pair] of (from-timestamp, state) or `null` if index is out of bounds.
      */
-    fun getNthEntry(n: Int): Pair<T, State>? = timedStates.getOrNull(n)?.let { it.from to it.state }
+    fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.from to it }
 }

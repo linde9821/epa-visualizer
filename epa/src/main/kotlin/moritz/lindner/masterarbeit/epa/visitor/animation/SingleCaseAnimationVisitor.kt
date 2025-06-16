@@ -28,15 +28,28 @@ class SingleCaseAnimationVisitor<T : Comparable<T>>(
         }
     }
 
+    /**
+     * Builds an [EventLogAnimation] for the given case, with interpolable [TimedState]s
+     * including both the current and next state for smooth animation.
+     */
     fun build(): EventLogAnimation<T> {
         val sorted = events.sortedBy { it.first }
         val timedStates = mutableListOf<TimedState<T>>()
 
         sorted.forEachIndexed { index, (from, state) ->
-            val to = sorted.getOrNull(index + 1)?.first ?: from // final state's interval ends at its own time
-            timedStates += TimedState(state, from, to)
+            val toEntry = sorted.getOrNull(index + 1)
+            val to = toEntry?.first ?: from // fallback to `from` if last
+            val nextState = toEntry?.second
+
+            timedStates +=
+                TimedState(
+                    state = state,
+                    from = from,
+                    to = to,
+                    nextState = nextState,
+                )
         }
 
-        return EventLogAnimation(caseIdentifier, timedStates, timedStates.size)
+        return EventLogAnimation(caseIdentifier, timedStates.sortedBy { it.from }, timedStates.size)
     }
 }

@@ -35,7 +35,7 @@ class WholeEventLogAnimationVisitor<T : Comparable<T>>(
     @Suppress("UNCHECKED_CAST")
     fun increment(value: T): T =
         when (value) {
-            is Long -> (value + 1000L) as T
+            is Long -> (value + 100_000L) as T
             is Int -> (value + 1) as T
             is Double -> (value + 10.0) as T
             else -> value // no-op fallback
@@ -58,8 +58,15 @@ class WholeEventLogAnimationVisitor<T : Comparable<T>>(
 
             entries.forEachIndexed { index, (from, state) ->
                 val to = entries.getOrNull(index + 1)?.key ?: increment(from)
+                val nextState = entries.getOrNull(index + 1)?.value
 
-                timedStates += TimedState(state = state, from = from, to = to)
+                timedStates +=
+                    TimedState(
+                        state = state,
+                        from = from,
+                        to = to,
+                        nextState = nextState,
+                    )
             }
         }
 

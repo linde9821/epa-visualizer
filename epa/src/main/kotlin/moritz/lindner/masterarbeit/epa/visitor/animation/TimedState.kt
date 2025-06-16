@@ -17,4 +17,5 @@ data class TimedState<T : Comparable<T>>(
     val state: State,
     val from: T,
     var to: T? = null, // null means still active
+    val nextState: State? = null,
 )

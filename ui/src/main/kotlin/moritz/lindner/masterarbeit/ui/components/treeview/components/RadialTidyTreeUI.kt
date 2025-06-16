@@ -34,6 +34,7 @@ import moritz.lindner.masterarbeit.ui.components.treeview.state.UiState
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
+import kotlin.math.pow
 import org.jetbrains.skia.Color as SkiaColor
 
 @Composable
@@ -149,11 +150,11 @@ private fun DrawScope.drawEPA(
         }
 
     val result = layout.getCoordinatesInRectangle(boundingBox)
+
     drawIntoCanvas { canvas ->
         result.forEach { (coordinate, node) ->
             val state = node.state
-
-            val isActive = animationState.current.contains(state) // O(1) --> fast
+            val isActive = animationState.contains(state)
 
             val circleRadius = if (isActive) 20f else 10f
             val fillPaint = if (isActive) redFill else blackFill
@@ -162,11 +163,8 @@ private fun DrawScope.drawEPA(
             val cx = coordinate.x
             val cy = -coordinate.y
 
-            canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
-
             if (state is PrefixState) {
                 val parentCoordinate = layout.getCoordinate(state.from)
-
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(cx, cy)
                 val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
@@ -177,10 +175,87 @@ private fun DrawScope.drawEPA(
                         cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
                     }
 
-                canvas.nativeCanvas.drawPath(path, strokePaint)
+                val timedState = animationState.timedStateByState[state]
+                val isAnimating =
+                    animationState.current.any {
+                        it.state == state.from &&
+                            it.nextState == state &&
+                            it.from <= animationState.time &&
+                            animationState.time < (it.to ?: Long.MAX_VALUE)
+                    }
+
+                val edgePaint = if (isAnimating) redStroke else blackStroke
+                canvas.nativeCanvas.drawPath(path, edgePaint)
             }
+
+            // Always draw node
+            canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
+        }
+
+        // Draw tokens (one per active trace) with spreading
+        animationState.current.forEachIndexed { index, timedState ->
+            val progress =
+                if (timedState.to == null || timedState.nextState == null) {
+                    1f
+                } else {
+                    val duration = timedState.to!! - timedState.from
+                    val elapsed = animationState.time - timedState.from
+                    (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+                }
+
+            val fromCoord = layout.getCoordinate(timedState.state)
+            val toCoord = timedState.nextState?.let { layout.getCoordinate(it) }
+
+            val tokenPosition =
+                if (toCoord != null) {
+                    val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
+                    interpolateBezier(
+                        start = Offset(fromCoord.x, -fromCoord.y),
+                        c1 = Offset(c1.x, -c1.y),
+                        c2 = Offset(c2.x, -c2.y),
+                        end = Offset(toCoord.x, -toCoord.y),
+                        t = progress,
+                    )
+                } else {
+                    Offset(fromCoord.x, -fromCoord.y)
+                }
+
+            // Spread tokens slightly if overlapping
+            val angle = (index * (360f / animationState.current.size)) * (Math.PI / 180.0)
+            val spread = 6f
+            val dx = (spread * kotlin.math.cos(angle)).toFloat()
+            val dy = (spread * kotlin.math.sin(angle)).toFloat()
+
+            canvas.nativeCanvas.drawCircle(
+                tokenPosition.x + dx,
+                tokenPosition.y + dy,
+                6f,
+                redFill,
+            )
         }
     }
+}
+
+fun interpolateBezier(
+    start: Offset,
+    c1: Offset,
+    c2: Offset,
+    end: Offset,
+    t: Float,
+): Offset {
+    val u = 1 - t
+    return Offset(
+        x =
+            u.pow(3) * start.x +
+                3 * u.pow(2) * t * c1.x +
+                3 * u * t.pow(2) * c2.x +
+                t.pow(3) * end.x,
+        y =
+            u.pow(3) * start.y +
+                3 * u.pow(2) * t * c1.y +
+                3 * u * t.pow(2) * c2.y +
+                t.pow(3) * end.y,
+    )
 }
 
 fun getControlPoints(
