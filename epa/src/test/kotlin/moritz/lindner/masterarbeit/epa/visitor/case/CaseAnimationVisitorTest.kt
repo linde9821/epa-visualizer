@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.visitor.case
 import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.visitor.animation.SingleCaseAnimationVisitor
 import org.junit.jupiter.api.Test
 import java.io.File
 

@@ -1,0 +1,42 @@
+package moritz.lindner.masterarbeit.epa.visitor.animation
+
+import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import org.assertj.core.api.Assertions.*
+import org.junit.jupiter.api.Test
+import java.io.File
+
+class EventLogAnimationTest {
+    private fun buildSingleCaseAnimation(): EventLogAnimation<Long> {
+        val builder = ExtendedPrefixAutomataBuilder<Long>()
+        builder.setFile(File("./src/test/resources/sample.xes"))
+        builder.setEventLogMapper(SampleEventMapper())
+        val epa = builder.build()
+        val visitor = SingleCaseAnimationVisitor<Long>("1")
+        epa.acceptDepthFirst(visitor)
+        return visitor.build()
+    }
+
+    @Test
+    fun `getNthEntry returns the correct timestamp and state`() {
+        val sut = buildSingleCaseAnimation()
+
+        val (timestamp, state) = sut.getNthEntry(0)!!
+
+        assertThat(timestamp).isNotNull()
+        assertThat(state).isNotNull()
+        assertThat(state.name).isEqualTo("a")
+    }
+
+    @Test
+    fun `getActiveStatesAt returns expected state around the timestamp`() {
+        val sut = buildSingleCaseAnimation()
+
+        val (timestamp, state) = sut.getNthEntry(2)!!
+
+        val current = sut.getActiveStatesAt(timestamp)
+
+        assertThat(current).contains(state)
+        assertThat(current).anyMatch { it == state }
+    }
+}

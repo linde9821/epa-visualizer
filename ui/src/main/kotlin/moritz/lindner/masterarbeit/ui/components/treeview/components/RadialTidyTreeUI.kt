@@ -118,47 +118,58 @@ private fun DrawScope.drawEPA(
     boundingBox: Rectangle,
     animationState: AnimationState,
 ) {
-    val search = layout.getCoordinatesInRectangle(boundingBox)
+    val redFill =
+        Paint().apply {
+            color = SkiaColor.RED
+            mode = PaintMode.FILL
+            isAntiAlias = true
+        }
+
+    val blackFill =
+        Paint().apply {
+            color = SkiaColor.BLACK
+            mode = PaintMode.FILL
+            isAntiAlias = true
+        }
+
+    val redStroke =
+        Paint().apply {
+            color = SkiaColor.RED
+            mode = PaintMode.STROKE
+            strokeWidth = 4f
+            isAntiAlias = true
+        }
+
+    val blackStroke =
+        Paint().apply {
+            color = SkiaColor.BLACK
+            mode = PaintMode.STROKE
+            strokeWidth = 4f
+            isAntiAlias = true
+        }
+
+    val result = layout.getCoordinatesInRectangle(boundingBox)
     drawIntoCanvas { canvas ->
-        search.forEach { (coordinate, node) ->
+        result.forEach { (coordinate, node) ->
             val state = node.state
 
-            val color =
-                if (animationState.current.contains(state)) {
-                    SkiaColor.RED
-                } else {
-                    SkiaColor.BLACK
-                }
+            val isActive = animationState.current.contains(state) // O(1) --> fast
 
-            val paint =
-                Paint().apply {
-                    this.color = color
-                    mode = PaintMode.FILL
-                    isAntiAlias = true
-                }
+            val circleRadius = if (isActive) 20f else 10f
+            val fillPaint = if (isActive) redFill else blackFill
+            val strokePaint = if (isActive) redStroke else blackStroke
 
-            // draw bigger circle to indicate current case
-            if (color == SkiaColor.RED) {
-                canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 20f, paint)
-            } else {
-                canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
-            }
+            val cx = coordinate.x
+            val cy = -coordinate.y
+
+            canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
 
             if (state is PrefixState) {
                 val parentCoordinate = layout.getCoordinate(state.from)
 
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
-                val end = Offset(coordinate.x, -coordinate.y)
-
+                val end = Offset(cx, cy)
                 val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-
-                val paint2 =
-                    Paint().apply {
-                        this.color = color
-                        mode = PaintMode.STROKE
-                        strokeWidth = 4f
-                        isAntiAlias = true
-                    }
 
                 val path =
                     Path().apply {
@@ -166,7 +177,7 @@ private fun DrawScope.drawEPA(
                         cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
                     }
 
-                canvas.nativeCanvas.drawPath(path, paint2)
+                canvas.nativeCanvas.drawPath(path, strokePaint)
             }
         }
     }

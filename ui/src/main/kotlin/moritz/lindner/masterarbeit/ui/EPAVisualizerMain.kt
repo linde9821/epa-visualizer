@@ -22,7 +22,7 @@ fun main() {
         ThreadFactory { runnable ->
             Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
         }
-    val executor = Executors.newFixedThreadPool(3, threadFactory)
+    val executor = Executors.newFixedThreadPool(4, threadFactory)
     val backgroundDispatcher = executor.asCoroutineDispatcher()
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }

@@ -15,11 +15,12 @@ import moritz.lindner.masterarbeit.epa.domain.Activity
  * @property partitionsCount Number of partitions used to group states.
  * @property activityFrequency A mapping of each [Activity] to its observed frequency.
  */
-data class Statistics(
+data class Statistics<T : Comparable<T>>(
     val eventCount: Int,
     val caseCount: Int,
     val activityCount: Int,
     val stateCount: Int,
     val partitionsCount: Int,
     val activityFrequency: Map<Activity, Int>,
+    val interval: Pair<T, T>,
 )
