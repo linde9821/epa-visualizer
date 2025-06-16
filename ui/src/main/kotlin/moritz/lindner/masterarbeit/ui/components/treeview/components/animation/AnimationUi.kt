@@ -76,7 +76,7 @@ fun AnimationUi(
                             state = AnimationSelectionState.WholeLog
                         },
                     ) {
-                        Text("Animate whole event log")
+                        Text("Animate whole event log (${epa.eventLogName})")
                     }
                 }
                 is AnimationSelectionState.SingleCase -> {
