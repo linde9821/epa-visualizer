@@ -47,7 +47,11 @@ fun TimelineSliderWholeLogUi(
                 .copy()
                 .acceptDepthFirst(AutomataVisitorProgressBar(eventLogAnimationVisitor, "casesAnimation"))
             yield()
-            animation = eventLogAnimationVisitor.build()
+            animation =
+                eventLogAnimationVisitor.build(
+                    epsilon = 10L,
+                    increment = Long::plus,
+                )
         }
         viewModel.updateAnimation(AnimationState.Companion.Empty)
         sliderValue = animation!!.getFirst().first.toFloat()

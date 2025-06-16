@@ -4,17 +4,17 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import java.util.TreeMap
 
 /**
- * Represents the animation or progression of an entire event log over time,
- * where each state is active during a defined time interval.
+ * Represents a timeline-based animation of an event log, where each [State] is modeled as
+ * a [TimedState] and associated with an interval `[from, to)` during which it is considered active.
  *
- * Each state in the log is captured as a [TimedState], representing when that state becomes
- * active (`from`) and when it is no longer active (`to`). This allows querying which states
- * are "alive" at any given point in the timeline.
+ * This class supports efficient temporal queries to determine which states are active at any point
+ * in time, enabling time-based visualizations or simulations over an entire log (e.g., for animation
+ * or replay).
  *
- * @param T The timestamp type, which must be comparable (e.g., [Long], [Int], [LocalDateTime]).
- * @property identifier A label or identifier for the source of the animation (e.g., log name).
- * @property timedStates A list of state-time intervals for all cases in the log.
- * @property totalAmountOfEvents The total number of recorded [TimedState] entries across all cases.
+ * @param T The timestamp type (e.g., [Long], [Int], or [java.time.LocalDateTime]), which must be [Comparable].
+ * @property identifier A unique label identifying the origin of this animation (e.g., log name or case ID).
+ * @property timedStates A list of all recorded [TimedState] intervals across the event log.
+ * @property totalAmountOfEvents The total number of [TimedState] entries in the animation.
  */
 data class EventLogAnimation<T : Comparable<T>>(
     private val identifier: String,
@@ -24,8 +24,7 @@ data class EventLogAnimation<T : Comparable<T>>(
     private val sortedStates = timedStates.sortedBy { it.from }
 
     /**
-     * A map from each start timestamp to the list of [TimedState]s starting at that time.
-     * Used to efficiently find all states that might be active at a given timestamp.
+     * Indexes states by their start time to allow efficient range-based access during queries.
      */
     private val statesByInterval: TreeMap<T, MutableList<TimedState<T>>> =
         TreeMap<T, MutableList<TimedState<T>>>().apply {
@@ -35,11 +34,13 @@ data class EventLogAnimation<T : Comparable<T>>(
         }
 
     /**
-     * Retrieves all [State]s that are active at the given [timestamp].
-     * A state is considered active if the timestamp is within the interval [from, to).
+     * Returns all [TimedState]s that are active at a specific [timestamp].
      *
-     * @param timestamp The point in time to check for active states.
-     * @return A list of active states at the given timestamp.
+     * A state is considered active if the [timestamp] falls within the interval `[from, to)`.
+     * If [to] is `null`, the interval is considered open-ended.
+     *
+     * @param timestamp The point in time to query.
+     * @return A list of all [TimedState]s active at the given time.
      */
     fun getActiveStatesAt(timestamp: T): List<TimedState<T>> {
         val relevantEntries = statesByInterval.headMap(timestamp, true).values.flatten()
@@ -47,10 +48,10 @@ data class EventLogAnimation<T : Comparable<T>>(
     }
 
     /**
-     * Retrieves the first state and its associated start timestamp in the animation.
+     * Returns the first recorded [TimedState] in the animation timeline.
      *
-     * @return A [Pair] of (timestamp, state) for the first interval.
-     * @throws IllegalStateException if the animation contains no states.
+     * @return A pair of `(from timestamp, TimedState)` for the earliest entry.
+     * @throws IllegalStateException if no states are recorded.
      */
     fun getFirst(): Pair<T, TimedState<T>> {
         val first =
@@ -60,11 +61,11 @@ data class EventLogAnimation<T : Comparable<T>>(
     }
 
     /**
-     * Retrieves the last state and its associated end timestamp in the animation.
+     * Returns the last [TimedState] in the animation, based on the latest `to` value (or `from` if `to` is null).
      *
-     * If a state has no defined `to` timestamp, its `from` timestamp is used instead.
+     * This represents the logical end of the animation.
      *
-     * @return A [Pair] of (timestamp, TimedState) for the last interval.
+     * @return A pair of `(timestamp, TimedState)` representing the latest visible state.
      * @throws IllegalStateException if the animation contains no states.
      */
     fun getLast(): Pair<T, TimedState<T>> {
@@ -76,10 +77,12 @@ data class EventLogAnimation<T : Comparable<T>>(
     }
 
     /**
-     * Retrieves the N-th state in the sequence based on original order.
+     * Retrieves the N-th [TimedState] from the original input order.
      *
-     * @param n The zero-based index of the state interval.
-     * @return A [Pair] of (from-timestamp, state) or `null` if index is out of bounds.
+     * Useful for slider-based UI playback or timeline scrubbing.
+     *
+     * @param n Zero-based index of the entry.
+     * @return A pair of `(from timestamp, TimedState)`, or `null` if the index is out of bounds.
      */
     fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.from to it }
 }

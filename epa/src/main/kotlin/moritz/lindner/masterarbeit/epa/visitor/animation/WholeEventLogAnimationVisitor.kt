@@ -32,32 +32,28 @@ class WholeEventLogAnimationVisitor<T : Comparable<T>>(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun increment(value: T): T =
-        when (value) {
-            is Long -> (value + 100_000L) as T
-            is Int -> (value + 1) as T
-            is Double -> (value + 10.0) as T
-            else -> value // no-op fallback
-        }
-
     /**
      * Builds the [EventLogAnimation] by converting each case's sorted state timeline
      * into a list of [TimedState]s with defined [from] and [to] intervals.
      *
-     * Final states (last in their trace) are closed by using the same timestamp for [to],
-     * or optionally extended using a fixed epsilon offset (see note below).
+     * Final states (last in their trace) are closed by incrementing the `from` timestamp using
+     * a provided epsilon value.
      *
+     * @param epsilon The value to add to the last timestamp to close open-ended intervals.
+     * @param increment A function that defines how to add [epsilon] to a [T]-typed timestamp.
      * @return A unified [EventLogAnimation] covering all cases in the log.
      */
-    fun build(): EventLogAnimation<T> {
+    fun build(
+        epsilon: T,
+        increment: (T, T) -> T,
+    ): EventLogAnimation<T> {
         val timedStates = mutableListOf<TimedState<T>>()
 
         eventsByCase.values.forEach { timestampStateMap ->
             val entries = timestampStateMap.entries.toList()
 
             entries.forEachIndexed { index, (from, state) ->
-                val to = entries.getOrNull(index + 1)?.key ?: increment(from)
+                val to = entries.getOrNull(index + 1)?.key ?: increment(from, epsilon)
                 val nextState = entries.getOrNull(index + 1)?.value
 
                 timedStates +=
