@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.visitor.animation.SingleCaseAnimationVisi
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class CaseAnimationVisitorTest {
+class SingleCaseAnimationVisitorTest {
     @Test
     fun `must create a correct animation for a given case`() {
         val builder = ExtendedPrefixAutomataBuilder<Long>()
