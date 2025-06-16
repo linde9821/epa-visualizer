@@ -35,7 +35,6 @@ fun TimelineSliderWholeLogUi(
     var isLoading by remember(extendedPrefixAutomata) { mutableStateOf(true) }
     var animation by remember(extendedPrefixAutomata) { mutableStateOf<EventLogAnimation<Long>?>(null) }
     var sliderValue by remember(extendedPrefixAutomata) { mutableStateOf(0f) }
-
     var playing by remember(extendedPrefixAutomata) { mutableStateOf(false) }
 
     LaunchedEffect(extendedPrefixAutomata) {
@@ -118,9 +117,7 @@ fun TimelineSliderWholeLogUi(
                         sliderValue = newValue
 
                         val timestamp = sliderValue.toLong()
-                        logger.info { "Getting states at $timestamp" }
                         val state = animation!!.getActiveStatesAt(timestamp)
-                        logger.info { "Active states count: ${state.size}" }
 
                         val animationState =
                             AnimationState(
