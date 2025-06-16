@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.epa.visitor.animation
 
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -25,7 +25,7 @@ class EventLogAnimationTest {
 
         assertThat(timestamp).isNotNull()
         assertThat(state).isNotNull()
-        assertThat(state.name).isEqualTo("a")
+        assertThat(state.state.name).isEqualTo("a")
     }
 
     @Test

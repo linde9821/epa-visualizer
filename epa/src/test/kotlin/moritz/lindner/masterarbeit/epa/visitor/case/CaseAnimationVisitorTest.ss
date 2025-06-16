@@ -1,3 +1,0 @@
-╔═ must create a correct animation for a given case ═╗
-EventLogAnimation(identifier=1, timedStates=[TimedState(state=root -> a, from=1745625600000, to=1745625660000), TimedState(state=root -> a -> b, from=1745625660000, to=1745625720000), TimedState(state=root -> a -> b -> c, from=1745625720000, to=1745625780000), TimedState(state=root -> a -> b -> c -> d, from=1745625780000, to=1745625840000), TimedState(state=root -> a -> b -> c -> d -> f, from=1745625840000, to=1745625900000), TimedState(state=root -> a -> b -> c -> d -> f -> e, from=1745625900000, to=1745625900000)], totalAmountOfEvents=6)
-╔═ [end of file] ═╗
