@@ -10,7 +10,7 @@ class SingleCaseAnimationVisitor<T : Comparable<T>>(
 ) : AutomataVisitor<T> {
     val stateAtTimestamp: TreeMap<T, List<State>> = TreeMap()
 
-    fun build(): EventLogAnimation<T> = EventLogAnimation(caseIdentifier, stateAtTimestamp, stateAtTimestamp.size)
+    fun build(): EventLogAnimation<T> = TODO() // EventLogAnimation(caseIdentifier, stateAtTimestamp, stateAtTimestamp.size)
 
     override fun visit(
         extendedPrefixAutomata: ExtendedPrefixAutomata<T>,

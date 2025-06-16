@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.treeview.state.StatisticsState
 
 @Composable
-fun StatisticsComparisonUi(statisticsState: StatisticsState?) {
+fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
     if (statisticsState == null) {
         CircularProgressIndicator(
             modifier = Modifier.Companion.size(50.dp),

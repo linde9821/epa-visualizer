@@ -24,6 +24,8 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val cases = mutableSetOf<String>()
     private val activityFrequency = mutableMapOf<Activity, Int>()
     private val prefixLengths = mutableListOf<Int>()
+    private var first: T? = null
+    private var last: T? = null
 
     override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
         partitions = extendedPrefixAutomata.getAllPartitions().size
@@ -56,6 +58,28 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         event: Event<T>,
         depth: Int,
     ) {
+        first =
+            if (first == null) {
+                event.timestamp
+            } else {
+                if (event.timestamp < first!!) {
+                    event.timestamp
+                } else {
+                    first
+                }
+            }
+
+        last =
+            if (last == null) {
+                event.timestamp
+            } else {
+                if (event.timestamp > last!!) {
+                    event.timestamp
+                } else {
+                    last
+                }
+            }
+
         cases.add(event.caseIdentifier)
         eventCount++
     }
@@ -63,7 +87,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     /**
      * Builds a [Statistics] object containing the collected values.
      */
-    fun build(): Statistics {
+    fun build(): Statistics<T> {
         val totalStates = visitedStates.size
         val totalEvents = eventCount
 
@@ -74,6 +98,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
             stateCount = totalStates,
             partitionsCount = partitions,
             activityFrequency = activityFrequency,
+            interval = first!! to last!!,
         )
     }
 

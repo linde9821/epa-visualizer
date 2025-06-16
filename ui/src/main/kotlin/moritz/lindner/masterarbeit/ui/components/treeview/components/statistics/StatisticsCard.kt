@@ -19,7 +19,7 @@ import moritz.lindner.masterarbeit.epa.visitor.statistics.Statistics
 @Composable
 fun StatisticsCard(
     title: String,
-    statistics: Statistics,
+    statistics: Statistics<Long>,
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -51,6 +51,12 @@ fun StatisticsCard(
                     .forEach { (activity, frequency) ->
                         StatisticItem(activity.toString(), frequency)
                     }
+
+                Spacer(modifier = Modifier.Companion.height(12.dp))
+                Text("Time", style = MaterialTheme.typography.subtitle2)
+                Spacer(modifier = Modifier.Companion.height(4.dp))
+                StatisticItem("First Event", statistics.interval.first)
+                StatisticItem("Last Event", statistics.interval.second)
             }
         }
     }

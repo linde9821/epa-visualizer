@@ -75,8 +75,8 @@ class EpaViewModel(
 
     private val coroutineScope = CoroutineScope(backgroundDispatcher + SupervisorJob())
 
-    private val _statistics = MutableStateFlow<StatisticsState?>(null)
-    val statistics: StateFlow<StatisticsState?> = _statistics.asStateFlow()
+    private val _statistics = MutableStateFlow<StatisticsState<Long>?>(null)
+    val statistics: StateFlow<StatisticsState<Long>?> = _statistics.asStateFlow()
 
     init {
         coroutineScope.launch {
