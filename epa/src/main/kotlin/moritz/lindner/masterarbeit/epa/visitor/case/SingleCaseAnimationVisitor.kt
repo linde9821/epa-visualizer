@@ -5,7 +5,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 import java.util.TreeMap
 
-class CaseAnimationVisitor<T : Comparable<T>>(
+class SingleCaseAnimationVisitor<T : Comparable<T>>(
     val caseIdentifier: String,
 ) : AutomataVisitor<T> {
     val stateAtTimestamp: TreeMap<T, State> = TreeMap()

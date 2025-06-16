@@ -13,7 +13,7 @@ class CaseAnimationTest {
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())
         val epa = builder.build()
-        val visitor = CaseAnimationVisitor<Long>("1")
+        val visitor = SingleCaseAnimationVisitor<Long>("1")
 
         epa.acceptDepthFirst(visitor)
 
@@ -32,7 +32,7 @@ class CaseAnimationTest {
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())
         val epa = builder.build()
-        val visitor = CaseAnimationVisitor<Long>("1")
+        val visitor = SingleCaseAnimationVisitor<Long>("1")
 
         epa.acceptDepthFirst(visitor)
 
@@ -54,7 +54,7 @@ class CaseAnimationTest {
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())
         val epa = builder.build()
-        val visitor = CaseAnimationVisitor<Long>("1")
+        val visitor = SingleCaseAnimationVisitor<Long>("1")
 
         epa.acceptDepthFirst(visitor)
 

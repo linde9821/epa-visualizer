@@ -123,28 +123,26 @@ private fun DrawScope.drawEPA(
         search.forEach { (coordinate, node) ->
             val state = node.state
 
-            val col =
+            val color =
                 if (animationState.current.contains(state)) {
                     SkiaColor.RED
-                } else if (animationState.upComing.contains(state)) {
-                    SkiaColor.GREEN
-                } else if (animationState.previous.contains(state)) {
-                    SkiaColor.MAGENTA
                 } else {
                     SkiaColor.BLACK
                 }
 
             val paint =
                 Paint().apply {
-                    color = col
+                    this.color = color
                     mode = PaintMode.FILL
                     isAntiAlias = true
                 }
 
-            if (col == SkiaColor.RED) {
+            // draw bigger circle to indicate current case
+            if (color == SkiaColor.RED) {
                 canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 20f, paint)
+            } else {
+                canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
             }
-            canvas.nativeCanvas.drawCircle(coordinate.x, -coordinate.y, 10f, paint)
 
             if (state is PrefixState) {
                 val parentCoordinate = layout.getCoordinate(state.from)
@@ -156,7 +154,7 @@ private fun DrawScope.drawEPA(
 
                 val paint2 =
                     Paint().apply {
-                        color = col
+                        this.color = color
                         mode = PaintMode.STROKE
                         strokeWidth = 4f
                         isAntiAlias = true

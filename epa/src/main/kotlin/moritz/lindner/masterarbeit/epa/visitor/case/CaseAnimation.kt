@@ -47,4 +47,9 @@ data class CaseAnimation<T : Comparable<T>>(
 
     override fun toString(): String =
         "CaseAnimation(caseIdentifier='$caseIdentifier', stateAtTimestamp=$stateAtTimestamp, totalAmountOfEvents=$totalAmountOfEvents)"
+
+    fun getFirst(): Pair<T, State> {
+        val entry = sortedEntries.first()
+        return entry.let { (key, value) -> key to value }
+    }
 }
