@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.filter.EpaFilter.Companion.combine
 
 /**
  * Functional interface for filtering or transforming an [ExtendedPrefixAutomata].
