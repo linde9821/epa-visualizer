@@ -28,7 +28,7 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             StatisticsCard("Complete EPA", statisticsState.fullEpa)
 

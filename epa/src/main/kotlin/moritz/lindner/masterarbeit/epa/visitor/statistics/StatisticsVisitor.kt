@@ -62,7 +62,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
             if (first == null) {
                 event.timestamp
             } else {
-                if (event.timestamp < first!!) {
+                if (event.timestamp <= first!!) {
                     event.timestamp
                 } else {
                     first
@@ -73,7 +73,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
             if (last == null) {
                 event.timestamp
             } else {
-                if (event.timestamp > last!!) {
+                if (event.timestamp >= last!!) {
                     event.timestamp
                 } else {
                     last

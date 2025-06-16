@@ -26,7 +26,7 @@ fun StatisticsCard(
         elevation = 4.dp,
     ) {
         Box(modifier = Modifier.Companion.horizontalScroll(rememberScrollState())) {
-            Column(modifier = Modifier.Companion.padding(16.dp)) {
+            Column(modifier = Modifier.Companion.padding(12.dp)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.subtitle1,
@@ -39,10 +39,10 @@ fun StatisticsCard(
                 StatisticItem("Cases", statistics.caseCount)
                 StatisticItem("Activities", statistics.activityCount)
 
-                Spacer(modifier = Modifier.Companion.height(12.dp))
+                Spacer(modifier = Modifier.Companion.height(10.dp))
 
                 Text("Top 5 Activities", style = MaterialTheme.typography.subtitle2)
-                Spacer(modifier = Modifier.Companion.height(4.dp))
+                Spacer(modifier = Modifier.Companion.height(2.dp))
 
                 statistics.activityFrequency
                     .toList()
@@ -52,9 +52,9 @@ fun StatisticsCard(
                         StatisticItem(activity.toString(), frequency)
                     }
 
-                Spacer(modifier = Modifier.Companion.height(12.dp))
+                Spacer(modifier = Modifier.Companion.height(10.dp))
                 Text("Time", style = MaterialTheme.typography.subtitle2)
-                Spacer(modifier = Modifier.Companion.height(4.dp))
+                Spacer(modifier = Modifier.Companion.height(2.dp))
                 StatisticItem("First Event", statistics.interval.first)
                 StatisticItem("Last Event", statistics.interval.second)
             }
