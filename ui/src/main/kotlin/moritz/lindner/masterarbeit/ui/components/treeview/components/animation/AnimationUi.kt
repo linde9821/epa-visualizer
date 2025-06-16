@@ -1,7 +1,8 @@
-package moritz.lindner.masterarbeit.ui.components.treeview.components.timeline
+package moritz.lindner.masterarbeit.ui.components.treeview.components.animation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,14 +40,63 @@ import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import kotlin.math.floor
 
+sealed class AnimationSelectionState {
+    data object NothingSelected : AnimationSelectionState()
+
+    data object WholeLog : AnimationSelectionState()
+
+    data object SingleCase : AnimationSelectionState()
+}
+
 @Composable
-fun TimelineUi(
+fun AnimationUi(
     epa: ExtendedPrefixAutomata<Long>?,
     viewModel: EpaViewModel,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
+
+    if (epa != null) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            when (val current = state) {
+                AnimationSelectionState.NothingSelected -> {
+                    Button(
+                        onClick = {
+                            state = AnimationSelectionState.SingleCase
+                        },
+                    ) {
+                        Text("Select Case")
+                    }
+
+                    Button(
+                        onClick = {
+                            state = AnimationSelectionState.WholeLog
+                        },
+                    ) {
+                        Text("Animate whole event log")
+                    }
+                }
+                is AnimationSelectionState.SingleCase -> {
+                    SingleCaseAnimationUI(epa, backgroundDispatcher) {
+                        state = AnimationSelectionState.NothingSelected
+                    }
+                }
+                AnimationSelectionState.WholeLog -> TODO()
+            }
+        }
+    }
+}
+
+@Composable
+fun SingleCaseAnimationUI(
+    epa: ExtendedPrefixAutomata<Long>,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
+    onClose: () -> Unit,
+) {
     var isLoading by remember { mutableStateOf(true) }
+    var showDialog by remember { mutableStateOf(false) }
     var selectedCase by remember { mutableStateOf<String?>(null) }
     var caseVisitor by remember { mutableStateOf(CaseVisitor<Long>()) }
 
@@ -66,13 +116,18 @@ fun TimelineUi(
                 Text("Select Case")
             }
             Spacer(Modifier.Companion.width(8.dp))
-
             if (selectedCase != null) {
                 Text("Case: $selectedCase")
             }
         }
 
         Spacer(Modifier.Companion.height(8.dp))
+
+        Button(onClick = {
+            onClose()
+        }) {
+            Text("Close")
+        }
 
         if (showDialog) {
             DialogWindow(
@@ -99,7 +154,6 @@ fun TimelineUi(
                                     )
                                 }
                             }
-
                             Column {
                                 Button(onClick = {
                                     showDialog = false
@@ -114,14 +168,14 @@ fun TimelineUi(
                     }
                 }
             }
-        } else if (selectedCase != null && epa != null) {
-            TimeSlider(epa, backgroundDispatcher, viewModel, selectedCase!!)
+        } else if (selectedCase != null) {
+//            TimeSliderUi(epa, backgroundDispatcher, viewModel, selectedCase!!)
         }
     }
 }
 
 @Composable
-fun TimeSlider(
+fun TimeSliderUi(
     extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
     dispatcher: CoroutineDispatcher,
     viewModel: EpaViewModel,
