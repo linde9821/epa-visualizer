@@ -81,11 +81,13 @@ fun AnimationUi(
                         Text("Animate whole event log (${epa.eventLogName})")
                     }
                 }
+
                 is AnimationSelectionState.SingleCase -> {
                     SingleCaseAnimationUI(epa, backgroundDispatcher, viewModel) {
                         state = AnimationSelectionState.NothingSelected
                     }
                 }
+
                 AnimationSelectionState.WholeLog ->
                     WholeCaseAnimationUi(epa, viewModel, backgroundDispatcher) {
                         state = AnimationSelectionState.NothingSelected
@@ -98,7 +100,7 @@ fun AnimationUi(
 fun findStepSize(
     start: Long,
     end: Long,
-    maxSteps: Int = 500,
+    maxSteps: Int = 10_000,
 ): Long {
     val totalRange = end - start
     if (totalRange <= 0) return 1L
@@ -199,11 +201,7 @@ fun TimelineSliderWholeLogUi(
 
             sliderValue = animation!!.getFirst().first.toFloat()
 
-            viewModel.updateAnimation(
-                AnimationState(
-                    current = emptyList(),
-                ),
-            )
+            viewModel.updateAnimation(AnimationState.Empty)
         }
         isLoading = false
     }
@@ -223,7 +221,7 @@ fun TimelineSliderWholeLogUi(
                 logger.info { "running animation $timestamp" }
                 sliderValue = timestamp.toFloat()
                 val state = animation!!.getActiveStatesAt(timestamp)
-                viewModel.updateAnimation(AnimationState(current = state))
+                viewModel.updateAnimation(AnimationState(current = state.toSet()))
                 delay(100) // playback speed
             }
             playing = false
@@ -267,7 +265,7 @@ fun TimelineSliderWholeLogUi(
 
                         val animationState =
                             AnimationState(
-                                current = state,
+                                current = state.toSet(),
                             )
                         viewModel.updateAnimation(animationState)
                     },
@@ -401,7 +399,7 @@ fun TimelineSliderSingleCaseUi(
             val (_, state) = animation!!.getFirst()
             viewModel.updateAnimation(
                 AnimationState(
-                    current = listOf(state),
+                    current = setOf(state),
                 ),
             )
         }
@@ -423,12 +421,10 @@ fun TimelineSliderSingleCaseUi(
 
                 val animationState =
                     if (state == null) {
-                        AnimationState(
-                            current = emptyList(),
-                        )
+                        AnimationState.Empty
                     } else {
                         AnimationState(
-                            current = listOf(state.second),
+                            current = setOf(state.second),
                         )
                     }
                 viewModel.updateAnimation(animationState)
