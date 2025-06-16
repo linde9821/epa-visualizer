@@ -118,9 +118,9 @@ private fun DrawScope.drawEPA(
     boundingBox: Rectangle,
     animationState: AnimationState,
 ) {
-    val search = layout.getCoordinatesInRectangle(boundingBox)
+    val result = layout.getCoordinatesInRectangle(boundingBox)
     drawIntoCanvas { canvas ->
-        search.forEach { (coordinate, node) ->
+        result.forEach { (coordinate, node) ->
             val state = node.state
 
             val color =

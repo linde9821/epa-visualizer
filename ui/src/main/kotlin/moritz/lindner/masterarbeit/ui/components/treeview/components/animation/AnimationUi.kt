@@ -33,9 +33,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.case.CaseAnimation
-import moritz.lindner.masterarbeit.epa.visitor.case.CaseVisitor
-import moritz.lindner.masterarbeit.epa.visitor.case.SingleCaseAnimationVisitor
+import moritz.lindner.masterarbeit.epa.visitor.animation.EventLogAnimation
+import moritz.lindner.masterarbeit.epa.visitor.animation.SingleCaseAnimationVisitor
+import moritz.lindner.masterarbeit.epa.visitor.case.CaseEventCollectorVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
@@ -84,7 +84,41 @@ fun AnimationUi(
                         state = AnimationSelectionState.NothingSelected
                     }
                 }
-                AnimationSelectionState.WholeLog -> TODO()
+                AnimationSelectionState.WholeLog ->
+                    WholeCaseAnimationUi(viewModel) {
+                        state = AnimationSelectionState.NothingSelected
+                    }
+            }
+        }
+    }
+}
+
+@Composable
+fun WholeCaseAnimationUi(
+    viewModel: EpaViewModel,
+    onClose: () -> Unit,
+) {
+    Column(modifier = Modifier.Companion.padding(16.dp)) {
+        Row {
+            Button(
+                onClick = {},
+            ) {
+                Text("Play")
+            }
+
+            Button(
+                onClick = {},
+            ) {
+                Text("Stop")
+            }
+
+            Button(onClick = {
+                viewModel.updateAnimation(
+                    AnimationState.Empty,
+                )
+                onClose()
+            }) {
+                Text("Close")
             }
         }
     }
@@ -100,14 +134,14 @@ fun SingleCaseAnimationUI(
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
     var selectedCase by remember { mutableStateOf<String?>(null) }
-    var caseVisitor by remember { mutableStateOf(CaseVisitor<Long>()) }
+    var caseEventCollectorVisitor by remember { mutableStateOf(CaseEventCollectorVisitor<Long>()) }
 
     LaunchedEffect(epa) {
         isLoading = true
         withContext(backgroundDispatcher) {
             selectedCase = null
-            caseVisitor = CaseVisitor()
-            epa?.copy()?.acceptDepthFirst(AutomataVisitorProgressBar(caseVisitor, "case"))
+            caseEventCollectorVisitor = CaseEventCollectorVisitor()
+            epa?.copy()?.acceptDepthFirst(AutomataVisitorProgressBar(caseEventCollectorVisitor, "case"))
         }
         isLoading = false
     }
@@ -156,7 +190,7 @@ fun SingleCaseAnimationUI(
                     ) {
                         Row {
                             LazyColumn {
-                                items(caseVisitor.cases.toList()) { case ->
+                                items(caseEventCollectorVisitor.cases.toList()) { case ->
                                     val isSelected = case == selectedCase
                                     Text(
                                         text = case,
@@ -195,7 +229,7 @@ fun TimelineSliderUi(
     case: String,
 ) {
     var isLoading by remember { mutableStateOf(true) }
-    var animation by remember { mutableStateOf<CaseAnimation<Long>?>(null) }
+    var animation by remember { mutableStateOf<EventLogAnimation<Long>?>(null) }
     val singleCaseAnimationVisitor = SingleCaseAnimationVisitor<Long>(case)
     var sliderValue by remember { mutableStateOf(0f) }
 
