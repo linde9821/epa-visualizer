@@ -4,6 +4,13 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
 
+/**
+ * A visitor that extracts a single trace (case) from an [ExtendedPrefixAutomata] and builds
+ * an [EventLogAnimation] representing the state transitions over time for that specific case.
+ *
+ * @param T The timestamp type used in the associated events (must be comparable, e.g. Long, Int, LocalDateTime).
+ * @property caseIdentifier The unique identifier of the case to extract and animate.
+ */
 class SingleCaseAnimationVisitor<T : Comparable<T>>(
     val caseIdentifier: String,
 ) : AutomataVisitor<T> {
