@@ -69,8 +69,6 @@ class EpaViewModel(
         MutableStateFlow(
             AnimationState(
                 current = emptyList(),
-                upComing = emptyList(),
-                previous = emptyList(),
             ),
         )
     val animationState = _animationState.asStateFlow()

@@ -1,7 +1,8 @@
-package moritz.lindner.masterarbeit.ui.components.treeview.components.timeline
+package moritz.lindner.masterarbeit.ui.components.treeview.components.animation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,20 +34,71 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.epa.visitor.case.CaseAnimation
-import moritz.lindner.masterarbeit.epa.visitor.case.CaseAnimationVisitor
 import moritz.lindner.masterarbeit.epa.visitor.case.CaseVisitor
+import moritz.lindner.masterarbeit.epa.visitor.case.SingleCaseAnimationVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
-import kotlin.math.floor
+import moritz.lindner.masterarbeit.ui.logger
+import kotlin.math.roundToInt
+
+sealed class AnimationSelectionState {
+    data object NothingSelected : AnimationSelectionState()
+
+    data object WholeLog : AnimationSelectionState()
+
+    data object SingleCase : AnimationSelectionState()
+}
 
 @Composable
-fun TimelineUi(
+fun AnimationUi(
     epa: ExtendedPrefixAutomata<Long>?,
     viewModel: EpaViewModel,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
+
+    if (epa != null) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            when (val current = state) {
+                AnimationSelectionState.NothingSelected -> {
+                    Button(
+                        onClick = {
+                            state = AnimationSelectionState.SingleCase
+                        },
+                    ) {
+                        Text("Select Case")
+                    }
+
+                    Button(
+                        onClick = {
+                            state = AnimationSelectionState.WholeLog
+                        },
+                    ) {
+                        Text("Animate whole event log (${epa.eventLogName})")
+                    }
+                }
+                is AnimationSelectionState.SingleCase -> {
+                    SingleCaseAnimationUI(epa, backgroundDispatcher, viewModel) {
+                        state = AnimationSelectionState.NothingSelected
+                    }
+                }
+                AnimationSelectionState.WholeLog -> TODO()
+            }
+        }
+    }
+}
+
+@Composable
+fun SingleCaseAnimationUI(
+    epa: ExtendedPrefixAutomata<Long>,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
+    viewModel: EpaViewModel,
+    onClose: () -> Unit,
+) {
     var isLoading by remember { mutableStateOf(true) }
+    var showDialog by remember { mutableStateOf(false) }
     var selectedCase by remember { mutableStateOf<String?>(null) }
     var caseVisitor by remember { mutableStateOf(CaseVisitor<Long>()) }
 
@@ -62,17 +114,35 @@ fun TimelineUi(
 
     Column(modifier = Modifier.Companion.padding(16.dp)) {
         Row {
-            Button(onClick = { showDialog = true }) {
+            Button(onClick = {
+                showDialog = true
+                selectedCase = null
+                viewModel.updateAnimation(
+                    AnimationState.Empty,
+                )
+            }) {
                 Text("Select Case")
             }
             Spacer(Modifier.Companion.width(8.dp))
-
             if (selectedCase != null) {
                 Text("Case: $selectedCase")
+            }
+
+            Button(onClick = {
+                viewModel.updateAnimation(
+                    AnimationState.Empty,
+                )
+                onClose()
+            }) {
+                Text("Close")
             }
         }
 
         Spacer(Modifier.Companion.height(8.dp))
+
+        if (selectedCase != null) {
+            TimelineSliderUi(epa, backgroundDispatcher, viewModel, selectedCase!!)
+        }
 
         if (showDialog) {
             DialogWindow(
@@ -99,7 +169,6 @@ fun TimelineUi(
                                     )
                                 }
                             }
-
                             Column {
                                 Button(onClick = {
                                     showDialog = false
@@ -114,14 +183,12 @@ fun TimelineUi(
                     }
                 }
             }
-        } else if (selectedCase != null && epa != null) {
-            TimeSlider(epa, backgroundDispatcher, viewModel, selectedCase!!)
         }
     }
 }
 
 @Composable
-fun TimeSlider(
+fun TimelineSliderUi(
     extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
     dispatcher: CoroutineDispatcher,
     viewModel: EpaViewModel,
@@ -129,7 +196,7 @@ fun TimeSlider(
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var animation by remember { mutableStateOf<CaseAnimation<Long>?>(null) }
-    val caseAnimationVisitor = CaseAnimationVisitor<Long>(case)
+    val singleCaseAnimationVisitor = SingleCaseAnimationVisitor<Long>(case)
     var sliderValue by remember { mutableStateOf(0f) }
 
     LaunchedEffect(extendedPrefixAutomata) {
@@ -137,9 +204,16 @@ fun TimeSlider(
         withContext(dispatcher) {
             extendedPrefixAutomata
                 .copy()
-                .acceptDepthFirst(AutomataVisitorProgressBar(caseAnimationVisitor, "casesAnimation"))
+                .acceptDepthFirst(AutomataVisitorProgressBar(singleCaseAnimationVisitor, "casesAnimation"))
             yield()
-            animation = caseAnimationVisitor.build()
+            animation = singleCaseAnimationVisitor.build()
+
+            val (_, state) = animation!!.getFirst()
+            viewModel.updateAnimation(
+                AnimationState(
+                    current = listOf(state),
+                ),
+            )
         }
         isLoading = false
     }
@@ -149,34 +223,29 @@ fun TimeSlider(
     } else if (animation != null) {
         Slider(
             value = sliderValue,
-            onValueChange = {
-                sliderValue = it
-                val index = (floor(sliderValue).toInt() - 1).coerceAtLeast(0)
+            onValueChange = { newValue ->
+                sliderValue = newValue
+
+                val index = sliderValue.roundToInt().coerceIn(0, animation!!.totalAmountOfEvents - 1)
                 val state = animation!!.getNthEntry(index)
+
+                logger.info { "Getting state at $index" }
 
                 val animationState =
                     if (state == null) {
                         AnimationState(
                             current = emptyList(),
-                            previous = emptyList(),
-                            upComing = emptyList(),
                         )
                     } else {
-                        val previous = animation!!.getStateUpTillTimestamp(state.first)
-                        val upComing = animation!!.getStateFromTimestamp(state.first)
-
                         AnimationState(
                             current = listOf(state.second),
-                            previous = previous,
-                            upComing = upComing,
                         )
                     }
-
                 viewModel.updateAnimation(animationState)
             },
             modifier = Modifier.Companion.fillMaxWidth(),
-            valueRange = 0f..animation!!.totalAmountOfEvents.toFloat(),
-            steps = animation!!.totalAmountOfEvents - 1,
+            valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
+            steps = animation!!.totalAmountOfEvents,
         )
     }
 }

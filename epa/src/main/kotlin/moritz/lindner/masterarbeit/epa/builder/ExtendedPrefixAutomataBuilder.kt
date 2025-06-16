@@ -135,6 +135,7 @@ class ExtendedPrefixAutomataBuilder<T : Comparable<T>> {
         }
 
         return ExtendedPrefixAutomata(
+            eventLogName = file!!.name,
             states = states,
             activities = activities,
             transitions = transitions,

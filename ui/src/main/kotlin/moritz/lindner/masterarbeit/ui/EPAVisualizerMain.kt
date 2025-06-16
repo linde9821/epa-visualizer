@@ -30,7 +30,7 @@ fun main() {
             onCloseRequest = ::exitApplication,
             state =
                 WindowState(
-                    placement = WindowPlacement.Floating,
+                    placement = WindowPlacement.Fullscreen,
                     isMinimized = false,
                 ),
             title = "EPA Visualizer",

@@ -4,6 +4,8 @@ import moritz.lindner.masterarbeit.epa.domain.State
 
 data class AnimationState(
     val current: List<State>,
-    val previous: List<State>,
-    val upComing: List<State>,
-)
+) {
+    companion object {
+        val Empty = AnimationState(emptyList())
+    }
+}

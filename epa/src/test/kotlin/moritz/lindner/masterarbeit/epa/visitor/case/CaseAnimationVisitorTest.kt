@@ -16,7 +16,7 @@ class CaseAnimationVisitorTest {
 
         val epa = builder.build()
 
-        val sut = CaseAnimationVisitor<Long>("1")
+        val sut = SingleCaseAnimationVisitor<Long>("1")
 
         epa.acceptDepthFirst(sut)
 
