@@ -24,7 +24,7 @@ class StateLabels(
             .Font()
             .apply { size = baseFontSize }
 
-    fun getLabelForState(state: State): Image = labelByState[state.name]!!
+    fun getLabelForState(state: State): Image? = labelByState[state.name]
 
     fun generateLabelForState(state: State) {
         val label = state.name

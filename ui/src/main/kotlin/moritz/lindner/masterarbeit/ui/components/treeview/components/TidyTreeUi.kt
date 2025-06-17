@@ -244,12 +244,13 @@ private fun DrawScope.drawEPA(
 
             val screenRadius = circleRadius * scale
             if (screenRadius >= 10f || isActive) {
-                val labelImage = stateLabels.getLabelForState(state)
-                canvas.nativeCanvas.drawImage(
-                    labelImage,
-                    cx + circleRadius + 5f,
-                    cy - labelImage.height / 2f, // vertically center
-                )
+                stateLabels.getLabelForState(state)?.let { labelImage ->
+                    canvas.nativeCanvas.drawImage(
+                        labelImage,
+                        cx + circleRadius + 5f,
+                        cy - labelImage.height / 2f, // vertically center
+                    )
+                }
             }
         }
 

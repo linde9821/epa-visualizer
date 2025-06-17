@@ -57,12 +57,11 @@ fun EpaTreeViewUi(
     val animationState by viewModel.animationState.collectAsState()
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background)
-                .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -72,16 +71,18 @@ fun EpaTreeViewUi(
             Button(
                 shape = RoundedCornerShape(24.dp),
                 onClick = { onClose() },
-                modifier = Modifier.Companion.height(48.dp),
+                modifier = Modifier.height(48.dp),
             ) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(12.dp))
 
             Surface(
                 elevation = 4.dp,
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
                 shape = RoundedCornerShape(12.dp),
             ) {
                 LayoutOptionUi {
@@ -90,33 +91,37 @@ fun EpaTreeViewUi(
             }
         }
 
-        Row(modifier = Modifier.weight(1f)) {
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             Surface(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .width(350.dp)
-                        .padding(2.dp),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(350.dp),
                 elevation = 4.dp,
                 shape = RoundedCornerShape(12.dp),
             ) {
-                FilterUi(epa = epa, backgroundDispatcher, onApply = {
-                    viewModel.updateFilter(it)
-                })
+                FilterUi(
+                    epa = epa,
+                    backgroundDispatcher,
+                    onApply = {
+                        viewModel.updateFilter(it)
+                    }
+                )
             }
 
             Column(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(0.8f)
-                        .padding(8.dp),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Surface(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     elevation = 4.dp,
                 ) {
@@ -124,10 +129,9 @@ fun EpaTreeViewUi(
                 }
 
                 Surface(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(120.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp),
                     elevation = 4.dp,
                     shape = RoundedCornerShape(12.dp),
                 ) {
@@ -135,7 +139,15 @@ fun EpaTreeViewUi(
                 }
             }
 
-            StatisticsComparisonUi(statisticsState)
+            Surface(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(300.dp),
+                elevation = 4.dp,
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                StatisticsComparisonUi(statisticsState)
+            }
         }
     }
 }

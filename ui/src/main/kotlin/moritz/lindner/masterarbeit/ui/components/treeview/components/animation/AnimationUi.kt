@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.ui.components.treeview.components.animation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Slider
@@ -13,7 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -36,11 +39,15 @@ fun AnimationUi(
     var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
 
     if (filteredEpa != null) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            when (state) {
-                AnimationSelectionState.NothingSelected -> {
+        when (state) {
+            AnimationSelectionState.NothingSelected -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Button(
                         onClick = {
                             state = AnimationSelectionState.SingleCase
@@ -57,18 +64,18 @@ fun AnimationUi(
                         Text("Animate whole event log (${filteredEpa.eventLogName})")
                     }
                 }
-
-                is AnimationSelectionState.SingleCase -> {
-                    SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
-                        state = AnimationSelectionState.NothingSelected
-                    }
-                }
-
-                AnimationSelectionState.WholeLog ->
-                    WholeCaseAnimationUi(filteredEpa, viewModel, backgroundDispatcher) {
-                        state = AnimationSelectionState.NothingSelected
-                    }
             }
+
+            is AnimationSelectionState.SingleCase -> {
+                SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
+                    state = AnimationSelectionState.NothingSelected
+                }
+            }
+
+            AnimationSelectionState.WholeLog ->
+                TimelineSliderWholeLogUi(filteredEpa, viewModel, backgroundDispatcher) {
+                    state = AnimationSelectionState.NothingSelected
+                }
         }
     }
 }
@@ -182,7 +189,7 @@ fun TimelineSliderSingleCaseUi(
                     }
                 viewModel.updateAnimation(animationState)
             },
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
             steps = animation!!.totalAmountOfEvents,
         )
