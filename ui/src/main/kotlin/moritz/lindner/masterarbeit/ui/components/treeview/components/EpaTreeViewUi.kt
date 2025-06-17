@@ -127,7 +127,7 @@ fun EpaTreeViewUi(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(120.dp),
+                            .height(140.dp),
                     elevation = 4.dp,
                     shape = RoundedCornerShape(12.dp),
                 ) {

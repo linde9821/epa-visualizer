@@ -22,8 +22,8 @@ import moritz.lindner.masterarbeit.ui.logger
 @Composable
 fun TimelineSliderWholeLogUi(
     extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
-    dispatcher: CoroutineDispatcher,
     viewModel: EpaViewModel,
+    dispatcher: CoroutineDispatcher,
     onClose: () -> Unit,
 ) {
     var isLoading by remember(extendedPrefixAutomata) { mutableStateOf(true) }

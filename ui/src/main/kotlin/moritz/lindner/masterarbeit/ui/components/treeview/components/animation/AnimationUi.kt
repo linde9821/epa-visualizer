@@ -36,11 +36,11 @@ fun AnimationUi(
     var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
 
     if (filteredEpa != null) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            when (state) {
-                AnimationSelectionState.NothingSelected -> {
+        when (state) {
+            AnimationSelectionState.NothingSelected -> {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
                     Button(
                         onClick = {
                             state = AnimationSelectionState.SingleCase
@@ -57,18 +57,18 @@ fun AnimationUi(
                         Text("Animate whole event log (${filteredEpa.eventLogName})")
                     }
                 }
-
-                is AnimationSelectionState.SingleCase -> {
-                    SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
-                        state = AnimationSelectionState.NothingSelected
-                    }
-                }
-
-                AnimationSelectionState.WholeLog ->
-                    WholeCaseAnimationUi(filteredEpa, viewModel, backgroundDispatcher) {
-                        state = AnimationSelectionState.NothingSelected
-                    }
             }
+
+            is AnimationSelectionState.SingleCase -> {
+                SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
+                    state = AnimationSelectionState.NothingSelected
+                }
+            }
+
+            AnimationSelectionState.WholeLog ->
+                TimelineSliderWholeLogUi(filteredEpa, viewModel, backgroundDispatcher) {
+                    state = AnimationSelectionState.NothingSelected
+                }
         }
     }
 }
