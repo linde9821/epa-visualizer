@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
@@ -253,56 +254,61 @@ private fun DrawScope.drawEPA(
         }
 
         // draw tokens
-        drawTokensWithSpreading(animationState, layout, canvas, redFill)
+        drawTokensWithSpreading(animationState, visibleNodes.map { it.node.state }.toSet(), layout, canvas, redFill)
     }
 }
 
 private fun drawTokensWithSpreading(
     animationState: AnimationState,
+    visibleNodes: Set<State>,
     layout: TreeLayout,
     canvas: Canvas,
     redFill: Paint,
 ) {
-    animationState.currentTimeStates.forEachIndexed { index, timedState ->
-        val progress =
-            if (timedState.to == null || timedState.nextState == null) {
-                1f
-            } else {
-                val duration = timedState.to!! - timedState.from
-                val elapsed = animationState.time - timedState.from
-                (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
-            }
+    animationState
+        .currentTimeStates
+        .filter {
+            visibleNodes.contains(it.state)
+        }.forEachIndexed { index, timedState ->
+            val progress =
+                if (timedState.to == null || timedState.nextState == null) {
+                    1f
+                } else {
+                    val duration = timedState.to!! - timedState.from
+                    val elapsed = animationState.time - timedState.from
+                    (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+                }
 
-        val fromCoord = layout.getCoordinate(timedState.state)
-        val toCoord = timedState.nextState?.let { layout.getCoordinate(it) }
+            val fromCoord = layout.getCoordinate(timedState.state)
+            val toCoord = timedState.nextState?.let { layout.getCoordinate(it) }
 
-        val tokenPosition =
-            if (toCoord != null) {
-                val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
-                interpolateBezier(
-                    start = Offset(fromCoord.x, -fromCoord.y),
-                    c1 = Offset(c1.x, -c1.y),
-                    c2 = Offset(c2.x, -c2.y),
-                    end = Offset(toCoord.x, -toCoord.y),
-                    t = progress,
-                )
-            } else {
-                Offset(fromCoord.x, -fromCoord.y)
-            }
+            val tokenPosition =
+                if (toCoord != null) {
+                    val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
+                    interpolateBezier(
+                        start = Offset(fromCoord.x, -fromCoord.y),
+                        c1 = Offset(c1.x, -c1.y),
+                        c2 = Offset(c2.x, -c2.y),
+                        end = Offset(toCoord.x, -toCoord.y),
+                        t = progress,
+                    )
+                } else {
+                    Offset(fromCoord.x, -fromCoord.y)
+                }
 
-        // Spread tokens slightly if overlapping
-        val angle = (index * (360f / animationState.currentTimeStates.size)) * (Math.PI / 180.0)
-        val spread = 9f
-        val dx = (spread * cos(angle)).toFloat()
-        val dy = (spread * sin(angle)).toFloat()
+            // Spread tokens slightly if overlapping
+            val angle = (index * (360f / animationState.currentTimeStates.size)) * (Math.PI / 180.0)
+            val spread = 9f
+            val dx = (spread * cos(angle)).toFloat()
+            val dy = (spread * sin(angle)).toFloat()
 
-        canvas.nativeCanvas.drawCircle(
-            tokenPosition.x + dx,
-            tokenPosition.y + dy,
-            6f,
-            redFill,
-        )
-    }
+            canvas.nativeCanvas.drawCircle(
+                tokenPosition.x + dx,
+                tokenPosition.y + dy,
+                6f,
+                redFill,
+            )
+        }
 }
 
 fun interpolateBezier(
