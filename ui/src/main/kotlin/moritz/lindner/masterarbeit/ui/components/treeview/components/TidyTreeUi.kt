@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,9 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
@@ -45,9 +49,28 @@ import org.jetbrains.skia.Color as SkiaColor
 fun TidyTreeUi(
     uiState: UiState,
     animationState: AnimationState,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
+    val stateLabels =
+        remember(uiState.filteredEpa) {
+            StateLabels(
+                backgroundColor = SkiaColor.WHITE,
+                baseFontSize = 21f,
+            )
+        }
+
+    LaunchedEffect(uiState.filteredEpa) {
+        withContext(backgroundDispatcher) {
+            logger.info { "generating labels" }
+            uiState.filteredEpa?.states?.forEach { state ->
+                stateLabels.generateLabelForState(state)
+                yield()
+            }
+            logger.info { "labels generated" }
+        }
+    }
 
     val canvasModifier =
         Modifier
@@ -111,7 +134,7 @@ fun TidyTreeUi(
                         drawDepthCircles(it)
                     }
 
-                    drawEPA(uiState.layout, boundingBox, animationState, scale)
+                    drawEPA(uiState.layout, boundingBox, animationState, stateLabels, scale)
                 }
             }
         }
@@ -122,6 +145,7 @@ private fun DrawScope.drawEPA(
     layout: TreeLayout,
     boundingBox: Rectangle,
     animationState: AnimationState,
+    stateLabels: StateLabels,
     scale: Float,
 ) {
     val redFill =
@@ -153,17 +177,6 @@ private fun DrawScope.drawEPA(
             strokeWidth = 4f
             isAntiAlias = true
         }
-
-    val textPaint =
-        Paint().apply {
-            color = SkiaColor.BLACK
-            isAntiAlias = true
-        }
-    val baseFontSize = 24f
-    val skFont =
-        org.jetbrains.skia
-            .Font()
-            .apply { size = baseFontSize }
 
     val result = layout.getCoordinatesInRectangle(boundingBox)
 
@@ -205,16 +218,13 @@ private fun DrawScope.drawEPA(
             canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
 
             val screenRadius = circleRadius * scale
-            logger.info { screenRadius }
-
-            if (screenRadius >= 27f) {
-                val label = state.name // or state.name if available
-
-                val textLine =
-                    org.jetbrains.skia.TextLine
-                        .make(label, skFont)
-
-                canvas.nativeCanvas.drawTextLine(textLine, cx + circleRadius + 5f, cy + baseFontSize, textPaint)
+            if (screenRadius >= 20f) {
+                val labelImage = stateLabels.getLabelForState(state)
+                canvas.nativeCanvas.drawImage(
+                    labelImage,
+                    cx + circleRadius + 5f,
+                    cy - labelImage.height / 2f, // vertically center
+                )
             }
         }
 

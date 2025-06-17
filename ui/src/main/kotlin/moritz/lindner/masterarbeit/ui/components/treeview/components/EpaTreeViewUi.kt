@@ -120,7 +120,7 @@ fun EpaTreeViewUi(
                     shape = RoundedCornerShape(12.dp),
                     elevation = 4.dp,
                 ) {
-                    TidyTreeUi(uiState, animationState)
+                    TidyTreeUi(uiState, animationState, backgroundDispatcher)
                 }
 
                 Surface(
