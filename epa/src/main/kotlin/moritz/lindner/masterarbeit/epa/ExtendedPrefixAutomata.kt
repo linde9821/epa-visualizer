@@ -165,4 +165,32 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
             partitionByState = partitionByState.toMap(),
             sequenceByState = sequenceByState.mapValues { it.value.toSet() },
         )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ExtendedPrefixAutomata<*>
+
+        if (eventLogName != other.eventLogName) return false
+        if (states != other.states) return false
+        if (activities != other.activities) return false
+        if (transitions != other.transitions) return false
+        if (partitionByState != other.partitionByState) return false
+        if (sequenceByState != other.sequenceByState) return false
+        if (outgoingTransitionsByState != other.outgoingTransitionsByState) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = eventLogName.hashCode()
+        result = 31 * result + states.hashCode()
+        result = 31 * result + activities.hashCode()
+        result = 31 * result + transitions.hashCode()
+        result = 31 * result + partitionByState.hashCode()
+        result = 31 * result + sequenceByState.hashCode()
+        result = 31 * result + outgoingTransitionsByState.hashCode()
+        return result
+    }
 }
