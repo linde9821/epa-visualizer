@@ -177,7 +177,7 @@ fun TimelineSliderSingleCaseUi(
                     } else {
                         AnimationState(
                             time = state.first,
-                            current = setOf(state.second),
+                            currentTimeStates = setOf(state.second),
                         )
                     }
                 viewModel.updateAnimation(animationState)
