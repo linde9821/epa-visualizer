@@ -16,6 +16,7 @@ class StateLabels(
         org.jetbrains.skia.Paint().apply {
             color = Color.BLACK
             mode = org.jetbrains.skia.PaintMode.FILL
+            isAntiAlias = true
         }
 
     val skFont =

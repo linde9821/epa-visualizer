@@ -193,20 +193,16 @@ private fun DrawScope.drawEPA(
     blackFill: Paint,
     blackStroke: Paint,
 ) {
-    val result = layout.getCoordinatesInRectangle(boundingBox)
+    val visibleNodes = layout.getCoordinatesInRectangle(boundingBox)
 
     drawIntoCanvas { canvas ->
-        result.forEach { (coordinate, node) ->
+        // draw edges
+        visibleNodes.forEach { (coordinate, node) ->
             val state = node.state
-            val isActive = animationState.contains(state)
-
-            val circleRadius = if (isActive) 20f else 10f
-            val fillPaint = if (isActive) redFill else blackFill
-
-            val cx = coordinate.x
-            val cy = -coordinate.y
 
             if (state is PrefixState) {
+                val cx = coordinate.x
+                val cy = -coordinate.y
                 val parentCoordinate = layout.getCoordinate(state.from)
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(cx, cy)
@@ -218,6 +214,7 @@ private fun DrawScope.drawEPA(
                         cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
                     }
 
+                // TODO: optimize
                 val isAnimating =
                     animationState.currentTimeStates.any {
                         it.state == state.from &&
@@ -229,11 +226,23 @@ private fun DrawScope.drawEPA(
                 val edgePaint = if (isAnimating) redStroke else blackStroke
                 canvas.nativeCanvas.drawPath(path, edgePaint)
             }
+        }
+
+        // draw nodes
+        visibleNodes.forEach { (coordinate, node) ->
+            val state = node.state
+            val isActive = animationState.contains(state)
+
+            val cx = coordinate.x
+            val cy = -coordinate.y
+
+            val circleRadius = if (isActive) 20f else 10f
+            val fillPaint = if (isActive) redFill else blackFill
 
             canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
 
             val screenRadius = circleRadius * scale
-            if (screenRadius >= 10f) {
+            if (screenRadius >= 10f || isActive) {
                 val labelImage = stateLabels.getLabelForState(state)
                 canvas.nativeCanvas.drawImage(
                     labelImage,
@@ -243,6 +252,7 @@ private fun DrawScope.drawEPA(
             }
         }
 
+        // draw tokens
         drawTokensWithSpreading(animationState, layout, canvas, redFill)
     }
 }
@@ -282,7 +292,7 @@ private fun drawTokensWithSpreading(
 
         // Spread tokens slightly if overlapping
         val angle = (index * (360f / animationState.currentTimeStates.size)) * (Math.PI / 180.0)
-        val spread = 6f
+        val spread = 9f
         val dx = (spread * cos(angle)).toFloat()
         val dy = (spread * sin(angle)).toFloat()
 
@@ -322,7 +332,6 @@ fun getControlPoints(
     coordinate: Coordinate,
     curvature: Float = 0.5f,
 ): Pair<Offset, Offset> {
-    val dx = coordinate.x - parentCoordinate.x
     val dy = coordinate.y - parentCoordinate.y
 
     val c1 = Offset(parentCoordinate.x, parentCoordinate.y + dy * curvature)
