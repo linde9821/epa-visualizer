@@ -17,7 +17,7 @@ import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 
 @Composable
 fun AnimationControlsUI(
-    playing: Boolean,
+    isPlaying: Boolean,
     stepSize: Long,
     multiplier: Float,
     sliderValue: Float,
@@ -33,7 +33,7 @@ fun AnimationControlsUI(
         modifier = Modifier.fillMaxSize(),
     ) {
         ControlUI(
-            isPlaying = playing,
+            isPlaying = isPlaying,
             stepSize = stepSize,
             multiplier = multiplier,
             onButton = onPlayToggle,

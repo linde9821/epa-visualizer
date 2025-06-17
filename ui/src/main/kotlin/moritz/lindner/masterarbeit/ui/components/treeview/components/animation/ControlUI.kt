@@ -30,13 +30,13 @@ fun ControlUI(
     onClose: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        // Left: Control Buttons
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             IconButton(onClick = onBackward) {
                 Icon(Icons.Default.FastRewind, contentDescription = "Rewind")

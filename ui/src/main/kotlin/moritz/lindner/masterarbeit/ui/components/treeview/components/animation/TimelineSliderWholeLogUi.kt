@@ -27,16 +27,16 @@ fun TimelineSliderWholeLogUi(
     onClose: () -> Unit,
 ) {
     var isLoading by remember(extendedPrefixAutomata) { mutableStateOf(true) }
-    var animation by remember(extendedPrefixAutomata) { mutableStateOf<EventLogAnimation<Long>?>(null) }
+    var eventLogAnimation by remember(extendedPrefixAutomata) { mutableStateOf<EventLogAnimation<Long>?>(null) }
     var sliderValue by remember(extendedPrefixAutomata) { mutableStateOf(0f) }
-    var playing by remember(extendedPrefixAutomata) { mutableStateOf(false) }
-    val speed = 17L
+    var isPlaying by remember(extendedPrefixAutomata) { mutableStateOf(false) }
+    val speed = 17L // 60fps
     var stepSize by remember(extendedPrefixAutomata) { mutableStateOf(1L) }
     var multiplier by remember(extendedPrefixAutomata) { mutableStateOf(1.0f) }
 
     LaunchedEffect(extendedPrefixAutomata) {
         isLoading = true
-        playing = false
+        isPlaying = false
         viewModel.updateAnimation(AnimationState.Companion.Empty)
         withContext(dispatcher) {
             val eventLogAnimationVisitor = WholeEventLogAnimationVisitor<Long>(extendedPrefixAutomata.eventLogName)
@@ -44,22 +44,22 @@ fun TimelineSliderWholeLogUi(
                 .copy()
                 .acceptDepthFirst(AutomataVisitorProgressBar(eventLogAnimationVisitor, "casesAnimation"))
             yield()
-            animation =
+            eventLogAnimation =
                 eventLogAnimationVisitor.build(
                     epsilon = 10L,
                     increment = Long::plus,
                 )
         }
         viewModel.updateAnimation(AnimationState.Empty)
-        sliderValue = animation!!.getFirst().first.toFloat()
+        sliderValue = eventLogAnimation!!.getFirst().first.toFloat()
         isLoading = false
     }
 
-    LaunchedEffect(playing, extendedPrefixAutomata) {
+    LaunchedEffect(isPlaying, extendedPrefixAutomata) {
         viewModel.updateAnimation(AnimationState.Empty)
-        if (playing && animation != null) {
-            val first = animation!!.getFirst().first
-            val last = animation!!.getLast().first
+        if (isPlaying && eventLogAnimation != null) {
+            val first = eventLogAnimation!!.getFirst().first
+            val last = eventLogAnimation!!.getLast().first
 
             val playbackSpeed = speed
             stepSize =
@@ -76,7 +76,7 @@ fun TimelineSliderWholeLogUi(
                 logger.info { "running animation $timestamp" }
                 sliderValue = timestamp.toFloat()
 
-                val state = animation!!.getActiveStatesAt(timestamp)
+                val state = eventLogAnimation!!.getActiveStatesAt(timestamp)
                 viewModel.updateAnimation(
                     AnimationState(
                         time = timestamp,
@@ -88,26 +88,26 @@ fun TimelineSliderWholeLogUi(
                 delay(playbackSpeed)
                 timestamp += dynamicStepSize
             }
-            playing = false
+            isPlaying = false
         }
     }
 
     if (isLoading) {
         CircularProgressIndicator()
-    } else if (animation != null) {
+    } else if (eventLogAnimation != null) {
         AnimationControlsUI(
-            playing = playing,
+            isPlaying = isPlaying,
             stepSize = stepSize,
             multiplier = multiplier,
             sliderValue = sliderValue,
-            animation = animation,
+            animation = eventLogAnimation,
             viewModel = viewModel,
             onClose = onClose,
             onSliderChange = {
                 sliderValue = it
             },
             onPlayToggle = {
-                playing = it
+                isPlaying = it
             },
             onForward = {
                 multiplier += 0.25f
