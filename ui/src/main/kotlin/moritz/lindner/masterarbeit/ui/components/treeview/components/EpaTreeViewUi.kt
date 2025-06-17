@@ -28,10 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.ui.components.treeview.components.animation.AnimationUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.layout.LayoutOptionUi
 import moritz.lindner.masterarbeit.ui.components.treeview.components.statistics.StatisticsComparisonUi
-import moritz.lindner.masterarbeit.ui.components.treeview.components.timeline.TimelineUi
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import kotlin.math.PI
 
@@ -131,7 +131,7 @@ fun EpaTreeViewUi(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    TimelineUi(uiState.filteredEpa, viewModel, backgroundDispatcher)
+                    AnimationUi(uiState.filteredEpa, viewModel, backgroundDispatcher)
                 }
             }
 

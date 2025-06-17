@@ -69,6 +69,7 @@ class StateFrequencyFilter<T : Comparable<T>>(
         val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
 
         return ExtendedPrefixAutomata(
+            eventLogName = epa.eventLogName,
             states = filteredStates,
             activities = filteredActivities,
             transitions = filteredTransitions,

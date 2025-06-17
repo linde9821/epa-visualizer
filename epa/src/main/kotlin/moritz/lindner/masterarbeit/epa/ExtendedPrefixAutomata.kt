@@ -25,6 +25,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * @property transitions All transitions between states, each labeled with an activity.
  */
 class ExtendedPrefixAutomata<T : Comparable<T>>(
+    val eventLogName: String,
     val states: Set<State>,
     val activities: Set<Activity>,
     val transitions: Set<Transition>,
@@ -144,6 +145,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
 
     override fun toString(): String =
         buildString {
+            appendLine(eventLogName)
             appendLine(states.joinToString(","))
             appendLine(activities.joinToString(","))
             appendLine(transitions.joinToString(","))
@@ -156,6 +158,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
      */
     fun copy(): ExtendedPrefixAutomata<T> =
         ExtendedPrefixAutomata(
+            eventLogName = eventLogName,
             states = states.toSet(),
             activities = activities.toSet(),
             transitions = transitions.map { it.copy() }.toSet(),
