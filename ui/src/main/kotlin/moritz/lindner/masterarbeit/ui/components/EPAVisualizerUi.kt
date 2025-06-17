@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.ApplicationState
-import moritz.lindner.masterarbeit.ui.components.treeview.components.EpaTreeViewUi
+import moritz.lindner.masterarbeit.ui.components.treeview.components.Foo
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
@@ -96,7 +96,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                     }
 
                     is ApplicationState.EpaConstructed ->
-                        EpaTreeViewUi(
+                        Foo(
                             currentState.extendedPrefixAutomata,
                             backgroundDispatcher,
                             onClose = {

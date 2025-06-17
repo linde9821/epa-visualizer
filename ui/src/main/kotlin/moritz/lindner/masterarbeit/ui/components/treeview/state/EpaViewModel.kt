@@ -55,15 +55,15 @@ class EpaViewModel(
         )
     val layout: StateFlow<LayoutConfig> = _layout
 
-    private val _uiState =
+    private val _Epa_uiState =
         MutableStateFlow(
-            UiState(
+            EpaUiState(
                 null,
                 true,
                 null,
             ),
         )
-    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    val epaUiState: StateFlow<EpaUiState> = _Epa_uiState.asStateFlow()
 
     private val _animationState = MutableStateFlow(AnimationState.Empty)
     val animationState = _animationState.asStateFlow()
@@ -90,7 +90,7 @@ class EpaViewModel(
             }.collectLatest { (filter, layoutConfig) ->
                 logger.info { "running state update" }
 
-                _uiState.update { it.copy(isLoading = true) }
+                _Epa_uiState.update { it.copy(isLoading = true) }
 
                 _statistics.update {
                     null
@@ -101,7 +101,7 @@ class EpaViewModel(
                         logger.info { "applying filter" }
                         val filteredEpa = filter.apply(completeEpa.copy())
                         yield()
-                        _uiState.update { it.copy(filteredEpa = filteredEpa) }
+                        _Epa_uiState.update { it.copy(filteredEpa = filteredEpa) }
 
                         logger.info { "building tree" }
                         val treeVisitor = TreeBuildingVisitor<Long>()
@@ -122,7 +122,7 @@ class EpaViewModel(
 
                         logger.info { "update ui" }
 
-                        _uiState.update {
+                        _Epa_uiState.update {
                             it.copy(
                                 isLoading = false,
                                 layout = layout,
@@ -136,7 +136,7 @@ class EpaViewModel(
                     logger.warn { "Cancellation Exception ${e.message}" }
                 } catch (e: Exception) {
                     logger.error { "Error building layout: ${e.message}" }
-                    _uiState.update {
+                    _Epa_uiState.update {
                         it.copy(isLoading = false, layout = null, filteredEpa = null)
                     }
                 }

@@ -36,7 +36,7 @@ import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
-import moritz.lindner.masterarbeit.ui.components.treeview.state.UiState
+import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -48,14 +48,15 @@ import org.jetbrains.skia.Color as SkiaColor
 
 @Composable
 fun TidyTreeUi(
-    uiState: UiState,
+    epaUiState: EpaUiState,
     animationState: AnimationState,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
+    modifier: Modifier = Modifier,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
     val stateLabels =
-        remember(uiState.filteredEpa) {
+        remember(epaUiState.filteredEpa) {
             StateLabels(
                 backgroundColor = SkiaColor.WHITE,
                 baseFontSize = 21f,
@@ -101,11 +102,11 @@ fun TidyTreeUi(
             }
         }
 
-    LaunchedEffect(uiState.filteredEpa) {
+    LaunchedEffect(epaUiState.filteredEpa) {
         labelsGenerated = false
         withContext(backgroundDispatcher) {
             logger.info { "generating labels" }
-            uiState.filteredEpa?.states?.forEachIndexed { index, state ->
+            epaUiState.filteredEpa?.states?.forEachIndexed { index, state ->
                 stateLabels.generateLabelForState(state)
                 if (index % 20 == 0) yield()
             }
@@ -115,7 +116,7 @@ fun TidyTreeUi(
     }
 
     val canvasModifier =
-        Modifier
+        modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
@@ -147,7 +148,7 @@ fun TidyTreeUi(
                 }
             }.clipToBounds()
 
-    if (uiState.isLoading) {
+    if (epaUiState.isLoading) {
         CircularProgressIndicator(
             modifier = Modifier.size(100.dp),
             strokeWidth = 6.dp,
@@ -171,12 +172,12 @@ fun TidyTreeUi(
 
                 val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
-                if (!uiState.isLoading && uiState.layout != null && uiState.layout.isBuilt() && labelsGenerated) {
-                    (uiState.layout as? RadialTreeLayout)?.let {
+                if (!epaUiState.isLoading && epaUiState.layout != null && epaUiState.layout.isBuilt() && labelsGenerated) {
+                    (epaUiState.layout as? RadialTreeLayout)?.let {
                         drawDepthCircles(it)
                     }
 
-                    drawEPA(uiState.layout, boundingBox, animationState, stateLabels, scale, redFill, redStroke, blackFill, blackStroke)
+                    drawEPA(epaUiState.layout, boundingBox, animationState, stateLabels, scale, redFill, redStroke, blackFill, blackStroke)
                 }
             }
         }
