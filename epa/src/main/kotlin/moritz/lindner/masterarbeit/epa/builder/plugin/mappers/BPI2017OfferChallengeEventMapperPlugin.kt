@@ -32,17 +32,17 @@ class BPI2017OfferChallengeEventMapperPlugin : EventMapperPlugin<Long>() {
 
     override fun canHandle(log: XLog): Boolean {
         if (log.isEmpty()) return false
-        
+
         // Check if the first trace has the expected attributes
-        val firstTrace = log.first()
-        if (firstTrace.isEmpty()) return false
-        
+        val firstXTrace = log.first()
+        if (firstXTrace.isEmpty()) return false
+
         // Check if the trace has an "ApplicationID" attribute
-        if (!firstTrace.attributes.containsKey("ApplicationID")) return false
-        
+        if (!firstXTrace.attributes.containsKey("ApplicationID")) return false
+
         // Check if the first event has the expected attributes
-        val firstEvent = firstTrace.first()
-        return firstEvent.attributes.containsKey("concept:name") && 
-               firstEvent.attributes.containsKey("time:timestamp")
+        val firstEvent = firstXTrace.first()
+        return firstEvent.attributes.containsKey("concept:name") &&
+            firstEvent.attributes.containsKey("time:timestamp")
     }
 }
