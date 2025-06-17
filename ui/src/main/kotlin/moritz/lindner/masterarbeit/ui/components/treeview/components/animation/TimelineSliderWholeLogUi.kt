@@ -1,19 +1,12 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.components.animation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -31,11 +24,15 @@ fun TimelineSliderWholeLogUi(
     extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
     dispatcher: CoroutineDispatcher,
     viewModel: EpaViewModel,
+    onClose: () -> Unit,
 ) {
     var isLoading by remember(extendedPrefixAutomata) { mutableStateOf(true) }
     var animation by remember(extendedPrefixAutomata) { mutableStateOf<EventLogAnimation<Long>?>(null) }
     var sliderValue by remember(extendedPrefixAutomata) { mutableStateOf(0f) }
     var playing by remember(extendedPrefixAutomata) { mutableStateOf(false) }
+    val speed = 17L
+    var stepSize by remember(extendedPrefixAutomata) { mutableStateOf(1L) }
+    var multiplier by remember(extendedPrefixAutomata) { mutableStateOf(1.0f) }
 
     LaunchedEffect(extendedPrefixAutomata) {
         isLoading = true
@@ -63,29 +60,35 @@ fun TimelineSliderWholeLogUi(
         if (playing && animation != null) {
             val first = animation!!.getFirst().first
             val last = animation!!.getLast().first
-            val playbackSpeed = 100L
 
-            val stepSize =
+            val playbackSpeed = speed
+            stepSize =
                 findStepSize(
                     start = first,
                     end = last,
                 )
 
-            for (timestamp in sliderValue.toLong()..last step stepSize) {
-                yield()
+            var timestamp = sliderValue.toLong()
+
+            while (timestamp <= last) {
+                val dynamicStepSize = (stepSize * multiplier).toLong()
+
                 logger.info { "running animation $timestamp" }
                 sliderValue = timestamp.toFloat()
+
                 val state = animation!!.getActiveStatesAt(timestamp)
-                yield()
                 viewModel.updateAnimation(
                     AnimationState(
                         time = timestamp,
                         currentTimeStates = state.toSet(),
                     ),
                 )
+
                 yield()
                 delay(playbackSpeed)
+                timestamp += dynamicStepSize
             }
+            playing = false
             playing = false
         }
     }
@@ -93,47 +96,26 @@ fun TimelineSliderWholeLogUi(
     if (isLoading) {
         CircularProgressIndicator()
     } else if (animation != null) {
-        Column {
-            Row {
-                Button(
-                    onClick = {
-                        playing = true
-                    },
-                ) {
-                    Text("Play")
-                }
-
-                Button(
-                    onClick = {
-                        playing = false
-                    },
-                ) {
-                    Text("Pause")
-                }
-
-                Text("Cursor at ${sliderValue.toLong()}")
-            }
-
-            Row {
-                Slider(
-                    value = sliderValue,
-                    onValueChange = { newValue ->
-                        sliderValue = newValue
-
-                        val timestamp = sliderValue.toLong()
-                        val state = animation!!.getActiveStatesAt(timestamp)
-
-                        val animationState =
-                            AnimationState(
-                                time = timestamp,
-                                currentTimeStates = state.toSet(),
-                            )
-                        viewModel.updateAnimation(animationState)
-                    },
-                    modifier = Modifier.Companion.fillMaxWidth(),
-                    valueRange = animation!!.getFirst().first.toFloat()..animation!!.getLast().first.toFloat(),
-                )
-            }
-        }
+        AnimationControlsUI(
+            playing = playing,
+            stepSize = stepSize,
+            multiplier = multiplier,
+            sliderValue = sliderValue,
+            animation = animation,
+            viewModel = viewModel,
+            onClose = onClose,
+            onSliderChange = {
+                sliderValue = it
+            },
+            onPlayToggle = {
+                playing = it
+            },
+            onForward = {
+                multiplier += 0.25f
+            },
+            onBackward = {
+                multiplier -= 0.25f
+            },
+        )
     }
 }
