@@ -50,13 +50,13 @@ fun TimelineSliderWholeLogUi(
                     increment = Long::plus,
                 )
         }
-        viewModel.updateAnimation(AnimationState.Companion.Empty)
+        viewModel.updateAnimation(AnimationState.Empty)
         sliderValue = animation!!.getFirst().first.toFloat()
         isLoading = false
     }
 
     LaunchedEffect(playing, extendedPrefixAutomata) {
-        viewModel.updateAnimation(AnimationState.Companion.Empty)
+        viewModel.updateAnimation(AnimationState.Empty)
         if (playing && animation != null) {
             val first = animation!!.getFirst().first
             val last = animation!!.getLast().first
@@ -88,7 +88,6 @@ fun TimelineSliderWholeLogUi(
                 delay(playbackSpeed)
                 timestamp += dynamicStepSize
             }
-            playing = false
             playing = false
         }
     }

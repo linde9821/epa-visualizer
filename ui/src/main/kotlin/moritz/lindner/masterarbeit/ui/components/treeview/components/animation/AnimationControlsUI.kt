@@ -40,7 +40,7 @@ fun AnimationControlsUI(
             onForward = onForward,
             onBackward = onBackward,
             onClose = {
-                viewModel.updateAnimation(AnimationState.Companion.Empty)
+                viewModel.updateAnimation(AnimationState.Empty)
                 onClose()
             },
         )
@@ -60,7 +60,7 @@ fun AnimationControlsUI(
                     )
                 viewModel.updateAnimation(animationState)
             },
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             valueRange =
                 (animation?.getFirst()?.first?.toFloat() ?: 0f)..(
                     animation?.getLast()?.first?.toFloat()
@@ -69,7 +69,7 @@ fun AnimationControlsUI(
         )
 
         Row(
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             val first = animation?.getFirst()?.first ?: 0
@@ -77,7 +77,7 @@ fun AnimationControlsUI(
             val current = viewModel.animationState.value.time
 
             Text("Start: $first", fontSize = 14.sp)
-            Text("Now: $current", fontSize = 14.sp, fontWeight = FontWeight.Companion.Medium)
+            Text("Now: $current", fontSize = 14.sp, fontWeight = FontWeight.Medium)
             Text("End: $last", fontSize = 14.sp)
         }
     }

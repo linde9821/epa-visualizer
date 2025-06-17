@@ -30,11 +30,10 @@ fun ControlUI(
     onClose: () -> Unit,
 ) {
     Row(
-        modifier =
-            Modifier.Companion
-                .fillMaxWidth()
-                .padding(4.dp),
-        verticalAlignment = Alignment.Companion.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         // Left: Control Buttons
@@ -58,7 +57,7 @@ fun ControlUI(
         Text(
             text = "$stepSize × $multiplier = ${(stepSize * multiplier).toLong()}",
             fontSize = 16.sp,
-            modifier = Modifier.Companion.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
 
         IconButton(onClick = onClose) {
