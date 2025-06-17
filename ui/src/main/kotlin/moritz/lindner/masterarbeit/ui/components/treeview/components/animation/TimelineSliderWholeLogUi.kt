@@ -80,7 +80,7 @@ fun TimelineSliderWholeLogUi(
                 viewModel.updateAnimation(
                     AnimationState(
                         time = timestamp,
-                        current = state.toSet(),
+                        currentTimeStates = state.toSet(),
                     ),
                 )
                 yield()
@@ -126,7 +126,7 @@ fun TimelineSliderWholeLogUi(
                         val animationState =
                             AnimationState(
                                 time = timestamp,
-                                current = state.toSet(),
+                                currentTimeStates = state.toSet(),
                             )
                         viewModel.updateAnimation(animationState)
                     },

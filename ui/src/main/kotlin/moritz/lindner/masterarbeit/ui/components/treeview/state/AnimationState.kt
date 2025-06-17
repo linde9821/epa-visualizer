@@ -5,11 +5,11 @@ import moritz.lindner.masterarbeit.epa.visitor.animation.TimedState
 
 data class AnimationState(
     val time: Long,
-    val current: Set<TimedState<Long>>,
+    val currentTimeStates: Set<TimedState<Long>>,
 ) {
-    private val currentStates = current.map { it.state }.toSet()
-    val timedStateByState = current.associateBy { it.state }
+    private val currentStates = currentTimeStates.map { it.state }.toSet()
 
+    // O(1)
     fun contains(state: State): Boolean = currentStates.contains(state)
 
     companion object {
