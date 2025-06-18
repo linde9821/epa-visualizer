@@ -1,11 +1,16 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.components.animation
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -38,44 +44,67 @@ fun AnimationUi(
 ) {
     var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
 
-    if (filteredEpa != null) {
-        when (state) {
-            AnimationSelectionState.NothingSelected -> {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Button(
-                        onClick = {
-                            state = AnimationSelectionState.SingleCase
-                        },
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(1.dp)
+                .border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = RoundedCornerShape(4.dp),
+                ).padding(4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Animation", style = MaterialTheme.typography.h4)
+        }
+
+        if (filteredEpa != null) {
+            when (state) {
+                AnimationSelectionState.NothingSelected -> {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Select Case")
+                        Button(
+                            onClick = {
+                                state = AnimationSelectionState.SingleCase
+                            },
+                        ) {
+                            Text("Select Case")
+                        }
+
+                        Button(
+                            onClick = {
+                                state = AnimationSelectionState.WholeLog
+                            },
+                        ) {
+                            Text("Animate whole event log (${filteredEpa.eventLogName})")
+                        }
                     }
+                }
 
-                    Button(
-                        onClick = {
-                            state = AnimationSelectionState.WholeLog
-                        },
-                    ) {
-                        Text("Animate whole event log (${filteredEpa.eventLogName})")
+                is AnimationSelectionState.SingleCase -> {
+                    SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
+                        state = AnimationSelectionState.NothingSelected
                     }
                 }
-            }
 
-            is AnimationSelectionState.SingleCase -> {
-                SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
-                    state = AnimationSelectionState.NothingSelected
-                }
+                AnimationSelectionState.WholeLog ->
+                    TimelineSliderWholeLogUi(filteredEpa, viewModel, backgroundDispatcher) {
+                        state = AnimationSelectionState.NothingSelected
+                    }
             }
-
-            AnimationSelectionState.WholeLog ->
-                TimelineSliderWholeLogUi(filteredEpa, viewModel, backgroundDispatcher) {
-                    state = AnimationSelectionState.NothingSelected
-                }
+        } else {
+            CircularProgressIndicator()
         }
     }
 }

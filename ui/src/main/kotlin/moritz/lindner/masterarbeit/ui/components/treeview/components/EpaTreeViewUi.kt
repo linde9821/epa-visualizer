@@ -1,31 +1,17 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.ui.components.treeview.components.animation.AnimationUi
@@ -43,7 +29,7 @@ fun EpaTreeViewUi(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    val viewModel by remember {
+    val epaViewModel by remember {
         mutableStateOf(
             EpaViewModel(
                 completeEpa = epa,
@@ -52,101 +38,90 @@ fun EpaTreeViewUi(
         )
     }
 
-    val uiState by viewModel.uiState.collectAsState()
-    val statisticsState by viewModel.statistics.collectAsState()
-    val animationState by viewModel.animationState.collectAsState()
+    val epaUiState by epaViewModel.epaUiState.collectAsState()
+    val statisticsState by epaViewModel.statistics.collectAsState()
+    val animationState by epaViewModel.animationState.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.background)
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    var upperState: EpaViewStateUpper by remember { mutableStateOf(EpaViewStateUpper.None) }
+    var lowerState: EpaViewStateLower by remember { mutableStateOf(EpaViewStateLower.None) }
+
+    Row(
+        modifier = Modifier.fillMaxSize(),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        TabsColumnUi(
+            upperState = upperState,
+            onUpperStateChange = { upperState = it },
+            lowerState = lowerState,
+            onLowerStateChange = { lowerState = it },
+            onClose = onClose,
+        )
+
+        // OTHER
+        Column(
+            modifier = Modifier.fillMaxSize(),
         ) {
-            Button(
-                shape = RoundedCornerShape(24.dp),
-                onClick = { onClose() },
-                modifier = Modifier.height(48.dp),
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(if (lowerState != EpaViewStateUpper.None) 3f else 1f),
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
-            }
-
-            Spacer(Modifier.width(12.dp))
-
-            Surface(
-                elevation = 4.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                LayoutOptionUi {
-                    viewModel.updateLayout(it)
-                }
-            }
-        }
-
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(350.dp),
-                elevation = 4.dp,
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                FilterUi(
-                    epa = epa,
-                    backgroundDispatcher,
-                    onApply = {
-                        viewModel.updateFilter(it)
+                // UPPER
+                when (upperState) {
+                    EpaViewStateUpper.Filter -> {
+                        FilterUi(
+                            epa = epa,
+                            backgroundDispatcher,
+                            onApply = {
+                                epaViewModel.updateFilter(it)
+                            },
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
+                        )
                     }
+                    EpaViewStateUpper.Layout ->
+                        LayoutOptionUi(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
+                        ) {
+                            epaViewModel.updateLayout(it)
+                        }
+                    EpaViewStateUpper.None -> null
+                }
+
+                TidyTreeUi(
+                    epaUiState,
+                    animationState,
+                    backgroundDispatcher,
+                    modifier =
+                        Modifier
+                            .weight(if (upperState != EpaViewStateUpper.None || lowerState != EpaViewStateLower.None) 2f else 1f)
+                            .fillMaxHeight(),
                 )
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f)
-                    .padding(vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = 4.dp,
+            // LOWER
+            if (lowerState != EpaViewStateLower.None) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                 ) {
-                    TidyTreeUi(uiState, animationState, backgroundDispatcher)
+                    when (lowerState) {
+                        EpaViewStateLower.Animation -> {
+                            AnimationUi(epaUiState.filteredEpa, epaViewModel, backgroundDispatcher)
+                        }
+                        EpaViewStateLower.Statistics -> {
+                            StatisticsComparisonUi(statisticsState)
+                        }
+                        EpaViewStateLower.None -> null
+                    }
                 }
-
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp),
-                    elevation = 4.dp,
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    AnimationUi(uiState.filteredEpa, viewModel, backgroundDispatcher)
-                }
-            }
-
-            Surface(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(300.dp),
-                elevation = 4.dp,
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                StatisticsComparisonUi(statisticsState)
             }
         }
     }
