@@ -251,7 +251,7 @@ fun Foo(
                         ) {
                             epaViewModel.updateLayout(it)
                         }
-                    EpaViewStateUpper.None -> {}
+                    EpaViewStateUpper.None -> null
                 }
 
                 TidyTreeUi(
@@ -280,8 +280,7 @@ fun Foo(
                         EpaViewStateLower.Statistics -> {
                             StatisticsComparisonUi(statisticsState)
                         }
-                        EpaViewStateLower.None -> {
-                        }
+                        EpaViewStateLower.None -> null
                     }
                 }
             }
