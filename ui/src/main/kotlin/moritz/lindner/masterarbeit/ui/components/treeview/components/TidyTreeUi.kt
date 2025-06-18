@@ -184,7 +184,17 @@ fun TidyTreeUi(
                         drawDepthCircles(it)
                     }
 
-                    drawEPA(epaUiState.layout, boundingBox, animationState, stateLabels, scale, redFill, redStroke, blackFill, blackStroke)
+                    drawEPA(
+                        epaUiState.layout,
+                        boundingBox,
+                        animationState,
+                        stateLabels,
+                        scale,
+                        redFill,
+                        redStroke,
+                        blackFill,
+                        blackStroke,
+                    )
                 }
             }
         }

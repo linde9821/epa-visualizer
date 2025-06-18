@@ -9,7 +9,7 @@ import java.io.File
 
 class ComplexFilterTest {
     @Test
-    fun `must remove combine filters correcttly`() {
+    fun `must apply combined filter correctly`() {
         val epa =
             ExtendedPrefixAutomataBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample_complex.xes"))
