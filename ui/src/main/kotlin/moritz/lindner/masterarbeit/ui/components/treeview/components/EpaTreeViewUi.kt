@@ -254,7 +254,6 @@ fun Foo(
                     EpaViewStateUpper.None -> {}
                 }
 
-                // MAP
                 TidyTreeUi(
                     epaUiState,
                     animationState,
