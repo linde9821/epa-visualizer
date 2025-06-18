@@ -209,144 +209,13 @@ fun Foo(
     Row(
         modifier = Modifier.fillMaxSize(),
     ) {
-        // TABS
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxHeight()
-                    .padding(1.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color.Gray,
-                        shape = RoundedCornerShape(4.dp),
-                    ).padding(4.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Column {
-                // Close (no selection logic)
-                IconButton(onClick = onClose) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
-                }
-
-                // Filter
-                IconButton(
-                    onClick = {
-                        upperState =
-                            if (upperState != EpaViewStateUpper.Filter) {
-                                EpaViewStateUpper.Filter
-                            } else {
-                                EpaViewStateUpper.None
-                            }
-                    },
-                    modifier =
-                        Modifier
-                            .background(
-                                if (upperState == EpaViewStateUpper.Filter) Color.LightGray else Color.Transparent,
-                                shape = CircleShape,
-                            ),
-                ) {
-                    Icon(
-                        Icons.Default.FilterList,
-                        contentDescription = "Filter",
-                        tint =
-                            if (upperState == EpaViewStateUpper.Filter) {
-                                MaterialTheme.colors.primary
-                            } else {
-                                Color.Unspecified
-                            },
-                    )
-                }
-
-                // Layout (Map icon)
-                IconButton(
-                    onClick = {
-                        upperState =
-                            if (upperState != EpaViewStateUpper.Layout) {
-                                EpaViewStateUpper.Layout
-                            } else {
-                                EpaViewStateUpper.None
-                            }
-                    },
-                    modifier =
-                        Modifier
-                            .background(
-                                if (upperState == EpaViewStateUpper.Layout) Color.LightGray else Color.Transparent,
-                                shape = CircleShape,
-                            ),
-                ) {
-                    Icon(
-                        Icons.Default.Map,
-                        contentDescription = "Map",
-                        tint =
-                            if (upperState == EpaViewStateUpper.Layout) {
-                                MaterialTheme.colors.primary
-                            } else {
-                                Color.Unspecified
-                            },
-                    )
-                }
-            }
-
-            Column {
-                // Animation
-                IconButton(
-                    onClick = {
-                        lowerState =
-                            if (lowerState != EpaViewStateLower.Animation) {
-                                EpaViewStateLower.Animation
-                            } else {
-                                EpaViewStateLower.None
-                            }
-                    },
-                    modifier =
-                        Modifier
-                            .background(
-                                if (lowerState == EpaViewStateLower.Animation) Color.LightGray else Color.Transparent,
-                                shape = CircleShape,
-                            ),
-                ) {
-                    Icon(
-                        Icons.Default.Animation,
-                        contentDescription = "Animation",
-                        tint =
-                            if (lowerState == EpaViewStateLower.Animation) {
-                                MaterialTheme.colors.primary
-                            } else {
-                                Color.Unspecified
-                            },
-                    )
-                }
-
-                // Statistics
-                IconButton(
-                    onClick = {
-                        lowerState =
-                            if (lowerState != EpaViewStateLower.Statistics) {
-                                EpaViewStateLower.Statistics
-                            } else {
-                                EpaViewStateLower.None
-                            }
-                    },
-                    modifier =
-                        Modifier
-                            .background(
-                                if (lowerState == EpaViewStateLower.Statistics) Color.LightGray else Color.Transparent,
-                                shape = CircleShape,
-                            ),
-                ) {
-                    Icon(
-                        Icons.Default.Numbers,
-                        contentDescription = "Statistics",
-                        tint =
-                            if (lowerState == EpaViewStateLower.Statistics) {
-                                MaterialTheme.colors.primary
-                            } else {
-                                Color.Unspecified
-                            },
-                    )
-                }
-            }
-        }
+        TabsColumnUi(
+            upperState = upperState,
+            onUpperStateChange = { upperState = it },
+            lowerState = lowerState,
+            onLowerStateChange = { lowerState = it },
+            onClose = onClose,
+        )
 
         // OTHER
         Column(
@@ -416,6 +285,137 @@ fun Foo(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TabsColumnUi(
+    upperState: EpaViewStateUpper,
+    onUpperStateChange: (EpaViewStateUpper) -> Unit,
+    lowerState: EpaViewStateLower,
+    onLowerStateChange: (EpaViewStateLower) -> Unit,
+    onClose: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxHeight()
+                .padding(1.dp)
+                .border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = RoundedCornerShape(4.dp),
+                ).padding(4.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Column {
+            // Close
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+
+            // Filter
+            IconButton(
+                onClick = {
+                    onUpperStateChange(
+                        if (upperState != EpaViewStateUpper.Filter) EpaViewStateUpper.Filter else EpaViewStateUpper.None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (upperState == EpaViewStateUpper.Filter) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    Icons.Default.FilterList,
+                    contentDescription = "Filter",
+                    tint =
+                        if (upperState == EpaViewStateUpper.Filter) {
+                            MaterialTheme.colors.primary
+                        } else {
+                            Color.Unspecified
+                        },
+                )
+            }
+
+            // Layout
+            IconButton(
+                onClick = {
+                    onUpperStateChange(
+                        if (upperState != EpaViewStateUpper.Layout) EpaViewStateUpper.Layout else EpaViewStateUpper.None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (upperState == EpaViewStateUpper.Layout) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    Icons.Default.Map,
+                    contentDescription = "Map",
+                    tint =
+                        if (upperState == EpaViewStateUpper.Layout) {
+                            MaterialTheme.colors.primary
+                        } else {
+                            Color.Unspecified
+                        },
+                )
+            }
+        }
+
+        Column {
+            // Animation
+            IconButton(
+                onClick = {
+                    onLowerStateChange(
+                        if (lowerState != EpaViewStateLower.Animation) EpaViewStateLower.Animation else EpaViewStateLower.None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (lowerState == EpaViewStateLower.Animation) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    Icons.Default.Animation,
+                    contentDescription = "Animation",
+                    tint =
+                        if (lowerState == EpaViewStateLower.Animation) {
+                            MaterialTheme.colors.primary
+                        } else {
+                            Color.Unspecified
+                        },
+                )
+            }
+
+            // Statistics
+            IconButton(
+                onClick = {
+                    onLowerStateChange(
+                        if (lowerState != EpaViewStateLower.Statistics) EpaViewStateLower.Statistics else EpaViewStateLower.None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (lowerState == EpaViewStateLower.Statistics) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    Icons.Default.Numbers,
+                    contentDescription = "Statistics",
+                    tint =
+                        if (lowerState == EpaViewStateLower.Statistics) {
+                            MaterialTheme.colors.primary
+                        } else {
+                            Color.Unspecified
+                        },
+                )
             }
         }
     }
