@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.ui.components.treeview.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.CircularProgressIndicator
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -148,12 +150,17 @@ fun TidyTreeUi(
                 }
             }.clipToBounds()
 
-    if (epaUiState.isLoading) {
-        CircularProgressIndicator(
-            modifier = modifier.size(200.dp),
-            strokeWidth = 6.dp,
-            color = MaterialTheme.colors.primary,
-        )
+    if (epaUiState.isLoading || epaUiState.layout == null || !labelsGenerated) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(200.dp),
+                strokeWidth = 6.dp,
+                color = MaterialTheme.colors.primary,
+            )
+        }
     } else {
         Canvas(modifier = canvasModifier) {
             withTransform({
