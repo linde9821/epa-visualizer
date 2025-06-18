@@ -70,7 +70,8 @@ fun StateFrequencyFilterUi(
             )
             LazyColumn {
                 items(epa.states.toList()) { state ->
-                    Text("${state.name}: ${frequencyStateVisitor.frequencyByState(state)}")
+                    val frequency = frequencyStateVisitor.frequencyByState(state)
+                    Text("State ${state.name}: ${"%.4f".format(frequency)}%")
                 }
             }
         } else {
