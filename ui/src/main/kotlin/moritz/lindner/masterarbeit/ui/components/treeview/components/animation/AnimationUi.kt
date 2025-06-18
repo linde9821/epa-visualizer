@@ -220,7 +220,7 @@ fun TimelineSliderSingleCaseUi(
             },
             modifier = Modifier.fillMaxWidth(),
             valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
-            steps = animation!!.totalAmountOfEvents,
+            steps = animation!!.totalAmountOfEvents - 1,
         )
     }
 }
