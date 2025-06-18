@@ -25,7 +25,7 @@ class StateFrequencyFilter<T : Comparable<T>>(
      */
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
         val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
-        epa.acceptDepthFirst(normalizedStateFrequencyVisitor)
+        epa.copy().acceptDepthFirst(normalizedStateFrequencyVisitor)
 
         val statesWithAllowedActivities =
             epa.states

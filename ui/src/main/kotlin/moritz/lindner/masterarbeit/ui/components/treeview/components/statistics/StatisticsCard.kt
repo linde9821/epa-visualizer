@@ -1,12 +1,11 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.components.statistics
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -23,72 +22,78 @@ import moritz.lindner.masterarbeit.epa.visitor.statistics.Statistics
 fun StatisticsElement(
     title: String,
     statistics: Statistics<Long>?,
+    modifier: Modifier = Modifier,
 ) {
-    Column(
+    Box(
         modifier =
-            Modifier
-                .padding(6.dp)
-                .height(300.dp) // fixed height, so it can scroll vertically if needed
+            modifier
+                .fillMaxHeight() // make sure the Box takes full height for scrolling to work
                 .verticalScroll(rememberScrollState())
-                .width(IntrinsicSize.Min),
-        // take minimum width required by content
+                .padding(6.dp),
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.subtitle2,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.subtitle2,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
 
-        if (statistics != null) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
+            if (statistics != null) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    StatisticItem("Partitions", statistics.partitionsCount)
-                    StatisticItem("States", statistics.stateCount)
-                    StatisticItem("Events", statistics.eventCount)
-                    StatisticItem("Cases", statistics.caseCount)
-                    StatisticItem("Activities", statistics.activityCount)
-                }
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        StatisticItem("Partitions", statistics.partitionsCount)
+                        StatisticItem("States", statistics.stateCount)
+                        StatisticItem("Events", statistics.eventCount)
+                        StatisticItem("Cases", statistics.caseCount)
+                        StatisticItem("Activities", statistics.activityCount)
+                    }
 
-                VerticalDivider()
+                    VerticalDivider()
 
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        "Top 4 Activities",
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            "Top 4 Activities",
+                            style = MaterialTheme.typography.body2,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        )
 
-                    statistics.activityFrequency
-                        .toList()
-                        .sortedByDescending { it.second }
-                        .take(4)
-                        .forEach { (activity, frequency) ->
-                            StatisticItem(activity.toString(), frequency)
-                        }
-                }
+                        statistics.activityFrequency
+                            .toList()
+                            .sortedByDescending { it.second }
+                            .take(4)
+                            .forEach { (activity, frequency) ->
+                                StatisticItem(activity.toString(), frequency)
+                            }
+                    }
 
-                VerticalDivider()
+                    VerticalDivider()
 
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        "Time",
-                        style = MaterialTheme.typography.body2,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    StatisticItem("First Event", statistics.interval.first)
-                    StatisticItem("Last Event", statistics.interval.second)
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            "Time",
+                            style = MaterialTheme.typography.body2,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        )
+                        StatisticItem("First Event", statistics.interval.first)
+                        StatisticItem("Last Event", statistics.interval.second)
+                    }
                 }
             }
         }

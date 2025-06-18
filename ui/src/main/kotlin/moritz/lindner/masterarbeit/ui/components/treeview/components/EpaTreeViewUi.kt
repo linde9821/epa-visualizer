@@ -48,7 +48,7 @@ fun EpaTreeViewUi(
     Row(
         modifier = Modifier.fillMaxSize(),
     ) {
-        TabsColumnUi(
+        TabsUi(
             upperState = upperState,
             onUpperStateChange = { upperState = it },
             lowerState = lowerState,
@@ -81,6 +81,7 @@ fun EpaTreeViewUi(
                                     .fillMaxHeight(),
                         )
                     }
+
                     EpaViewStateUpper.Layout ->
                         LayoutOptionUi(
                             modifier =
@@ -90,6 +91,7 @@ fun EpaTreeViewUi(
                         ) {
                             epaViewModel.updateLayout(it)
                         }
+
                     EpaViewStateUpper.None -> null
                 }
 
@@ -116,9 +118,11 @@ fun EpaTreeViewUi(
                         EpaViewStateLower.Animation -> {
                             AnimationUi(epaUiState.filteredEpa, epaViewModel, backgroundDispatcher)
                         }
+
                         EpaViewStateLower.Statistics -> {
                             StatisticsComparisonUi(statisticsState)
                         }
+
                         EpaViewStateLower.None -> null
                     }
                 }

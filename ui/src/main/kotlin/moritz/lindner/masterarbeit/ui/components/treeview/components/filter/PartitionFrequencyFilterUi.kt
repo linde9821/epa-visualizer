@@ -66,9 +66,10 @@ fun PartitionFrequencyFilterUi(
                 },
                 valueRange = 0f..1f,
             )
+
             LazyColumn {
-                items(epa.getAllPartitions().sorted()) {
-                    Text("$it: ${frequencyPartitionVisitor.frequencyByPartition(it)}")
+                items(epa.getAllPartitions().sorted()) { partition ->
+                    Text("Partition $partition: ${"%.4f".format(frequencyPartitionVisitor.frequencyByPartition(partition))}%")
                 }
             }
         } else {

@@ -14,7 +14,7 @@ rtree2 = "0.9.3"
 csv-jvm = "1.10.0"
 selfie = "2.5.2"
 kotlin = "2.1.21"
-compose-version = "1.8.1"
+compose-version = "1.8.2"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }

@@ -3,9 +3,11 @@ package moritz.lindner.masterarbeit.ui.components.treeview.components.animation
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -75,6 +77,9 @@ fun AnimationUi(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Button(
+                            shape = RoundedCornerShape(24.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            modifier = Modifier.height(48.dp),
                             onClick = {
                                 state = AnimationSelectionState.SingleCase
                             },
@@ -83,6 +88,9 @@ fun AnimationUi(
                         }
 
                         Button(
+                            shape = RoundedCornerShape(24.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            modifier = Modifier.height(48.dp),
                             onClick = {
                                 state = AnimationSelectionState.WholeLog
                             },
@@ -220,7 +228,7 @@ fun TimelineSliderSingleCaseUi(
             },
             modifier = Modifier.fillMaxWidth(),
             valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
-            steps = animation!!.totalAmountOfEvents,
+            steps = animation!!.totalAmountOfEvents - 1,
         )
     }
 }

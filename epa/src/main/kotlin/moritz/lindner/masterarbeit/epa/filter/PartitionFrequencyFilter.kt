@@ -27,7 +27,7 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
     override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
         val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
 
-        epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
+        epa.copy().acceptDepthFirst(normalizedPartitionFrequencyVisitor)
 
         val partitions =
             epa
@@ -53,7 +53,7 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
                         if (state is State.PrefixState) {
                             activity == state.via
                         } else {
-                            true
+                            false
                         }
                     }
                 }.toSet()

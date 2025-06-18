@@ -55,12 +55,20 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
             Row(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize() // take full screen or parent size
                         .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                StatisticsElement("Complete EPA", statisticsState.fullEpa)
-                StatisticsElement("Filtered EPA", statisticsState.filteredEpa)
+                StatisticsElement(
+                    title = "Complete EPA",
+                    statistics = statisticsState.fullEpa,
+                    modifier = Modifier.weight(1f),
+                )
+                StatisticsElement(
+                    title = "Filtered EPA",
+                    statistics = statisticsState.filteredEpa,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
