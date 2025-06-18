@@ -48,7 +48,7 @@ fun EpaTreeViewUi(
     Row(
         modifier = Modifier.fillMaxSize(),
     ) {
-        TabsColumnUi(
+        TabsUi(
             upperState = upperState,
             onUpperStateChange = { upperState = it },
             lowerState = lowerState,
