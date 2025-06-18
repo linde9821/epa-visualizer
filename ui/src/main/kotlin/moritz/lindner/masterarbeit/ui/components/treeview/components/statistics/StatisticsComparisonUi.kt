@@ -51,19 +51,16 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
             }
         }
 
-        // Stats content
         if (statisticsState != null) {
             Row(
                 modifier =
                     Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 StatisticsElement("Complete EPA", statisticsState.fullEpa)
-
-                if (statisticsState.filteredEpa != null) {
-                    StatisticsElement("Filtered EPA", statisticsState.filteredEpa)
-                }
+                StatisticsElement("Filtered EPA", statisticsState.filteredEpa)
             }
         }
     }
