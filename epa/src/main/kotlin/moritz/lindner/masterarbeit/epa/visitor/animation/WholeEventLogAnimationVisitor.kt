@@ -14,7 +14,7 @@ import java.util.TreeMap
  * For each case, it builds a sequence of [TimedState]s, where each state is active from
  * its associated event timestamp until the next one (or just at its timestamp if it's the last).
  *
- * @param T The timestamp type (must be comparable, e.g., [Long], [Int], [LocalDateTime]).
+ * @param T The timestamp type (must be comparable, e.g., [Long], [Int], [java.time.LocalDateTime]).
  * @property name A label identifying the source or name of the animation (e.g., log file name).
  */
 class WholeEventLogAnimationVisitor<T : Comparable<T>>(
@@ -53,19 +53,25 @@ class WholeEventLogAnimationVisitor<T : Comparable<T>>(
             val entries = timestampStateMap.entries.toList()
 
             entries.forEachIndexed { index, (from, state) ->
+                // TODO: maybe add minimum her ()
                 val to = entries.getOrNull(index + 1)?.key ?: increment(from, epsilon)
                 val nextState = entries.getOrNull(index + 1)?.value
 
-                timedStates +=
+                timedStates.add(
                     TimedState(
                         state = state,
                         from = from,
                         to = to,
                         nextState = nextState,
-                    )
+                    ),
+                )
             }
         }
 
-        return EventLogAnimation(name, timedStates.sortedBy { it.from }, timedStates.size)
+        return EventLogAnimation(
+            identifier = name,
+            timedStates = timedStates.sortedBy { timedState -> timedState.from },
+            totalAmountOfEvents = timedStates.size,
+        )
     }
 }
