@@ -21,6 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.StopCircle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,10 +59,18 @@ fun ConstructEpaUi(
             } catch (e: NullPointerException) {
                 onError("Check Mapper", e)
             } catch (_: CancellationException) {
+                // Job was cancelled, no need to handle
             } catch (e: Exception) {
                 onError(e.toString(), e)
             }
         }
+
+    // Ensure job is cancelled when the composable leaves composition
+    DisposableEffect(Unit) {
+        onDispose {
+            epaConstructionJob?.cancel()
+        }
+    }
 
     Box(
         modifier =
