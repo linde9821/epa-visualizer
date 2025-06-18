@@ -150,7 +150,7 @@ fun TidyTreeUi(
 
     if (epaUiState.isLoading) {
         CircularProgressIndicator(
-            modifier = Modifier.size(100.dp),
+            modifier = Modifier.fillMaxSize().size(200.dp),
             strokeWidth = 6.dp,
             color = MaterialTheme.colors.primary,
         )

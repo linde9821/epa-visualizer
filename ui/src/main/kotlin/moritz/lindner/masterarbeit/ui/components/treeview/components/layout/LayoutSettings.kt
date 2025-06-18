@@ -1,10 +1,10 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.components.layout
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import moritz.lindner.masterarbeit.ui.components.RadioButtonSingleSelectionColumn
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 
@@ -17,30 +17,26 @@ fun LayoutSettings(
     layouts: List<LayoutSelection>,
     onLayoutSelectionChange: (LayoutSelection) -> Unit,
 ) {
-    Row {
+    Column {
         Text("radius (width): ${"%.1f".format(radius)}")
-    }
-    Row {
+
         Slider(
             value = radius,
             onValueChange = { onRadiusChange(it) },
             valueRange = 10.0f..1000.0f,
         )
-    }
 
-    Row {
         Text("margin (width): ${"%.1f".format(margin)}")
-    }
-    Row {
+
         Slider(
             value = margin,
             onValueChange = { onMarginChange(it) },
             valueRange = 0.0f..360.0f,
-            modifier = Modifier.Companion.weight(1f),
         )
-    }
 
-    RadioButtonSingleSelectionColumn(layouts.map { option -> Pair(option, option.name) }) { layout, _ ->
-        onLayoutSelectionChange(layout)
+        Text("Layout Algorithm", style = MaterialTheme.typography.subtitle1)
+        RadioButtonSingleSelectionColumn(layouts.map { option -> Pair(option, option.name) }) { layout, _ ->
+            onLayoutSelectionChange(layout)
+        }
     }
 }
