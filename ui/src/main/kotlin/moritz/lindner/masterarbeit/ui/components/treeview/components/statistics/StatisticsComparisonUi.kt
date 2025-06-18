@@ -1,37 +1,69 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.components.statistics
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.treeview.state.StatisticsState
 
 @Composable
 fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
-    if (statisticsState == null) {
-        CircularProgressIndicator(
-            modifier = Modifier.Companion.size(50.dp),
-            strokeWidth = 6.dp,
-            color = MaterialTheme.colors.primary,
-        )
-    } else {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(1.dp)
+                .border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = RoundedCornerShape(8.dp),
+                ).padding(16.dp),
+    ) {
         Row(
             modifier =
-                Modifier.Companion
+                Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(8.dp),
+                    .padding(4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            StatisticsCard("Complete EPA", statisticsState.fullEpa)
+            Text("Statistics", style = MaterialTheme.typography.h4)
 
-            if (statisticsState.filteredEpa != null) {
-                StatisticsCard("Filtered EPA", statisticsState.filteredEpa)
+            if (statisticsState == null) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 4.dp,
+                    color = MaterialTheme.colors.primary,
+                )
+            }
+        }
+
+        // Stats content
+        if (statisticsState != null) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                StatisticsElement("Complete EPA", statisticsState.fullEpa)
+
+                if (statisticsState.filteredEpa != null) {
+                    StatisticsElement("Filtered EPA", statisticsState.filteredEpa)
+                }
             }
         }
     }
