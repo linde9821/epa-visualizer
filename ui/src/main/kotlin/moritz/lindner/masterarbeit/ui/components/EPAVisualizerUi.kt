@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.ApplicationState
 import moritz.lindner.masterarbeit.ui.components.treeview.components.EpaTreeViewUi
+import moritz.lindner.masterarbeit.ui.logger
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
@@ -72,6 +73,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                         }) { error, e ->
                             showErrorDialog = true
                             errorMessage = error
+                            logger.error(e, { error })
                         }
 
                         if (showErrorDialog) {
