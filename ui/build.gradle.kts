@@ -25,6 +25,12 @@ dependencies {
     implementation(project(":epa"))
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
