@@ -46,6 +46,85 @@ event logs in `.xes` and `.xes.gz` formats.
 
 ---
 
+## 📝 Planned Features and Known Issues
+
+### Planned Features / Ideas
+
+#### Layouts
+
+- **New Layout:** *Weighted Direct Angular Placement*  
+  → Take the number of nodes in a node's subtree into account when calculating the arc assigned to each subtree
+
+- **New Layout:** *Time-Radius-Semantic*  
+  → Make the depth (radius) of a nodes placement dependent on a time component — e.g., maybe also in animation based on
+  cycle time in a time window
+
+- **New Layout:** *Probability Semantic*  
+  → Add a value representing the probability of each partition and visualize it
+
+#### Filters
+
+- **New Filter:** *Chain Pruning*  
+  → Many long "chains" exist in the EPA (subgraphs with only one incoming edge and one outgoing edge).  
+  These chains could be collapsed into a single new state for more compact visualization.
+
+- **New Filter:** *Depth Interval*  
+  → Filter the visualization to only show nodes within a given radius (depth) interval.
+
+- **New Filter:** *Normalized Entropy Partition Filter*  
+  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — Extended Prefix Automata).
+
+- **New Filter:** *Normalized Entropy Variant Filter*  
+  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — Extended Prefix Automata).
+
+#### Visualization
+
+- **State Properties**  
+  → States could have visual properties (color, size, etc.) mapped to various attributes — also changing dynamically during animation.
+  (Differentiate edge thickness or color based on event count, the ideas are endless)
+
+- **Case Properties**  
+  → Each case in the animation could display various properties, with the ability to track a selected case during the animation.
+
+- **Event Properties**  
+  → Each event in the animation could display various properties (visualized per event instance).
+
+#### UI
+
+- Improve observability during loading  
+  → Currently the UI shows an indeterminate progress bar. This could be changed to display actual progress  
+  (both the construction and visitor processes can be extended/utilized to track "x out of total elements processed").
+
+- More "desktop look & feel"  
+  → Switching to [JetBrains Jewel](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel) components could provide a more native desktop style.
+
+#### Others
+
+- The tree layout algorithm is fairly general and could be provided as a standalone library for others to use.
+
+- The `epa` module could be packaged and provided as a separate library — reusable in other projects.
+
+### Known Bugs
+
+- Component state (Filter, Animation, etc.) is lost on recomposition  
+  → _TODO: fix_
+
+- Slider in Animation UI for full log animation cannot be moved while animation is running  
+  → _TODO: fix_
+
+- View Model usage state bugs (e.g., stopping the animation results in no events being drawn for full log animation)  
+  → _TODO: fix_
+
+### Potential Improvements
+
+- Pre-render the tree layout to a texture and render the texture instead of the entire tree on every frame  
+  _(similar to how labels are currently rendered in the tree); rerender only when necessary (e.g., after filtering)_
+
+- Core data structures in EPA construction are optimized, but some data structures and algorithms in animation/statistics 
+  and others are not optimal — can be improved for better performance
+
+---
+
 ## 🗂️ Project Structure
 
 The project consists of two modules:
