@@ -13,13 +13,13 @@ execution trace) observed in the event log.
 EPAs provide a complete, non-abstracted representation of all observed process behavior — preserving full trace 
 information while capturing shared prefixes in a compact graphical form.  
 This enables interactive and animated visualization of process behavior and variation, with a primary focus on exploring 
-*variants* within the process.
+variants within the process.
 
 The tool helps users understand process complexity and behavior through:
 - variant-based views of the process
 - structural insights into common prefixes and branching points
 - flexible filtering options to explore and manage large or deep EPAs 
-- statistics and animations of events flowing through a EPA
+- statistics and animations of events flowing through an EPA
 
 Key capabilities include advanced filtering, playback of process cases, and statistical summaries. The tool supports 
 event logs in `.xes` and `.xes.gz` formats.
