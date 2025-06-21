@@ -48,9 +48,8 @@ event logs in `.xes` and `.xes.gz` formats.
 
 ## 📝 Planned Features and Known Issues
 
-### Planned Features / Ideas
 
-#### Layouts
+### Layouts
 
 - **New Layout:** *Weighted Direct Angular Placement*  
   → Take the number of nodes in a node's subtree into account when calculating the arc assigned to each subtree
@@ -62,7 +61,7 @@ event logs in `.xes` and `.xes.gz` formats.
 - **New Layout:** *Probability Semantic*  
   → Add a value representing the probability of each partition and visualize it
 
-#### Filters
+### Filters
 
 - **New Filter:** *Chain Pruning*  
   → Many long "chains" exist in the EPA (subgraphs with only one incoming edge and one outgoing edge).  
@@ -77,7 +76,7 @@ event logs in `.xes` and `.xes.gz` formats.
 - **New Filter:** *Normalized Entropy Variant Filter*  
   → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — Extended Prefix Automata).
 
-#### Visualization
+### Visualization
 
 - **State Properties**  
   → States could have visual properties (color, size, etc.) mapped to various attributes — also changing dynamically during animation.
@@ -89,7 +88,7 @@ event logs in `.xes` and `.xes.gz` formats.
 - **Event Properties**  
   → Each event in the animation could display various properties (visualized per event instance).
 
-#### UI
+### UI
 
 - Improve observability during loading  
   → Currently the UI shows an indeterminate progress bar. This could be changed to display actual progress  
@@ -98,11 +97,19 @@ event logs in `.xes` and `.xes.gz` formats.
 - More "desktop look & feel"  
   → Switching to [JetBrains Jewel](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel) components could provide a more native desktop style.
 
-#### Others
+### Others
 
 - The tree layout algorithm is fairly general and could be provided as a standalone library for others to use.
 
 - The `epa` module could be packaged and provided as a separate library — reusable in other projects.
+
+### Potential Improvements
+
+- Pre-render the tree layout to a texture and render the texture instead of the entire tree on every frame  
+  _(similar to how labels are currently rendered in the tree); rerender only when necessary (e.g., after filtering)_
+
+- Core data structures in EPA construction are optimized, but some data structures and algorithms in animation/statistics
+  and others are not optimal — can be improved for better performance
 
 ### Known Bugs
 
@@ -114,14 +121,6 @@ event logs in `.xes` and `.xes.gz` formats.
 
 - View Model usage state bugs (e.g., stopping the animation results in no events being drawn for full log animation)  
   → _TODO: fix_
-
-### Potential Improvements
-
-- Pre-render the tree layout to a texture and render the texture instead of the entire tree on every frame  
-  _(similar to how labels are currently rendered in the tree); rerender only when necessary (e.g., after filtering)_
-
-- Core data structures in EPA construction are optimized, but some data structures and algorithms in animation/statistics 
-  and others are not optimal — can be improved for better performance
 
 ---
 
