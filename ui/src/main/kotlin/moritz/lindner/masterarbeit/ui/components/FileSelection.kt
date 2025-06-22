@@ -77,7 +77,7 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         }
 
         if (showDialog) {
-            FileDialog { path ->
+            OpenFileDialog { path ->
                 showDialog = false
                 if (path != null) {
                     val file = File(path)
@@ -89,7 +89,7 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
 }
 
 @Composable
-private fun FileDialog(
+private fun OpenFileDialog(
     parent: Frame? = null,
     onCloseRequest: (result: String?) -> Unit,
 ) = AwtWindow(

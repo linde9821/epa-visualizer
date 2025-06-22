@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
@@ -8,6 +9,7 @@ import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
+import moritz.lindner.masterarbeit.ui.screenshot.Screenshot.takeWindowScreenshotAndSaveIt
 import org.jetbrains.skiko.SkikoProperties
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
@@ -37,6 +39,13 @@ fun main() {
             icon = painterResource("logo.png"),
         ) {
             EPAVisualizerUi(backgroundDispatcher)
+            LaunchedEffect(Unit) {
+                window.rootPane.registerKeyboardAction(
+                    { takeWindowScreenshotAndSaveIt(window) },
+                    javax.swing.KeyStroke.getKeyStroke("F12"),
+                    javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW,
+                )
+            }
         }
     }
     executor.shutdownNow()
