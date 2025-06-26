@@ -13,7 +13,7 @@ progressbar = "0.10.1"
 rtree2 = "0.9.3"
 csv-jvm = "1.10.0"
 selfie = "2.5.2"
-kotlin = "2.1.21"
+kotlin = "2.2.0"
 compose-version = "1.8.2"
 
 [libraries]
