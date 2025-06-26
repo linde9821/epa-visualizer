@@ -55,7 +55,7 @@ fun ConstructEpaUi(
             try {
                 val epa = builder.build()
                 yield()
-                onEPAConstructed.invoke(epa)
+                onEPAConstructed(epa)
             } catch (e: NullPointerException) {
                 onError("Check Mapper", e)
             } catch (_: CancellationException) {
