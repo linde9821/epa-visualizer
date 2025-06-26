@@ -3,16 +3,16 @@
 
 [versions]
 guava = "33.4.8-jre"
-junit-jupiter = "5.12.2"
+junit-jupiter = "5.13.1"
 assertj = "4.0.0-M1"
 kotlin-logging-jvm = "7.0.7"
-log4j = "2.24.3"
+log4j = "2.25.0"
 openxes = "2.16"
 jaxb-api = "2.4.0-b180830.0359"
 progressbar = "0.10.1"
 rtree2 = "0.9.3"
 csv-jvm = "1.10.0"
-selfie = "2.5.2"
+selfie = "2.5.3"
 kotlin = "2.2.0"
 compose-version = "1.8.2"
 
