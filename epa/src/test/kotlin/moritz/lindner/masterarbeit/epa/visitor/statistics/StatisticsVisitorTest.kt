@@ -1,0 +1,27 @@
+package moritz.lindner.masterarbeit.epa.visitor.statistics
+
+import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import java.io.File
+
+class StatisticsVisitorTest {
+    @Test
+    fun `must calculate right amount of paritions`() {
+        val epa =
+            ExtendedPrefixAutomataBuilder<Long>()
+                .setFile(File("./src/test/resources/sample.xes"))
+                .setEventLogMapper(SampleEventMapper())
+                .build()
+
+        val sut = StatisticsVisitor<Long>()
+
+        epa.acceptDepthFirst(sut)
+
+        val statistics = sut.build()
+
+        assertThat(statistics.partitionsCount).isEqualTo(4)
+    }
+}

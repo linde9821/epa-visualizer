@@ -20,7 +20,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
     private val visitedTransitions = mutableSetOf<Transition>()
     private var eventCount = 0
-    private var partitions = 0
+    private var partitionsCount = 0
     private val cases = mutableSetOf<String>()
     private val activityFrequency = mutableMapOf<Activity, Int>()
     private val prefixLengths = mutableListOf<Int>()
@@ -28,7 +28,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     private var last: T? = null
 
     override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
-        partitions = extendedPrefixAutomata.getAllPartitions().size
+        partitionsCount = extendedPrefixAutomata.getAllPartitions().size - 1
     }
 
     override fun visit(
@@ -96,7 +96,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
             caseCount = cases.size,
             activityCount = activityFrequency.values.size,
             stateCount = totalStates,
-            partitionsCount = partitions,
+            partitionsCount = partitionsCount,
             activityFrequency = activityFrequency,
             interval = first!! to last!!,
         )
@@ -119,7 +119,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
             appendLine("  Events:       $totalEvents")
             appendLine("  Cases:        ${cases.size}")
             appendLine("  Activities:   ${activityFrequency.values.size}")
-            appendLine("  Partitions:   $partitions")
+            appendLine("  Partitions:   $partitionsCount")
             appendLine("  States:       $totalStates")
             appendLine("  Transitions:  $totalTransitions")
             appendLine("  Prefix length: min=$minPrefix, max=$maxPrefix, avg=%.2f".format(avgPrefix))
