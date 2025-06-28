@@ -6,9 +6,7 @@ import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
 import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.domain.Activity
-import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
-import moritz.lindner.masterarbeit.epa.visitor.dot.DotExportVisitor
+import moritz.lindner.masterarbeit.epa.visitor.statistics.PartitionsAtDepthVisitor
 import java.io.File
 
 fun main() {
@@ -23,7 +21,7 @@ fun main() {
         File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = sample
+    val (file, mapper) = challenge2018
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -32,23 +30,28 @@ fun main() {
             .setFile(file)
             .setEventLogMapper(mapper)
             .build()
+//
+//    val filteredEpa =
+//        ActivityFilter<Long>(
+//            hashSetOf(
+//                Activity("a"),
+//                Activity("b"),
+//                Activity("c"),
+//            ),
+//        ).apply(epa)
+//
+//    val dot1 = DotExportVisitor<Long>()
+//    val dot2 = DotExportVisitor<Long>()
+//    epa.copy().acceptDepthFirst(dot1)
+//    filteredEpa.acceptDepthFirst(dot2)
 
-    val filteredEpa =
-        ActivityFilter<Long>(
-            hashSetOf(
-                Activity("a"),
-                Activity("b"),
-                Activity("c"),
-            ),
-        ).apply(epa)
+//    File("./test1.dot").writeText(dot1.dot)
+//    File("./test2.dot").writeText(dot2.dot)
 
-    val dot1 = DotExportVisitor<Long>()
-    val dot2 = DotExportVisitor<Long>()
-    epa.acceptDepthFirst(dot1)
-    filteredEpa.acceptDepthFirst(dot2)
+    val foo = PartitionsAtDepthVisitor<Long>()
+    epa.copy().acceptDepthFirst(foo)
 
-    File("./test1.dot").writeText(dot1.dot)
-    File("./test2.dot").writeText(dot2.dot)
+    foo.report("./results.csv")
 
     logger.info { "build EPA successfully" }
 }
