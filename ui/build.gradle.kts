@@ -37,9 +37,12 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-XX:+UseG1GC",
-                "-XX:+TieredCompilation",
+                "-Xms2g",
+                "-Xmx10g",
+                "-XX:+UseZGC",
                 "-XX:+UseStringDeduplication",
+                "-XX:MaxGCPauseMillis=100",
+                "-XX:+AlwaysPreTouch",
             )
 
         buildTypes.release.proguard {
