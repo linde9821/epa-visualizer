@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.drawing.layout.implementations
 
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
-import com.github.davidmoten.rtree2.geometry.Point
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import com.github.davidmoten.rtree2.internal.EntryDefault
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -38,7 +37,7 @@ class RadialWalkerTreeLayout(
     RadialTreeLayout {
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
-    private lateinit var finalRTree: RTree<NodePlacementInformation, Point>
+    private lateinit var finalRTree: RTree<NodePlacementInformation, PointFloat>
 
     private val logger = KotlinLogging.logger {}
     private val usableAngle =
@@ -70,18 +69,22 @@ class RadialWalkerTreeLayout(
         logger.info { "assign angles" }
         convertToAngles()
 
+        val entries =
+            nodePlacementInformationByState.map { (_, info) ->
+                EntryDefault(
+                    info,
+                    PointFloat.create(
+                        info.coordinate.x,
+                        info.coordinate.y * -1,
+                    ),
+                )
+            }
         finalRTree =
-            RTree.create(
-                nodePlacementInformationByState.map { (_, info) ->
-                    EntryDefault(
-                        info,
-                        PointFloat.create(
-                            info.coordinate.x,
-                            info.coordinate.y * -1,
-                        ),
-                    )
-                },
-            )
+            if (entries.size < 10_000) {
+                RTree.create(entries)
+            } else {
+                RTree.star().create(entries)
+            }
 
         isBuilt = true
     }
