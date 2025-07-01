@@ -42,6 +42,10 @@ compose.desktop {
                 "-XX:+UseStringDeduplication",
             )
 
+        buildTypes.release.proguard {
+            isEnabled = false
+        }
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
