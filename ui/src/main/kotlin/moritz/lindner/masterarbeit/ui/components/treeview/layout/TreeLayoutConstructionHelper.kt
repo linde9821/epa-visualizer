@@ -15,8 +15,8 @@ object TreeLayoutConstructionHelper {
         when (config.layout.name) {
             "Walker Radial Tree" -> {
                 RadialWalkerTreeLayout(
-                    layerSpace = config.radius,
                     expectedCapacity = epa.states.size,
+                    layerSpace = config.radius,
                     margin = config.margin.degreesToRadians(),
                 )
             }

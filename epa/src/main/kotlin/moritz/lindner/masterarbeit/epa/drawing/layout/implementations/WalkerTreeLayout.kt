@@ -28,7 +28,7 @@ import kotlin.math.min
 open class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,
-    expectedCapacity: Int = 1000,
+    expectedCapacity: Int = 10000,
 ) : TreeLayout {
     private val logger = KotlinLogging.logger {}
 
@@ -38,11 +38,10 @@ open class WalkerTreeLayout(
     private val prelim = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val shifts = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val changes = HashMap<EPATreeNode, Float>(expectedCapacity)
-    protected val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
+    private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
+    private var maxDepth = Int.MIN_VALUE
 
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
-
-    private var maxDepth = Int.MIN_VALUE
 
     private var isBuilt = false
 
@@ -286,7 +285,6 @@ open class WalkerTreeLayout(
 
     override fun build(tree: EPATreeNode) {
         logger.info { "Building tree layout" }
-        logger.info { "initializing" }
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
@@ -309,7 +307,6 @@ open class WalkerTreeLayout(
         secondWalk(r, -prelim[r]!!)
 
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
-
         isBuilt = true
         logger.info { "finished layout construction" }
     }

@@ -26,7 +26,7 @@ import kotlin.math.sin
  */
 class DirectAngularPlacementTreeLayout(
     private val layerSpace: Float,
-    expectedCapacity: Int = 1000,
+    expectedCapacity: Int = 10000,
 ) : RadialTreeLayout {
     private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
