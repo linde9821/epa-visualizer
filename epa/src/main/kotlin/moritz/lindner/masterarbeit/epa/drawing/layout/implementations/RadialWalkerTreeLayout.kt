@@ -3,11 +3,10 @@ package moritz.lindner.masterarbeit.epa.drawing.layout.implementations
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
-import com.github.davidmoten.rtree2.internal.EntryDefault
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.PI
@@ -37,7 +36,7 @@ class RadialWalkerTreeLayout(
     RadialTreeLayout {
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
-    private lateinit var finalRTree: RTree<NodePlacementInformation, PointFloat>
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     private val logger = KotlinLogging.logger {}
     private val usableAngle =
@@ -46,7 +45,7 @@ class RadialWalkerTreeLayout(
     private var isBuilt: Boolean = false
 
     private fun convertToAngles() {
-        nodePlacementInformationByState.replaceAll { _, nodePlacementInformation ->
+        nodePlacementByState.replaceAll { _, nodePlacementInformation ->
             val (cartesianCoordinate, node) = nodePlacementInformation
             val (x, _) = cartesianCoordinate
 
@@ -69,22 +68,7 @@ class RadialWalkerTreeLayout(
         logger.info { "assign angles" }
         convertToAngles()
 
-        val entries =
-            nodePlacementInformationByState.map { (_, info) ->
-                EntryDefault(
-                    info,
-                    PointFloat.create(
-                        info.coordinate.x,
-                        info.coordinate.y * -1,
-                    ),
-                )
-            }
-        finalRTree =
-            if (entries.size < 10_000) {
-                RTree.create(entries)
-            } else {
-                RTree.star().create(entries)
-            }
+        rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
 
         isBuilt = true
     }
@@ -93,9 +77,9 @@ class RadialWalkerTreeLayout(
 
     override fun isBuilt(): Boolean = isBuilt
 
-    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         val search =
-            finalRTree
+            rTree
                 .search(
                     Geometries.rectangle(
                         rectangle.topLeft.x,

@@ -8,7 +8,7 @@ import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
  * @property coordinate The 2D coordinate assigned to the node.
  * @property node The tree node being placed.
  */
-data class NodePlacementInformation(
+data class NodePlacement(
     val coordinate: Coordinate,
     val node: EPATreeNode,
 )

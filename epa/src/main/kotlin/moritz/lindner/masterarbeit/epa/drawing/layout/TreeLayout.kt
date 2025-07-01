@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.epa.drawing.layout
 
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 
@@ -36,9 +36,9 @@ interface TreeLayout {
      * Useful for viewport queries or region-based selection.
      *
      * @param rectangle The rectangular area to query.
-     * @return A list of [NodePlacementInformation] for matching nodes.
+     * @return A list of [NodePlacement] for matching nodes.
      */
-    fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation>
+    fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement>
 
     /**
      * Returns the maximum depth (i.e., longest path from root) of the laid-out tree.
