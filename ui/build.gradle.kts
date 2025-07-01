@@ -37,10 +37,17 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-XX:+UseG1GC",
-                "-XX:+TieredCompilation",
+                "-Xms2g",
+                "-Xmx10g",
+                "-XX:+UseZGC",
                 "-XX:+UseStringDeduplication",
+                "-XX:MaxGCPauseMillis=100",
+                "-XX:+AlwaysPreTouch",
             )
+
+        buildTypes.release.proguard {
+            isEnabled = false
+        }
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
@@ -48,8 +55,16 @@ compose.desktop {
             packageVersion = "1.0.0"
 
             macOS {
-                iconFile.set(project.file("src/main/resources/logo.png"))
+                iconFile.set(project.file("src/main/resources/logo.icns"))
                 bundleID = "moritz.lindner.masterarbeit"
+            }
+
+            windows {
+                iconFile.set(project.file("src/main/resources/logo.ico"))
+            }
+
+            linux {
+                iconFile.set(project.file("src/main/resources/logo.png"))
             }
         }
     }
