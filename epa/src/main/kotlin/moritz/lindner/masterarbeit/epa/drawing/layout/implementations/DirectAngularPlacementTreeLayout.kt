@@ -2,13 +2,11 @@ package moritz.lindner.masterarbeit.epa.drawing.layout.implementations
 
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
-import com.github.davidmoten.rtree2.geometry.Point
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
-import com.github.davidmoten.rtree2.internal.EntryDefault
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.PI
@@ -28,11 +26,10 @@ import kotlin.math.sin
  */
 class DirectAngularPlacementTreeLayout(
     private val layerSpace: Float,
-    expectedCapacity: Int = 1000,
+    expectedCapacity: Int = 10000,
 ) : RadialTreeLayout {
-    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation>(expectedCapacity)
-
-    private lateinit var finalRTree: RTree<NodePlacementInformation, Point>
+    private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     private var isBuilt = false
     private var maxDepth = 0
@@ -40,19 +37,7 @@ class DirectAngularPlacementTreeLayout(
     override fun build(tree: EPATreeNode) {
         assignAngles(tree, 0f, 2f * PI.toFloat())
 
-        finalRTree =
-            RTree.create(
-                nodePlacementInformationByState.map { (_, info) ->
-                    EntryDefault(
-                        info,
-                        PointFloat.create(
-                            info.coordinate.x,
-                            info.coordinate.y * -1,
-                        ),
-                    )
-                },
-            )
-
+        rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
     }
 
@@ -64,13 +49,13 @@ class DirectAngularPlacementTreeLayout(
         maxDepth = max(maxDepth, tree.depth)
 
         if (tree.parent == null) {
-            nodePlacementInformationByState[tree.state] = NodePlacementInformation(Coordinate(0f, 0f), tree)
+            nodePlacementByState[tree.state] = NodePlacement(Coordinate(0f, 0f), tree)
         } else {
             val radius = layerSpace * tree.depth
             val theta = (start + end) / 2f
 
-            nodePlacementInformationByState[tree.state] =
-                NodePlacementInformation(
+            nodePlacementByState[tree.state] =
+                NodePlacement(
                     Coordinate(
                         x = radius * cos(theta),
                         y = radius * sin(theta),
@@ -90,15 +75,15 @@ class DirectAngularPlacementTreeLayout(
 
     override fun getCircleRadius(): Float = layerSpace
 
-    override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
+    override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate
 
     override fun getMaxDepth(): Int = maxDepth
 
     override fun isBuilt(): Boolean = isBuilt
 
-    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         val search =
-            finalRTree
+            rTree
                 .search(
                     Geometries.rectangle(
                         rectangle.topLeft.x,

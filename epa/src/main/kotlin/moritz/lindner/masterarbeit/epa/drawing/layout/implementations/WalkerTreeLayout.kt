@@ -2,14 +2,12 @@ package moritz.lindner.masterarbeit.epa.drawing.layout.implementations
 
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
-import com.github.davidmoten.rtree2.geometry.Point
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
-import com.github.davidmoten.rtree2.internal.EntryDefault
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.drawing.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacementInformation
+import moritz.lindner.masterarbeit.epa.drawing.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.drawing.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.drawing.tree.EPATreeNode
 import kotlin.math.max
@@ -21,7 +19,7 @@ import kotlin.math.min
  * This algorithm assigns x/y coordinates to each node in a tree such that siblings are spaced
  * appropriately, subtrees do not overlap, and the visual structure is clear and compact.
  *
- * Runs with O(n)
+ * Runs with O(n) time complexity
  *
  * @param distance The minimum horizontal space between sibling nodes.
  * @param yDistance The vertical distance between nodes of different depth levels.
@@ -30,7 +28,7 @@ import kotlin.math.min
 open class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,
-    expectedCapacity: Int = 1000,
+    expectedCapacity: Int = 10000,
 ) : TreeLayout {
     private val logger = KotlinLogging.logger {}
 
@@ -40,11 +38,10 @@ open class WalkerTreeLayout(
     private val prelim = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val shifts = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val changes = HashMap<EPATreeNode, Float>(expectedCapacity)
-    protected val nodePlacementInformationByState = HashMap<State, NodePlacementInformation>(expectedCapacity)
-
-    private lateinit var finalRTree: RTree<NodePlacementInformation, Point>
-
+    private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
     private var maxDepth = Int.MIN_VALUE
+
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     private var isBuilt = false
 
@@ -277,7 +274,7 @@ open class WalkerTreeLayout(
         xMin = min(x, xMin)
         maxDepth = max(maxDepth, v.depth)
 
-        nodePlacementInformationByState[v.state] = NodePlacementInformation(Coordinate(x, y), v)
+        nodePlacementByState[v.state] = NodePlacement(Coordinate(x, y), v)
 
         // for all children w of v
         v.children().forEach { w ->
@@ -288,7 +285,6 @@ open class WalkerTreeLayout(
 
     override fun build(tree: EPATreeNode) {
         logger.info { "Building tree layout" }
-        logger.info { "initializing" }
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
@@ -310,28 +306,16 @@ open class WalkerTreeLayout(
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
-        finalRTree =
-            RTree.create(
-                nodePlacementInformationByState.map { (_, info) ->
-                    EntryDefault(
-                        info,
-                        PointFloat.create(
-                            info.coordinate.x,
-                            info.coordinate.y * -1,
-                        ),
-                    )
-                },
-            )
-
+        rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
         logger.info { "finished layout construction" }
     }
 
-    override fun getCoordinate(state: State): Coordinate = nodePlacementInformationByState[state]!!.coordinate
+    override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate
 
-    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacementInformation> {
+    override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         val search =
-            finalRTree
+            rTree
                 .search(
                     Geometries.rectangle(
                         rectangle.topLeft.x,
