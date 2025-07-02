@@ -32,7 +32,12 @@ class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
         dot =
             buildString {
                 appendLine("digraph EPA {")
+                appendLine("    nodesep=1;")
+                appendLine("    ranksep=.4;")
                 appendLine("    rankdir=LR;")
+                appendLine("    graph [fontname=\"Times New Roman\"];")
+                appendLine("    node [fontname=\"Times New Roman\", fontsize=15, shape=circle, fixedsize=true, width=0.8];")
+                appendLine("    edge [fontname=\"Times New Roman\", fontsize=18];")
                 appendLine("    // states (nodes)")
 
                 labelByState
@@ -46,6 +51,8 @@ class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
                     appendLine("    subgraph cluster_partition$partition {")
                     appendLine("        label = \"Partition $partition\";")
                     appendLine("        color=black;")
+                    appendLine("        fontname = \"Times-Roman\";")
+                    appendLine("        fontsize = 18")
                     states.forEach { appendLine("        \"${it.hashCode()}\"") }
                     appendLine("    }")
                 }
@@ -61,11 +68,21 @@ class DotExportVisitor<T : Comparable<T>> : AutomataVisitor<T> {
     ) {
         val label =
             when (state) {
-                is State.Root -> "Root"
-                is State.PrefixState ->
-                    extendedPrefixAutomata
-                        .sequence(state)
-                        .joinToString("\\n") { "${it.activity.name} ${it.caseIdentifier}" }
+                is State.Root -> "root"
+                is State.PrefixState -> {
+                    val sequence =
+                        extendedPrefixAutomata
+                            .sequence(state)
+                    val length = sequence.size
+                    sequence
+                        .mapIndexed { index, event ->
+                            if (index % 2 == 0 && index + 1 != length) {
+                                "${event.activity.name}${event.caseIdentifier}, "
+                            } else {
+                                "${event.activity.name}${event.caseIdentifier}\\n"
+                            }
+                        }.joinToString("")
+                }
             }
         labelByState[state] = label
 
