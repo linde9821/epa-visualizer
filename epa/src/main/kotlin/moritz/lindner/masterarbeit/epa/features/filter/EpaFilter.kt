@@ -1,10 +1,10 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter.Companion.combine
 
 /**
- * Functional interface for filtering or transforming an [ExtendedPrefixAutomata].
+ * Functional interface for filtering or transforming an [ExtendedPrefixAutomaton].
  *
  * An [EpaFilter] represents a reusable and composable transformation applied to an EPA.
  * Filters can be chained using [then], or combined via [combine] to build pipelines.
@@ -13,12 +13,12 @@ import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter.Companion.combi
  */
 fun interface EpaFilter<T : Comparable<T>> {
     /**
-     * Applies this filter to the given [ExtendedPrefixAutomata].
+     * Applies this filter to the given [ExtendedPrefixAutomaton].
      *
      * @param epa The automaton to transform or filter.
-     * @return A new [ExtendedPrefixAutomata] after applying the filter.
+     * @return A new [ExtendedPrefixAutomaton] after applying the filter.
      */
-    fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T>
+    fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T>
 
     /**
      * Composes this filter with another, applying `this` first, then [next].

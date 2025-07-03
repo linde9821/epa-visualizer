@@ -31,14 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import kotlin.math.log10
 import kotlin.math.pow
 
 @Composable
 fun FilterUi(
-    epa: ExtendedPrefixAutomata<Long>,
+    epa: ExtendedPrefixAutomaton<Long>,
     backgroundDispatcher: CoroutineDispatcher,
     modifier: Modifier = Modifier,
     onApply: (EpaFilter<Long>) -> Unit,

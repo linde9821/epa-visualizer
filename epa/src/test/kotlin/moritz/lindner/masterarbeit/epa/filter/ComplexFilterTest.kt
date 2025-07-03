@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.filter
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
@@ -14,7 +14,7 @@ class ComplexFilterTest {
     @Test
     fun `must apply combined filter correctly`() {
         val epa =
-            ExtendedPrefixAutomataBuilder<Long>()
+            ExtendedPrefixAutomatonBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample_complex.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()

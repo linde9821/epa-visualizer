@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.filter
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
@@ -12,7 +12,7 @@ class ActivityFilterTest {
     @Test
     fun `must return a epa containing only allowed activities`() {
         val epa =
-            ExtendedPrefixAutomataBuilder<Long>()
+            ExtendedPrefixAutomatonBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
@@ -38,7 +38,7 @@ class ActivityFilterTest {
     @Test
     fun `must return a epa containing only allowed activities and prune orphans`() {
         val epa =
-            ExtendedPrefixAutomataBuilder<Long>()
+            ExtendedPrefixAutomatonBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
@@ -64,7 +64,7 @@ class ActivityFilterTest {
     @Test
     fun `must return a epa containing only allowed activities and prune orphans even  if they are inside the chain`() {
         val epa =
-            ExtendedPrefixAutomataBuilder<Long>()
+            ExtendedPrefixAutomatonBuilder<Long>()
                 .setFile(File("./src/test/resources/sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()

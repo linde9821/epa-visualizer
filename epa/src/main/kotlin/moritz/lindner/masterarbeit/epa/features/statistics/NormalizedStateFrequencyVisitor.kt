@@ -1,17 +1,17 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * Computes the normalized frequency of events per [State] in an [ExtendedPrefixAutomata].
+ * Computes the normalized frequency of events per [State] in an [ExtendedPrefixAutomaton].
  *
  * The frequency is calculated as the number of events associated with a state,
  * divided by the total number of events across all states. The result is a value in [0.0, 1.0].
  *
  * The root state ([State.Root]) is always assigned a frequency of 1.0.
- * This visitor must be applied via [ExtendedPrefixAutomata.acceptDepthFirst] or [acceptBreadthFirst]
+ * This visitor must be applied via [ExtendedPrefixAutomaton.acceptDepthFirst] or [acceptBreadthFirst]
  * before accessing any frequencies.
  *
  * @param T The timestamp type used in the automaton's events.
@@ -29,7 +29,7 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
      */
     fun frequencyByState(state: State): Float = relativeFrequencyByState[state]!!
 
-    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         val totalEvents = eventsByState.values.sum().toFloat()
 
         eventsByState.forEach { (state, eventsSeen) ->
@@ -44,12 +44,12 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
         eventsByState.computeIfAbsent(state) {
-            extendedPrefixAutomata.sequence(state).size
+            extendedPrefixAutomaton.sequence(state).size
         }
     }
 

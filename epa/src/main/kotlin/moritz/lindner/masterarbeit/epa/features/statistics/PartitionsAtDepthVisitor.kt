@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import kotlin.collections.component1
@@ -11,12 +11,12 @@ class PartitionsAtDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     val statesByDepth = mutableMapOf<Int, List<State>>()
     val paritionsByDepth = mutableMapOf<Int, Int>()
 
-    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         statesByDepth.forEach { (depth, stateList) ->
             val distinctPartions =
                 stateList
                     .map { state ->
-                        extendedPrefixAutomata.partition(state)
+                        extendedPrefixAutomaton.partition(state)
                     }.distinct()
                     .size
 
@@ -25,7 +25,7 @@ class PartitionsAtDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {

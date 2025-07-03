@@ -1,11 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.State
 
 /**
- * A filter that removes all states, transitions, and events from an [ExtendedPrefixAutomata]
+ * A filter that removes all states, transitions, and events from an [ExtendedPrefixAutomaton]
  * that are not associated with the specified set of allowed [Activity]s.
  *
  * This filter preserves only those parts of the automaton that:
@@ -24,9 +24,9 @@ class ActivityFilter<T : Comparable<T>>(
      * Applies the activity-based filtering logic to the given automaton.
      *
      * @param epa The automaton to filter.
-     * @return A new [ExtendedPrefixAutomata] that includes only allowed activities and valid state chains.
+     * @return A new [ExtendedPrefixAutomaton] that includes only allowed activities and valid state chains.
      */
-    override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
+    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val statesWithAllowedActivities =
             epa.states
                 .filter { state ->
@@ -59,7 +59,7 @@ class ActivityFilter<T : Comparable<T>>(
         val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
         val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
 
-        return ExtendedPrefixAutomata(
+        return ExtendedPrefixAutomaton(
             eventLogName = epa.eventLogName,
             states = filteredStates,
             activities = filteredActivities,

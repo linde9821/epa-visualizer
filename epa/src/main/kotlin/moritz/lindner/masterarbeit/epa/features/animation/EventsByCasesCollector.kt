@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.animation
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
@@ -23,19 +23,19 @@ class EventsByCasesCollector<T : Comparable<T>> : AutomatonVisitor<T> {
      * Called after the automaton traversal ends. Currently, ensures all keys from [eventsByCase]
      * are reflected in [cases], which may be useful for consistency if `visit` wasn't called.
      */
-    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         cases.addAll(eventsByCase.keys)
     }
 
     /**
      * Visits an event during automaton traversal and groups it by its [caseIdentifier].
      *
-     * @param extendedPrefixAutomata The automaton being visited.
+     * @param extendedPrefixAutomaton The automaton being visited.
      * @param event The event encountered at the current node.
      * @param depth The depth in the automaton (ignored here).
      */
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         event: Event<T>,
         depth: Int,
     ) {

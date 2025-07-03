@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -8,7 +8,7 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A visitor that traverses an [ExtendedPrefixAutomata] to compute various statistics
+ * A visitor that traverses an [ExtendedPrefixAutomaton] to compute various statistics
  * such as event counts, activity frequencies, state/transition counts, and partition usage.
  *
  * After traversal, the collected metrics can be accessed via [build] or reported
@@ -27,18 +27,18 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     private var first: T? = null
     private var last: T? = null
 
-    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
-        partitionsCount = extendedPrefixAutomata.getAllPartitions().size - 1
+    override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
+        partitionsCount = extendedPrefixAutomaton.getAllPartitions().size - 1
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
         if (!visitedStates.add(state)) return
 
-        val sequence = extendedPrefixAutomata.sequence(state)
+        val sequence = extendedPrefixAutomaton.sequence(state)
         prefixLengths += sequence.size
         for (event in sequence) {
             activityFrequency[event.activity] = activityFrequency.getOrDefault(event.activity, 0) + 1
@@ -46,7 +46,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         transition: Transition,
         depth: Int,
     ) {
@@ -54,7 +54,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         event: Event<T>,
         depth: Int,
     ) {
@@ -115,7 +115,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
         val avgPrefix = prefixLengths.average().takeIf { prefixLengths.isNotEmpty() } ?: 0.0
 
         return buildString {
-            appendLine("\nAutomata Statistics:")
+            appendLine("\nAutomaton Statistics:")
             appendLine("  Events:       $totalEvents")
             appendLine("  Cases:        ${cases.size}")
             appendLine("  Activities:   ${activityFrequency.values.size}")

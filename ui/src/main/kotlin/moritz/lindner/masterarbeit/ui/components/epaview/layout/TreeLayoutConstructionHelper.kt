@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.layout
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
@@ -10,7 +10,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.degreesToRad
 object TreeLayoutConstructionHelper {
     fun build(
         config: LayoutConfig,
-        epa: ExtendedPrefixAutomata<Long>,
+        epa: ExtendedPrefixAutomaton<Long>,
     ): TreeLayout =
         when (config.layout.name) {
             "Walker Radial Tree" -> {

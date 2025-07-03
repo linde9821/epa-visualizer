@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.printing
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
@@ -12,7 +12,7 @@ class PrintingVisitor<T : Comparable<T>>(
     private val printEvent: Boolean = true,
 ) : AutomatonVisitor<T> {
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
@@ -22,7 +22,7 @@ class PrintingVisitor<T : Comparable<T>>(
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         transition: Transition,
         depth: Int,
     ) {
@@ -32,7 +32,7 @@ class PrintingVisitor<T : Comparable<T>>(
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         event: Event<T>,
         depth: Int,
     ) {

@@ -1,12 +1,12 @@
 package moritz.lindner.masterarbeit.epa.features.dot
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A visitor that exports an [ExtendedPrefixAutomata] to the DOT graph description language,
+ * A visitor that exports an [ExtendedPrefixAutomaton] to the DOT graph description language,
  * which can be rendered using tools like Graphviz.
  *
  * The graph includes:
@@ -28,7 +28,7 @@ class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
     lateinit var dot: String
         private set
 
-    override fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         dot =
             buildString {
                 appendLine("digraph EPA {")
@@ -62,7 +62,7 @@ class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
@@ -71,7 +71,7 @@ class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
                 is State.Root -> "root"
                 is State.PrefixState -> {
                     val sequence =
-                        extendedPrefixAutomata
+                        extendedPrefixAutomaton
                             .sequence(state)
                     val length = sequence.size
                     sequence
@@ -86,12 +86,12 @@ class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
             }
         labelByState[state] = label
 
-        val partition = extendedPrefixAutomata.partition(state)
+        val partition = extendedPrefixAutomaton.partition(state)
         statesByPartition.getOrPut(partition) { mutableSetOf() }.add(state)
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         transition: Transition,
         depth: Int,
     ) {

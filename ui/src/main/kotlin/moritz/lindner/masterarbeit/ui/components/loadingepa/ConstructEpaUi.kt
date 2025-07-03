@@ -35,16 +35,16 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
 fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
-    builder: ExtendedPrefixAutomataBuilder<Long>,
-    onEPAConstructed: (ExtendedPrefixAutomata<Long>) -> Unit,
+    builder: ExtendedPrefixAutomatonBuilder<Long>,
+    onEPAConstructed: (ExtendedPrefixAutomaton<Long>) -> Unit,
     onAbort: () -> Unit,
     onError: (String, Throwable) -> Unit,
 ) {

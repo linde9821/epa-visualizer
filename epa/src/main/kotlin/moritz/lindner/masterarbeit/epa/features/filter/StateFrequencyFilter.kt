@@ -1,11 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 
 /**
- * Filters an [ExtendedPrefixAutomata] by removing all states whose normalized visit frequency
+ * Filters an [ExtendedPrefixAutomaton] by removing all states whose normalized visit frequency
  * is below a given [threshold].
  *
  * The frequency is determined using a [NormalizedStateFrequencyVisitor], and only states meeting the threshold
@@ -21,9 +21,9 @@ class StateFrequencyFilter<T : Comparable<T>>(
      * Applies the state frequency filter to the automaton.
      *
      * @param epa The automaton to filter.
-     * @return A new [ExtendedPrefixAutomata] with only high-frequency states and valid transitions.
+     * @return A new [ExtendedPrefixAutomaton] with only high-frequency states and valid transitions.
      */
-    override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> {
+    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
         epa.copy().acceptDepthFirst(normalizedStateFrequencyVisitor)
 
@@ -68,7 +68,7 @@ class StateFrequencyFilter<T : Comparable<T>>(
         val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
         val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
 
-        return ExtendedPrefixAutomata(
+        return ExtendedPrefixAutomaton(
             eventLogName = epa.eventLogName,
             states = filteredStates,
             activities = filteredActivities,

@@ -16,7 +16,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  * efficient access to outgoing transitions for fast traversal.
  *
  * **Note:** This class is not thread-safe for concurrent visiting or mutation. When multiple threads might
- * access the ExtendedPrefixAutomata create a new instance of the EPA with the `copy` function and let it
+ * access the ExtendedPrefixAutomaton create a new instance of the EPA with the `copy` function and let it
  * accept the visitor.
  *
  * @param T The timestamp type used in the associated events.
@@ -24,7 +24,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  * @property activities All distinct activities appearing in transitions.
  * @property transitions All transitions between states, each labeled with an activity.
  */
-class ExtendedPrefixAutomata<T : Comparable<T>>(
+class ExtendedPrefixAutomaton<T : Comparable<T>>(
     val eventLogName: String,
     val states: Set<State>,
     val activities: Set<Activity>,
@@ -156,8 +156,8 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     /**
      * Returns a deep copy of this automaton.
      */
-    fun copy(): ExtendedPrefixAutomata<T> =
-        ExtendedPrefixAutomata(
+    fun copy(): ExtendedPrefixAutomaton<T> =
+        ExtendedPrefixAutomaton(
             eventLogName = eventLogName,
             states = states.toSet(),
             activities = activities.toSet(),
@@ -170,7 +170,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ExtendedPrefixAutomata<*>
+        other as ExtendedPrefixAutomaton<*>
 
         if (eventLogName != other.eventLogName) return false
         if (states != other.states) return false

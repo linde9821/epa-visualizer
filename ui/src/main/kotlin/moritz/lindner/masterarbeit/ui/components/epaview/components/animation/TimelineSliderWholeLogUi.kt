@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.WholeEventLogAnimationBuilder
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
@@ -21,26 +21,26 @@ import moritz.lindner.masterarbeit.ui.logger
 
 @Composable
 fun TimelineSliderWholeLogUi(
-    extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
+    extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     viewModel: EpaViewModel,
     dispatcher: CoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    var isLoading by remember(extendedPrefixAutomata) { mutableStateOf(true) }
-    var eventLogAnimation by remember(extendedPrefixAutomata) { mutableStateOf<EventLogAnimation<Long>?>(null) }
-    var sliderValue by remember(extendedPrefixAutomata) { mutableStateOf(0f) }
-    var isPlaying by remember(extendedPrefixAutomata) { mutableStateOf(false) }
+    var isLoading by remember(extendedPrefixAutomaton) { mutableStateOf(true) }
+    var eventLogAnimation by remember(extendedPrefixAutomaton) { mutableStateOf<EventLogAnimation<Long>?>(null) }
+    var sliderValue by remember(extendedPrefixAutomaton) { mutableStateOf(0f) }
+    var isPlaying by remember(extendedPrefixAutomaton) { mutableStateOf(false) }
     val speed = 17L // 60fps
-    var stepSize by remember(extendedPrefixAutomata) { mutableStateOf(1L) }
-    var multiplier by remember(extendedPrefixAutomata) { mutableStateOf(1.0f) }
+    var stepSize by remember(extendedPrefixAutomaton) { mutableStateOf(1L) }
+    var multiplier by remember(extendedPrefixAutomaton) { mutableStateOf(1.0f) }
 
-    LaunchedEffect(extendedPrefixAutomata) {
+    LaunchedEffect(extendedPrefixAutomaton) {
         isLoading = true
         isPlaying = false
         viewModel.updateAnimation(AnimationState.Companion.Empty)
         withContext(dispatcher) {
-            val eventLogAnimationVisitor = WholeEventLogAnimationBuilder<Long>(extendedPrefixAutomata.eventLogName)
-            extendedPrefixAutomata
+            val eventLogAnimationVisitor = WholeEventLogAnimationBuilder<Long>(extendedPrefixAutomaton.eventLogName)
+            extendedPrefixAutomaton
                 .copy()
                 .acceptDepthFirst(AutomatonVisitorWithProgressBar(eventLogAnimationVisitor, "casesAnimation"))
             yield()
@@ -55,7 +55,7 @@ fun TimelineSliderWholeLogUi(
         isLoading = false
     }
 
-    LaunchedEffect(isPlaying, extendedPrefixAutomata) {
+    LaunchedEffect(isPlaying, extendedPrefixAutomaton) {
         viewModel.updateAnimation(AnimationState.Empty)
         if (isPlaying && eventLogAnimation != null) {
             val first = eventLogAnimation!!.getFirst().first

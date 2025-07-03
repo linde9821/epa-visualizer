@@ -29,7 +29,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
@@ -40,7 +40,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun AnimationUi(
-    filteredEpa: ExtendedPrefixAutomata<Long>?,
+    filteredEpa: ExtendedPrefixAutomaton<Long>?,
     viewModel: EpaViewModel,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
@@ -174,7 +174,7 @@ fun findStepSize(
 
 @Composable
 fun TimelineSliderSingleCaseUi(
-    extendedPrefixAutomata: ExtendedPrefixAutomata<Long>,
+    extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     dispatcher: CoroutineDispatcher,
     viewModel: EpaViewModel,
     case: String,
@@ -184,10 +184,10 @@ fun TimelineSliderSingleCaseUi(
     val singleCaseAnimationBuilder = SingleCaseAnimationBuilder<Long>(case)
     var sliderValue by remember { mutableStateOf(0f) }
 
-    LaunchedEffect(extendedPrefixAutomata) {
+    LaunchedEffect(extendedPrefixAutomaton) {
         isLoading = true
         withContext(dispatcher) {
-            extendedPrefixAutomata
+            extendedPrefixAutomaton
                 .copy()
                 .acceptDepthFirst(AutomatonVisitorWithProgressBar(singleCaseAnimationBuilder, "casesAnimation"))
             yield()
