@@ -1,14 +1,11 @@
 package test
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
-import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
-import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.drawing.layout.implementations.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
-import moritz.lindner.masterarbeit.epa.filter.PartitionFrequencyFilter
+import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.Fork
 import org.openjdk.jmh.annotations.Measurement
@@ -36,18 +33,11 @@ open class Benchmark {
     @Fork(1)
     @Benchmark
     open fun epaConstruction() {
-        val sample =
-            File("/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/eventlogs/sample.xes") to SampleEventMapper()
-        val sample2 = File("./epa/src/main/resources/eventlogs/sample2.xes") to SampleEventMapper()
-        val loops = File("./epa/src/main/resources/eventlogs/loops.xes") to SampleEventMapper()
         val challenge2017Offers =
-            File("/Users/moritzlindner/programming/Masterarbeit/epa-visualizer/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to
+            File("./../data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to
                 BPI2017OfferChallengeEventMapper()
-        val challenge2017 =
-            File(".eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
-        val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-        val (file, mapper) = sample
+        val (file, mapper) = challenge2017Offers
 
         val epa =
             ExtendedPrefixAutomataBuilder<Long>()
@@ -64,7 +54,7 @@ open class Benchmark {
     }
 
     fun buildLayout(epa: ExtendedPrefixAutomata<Long>) {
-        val walker = TreeBuildingVisitor<Long>()
+        val walker = EpaToTree<Long>()
         epa.copy().acceptDepthFirst(walker)
         val root = walker.root
         val layout =
