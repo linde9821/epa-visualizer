@@ -16,9 +16,9 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.NoOpFilter
+import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.epa.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection

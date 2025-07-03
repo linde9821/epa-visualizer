@@ -1,14 +1,14 @@
-package moritz.lindner.masterarbeit.epa.layout.implementations
+package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.epa.layout.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.layout.placement.NodePlacement
-import moritz.lindner.masterarbeit.epa.layout.placement.Rectangle
-import moritz.lindner.masterarbeit.epa.layout.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max

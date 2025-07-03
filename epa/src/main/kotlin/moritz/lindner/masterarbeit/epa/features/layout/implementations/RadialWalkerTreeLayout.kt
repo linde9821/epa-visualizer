@@ -1,36 +1,40 @@
-package moritz.lindner.masterarbeit.epa.layout.implementations
+package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.layout.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.layout.placement.NodePlacement
-import moritz.lindner.masterarbeit.epa.layout.placement.Rectangle
-import moritz.lindner.masterarbeit.epa.layout.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sin
 
 /**
- * A layout implementation based on the Walker algorithm for tidy tree visualization.
+ * A radial variant of the Walker tree layout algorithm.
  *
- * This algorithm assigns x/y coordinates to each node in a tree such that siblings are spaced
- * appropriately, subtrees do not overlap, and the visual structure is clear and compact.
+ * This layout arranges nodes in concentric circles around the root node, where each tree depth
+ * level forms a ring (layer), and sibling nodes are spaced proportionally along the angle of the ring.
+ * It first computes a traditional Walker layout in Cartesian coordinates and then transforms it into polar coordinates.
  *
- * Runs with O(n) time complexity
- *
- * @param distance The minimum horizontal space between sibling nodes.
- * @param yDistance The vertical distance between nodes of different depth levels.
- * @param expectedCapacity An optimization hint for internal map sizing.
+ * @property layerSpace The distance between concentric layers (depth levels).
+ * @property expectedCapacity The expected number of nodes, used for internal data structure optimization.
+ * @property margin The angular margin (in radians) subtracted from the full circle to avoid overlap or crowding.
  */
-open class WalkerTreeLayout(
-    private val distance: Float,
-    private val yDistance: Float,
+class RadialWalkerTreeLayout(
+    val layerSpace: Float,
+    val margin: Float,
     expectedCapacity: Int = 10000,
-) : TreeLayout {
+) : RadialTreeLayout {
     private val logger = KotlinLogging.logger {}
+
+    private val distance = 1.0f
 
     private val threads = HashMap<EPATreeNode, EPATreeNode?>(expectedCapacity)
     private val modifiers = HashMap<EPATreeNode, Float>(expectedCapacity)
@@ -40,13 +44,14 @@ open class WalkerTreeLayout(
     private val changes = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
     private var maxDepth = Int.MIN_VALUE
-
-    private lateinit var rTree: RTree<NodePlacement, PointFloat>
-
-    private var isBuilt = false
-
     protected var xMin = Float.MAX_VALUE
     protected var xMax = Float.MIN_VALUE
+
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
+    private var isBuilt: Boolean = false
+
+    private val usableAngle =
+        2 * PI.toFloat() - margin
 
     private fun firstWalk(v: EPATreeNode) {
         // if v is a leaf
@@ -58,7 +63,7 @@ open class WalkerTreeLayout(
             val w = v.leftSibling
             if (w != null) {
                 // let prelim(v) = prelim(w) + distance
-                prelim[v] = prelim[w]!! + adjustedDistance(v, w)
+                prelim[v] = prelim[w]!! + distance
             }
         } else { // else
             // let defaultAncestor be the leftmost child of v
@@ -85,7 +90,7 @@ open class WalkerTreeLayout(
             val w = v.leftSibling
             if (w != null) {
                 // let prelim(v) = prelim(w) + distance
-                prelim[v] = prelim[w]!! + adjustedDistance(v, w)
+                prelim[v] = prelim[w]!! + distance
                 // let mod(v) = prelim(v) − midpoint
                 modifiers[v] = prelim[v]!! - midpoint
             } else { // else
@@ -131,7 +136,7 @@ open class WalkerTreeLayout(
                 ancestor[voPlus] = v
                 // let shift = (prelim(viMinus) + siMinus) - (prelim(viPlus) + siPlus) + distance
                 val shift =
-                    (prelim[viMinus]!! + siMinus) - (prelim[viPlus]!! + siPlus) + adjustedDistance(viMinus, viPlus)
+                    (prelim[viMinus]!! + siMinus) - (prelim[viPlus]!! + siPlus) + distance
                 // if shift > 0
                 if (shift > 0) {
                     // MoveSubtree(Ancestor(viMinus, v, defaultAncestor), v , shift)
@@ -171,18 +176,6 @@ open class WalkerTreeLayout(
         }
 
         return null
-    }
-
-    // might be tweaked for better results
-    private fun adjustedDistance(
-        a: EPATreeNode,
-        b: EPATreeNode,
-    ): Float {
-//        val depth = max(a.level, b.level).coerceAtLeast(1)
-//        val weightA = countLeaves(a)
-//        val weightB = countLeaves(b)
-//        return distance * (weightA + weightB).toFloat() / 2f / depth
-        return distance
     }
 
     private fun nextLeft(v: EPATreeNode): EPATreeNode? {
@@ -268,7 +261,7 @@ open class WalkerTreeLayout(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.depth.toFloat() * yDistance
+        val y = v.depth.toFloat()
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)
@@ -280,6 +273,25 @@ open class WalkerTreeLayout(
         v.children().forEach { w ->
             // SecondWalk(w, m + mod(v))
             secondWalk(w, m + modifiers[v]!!)
+        }
+    }
+
+    private fun convertToAngles() {
+        nodePlacementByState.replaceAll { _, nodePlacementInformation ->
+            val (cartesianCoordinate, node) = nodePlacementInformation
+            val (x, _) = cartesianCoordinate
+
+            val normalizedX = (x - xMin) / (xMax - xMin)
+            val radius = node.depth * layerSpace
+            val theta = (normalizedX * usableAngle) + 90f.degreesToRadians()
+
+            nodePlacementInformation.copy(
+                coordinate =
+                    Coordinate(
+                        x = radius * cos(theta),
+                        y = radius * sin(theta),
+                    ),
+            )
         }
     }
 
@@ -306,12 +318,21 @@ open class WalkerTreeLayout(
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
+        logger.info { "assign angles" }
+        convertToAngles()
+
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
         logger.info { "finished layout construction" }
     }
 
+    override fun getMaxDepth(): Int = maxDepth
+
     override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate
+
+    override fun getCircleRadius(): Float = layerSpace
+
+    override fun isBuilt(): Boolean = isBuilt
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         val search =
@@ -327,7 +348,5 @@ open class WalkerTreeLayout(
         return search.map { it.value() }
     }
 
-    override fun getMaxDepth(): Int = maxDepth
-
-    override fun isBuilt(): Boolean = isBuilt
+    private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 }

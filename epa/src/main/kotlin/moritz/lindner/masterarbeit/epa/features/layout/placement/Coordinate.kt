@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.layout.placement
+package moritz.lindner.masterarbeit.epa.features.layout.placement
 
 /**
  * Represents a 2D coordinate with floating-point precision.

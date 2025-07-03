@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.layout
+package moritz.lindner.masterarbeit.epa.features.layout
 
 /**
  * A specialized [TreeLayout] that arranges tree nodes in a radial (circular) fashion.

@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.layout.tree
+package moritz.lindner.masterarbeit.epa.features.layout.tree
 
 import moritz.lindner.masterarbeit.epa.domain.State
 

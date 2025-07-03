@@ -1,6 +1,6 @@
-package moritz.lindner.masterarbeit.epa.layout.placement
+package moritz.lindner.masterarbeit.epa.features.layout.placement
 
-import moritz.lindner.masterarbeit.epa.layout.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 
 /**
  * Associates a node in the EPA tree with a specific coordinate in a 2D layout.

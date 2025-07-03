@@ -1,10 +1,10 @@
-package moritz.lindner.masterarbeit.epa.layout
+package moritz.lindner.masterarbeit.epa.features.layout
 
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.layout.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.layout.placement.NodePlacement
-import moritz.lindner.masterarbeit.epa.layout.placement.Rectangle
-import moritz.lindner.masterarbeit.epa.layout.tree.EPATreeNode
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 
 /**
  * Defines a layout strategy for positioning nodes in a tree structure derived from an EPA.

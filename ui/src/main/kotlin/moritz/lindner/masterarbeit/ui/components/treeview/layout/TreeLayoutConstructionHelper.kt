@@ -1,10 +1,10 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.layout
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.layout.implementations.DirectAngularPlacementTreeLayout
-import moritz.lindner.masterarbeit.epa.layout.implementations.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.layout.implementations.WalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.ui.components.treeview.components.degreesToRadians
 
 object TreeLayoutConstructionHelper {

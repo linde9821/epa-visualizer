@@ -28,7 +28,7 @@ import androidx.compose.ui.window.DialogWindow
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.features.animation.CaseEventCollectorVisitor
+import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
@@ -43,14 +43,14 @@ fun SingleCaseAnimationUI(
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
     var selectedCase by remember { mutableStateOf<String?>(null) }
-    var caseEventCollectorVisitor by remember { mutableStateOf(CaseEventCollectorVisitor<Long>()) }
+    var eventsByCasesCollector by remember { mutableStateOf(EventsByCasesCollector<Long>()) }
 
     LaunchedEffect(epa) {
         isLoading = true
         withContext(backgroundDispatcher) {
             selectedCase = null
-            caseEventCollectorVisitor = CaseEventCollectorVisitor()
-            epa.copy().acceptDepthFirst(AutomataVisitorProgressBar(caseEventCollectorVisitor, "case animation"))
+            eventsByCasesCollector = EventsByCasesCollector()
+            epa.copy().acceptDepthFirst(AutomataVisitorProgressBar(eventsByCasesCollector, "case animation"))
         }
         isLoading = false
     }
@@ -110,7 +110,7 @@ fun SingleCaseAnimationUI(
                     ) {
                         Row {
                             LazyColumn {
-                                items(caseEventCollectorVisitor.cases.toList()) { case ->
+                                items(eventsByCasesCollector.cases.toList()) { case ->
                                     val isSelected = case == selectedCase
                                     Text(
                                         text = case,

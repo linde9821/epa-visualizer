@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.layout.placement
+package moritz.lindner.masterarbeit.epa.features.layout.placement
 
 /**
  * Represents a rectangle defined by its top-left and bottom-right coordinates.

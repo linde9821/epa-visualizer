@@ -12,7 +12,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * @property eventsByCase A mapping from each case identifier to the list of its associated events.
  * @property cases A set of all distinct case identifiers encountered during traversal.
  */
-class CaseEventCollectorVisitor<T : Comparable<T>> : AutomataVisitor<T> {
+class EventsByCasesCollector<T : Comparable<T>> : AutomataVisitor<T> {
     /** Maps each case identifier to the list of [Event]s associated with it. */
     val eventsByCase = hashMapOf<String, List<Event<T>>>()
 

@@ -33,10 +33,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
-import moritz.lindner.masterarbeit.epa.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.epa.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.layout.placement.Coordinate
-import moritz.lindner.masterarbeit.epa.layout.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.logger
