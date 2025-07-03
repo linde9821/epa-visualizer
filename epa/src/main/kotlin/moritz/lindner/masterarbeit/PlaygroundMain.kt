@@ -16,12 +16,12 @@ fun main() {
     val sample2 = File("./eventlogs/sample2.xes") to SampleEventMapper()
     val loops = File("./eventlogs/loops.xes") to SampleEventMapper()
     val challenge2017Offers =
-        File("./epa/src/main/resources/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
+        File("./eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
     val challenge2017 =
-        File("./epa/src/main/resources/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
+        File("./eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
-    val (file, mapper) = sample
+    val (file, mapper) = challenge2017
 
     logger.info { "Parsing ${file.absolutePath}" }
 
@@ -30,24 +30,11 @@ fun main() {
             .setFile(file)
             .setEventLogMapper(mapper)
             .build()
-//
-//    val filteredEpa =
-//        ActivityFilter<Long>(
-//            hashSetOf(
-//                Activity("a"),
-//                Activity("b"),
-//                Activity("c"),
-//            ),
-//        ).apply(epa)
 
     val dot = DotExportVisitor<Long>()
     epa.acceptDepthFirst(dot)
-//    val dot2 = DotExportVisitor<Long>()
-//    epa.copy().acceptDepthFirst(dot1)
-//    filteredEpa.acceptDepthFirst(dot2)
 
     File("./new.dot").writeText(dot.dot)
-//    File("./test2.dot").writeText(dot2.dot)
 
     logger.info { "build EPA successfully" }
 }
