@@ -11,8 +11,8 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://raw.githubusercontent.com/apromore/ApromoreCore_SupportLibs/master/mvn-repo/")
     maven("https://jitpack.io")
 }
@@ -38,10 +38,10 @@ compose.desktop {
         jvmArgs +=
             listOf(
                 "-Xms2g",
-                "-Xmx10g",
-                "-XX:+UseZGC",
+                "-Xmx18g",
+                "-XX:+UseG1GC",
+                "-XX:MaxGCPauseMillis=250",
                 "-XX:+UseStringDeduplication",
-                "-XX:MaxGCPauseMillis=100",
                 "-XX:+AlwaysPreTouch",
             )
 
