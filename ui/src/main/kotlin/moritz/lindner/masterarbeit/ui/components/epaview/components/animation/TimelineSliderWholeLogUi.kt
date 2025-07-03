@@ -14,7 +14,7 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.WholeEventLogAnimationBuilder
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
@@ -42,7 +42,7 @@ fun TimelineSliderWholeLogUi(
             val eventLogAnimationVisitor = WholeEventLogAnimationBuilder<Long>(extendedPrefixAutomata.eventLogName)
             extendedPrefixAutomata
                 .copy()
-                .acceptDepthFirst(AutomataVisitorProgressBar(eventLogAnimationVisitor, "casesAnimation"))
+                .acceptDepthFirst(AutomatonVisitorWithProgressBar(eventLogAnimationVisitor, "casesAnimation"))
             yield()
             eventLogAnimation =
                 eventLogAnimationVisitor.build(

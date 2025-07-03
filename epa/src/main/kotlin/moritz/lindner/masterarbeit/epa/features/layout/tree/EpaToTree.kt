@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.tree
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * A visitor that constructs a tree representation of an [ExtendedPrefixAutomata],
@@ -14,7 +14,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class EpaToTree<T : Comparable<T>> : AutomataVisitor<T> {
+class EpaToTree<T : Comparable<T>> : AutomatonVisitor<T> {
     /**
      * The root node of the constructed tree. Will represent [State.Root].
      * Populated after [onStart] is invoked by the traversal.

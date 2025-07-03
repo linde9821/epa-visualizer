@@ -32,7 +32,7 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
@@ -189,7 +189,7 @@ fun TimelineSliderSingleCaseUi(
         withContext(dispatcher) {
             extendedPrefixAutomata
                 .copy()
-                .acceptDepthFirst(AutomataVisitorProgressBar(singleCaseAnimationBuilder, "casesAnimation"))
+                .acceptDepthFirst(AutomatonVisitorWithProgressBar(singleCaseAnimationBuilder, "casesAnimation"))
             yield()
             animation = singleCaseAnimationBuilder.build()
 

@@ -4,9 +4,9 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
-class UnchainingCounterVisitor<T : Comparable<T>> : AutomataVisitor<T> {
+class UnchainingCounterVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     private val transitions = LinkedHashMap<State, List<State>>()
     private val chainedTransitions = LinkedHashMap<List<State>, List<State>>()
 

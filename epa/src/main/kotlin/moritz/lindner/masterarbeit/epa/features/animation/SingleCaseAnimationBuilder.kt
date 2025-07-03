@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.animation
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * A visitor that extracts a single trace (case) from an [ExtendedPrefixAutomata] and builds
@@ -13,7 +13,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  */
 class SingleCaseAnimationBuilder<T : Comparable<T>>(
     val caseIdentifier: String,
-) : AutomataVisitor<T> {
+) : AutomatonVisitor<T> {
     private val events = mutableListOf<Pair<T, State>>()
 
     override fun visit(

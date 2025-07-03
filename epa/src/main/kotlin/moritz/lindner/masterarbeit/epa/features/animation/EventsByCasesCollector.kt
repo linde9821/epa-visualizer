@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.animation
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.Event
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * A visitor implementation that collects events grouped by case identifier during automaton traversal.
@@ -12,7 +12,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * @property eventsByCase A mapping from each case identifier to the list of its associated events.
  * @property cases A set of all distinct case identifiers encountered during traversal.
  */
-class EventsByCasesCollector<T : Comparable<T>> : AutomataVisitor<T> {
+class EventsByCasesCollector<T : Comparable<T>> : AutomatonVisitor<T> {
     /** Maps each case identifier to the list of [Event]s associated with it. */
     val eventsByCase = hashMapOf<String, List<Event<T>>>()
 

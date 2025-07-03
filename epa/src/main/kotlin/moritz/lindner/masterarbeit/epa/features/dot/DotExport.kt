@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.dot
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * A visitor that exports an [ExtendedPrefixAutomata] to the DOT graph description language,
@@ -16,7 +16,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class DotExport<T : Comparable<T>> : AutomataVisitor<T> {
+class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
     private val labelByState = mutableMapOf<State, String>()
     private val transitions = mutableListOf<String>()
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()

@@ -2,7 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * Computes the normalized frequency of events per [State] in an [ExtendedPrefixAutomata].
@@ -16,7 +16,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomataVisitor<T> {
+class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     private val eventsByState = HashMap<State, Int>()
     private val relativeFrequencyByState = HashMap<State, Float>()
 

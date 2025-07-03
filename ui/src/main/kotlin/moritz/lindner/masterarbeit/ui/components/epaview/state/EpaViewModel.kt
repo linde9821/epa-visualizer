@@ -19,7 +19,7 @@ import moritz.lindner.masterarbeit.epa.features.filter.NoOpFilter
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.TreeLayoutConstructionHelper
@@ -105,7 +105,7 @@ class EpaViewModel(
 
                         logger.info { "building tree" }
                         val treeVisitor = EpaToTree<Long>()
-                        filteredEpa.copy().acceptDepthFirst(AutomataVisitorProgressBar(treeVisitor, "tree"))
+                        filteredEpa.copy().acceptDepthFirst(AutomatonVisitorWithProgressBar(treeVisitor, "tree"))
                         yield()
 
                         logger.info { "building tree layout" }
@@ -147,12 +147,12 @@ class EpaViewModel(
     private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomata<Long>?) {
         withContext(backgroundDispatcher) {
             val fullVisitor = StatisticsVisitor<Long>()
-            completeEpa.acceptDepthFirst(AutomataVisitorProgressBar(fullVisitor, "full-statistics"))
+            completeEpa.acceptDepthFirst(AutomatonVisitorWithProgressBar(fullVisitor, "full-statistics"))
 
             yield()
 
             val filterVisitor = StatisticsVisitor<Long>()
-            filteredEpa?.acceptDepthFirst(AutomataVisitorProgressBar(filterVisitor, "filtered-statistics"))
+            filteredEpa?.acceptDepthFirst(AutomatonVisitorWithProgressBar(filterVisitor, "filtered-statistics"))
 
             yield()
 

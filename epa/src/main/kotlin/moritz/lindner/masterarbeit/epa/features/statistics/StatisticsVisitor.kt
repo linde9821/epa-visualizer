@@ -5,7 +5,7 @@ import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * A visitor that traverses an [ExtendedPrefixAutomata] to compute various statistics
@@ -16,7 +16,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class StatisticsVisitor<T : Comparable<T>> : AutomataVisitor<T> {
+class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     private val visitedStates = mutableSetOf<State>()
     private val visitedTransitions = mutableSetOf<Transition>()
     private var eventCount = 0

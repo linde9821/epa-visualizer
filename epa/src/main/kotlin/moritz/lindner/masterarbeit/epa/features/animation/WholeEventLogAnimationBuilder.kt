@@ -2,11 +2,11 @@ package moritz.lindner.masterarbeit.epa.features.animation
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import java.util.TreeMap
 
 /**
- * An [AutomataVisitor] that builds an [EventLogAnimation] for an entire event log.
+ * An [AutomatonVisitor] that builds an [EventLogAnimation] for an entire event log.
  *
  * This visitor collects all state transitions across all cases (traces) in the
  * [ExtendedPrefixAutomata], associating each [State] with its timestamp and case identifier.
@@ -19,7 +19,7 @@ import java.util.TreeMap
  */
 class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     private val name: String,
-) : AutomataVisitor<T> {
+) : AutomatonVisitor<T> {
     private val eventsByCase = mutableMapOf<String, TreeMap<T, State>>()
 
     override fun visit(

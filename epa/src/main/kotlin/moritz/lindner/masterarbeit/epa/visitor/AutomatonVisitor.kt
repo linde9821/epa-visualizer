@@ -18,7 +18,7 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
  *
  * @param T The type of timestamp used in the automaton's events.
  */
-interface AutomataVisitor<T : Comparable<T>> {
+interface AutomatonVisitor<T : Comparable<T>> {
     /**
      * Called once at the beginning of the traversal.
      *
