@@ -4,7 +4,7 @@ import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * A non-mutable, non-thread-safe data structure representing an Extended Prefix Automaton (EPA).
@@ -12,11 +12,11 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * The automaton is built from a set of [State]s, [Activity] labels, and [Transition] edges,
  * along with mappings that associate states with partitions and sequences of events.
  *
- * It supports both depth-first and breadth-first traversal via a [AutomataVisitor], and maintains
+ * It supports both depth-first and breadth-first traversal via a [AutomatonVisitor], and maintains
  * efficient access to outgoing transitions for fast traversal.
  *
  * **Note:** This class is not thread-safe for concurrent visiting or mutation. When multiple threads might
- * access the ExtendedPrefixAutomata create a new instance of the EPA with the `copy` function and let it
+ * access the ExtendedPrefixAutomaton create a new instance of the EPA with the `copy` function and let it
  * accept the visitor.
  *
  * @param T The timestamp type used in the associated events.
@@ -24,7 +24,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  * @property activities All distinct activities appearing in transitions.
  * @property transitions All transitions between states, each labeled with an activity.
  */
-class ExtendedPrefixAutomata<T : Comparable<T>>(
+class ExtendedPrefixAutomaton<T : Comparable<T>>(
     val eventLogName: String,
     val states: Set<State>,
     val activities: Set<Activity>,
@@ -57,7 +57,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     fun getAllPartitions(): List<Int> = partitionByState.values.distinct().toList()
 
     /**
-     * Traverses the automaton in depth-first order using the provided [AutomataVisitor].
+     * Traverses the automaton in depth-first order using the provided [AutomatonVisitor].
      *
      * The visitor will be invoked in the following order for each state:
      * 1. [State]
@@ -66,7 +66,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
      *
      * Starts at the [State.Root].
      */
-    fun acceptDepthFirst(visitor: AutomataVisitor<T>) {
+    fun acceptDepthFirst(visitor: AutomatonVisitor<T>) {
         visitedStates = 0
         visitor.onStart(this)
         visitDepthFirst(visitor, State.Root)
@@ -74,21 +74,21 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     }
 
     /**
-     * Traverses the automaton in breadth-first order using the provided [AutomataVisitor].
+     * Traverses the automaton in breadth-first order using the provided [AutomatonVisitor].
      *
      * The visitor will be invoked in the following order for each state:
      * 1. [State]
      * 2. Events of the state
      * 3. Transitions from the state
      */
-    fun acceptBreadthFirst(visitor: AutomataVisitor<T>) {
+    fun acceptBreadthFirst(visitor: AutomatonVisitor<T>) {
         visitedStates = 0
         visitor.onStart(this)
         visitBreadthFirst(visitor)
         visitor.onEnd(this)
     }
 
-    private fun visitBreadthFirst(visitor: AutomataVisitor<T>) {
+    private fun visitBreadthFirst(visitor: AutomatonVisitor<T>) {
         data class StateAndDepth(
             val state: State,
             val depth: Int,
@@ -119,7 +119,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     }
 
     private fun visitDepthFirst(
-        visitor: AutomataVisitor<T>,
+        visitor: AutomatonVisitor<T>,
         state: State,
         depth: Int = 0,
     ) {
@@ -156,8 +156,8 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
     /**
      * Returns a deep copy of this automaton.
      */
-    fun copy(): ExtendedPrefixAutomata<T> =
-        ExtendedPrefixAutomata(
+    fun copy(): ExtendedPrefixAutomaton<T> =
+        ExtendedPrefixAutomaton(
             eventLogName = eventLogName,
             states = states.toSet(),
             activities = activities.toSet(),
@@ -170,7 +170,7 @@ class ExtendedPrefixAutomata<T : Comparable<T>>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ExtendedPrefixAutomata<*>
+        other as ExtendedPrefixAutomaton<*>
 
         if (eventLogName != other.eventLogName) return false
         if (states != other.states) return false

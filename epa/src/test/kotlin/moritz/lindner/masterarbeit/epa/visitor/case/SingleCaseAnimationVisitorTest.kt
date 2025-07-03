@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.visitor.case
 
 import com.diffplug.selfie.Selfie.expectSelfie
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ import java.io.File
 class SingleCaseAnimationVisitorTest {
     @Test
     fun `must create a correct animation for a given case`() {
-        val builder = ExtendedPrefixAutomataBuilder<Long>()
+        val builder = ExtendedPrefixAutomatonBuilder<Long>()
 
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())

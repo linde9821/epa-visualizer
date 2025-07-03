@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.tree
 import moritz.lindner.masterarbeit.epa.domain.State
 
 /**
- * Represents a node in a tree-based layout of an [ExtendedPrefixAutomata] state.
+ * Represents a node in a tree-based layout of an [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] state.
  *
  * Each node wraps a [State], maintains a reference to its parent (if any), and stores
  * its child nodes. It also supports left/right sibling access and depth-first traversal.

@@ -13,12 +13,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
 
 @Composable
 fun ActivityFilterTabUi(
-    epa: ExtendedPrefixAutomata<Long>,
+    epa: ExtendedPrefixAutomaton<Long>,
     onFilterUpdate: (ActivityFilter<Long>) -> Unit,
 ) {
     val activities =

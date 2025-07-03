@@ -6,10 +6,10 @@ import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 
 // TODO: change structure to delegate to other so it can be used as the outer wrapper
-class AutomataVisitorProgressBar<T : Comparable<T>>(
-    private val visitor: AutomataVisitor<T>,
+class AutomatonVisitorWithProgressBar<T : Comparable<T>>(
+    private val visitor: AutomatonVisitor<T>,
     private val taskName: String,
-) : AutomataVisitor<T> by visitor {
+) : AutomatonVisitor<T> by visitor {
     private var progressBar: ProgressBar =
         ProgressBarBuilder()
             .apply {

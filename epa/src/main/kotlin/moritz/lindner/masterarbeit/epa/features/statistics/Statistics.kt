@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.statistics
 import moritz.lindner.masterarbeit.epa.domain.Activity
 
 /**
- * Represents summary statistics for an [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata] or an event log.
+ * Represents summary statistics for an [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] or an event log.
  *
  * Captures global and activity-level metrics such as the number of events, cases,
  * activities, states, and partitions, as well as the frequency of each activity.

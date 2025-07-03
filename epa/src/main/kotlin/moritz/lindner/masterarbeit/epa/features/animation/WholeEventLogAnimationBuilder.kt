@@ -1,15 +1,15 @@
 package moritz.lindner.masterarbeit.epa.features.animation
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import java.util.TreeMap
 
 /**
- * An [AutomataVisitor] that builds an [EventLogAnimation] for an entire event log.
+ * An [AutomatonVisitor] that builds an [EventLogAnimation] for an entire event log.
  *
  * This visitor collects all state transitions across all cases (traces) in the
- * [ExtendedPrefixAutomata], associating each [State] with its timestamp and case identifier.
+ * [ExtendedPrefixAutomaton], associating each [State] with its timestamp and case identifier.
  *
  * For each case, it builds a sequence of [TimedState]s, where each state is active from
  * its associated event timestamp until the next one (or just at its timestamp if it's the last).
@@ -19,15 +19,15 @@ import java.util.TreeMap
  */
 class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     private val name: String,
-) : AutomataVisitor<T> {
+) : AutomatonVisitor<T> {
     private val eventsByCase = mutableMapOf<String, TreeMap<T, State>>()
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
-        extendedPrefixAutomata.sequence(state).forEach { event ->
+        extendedPrefixAutomaton.sequence(state).forEach { event ->
             eventsByCase.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
         }
     }

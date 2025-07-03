@@ -1,11 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.animation
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A visitor that extracts a single trace (case) from an [ExtendedPrefixAutomata] and builds
+ * A visitor that extracts a single trace (case) from an [ExtendedPrefixAutomaton] and builds
  * an [EventLogAnimation] representing the state transitions over time for that specific case.
  *
  * @param T The timestamp type used in the associated events (must be comparable, e.g. Long, Int, LocalDateTime).
@@ -13,15 +13,15 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
  */
 class SingleCaseAnimationBuilder<T : Comparable<T>>(
     val caseIdentifier: String,
-) : AutomataVisitor<T> {
+) : AutomatonVisitor<T> {
     private val events = mutableListOf<Pair<T, State>>()
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
-        extendedPrefixAutomata.sequence(state).forEach { event ->
+        extendedPrefixAutomaton.sequence(state).forEach { event ->
             if (event.caseIdentifier == caseIdentifier) {
                 events += event.timestamp to state
             }

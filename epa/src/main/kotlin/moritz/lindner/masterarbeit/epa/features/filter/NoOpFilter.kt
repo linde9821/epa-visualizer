@@ -1,9 +1,9 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 
 /**
- * A no-op implementation of [EpaFilter] that returns the input [ExtendedPrefixAutomata] unchanged.
+ * A no-op implementation of [EpaFilter] that returns the input [ExtendedPrefixAutomaton] unchanged.
  *
  * This can be useful as a default filter, placeholder, or base case in filter compositions.
  *
@@ -11,7 +11,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
  */
 class NoOpFilter<T : Comparable<T>> : EpaFilter<T> {
     /**
-     * Returns the original [ExtendedPrefixAutomata] without any modifications.
+     * Returns the original [ExtendedPrefixAutomaton] without any modifications.
      */
-    override fun apply(epa: ExtendedPrefixAutomata<T>): ExtendedPrefixAutomata<T> = epa
+    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> = epa
 }

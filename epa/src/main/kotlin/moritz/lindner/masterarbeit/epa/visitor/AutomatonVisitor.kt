@@ -1,12 +1,12 @@
 package moritz.lindner.masterarbeit.epa.visitor
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 
 /**
- * A visitor interface for traversing an [ExtendedPrefixAutomata] and its components.
+ * A visitor interface for traversing an [ExtendedPrefixAutomaton] and its components.
  *
  * The traversal follows a consistent pattern:
  * 1. Visit the [State]
@@ -18,32 +18,32 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
  *
  * @param T The type of timestamp used in the automaton's events.
  */
-interface AutomataVisitor<T : Comparable<T>> {
+interface AutomatonVisitor<T : Comparable<T>> {
     /**
      * Called once at the beginning of the traversal.
      *
-     * @param extendedPrefixAutomata The automaton being traversed.
+     * @param extendedPrefixAutomaton The automaton being traversed.
      */
-    fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
     }
 
     /**
      * Called once at the end of the traversal.
      *
-     * @param extendedPrefixAutomata The automaton being traversed.
+     * @param extendedPrefixAutomaton The automaton being traversed.
      */
-    fun onEnd(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
     }
 
     /**
      * Called when visiting a [State] in the automaton.
      *
-     * @param extendedPrefixAutomata The automaton being traversed.
+     * @param extendedPrefixAutomaton The automaton being traversed.
      * @param state The current state being visited.
      * @param depth The current depth in the traversal tree.
      */
     fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
@@ -52,12 +52,12 @@ interface AutomataVisitor<T : Comparable<T>> {
     /**
      * Called when visiting a [Transition] from the current state.
      *
-     * @param extendedPrefixAutomata The automaton being traversed.
+     * @param extendedPrefixAutomaton The automaton being traversed.
      * @param transition The transition being visited.
      * @param depth The current depth in the traversal tree.
      */
     fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         transition: Transition,
         depth: Int,
     ) {
@@ -66,12 +66,12 @@ interface AutomataVisitor<T : Comparable<T>> {
     /**
      * Called when visiting an [Event] associated with the current state.
      *
-     * @param extendedPrefixAutomata The automaton being traversed.
+     * @param extendedPrefixAutomaton The automaton being traversed.
      * @param event The event being visited.
      * @param depth The current depth in the traversal tree.
      */
     fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         event: Event<T>,
         depth: Int,
     ) {

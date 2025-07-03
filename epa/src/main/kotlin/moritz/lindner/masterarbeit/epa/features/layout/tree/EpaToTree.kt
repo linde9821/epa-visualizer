@@ -1,20 +1,20 @@
 package moritz.lindner.masterarbeit.epa.features.layout.tree
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A visitor that constructs a tree representation of an [ExtendedPrefixAutomata],
+ * A visitor that constructs a tree representation of an [ExtendedPrefixAutomaton],
  * mapping each [State] to an [EPATreeNode] with parent/child relationships.
  *
  * The tree is rooted at [State.Root] and mirrors the traversal order.
- * Must be used with [ExtendedPrefixAutomata.acceptDepthFirst] to ensure a valid parent-before-child visit order.
+ * Must be used with [ExtendedPrefixAutomaton.acceptDepthFirst] to ensure a valid parent-before-child visit order.
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class EpaToTree<T : Comparable<T>> : AutomataVisitor<T> {
+class EpaToTree<T : Comparable<T>> : AutomatonVisitor<T> {
     /**
      * The root node of the constructed tree. Will represent [State.Root].
      * Populated after [onStart] is invoked by the traversal.
@@ -25,7 +25,7 @@ class EpaToTree<T : Comparable<T>> : AutomataVisitor<T> {
     private val stateToNode = HashMap<State, EPATreeNode>()
     private var currentState: State? = null
 
-    override fun onStart(extendedPrefixAutomata: ExtendedPrefixAutomata<T>) {
+    override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         val rootNode = EPATreeNode(State.Root, null, 0)
         root = rootNode
         stateToNode[State.Root] = rootNode
@@ -33,7 +33,7 @@ class EpaToTree<T : Comparable<T>> : AutomataVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
@@ -41,7 +41,7 @@ class EpaToTree<T : Comparable<T>> : AutomataVisitor<T> {
     }
 
     override fun visit(
-        extendedPrefixAutomata: ExtendedPrefixAutomata<T>,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         transition: Transition,
         depth: Int,
     ) {

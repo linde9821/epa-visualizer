@@ -71,10 +71,10 @@ event logs in `.xes` and `.xes.gz` formats.
   → Filter the visualization to only show nodes within a given radius (depth) interval.
 
 - **New Filter:** *Normalized Entropy Partition Filter*  
-  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — Extended Prefix Automata).
+  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process complexity of event sequences and models discovered by process mining).
 
 - **New Filter:** *Normalized Entropy Variant Filter*  
-  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — Extended Prefix Automata).
+  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process complexity of event sequences and models discovered by process mining).
 
 ### Visualization
 
@@ -155,7 +155,7 @@ Out-of-the-box, the project provides mappers for logs included in the resources 
 ### Writing code
 
 The project is designed for easy extension.
-In most cases, using the `AutomataVisitor` interface is sufficient for adding new functionality — it provides complete 
+In most cases, using the `AutomatonVisitor` interface is sufficient for adding new functionality — it provides complete 
 and correct traversal (depth-first or breadth-first) of the EPA.
 Core features such as filtering, animation, and statistics are already implemented using this pattern — making it a 
 natural extension point for new features or experiments.
@@ -173,7 +173,7 @@ This software is part of a university Studienarbeit (pre-master thesis project) 
 for process mining.
 
 Based on concepts from (but not limited to):
-- Augusto, Mendling, Vidgof, & Wurm (2022) – Extended Prefix Automata
+- Augusto, Mendling, Vidgof, & Wurm (2022) – The connection between process complexity of event sequences and models discovered by process mining
 - Visualization: Radial tidy tree with optimizations from Buchheim et al. (2002)
 - TODO: add all references
 

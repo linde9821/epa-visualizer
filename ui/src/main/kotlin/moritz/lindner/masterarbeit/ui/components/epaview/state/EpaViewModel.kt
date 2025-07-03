@@ -13,13 +13,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.NoOpFilter
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.TreeLayoutConstructionHelper
@@ -27,7 +27,7 @@ import moritz.lindner.masterarbeit.ui.logger
 import kotlin.coroutines.cancellation.CancellationException
 
 class EpaViewModel(
-    val completeEpa: ExtendedPrefixAutomata<Long>,
+    val completeEpa: ExtendedPrefixAutomaton<Long>,
     val backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
     private val _filter: MutableStateFlow<EpaFilter<Long>> = MutableStateFlow(NoOpFilter<Long>())
@@ -77,7 +77,7 @@ class EpaViewModel(
         coroutineScope.launch {
             var lastFilter: EpaFilter<Long>? = null
             var lastLayoutConfig: LayoutConfig? = null
-            var lastFilterEpa: ExtendedPrefixAutomata<Long>? = null
+            var lastFilterEpa: ExtendedPrefixAutomaton<Long>? = null
             var lastLayout: TreeLayout? = null
 
             combine(
@@ -105,7 +105,7 @@ class EpaViewModel(
 
                         logger.info { "building tree" }
                         val treeVisitor = EpaToTree<Long>()
-                        filteredEpa.copy().acceptDepthFirst(AutomataVisitorProgressBar(treeVisitor, "tree"))
+                        filteredEpa.copy().acceptDepthFirst(AutomatonVisitorWithProgressBar(treeVisitor, "tree"))
                         yield()
 
                         logger.info { "building tree layout" }
@@ -144,15 +144,15 @@ class EpaViewModel(
         }
     }
 
-    private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomata<Long>?) {
+    private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomaton<Long>?) {
         withContext(backgroundDispatcher) {
             val fullVisitor = StatisticsVisitor<Long>()
-            completeEpa.acceptDepthFirst(AutomataVisitorProgressBar(fullVisitor, "full-statistics"))
+            completeEpa.acceptDepthFirst(AutomatonVisitorWithProgressBar(fullVisitor, "full-statistics"))
 
             yield()
 
             val filterVisitor = StatisticsVisitor<Long>()
-            filteredEpa?.acceptDepthFirst(AutomataVisitorProgressBar(filterVisitor, "filtered-statistics"))
+            filteredEpa?.acceptDepthFirst(AutomatonVisitorWithProgressBar(filterVisitor, "filtered-statistics"))
 
             yield()
 

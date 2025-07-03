@@ -28,7 +28,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017ChallengeEven
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.EventLogMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.ui.components.common.RadioButtonSingleSelectionColumn
 import java.io.File
@@ -37,7 +37,7 @@ import java.io.File
 fun EpaConstructionUi(
     file: File,
     onAbort: () -> Unit,
-    onStartConstructionStart: (ExtendedPrefixAutomataBuilder<Long>) -> Unit,
+    onStartConstructionStart: (ExtendedPrefixAutomatonBuilder<Long>) -> Unit,
 ) {
     var selectedMapper: EventLogMapper<Long> = remember { SampleEventMapper() }
 
@@ -74,7 +74,7 @@ fun EpaConstructionUi(
                 shape = RoundedCornerShape(24.dp),
                 onClick = {
                     val builder =
-                        ExtendedPrefixAutomataBuilder<Long>().apply {
+                        ExtendedPrefixAutomatonBuilder<Long>().apply {
                             setFile(file)
                             setEventLogMapper(selectedMapper)
                         }

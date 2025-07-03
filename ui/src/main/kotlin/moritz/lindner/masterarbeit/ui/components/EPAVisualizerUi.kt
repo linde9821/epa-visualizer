@@ -102,7 +102,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
 
                     is ApplicationState.EpaConstructed ->
                         EpaTreeViewUi(
-                            currentState.extendedPrefixAutomata,
+                            currentState.extendedPrefixAutomaton,
                             backgroundDispatcher,
                             onClose = {
                                 state = ApplicationState.NoFileSelected

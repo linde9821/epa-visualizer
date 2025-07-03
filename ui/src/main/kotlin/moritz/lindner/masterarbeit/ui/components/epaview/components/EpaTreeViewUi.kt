@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.AnimationUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutOptionUi
@@ -25,7 +25,7 @@ fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
 @Composable
 fun EpaTreeViewUi(
-    epa: ExtendedPrefixAutomata<Long>,
+    epa: ExtendedPrefixAutomaton<Long>,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
