@@ -1,9 +1,9 @@
 package moritz.lindner.masterarbeit.epa.visitor.statistics
 
-import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
-import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 

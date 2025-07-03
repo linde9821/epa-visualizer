@@ -1,6 +1,8 @@
 package moritz.lindner.masterarbeit.epa.builder
 
 import com.diffplug.selfie.Selfie.expectSelfie
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import org.junit.jupiter.api.Test
 import java.io.File
 
