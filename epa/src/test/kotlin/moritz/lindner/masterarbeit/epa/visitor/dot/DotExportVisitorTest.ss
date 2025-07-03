@@ -1,21 +1,26 @@
 ╔═ must create correct dot export ═╗
 digraph EPA {
+    nodesep=1;
+    ranksep=.4;
     rankdir=LR;
+    graph [fontname="Times New Roman"];
+    node [fontname="Times New Roman", fontsize=15, shape=circle, fixedsize=true, width=0.8];
+    edge [fontname="Times New Roman", fontsize=18];
     // states (nodes)
-    "-955356007" [label="Root"];
-    "448734952" [label="a 1\na 2\na 3\na 4"];
-    "1025881722" [label="b 1\nb 4"];
-    "1737562409" [label="c 1\nc 4"];
-    "-1970140069" [label="d 1\nd 4"];
-    "-944799893" [label="f 1"];
-    "775974490" [label="e 1"];
-    "-944799894" [label="e 4"];
-    "1025881723" [label="c 2\nc 3"];
-    "1737562439" [label="b 2\nb 3"];
-    "-1970139139" [label="d 2\nd 3"];
-    "-944771063" [label="f 2"];
-    "776868220" [label="e 2"];
-    "-944771064" [label="e 3"];
+    "-955356007" [label="root"];
+    "448734952" [label="a1, a2\na3, a4\n"];
+    "1025881722" [label="b1, b4\n"];
+    "1737562409" [label="c1, c4\n"];
+    "-1970140069" [label="d1, d4\n"];
+    "-944799893" [label="f1\n"];
+    "775974490" [label="e1\n"];
+    "-944799894" [label="e4\n"];
+    "1025881723" [label="c2, c3\n"];
+    "1737562439" [label="b2, b3\n"];
+    "-1970139139" [label="d2, d3\n"];
+    "-944771063" [label="f2\n"];
+    "776868220" [label="e2\n"];
+    "-944771064" [label="e3\n"];
     // transitions
     "-955356007" -> "448734952" [label="a"];
     "448734952" -> "1025881722" [label="b"];
@@ -34,11 +39,15 @@ digraph EPA {
     subgraph cluster_partition0 {
         label = "Partition 0";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "-955356007"
     }
     subgraph cluster_partition1 {
         label = "Partition 1";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "448734952"
         "1025881722"
         "1737562409"
@@ -49,11 +58,15 @@ digraph EPA {
     subgraph cluster_partition4 {
         label = "Partition 4";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "-944799894"
     }
     subgraph cluster_partition2 {
         label = "Partition 2";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "1025881723"
         "1737562439"
         "-1970139139"
@@ -63,28 +76,35 @@ digraph EPA {
     subgraph cluster_partition3 {
         label = "Partition 3";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "-944771064"
     }
 }
 
 ╔═ must create correct dot with breath first visit ═╗
 digraph EPA {
+    nodesep=1;
+    ranksep=.4;
     rankdir=LR;
+    graph [fontname="Times New Roman"];
+    node [fontname="Times New Roman", fontsize=15, shape=circle, fixedsize=true, width=0.8];
+    edge [fontname="Times New Roman", fontsize=18];
     // states (nodes)
-    "-955356007" [label="Root"];
-    "448734952" [label="a 1\na 2\na 3\na 4"];
-    "1025881722" [label="b 1\nb 4"];
-    "1025881723" [label="c 2\nc 3"];
-    "1737562409" [label="c 1\nc 4"];
-    "1737562439" [label="b 2\nb 3"];
-    "-1970140069" [label="d 1\nd 4"];
-    "-1970139139" [label="d 2\nd 3"];
-    "-944799893" [label="f 1"];
-    "-944799894" [label="e 4"];
-    "-944771063" [label="f 2"];
-    "-944771064" [label="e 3"];
-    "775974490" [label="e 1"];
-    "776868220" [label="e 2"];
+    "-955356007" [label="root"];
+    "448734952" [label="a1, a2\na3, a4\n"];
+    "1025881722" [label="b1, b4\n"];
+    "1025881723" [label="c2, c3\n"];
+    "1737562409" [label="c1, c4\n"];
+    "1737562439" [label="b2, b3\n"];
+    "-1970140069" [label="d1, d4\n"];
+    "-1970139139" [label="d2, d3\n"];
+    "-944799893" [label="f1\n"];
+    "-944799894" [label="e4\n"];
+    "-944771063" [label="f2\n"];
+    "-944771064" [label="e3\n"];
+    "775974490" [label="e1\n"];
+    "776868220" [label="e2\n"];
     // transitions
     "-955356007" -> "448734952" [label="a"];
     "448734952" -> "1025881722" [label="b"];
@@ -103,11 +123,15 @@ digraph EPA {
     subgraph cluster_partition0 {
         label = "Partition 0";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "-955356007"
     }
     subgraph cluster_partition1 {
         label = "Partition 1";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "448734952"
         "1025881722"
         "1737562409"
@@ -118,6 +142,8 @@ digraph EPA {
     subgraph cluster_partition2 {
         label = "Partition 2";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "1025881723"
         "1737562439"
         "-1970139139"
@@ -127,11 +153,15 @@ digraph EPA {
     subgraph cluster_partition4 {
         label = "Partition 4";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "-944799894"
     }
     subgraph cluster_partition3 {
         label = "Partition 3";
         color=black;
+        fontname = "Times-Roman";
+        fontsize = 18
         "-944771064"
     }
 }

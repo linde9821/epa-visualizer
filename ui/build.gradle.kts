@@ -25,8 +25,8 @@ dependencies {
     implementation(project(":epa"))
 }
 
-java {
-    toolchain {
+kotlin {
+    jvmToolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
@@ -52,18 +52,24 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
+            description = "EPA Visualizer"
             packageVersion = "1.0.0"
+            vendor = "Moritz Lindner"
+            licenseFile = rootProject.file("LICENSE")
 
             macOS {
                 iconFile.set(project.file("src/main/resources/logo.icns"))
                 bundleID = "moritz.lindner.masterarbeit"
+                dockName = "EPA Visualizer"
             }
 
             windows {
                 iconFile.set(project.file("src/main/resources/logo.ico"))
+                menuGroup = "EPA Visualizer"
             }
 
             linux {
+                menuGroup = "EPA Visualizer"
                 iconFile.set(project.file("src/main/resources/logo.png"))
             }
         }

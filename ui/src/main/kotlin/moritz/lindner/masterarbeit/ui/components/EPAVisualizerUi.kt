@@ -18,9 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.ApplicationState
-import moritz.lindner.masterarbeit.ui.components.treeview.components.EpaTreeViewUi
+import moritz.lindner.masterarbeit.ui.components.construction.EpaConstructionUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.EpaTreeViewUi
+import moritz.lindner.masterarbeit.ui.components.fileselection.FileSelectionUi
+import moritz.lindner.masterarbeit.ui.components.loadingepa.ConstructEpaUi
 import moritz.lindner.masterarbeit.ui.logger
+import moritz.lindner.masterarbeit.ui.state.ApplicationState
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
