@@ -1,6 +1,7 @@
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
+    id("me.champeau.jmh") version "0.7.3"
 }
 
 repositories {
@@ -23,6 +24,8 @@ dependencies {
     implementation(libs.progressbar)
     implementation(libs.rtree)
     implementation(libs.csv)
+    implementation("org.openjdk.jmh:jmh-core:1.37")
+    implementation("org.openjdk.jmh:jmh-generator-annprocess:1.37")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -30,6 +33,13 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+tasks.withType<me.champeau.jmh.JMHTask> {
+    // Get from command line, fallback to default if not present
+    jvmArgs = (project.findProperty("jmhJvmArgs") as String?)?.split(" ") ?: listOf()
+    resultFormat = (project.findProperty("jmhResultFormat") as String?) ?: "CSV"
+    resultsFile = file((project.findProperty("jmhResult") as String?) ?: "epa/build/jmh-result.csv")
 }
 
 tasks.test {
