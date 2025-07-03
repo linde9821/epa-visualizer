@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.state
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.layout.TreeLayout
 
 data class EpaUiState(
     val layout: TreeLayout?,

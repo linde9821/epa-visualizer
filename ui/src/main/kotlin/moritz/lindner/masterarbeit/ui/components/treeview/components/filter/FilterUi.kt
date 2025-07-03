@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import kotlin.math.log10
 import kotlin.math.pow
 

@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.treeview.state
 
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.visitor.animation.TimedState
+import moritz.lindner.masterarbeit.epa.features.animation.TimedState
 
 data class AnimationState(
     val time: Long,

@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.filter.ActivityFilter
+import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
 
 @Composable
 fun ActivityFilterTabUi(

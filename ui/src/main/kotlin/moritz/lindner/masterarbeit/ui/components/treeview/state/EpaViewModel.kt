@@ -14,12 +14,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.drawing.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.drawing.tree.TreeBuildingVisitor
-import moritz.lindner.masterarbeit.epa.filter.DoNothingFilter
-import moritz.lindner.masterarbeit.epa.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.features.filter.NoOpFilter
+import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
+import moritz.lindner.masterarbeit.epa.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.components.treeview.layout.TreeLayoutConstructionHelper
@@ -30,7 +30,7 @@ class EpaViewModel(
     val completeEpa: ExtendedPrefixAutomata<Long>,
     val backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
-    private val _filter: MutableStateFlow<EpaFilter<Long>> = MutableStateFlow(DoNothingFilter<Long>())
+    private val _filter: MutableStateFlow<EpaFilter<Long>> = MutableStateFlow(NoOpFilter<Long>())
     val filter: StateFlow<EpaFilter<Long>> = _filter
 
     fun updateFilter(filter: EpaFilter<Long>) {
@@ -104,7 +104,7 @@ class EpaViewModel(
                         _Epa_uiState.update { it.copy(filteredEpa = filteredEpa) }
 
                         logger.info { "building tree" }
-                        val treeVisitor = TreeBuildingVisitor<Long>()
+                        val treeVisitor = EpaToTree<Long>()
                         filteredEpa.copy().acceptDepthFirst(AutomataVisitorProgressBar(treeVisitor, "tree"))
                         yield()
 

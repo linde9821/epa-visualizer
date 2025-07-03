@@ -30,9 +30,9 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
+import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.animation.EventLogAnimation
-import moritz.lindner.masterarbeit.epa.visitor.animation.SingleCaseAnimationVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
@@ -181,7 +181,7 @@ fun TimelineSliderSingleCaseUi(
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var animation by remember { mutableStateOf<EventLogAnimation<Long>?>(null) }
-    val singleCaseAnimationVisitor = SingleCaseAnimationVisitor<Long>(case)
+    val singleCaseAnimationBuilder = SingleCaseAnimationBuilder<Long>(case)
     var sliderValue by remember { mutableStateOf(0f) }
 
     LaunchedEffect(extendedPrefixAutomata) {
@@ -189,9 +189,9 @@ fun TimelineSliderSingleCaseUi(
         withContext(dispatcher) {
             extendedPrefixAutomata
                 .copy()
-                .acceptDepthFirst(AutomataVisitorProgressBar(singleCaseAnimationVisitor, "casesAnimation"))
+                .acceptDepthFirst(AutomataVisitorProgressBar(singleCaseAnimationBuilder, "casesAnimation"))
             yield()
-            animation = singleCaseAnimationVisitor.build()
+            animation = singleCaseAnimationBuilder.build()
 
             val (time, state) = animation!!.getFirst()
 

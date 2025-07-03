@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.filter.EpaFilter
-import moritz.lindner.masterarbeit.epa.filter.StateFrequencyFilter
-import moritz.lindner.masterarbeit.epa.visitor.statistics.NormalizedStateFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 import moritz.lindner.masterarbeit.ui.logger
 import kotlin.math.max
 

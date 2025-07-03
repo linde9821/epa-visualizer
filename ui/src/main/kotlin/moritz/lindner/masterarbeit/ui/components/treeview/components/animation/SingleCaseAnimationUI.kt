@@ -28,8 +28,8 @@ import androidx.compose.ui.window.DialogWindow
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
+import moritz.lindner.masterarbeit.epa.features.animation.CaseEventCollectorVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomataVisitorProgressBar
-import moritz.lindner.masterarbeit.epa.visitor.case.CaseEventCollectorVisitor
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 

@@ -24,12 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.epa.builder.BPI2017ChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.builder.BPI2017OfferChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.builder.BPI2018ChallangeMapper
-import moritz.lindner.masterarbeit.epa.builder.EventLogMapper
-import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
-import moritz.lindner.masterarbeit.epa.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017ChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import java.io.File
 
 @Composable

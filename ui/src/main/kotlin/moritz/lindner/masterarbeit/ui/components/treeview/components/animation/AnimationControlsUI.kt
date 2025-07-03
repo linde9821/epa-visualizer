@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import moritz.lindner.masterarbeit.epa.visitor.animation.EventLogAnimation
+import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.ui.components.treeview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.treeview.state.EpaViewModel
 

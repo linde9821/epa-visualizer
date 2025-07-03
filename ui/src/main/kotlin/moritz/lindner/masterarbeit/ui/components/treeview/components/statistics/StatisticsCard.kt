@@ -16,7 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.epa.visitor.statistics.Statistics
+import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 
 @Composable
 fun StatisticsElement(

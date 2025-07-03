@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.ui
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomata
-import moritz.lindner.masterarbeit.epa.builder.ExtendedPrefixAutomataBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomataBuilder
 import java.io.File
 
 sealed class ApplicationState {
