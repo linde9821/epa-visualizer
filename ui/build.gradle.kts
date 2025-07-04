@@ -23,6 +23,14 @@ dependencies {
     implementation(libs.logging)
     implementation(compose.materialIconsExtended)
     implementation(project(":epa"))
+
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.assertjCore)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 kotlin {

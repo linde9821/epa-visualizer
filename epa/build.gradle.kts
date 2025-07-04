@@ -10,11 +10,6 @@ repositories {
 }
 
 dependencies {
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.selfie.runner)
-    testImplementation(libs.assertjCore)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
     implementation(libs.logging)
@@ -23,6 +18,11 @@ dependencies {
     implementation(libs.progressbar)
     implementation(libs.rtree)
     implementation(libs.csv)
+
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.selfie.runner)
+    testImplementation(libs.assertjCore)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
