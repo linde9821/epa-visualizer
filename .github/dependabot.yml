@@ -1,6 +1,6 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/"           # Root directory of your project (where settings.gradle.kts is)
+    directory: "/"
     schedule:
-      interval: "weekly"     # Or "daily", "monthly", etc.
+      interval: "weekly"
