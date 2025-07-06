@@ -25,7 +25,7 @@ import kotlin.math.min
  * @param yDistance The vertical distance between nodes of different depth levels.
  * @param expectedCapacity An optimization hint for internal map sizing.
  */
-open class WalkerTreeLayout(
+class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,
     expectedCapacity: Int = 10000,
@@ -330,4 +330,6 @@ open class WalkerTreeLayout(
     override fun getMaxDepth(): Int = maxDepth
 
     override fun isBuilt(): Boolean = isBuilt
+
+    override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }
