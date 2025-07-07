@@ -94,4 +94,6 @@ class DirectAngularPlacementTreeLayout(
                 ).toList()
         return search.map { it.value() }
     }
+
+    override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }

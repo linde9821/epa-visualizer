@@ -12,7 +12,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
  * Implementations of this interface compute and provide access to spatial information
  * (e.g., coordinates) for visualizing or analyzing an [EPATreeNode]-based structure.
  */
-interface TreeLayout {
+interface TreeLayout : Iterable<NodePlacement> {
     /**
      * Computes and assigns layout coordinates to each node in the tree.
      *

@@ -349,4 +349,6 @@ class RadialWalkerTreeLayout(
     }
 
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
+
+    override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }
