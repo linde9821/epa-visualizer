@@ -11,13 +11,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-data class Result(
-    val area: Double,
-    val areaScore: Double,
-    val oneDivVariance: Double,
-    val uniformaty: Double,
-)
-
 class LayoutScore(
     private val gridSize: Int,
 ) {
@@ -49,8 +42,8 @@ class LayoutScore(
                         Result(
                             area = scores[index].first.toDouble(),
                             areaScore = areaScore,
-                            oneDivVariance = scores[index].second,
-                            uniformaty = densityScore,
+                            density = scores[index].second,
+                            densityScore = densityScore,
                         )
                 }.toMap()
 
@@ -58,7 +51,7 @@ class LayoutScore(
             writeRow("", "area", "normalized area", "variance", "normalized uniformity")
 
             results.forEach { (layout, result) ->
-                writeRow(layout::class.java.simpleName, result.area, result.areaScore, result.oneDivVariance, result.uniformaty)
+                writeRow(layout::class.java.simpleName, result.area, result.areaScore, result.density, result.densityScore)
             }
         }
 
