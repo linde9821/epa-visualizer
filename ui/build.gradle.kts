@@ -7,11 +7,12 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
-    mavenCentral()
     google()
+    mavenCentral()
+    maven("https://packages.jetbrains.team/maven/p/kpm/public/")
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     maven("https://raw.githubusercontent.com/apromore/ApromoreCore_SupportLibs/master/mvn-repo/")
     maven("https://jitpack.io")
@@ -22,6 +23,10 @@ dependencies {
     implementation(libs.bundles.log4j)
     implementation(libs.logging)
     implementation(compose.materialIconsExtended)
+
+    implementation(libs.jewel)
+    implementation(libs.jewel.decorated)
+
     implementation(project(":epa"))
 
     testImplementation(libs.junit.jupiter)

@@ -15,6 +15,7 @@ csv-jvm = "1.10.0"
 selfie = "2.5.3"
 kotlin = "2.2.0"
 compose-version = "1.8.2"
+jewel = "1.0.0-SNAPSHOT"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -30,6 +31,10 @@ progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 rtree = { module = "com.github.davidmoten:rtree2", version.ref = "rtree2" }
 csv = { module = "com.jsoizo:kotlin-csv-jvm", version.ref = "csv-jvm" }
 selfie-runner = { module = "com.diffplug.selfie:selfie-runner-junit5", version.ref = "selfie" }
+jewel = { group = "org.jetbrains.jewel", name = "jewel-int-ui-standalone-243", version.ref = "jewel" }
+jewel-decorated = { group = "org.jetbrains.jewel", name = "jewel-int-ui-decorated-window-243", version.ref = "jewel" }
+jewel-markdown-core = { group = "org.jetbrains.jewel", name = "jewel-markdown-core-243", version.ref = "jewel" }
+jewel-markdown-intUiStandaloneStyling = { group = "org.jetbrains.jewel", name = "jewel-markdown-int-ui-standalone-styling-243", version.ref = "jewel" }
 
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
