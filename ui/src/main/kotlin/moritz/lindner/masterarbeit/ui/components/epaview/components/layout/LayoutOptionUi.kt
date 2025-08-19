@@ -44,14 +44,7 @@ fun LayoutOptionUi(
     var layoutSelection by remember { mutableStateOf(layouts.first()) }
 
     Column(
-        modifier =
-            modifier
-                .padding(1.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = RoundedCornerShape(4.dp),
-                ).padding(4.dp),
+        modifier = modifier.padding(start = 10.dp),
         horizontalAlignment = Alignment.End,
     ) {
         Row(

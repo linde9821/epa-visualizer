@@ -38,9 +38,14 @@ fun interface EpaFilter<T : Comparable<T>> {
          * @param filters The list of filters to compose.
          * @return A single [EpaFilter] representing the combined application.
          */
-        fun <T : Comparable<T>> combine(filters: List<EpaFilter<T>>): EpaFilter<T> =
-            filters.reduce { a, b ->
-                a.then(b)
+        fun <T : Comparable<T>> combine(filters: List<EpaFilter<T>>): EpaFilter<T> {
+            return if (filters.isEmpty()) {
+                NoOpFilter()
+            } else {
+                filters.reduce { a, b ->
+                    a.then(b)
+                }
             }
+        }
     }
 }

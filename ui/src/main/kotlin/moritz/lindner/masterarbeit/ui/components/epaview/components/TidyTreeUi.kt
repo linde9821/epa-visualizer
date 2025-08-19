@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +39,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -118,6 +120,7 @@ fun TidyTreeUi(
 
     val canvasModifier =
         modifier
+            .background(Color.White)
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
@@ -151,7 +154,7 @@ fun TidyTreeUi(
 
     if (epaUiState.isLoading || epaUiState.layout == null || !labelsGenerated) {
         Box(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize().background(Color.White),
             contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator(Modifier.align(Alignment.Center).size(50.dp))

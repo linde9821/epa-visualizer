@@ -1,13 +1,11 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.animation
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -48,13 +45,7 @@ fun AnimationUi(
     Column(
         modifier =
             Modifier
-                .fillMaxSize()
-                .padding(1.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = RoundedCornerShape(4.dp),
-                ).padding(4.dp),
+                .fillMaxSize(),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),

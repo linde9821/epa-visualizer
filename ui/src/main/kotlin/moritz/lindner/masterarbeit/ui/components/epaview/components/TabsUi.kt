@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -26,21 +27,18 @@ fun TabsUi(
     onClose: () -> Unit,
 ) {
     Column(
-        modifier =
-            Modifier
+        modifier = Modifier
                 .fillMaxHeight()
-                .padding(1.dp)
                 .border(
                     width = 1.dp,
                     color = Color.Gray,
-                    shape = RoundedCornerShape(4.dp),
-                ).padding(4.dp),
+                ),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
             // Close
             IconButton(onClick = onClose) {
-                Icon(key = AllIconsKeys.General.Close, contentDescription = "Close")
+                Icon(key = AllIconsKeys.General.Close, contentDescription = "Close", modifier = Modifier.size(23.dp))
             }
 
             // Filter
@@ -59,12 +57,12 @@ fun TabsUi(
                 Icon(
                     key = AllIconsKeys.General.Filter,
                     contentDescription = "Filter",
-                    tint =
-                        if (upperState == EpaViewStateUpper.Filter) {
+                    tint = if (upperState == EpaViewStateUpper.Filter) {
                             JewelTheme.contentColor
                         } else {
                             Color.Unspecified
                         },
+                    modifier = Modifier.size(23.dp)
                 )
             }
 
@@ -90,6 +88,7 @@ fun TabsUi(
                         } else {
                             Color.Unspecified
                         },
+                    modifier = Modifier.size(23.dp)
                 )
             }
         }
@@ -117,6 +116,7 @@ fun TabsUi(
                         } else {
                             Color.Unspecified
                         },
+                    modifier = Modifier.size(23.dp)
                 )
             }
 
@@ -142,6 +142,7 @@ fun TabsUi(
                         } else {
                             Color.Unspecified
                         },
+                    modifier = Modifier.size(23.dp)
                 )
             }
         }

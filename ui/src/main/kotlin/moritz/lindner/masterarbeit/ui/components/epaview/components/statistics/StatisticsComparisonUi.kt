@@ -27,11 +27,7 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(1.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                ).padding(16.dp),
+                .padding(16.dp),
     ) {
         Row(
             modifier =
