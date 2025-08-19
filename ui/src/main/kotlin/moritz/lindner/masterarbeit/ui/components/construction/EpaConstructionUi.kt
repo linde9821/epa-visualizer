@@ -41,7 +41,6 @@ fun EpaConstructionUi(
     onAbort: () -> Unit,
     onStartConstructionStart: (ExtendedPrefixAutomatonBuilder<Long>) -> Unit,
 ) {
-
     val mappers =
         listOf(
             SampleEventMapper(),
@@ -49,7 +48,6 @@ fun EpaConstructionUi(
             BPI2017ChallengeEventMapper(),
             BPI2018ChallangeMapper(),
         )
-
 
     var selectedIndex by remember { mutableIntStateOf(0) }
     val selectedMapper: EventLogMapper<Long> = mappers[selectedIndex]

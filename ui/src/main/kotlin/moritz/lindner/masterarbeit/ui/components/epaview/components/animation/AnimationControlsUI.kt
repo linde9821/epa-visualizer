@@ -5,15 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
+import org.jetbrains.jewel.ui.component.Slider
+import org.jetbrains.jewel.ui.component.Text
 
 @Composable
 fun AnimationControlsUI(
@@ -63,9 +61,9 @@ fun AnimationControlsUI(
             modifier = Modifier.fillMaxWidth(),
             valueRange =
                 (animation?.getFirst()?.first?.toFloat() ?: 0f)..(
-                    animation?.getLast()?.first?.toFloat()
-                        ?: 100f
-                ),
+                        animation?.getLast()?.first?.toFloat()
+                            ?: 100f
+                        ),
         )
 
         Row(
@@ -76,9 +74,9 @@ fun AnimationControlsUI(
             val last = animation?.getLast()?.first ?: 0
             val current = viewModel.animationState.value.time
 
-            Text("Start: $first", fontSize = 14.sp)
-            Text("Now: $current", fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text("End: $last", fontSize = 14.sp)
+            Text("Start: $first")
+            Text("Now: $current")
+            Text("End: $last")
         }
     }
 }

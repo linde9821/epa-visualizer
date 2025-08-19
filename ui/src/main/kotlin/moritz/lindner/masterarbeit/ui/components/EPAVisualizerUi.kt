@@ -69,7 +69,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                 }) { error, e ->
                     showErrorDialog = true
                     errorMessage = error
-                    logger.error(e, { error })
+                    logger.error(e) { error }
                 }
 
                 if (showErrorDialog) {
@@ -80,7 +80,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                                 showErrorDialog = false
                                 state = ApplicationState.FileSelected(currentState.selectedFile)
                             }) {
-                                Text("OK")
+                                Text("Ok")
                             }
                         },
                         title = {

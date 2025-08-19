@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.animation
 
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,6 +17,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 
 @Composable
 fun TimelineSliderWholeLogUi(

@@ -11,7 +11,7 @@ import org.deckfour.xes.model.XTrace
  * and other metadata. The mapper is responsible for enriching events with predecessor information and sorting them
  * chronologically.
  *
- * @param T The type used for timestamps (e.g., [Long], [LocalDateTime]), which must be [Comparable].
+ * @param T The type used for timestamps (e.g., [Long], [java.time.LocalDateTime]), which must be [Comparable].
  */
 abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
     /**
