@@ -1,9 +1,12 @@
 package moritz.lindner.masterarbeit.ui
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 
 class SmokeTest {
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalJewelApi::class)
     @Test
     fun `app launches without crashing`() {
         val mainThread =

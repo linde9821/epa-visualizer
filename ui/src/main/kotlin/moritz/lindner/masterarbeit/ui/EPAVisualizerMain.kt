@@ -20,7 +20,6 @@ import moritz.lindner.masterarbeit.ui.Constants.applicationName
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.foundation.util.JewelLogger
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.intui.standalone.theme.createDefaultTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.createEditorTextStyle
@@ -53,7 +52,7 @@ val logger = KotlinLogging.logger {}
 @ExperimentalLayoutApi
 @ExperimentalJewelApi
 fun main() {
-    JewelLogger.getInstance("EPA-Visualizer").info("Starting EPA-Visualizer")
+    logger.info { "Starting EPA-Visualizer" }
     val i = AtomicInteger(0)
 
     val threadFactory =
