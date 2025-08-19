@@ -13,7 +13,7 @@ import org.deckfour.xes.model.XTrace
  *
  * @param T The type used for timestamps (e.g., [Long], [LocalDateTime]), which must be [Comparable].
  */
-abstract class EventLogMapper<T : Comparable<T>> {
+abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
     /**
      * Converts an iterable collection of [XTrace] objects into a chronologically sorted list of [Event]s.
      *

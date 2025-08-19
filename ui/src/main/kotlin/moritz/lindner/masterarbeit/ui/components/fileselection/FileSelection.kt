@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
@@ -36,16 +37,17 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("EPA Visualizer", style = JewelTheme.typography.h1TextStyle)
+        Text("EPA Visualizer", style = JewelTheme.typography.h0TextStyle)
 
-        OutlinedButton(
+        DefaultButton(
             onClick = { showDialog = true },
         ) {
-            Row() {
+            Row {
                 Icon(
                     imageVector = androidx.compose.material.icons.Icons.Default.Upload,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 10.dp)
+                    tint = JewelTheme.contentColor,
+                    modifier = Modifier.padding(end = 10.dp),
                 )
                 Text("Select event log file", style = JewelTheme.typography.regular)
             }
