@@ -8,19 +8,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Animation
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.IconButton
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun TabsUi(
@@ -32,12 +27,12 @@ fun TabsUi(
 ) {
     Column(
         modifier =
-            Modifier.Companion
+            Modifier
                 .fillMaxHeight()
                 .padding(1.dp)
                 .border(
                     width = 1.dp,
-                    color = Color.Companion.Gray,
+                    color = Color.Gray,
                     shape = RoundedCornerShape(4.dp),
                 ).padding(4.dp),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -45,7 +40,7 @@ fun TabsUi(
         Column {
             // Close
             IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+                Icon(key = AllIconsKeys.General.Close, contentDescription = "Close")
             }
 
             // Filter
@@ -56,19 +51,19 @@ fun TabsUi(
                     )
                 },
                 modifier =
-                    Modifier.Companion.background(
-                        if (upperState == EpaViewStateUpper.Filter) Color.Companion.LightGray else Color.Companion.Transparent,
+                    Modifier.background(
+                        if (upperState == EpaViewStateUpper.Filter) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
             ) {
                 Icon(
-                    Icons.Default.FilterList,
+                    key = AllIconsKeys.General.Filter,
                     contentDescription = "Filter",
                     tint =
                         if (upperState == EpaViewStateUpper.Filter) {
-                            MaterialTheme.colors.primary
+                            JewelTheme.contentColor
                         } else {
-                            Color.Companion.Unspecified
+                            Color.Unspecified
                         },
                 )
             }
@@ -81,19 +76,19 @@ fun TabsUi(
                     )
                 },
                 modifier =
-                    Modifier.Companion.background(
-                        if (upperState == EpaViewStateUpper.Layout) Color.Companion.LightGray else Color.Companion.Transparent,
+                    Modifier.background(
+                        if (upperState == EpaViewStateUpper.Layout) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
             ) {
                 Icon(
-                    Icons.Default.Map,
+                    key = AllIconsKeys.General.Layout,
                     contentDescription = "Map",
                     tint =
                         if (upperState == EpaViewStateUpper.Layout) {
-                            MaterialTheme.colors.primary
+                            JewelTheme.contentColor
                         } else {
-                            Color.Companion.Unspecified
+                            Color.Unspecified
                         },
                 )
             }
@@ -108,19 +103,19 @@ fun TabsUi(
                     )
                 },
                 modifier =
-                    Modifier.Companion.background(
-                        if (lowerState == EpaViewStateLower.Animation) Color.Companion.LightGray else Color.Companion.Transparent,
+                    Modifier.background(
+                        if (lowerState == EpaViewStateLower.Animation) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
             ) {
                 Icon(
-                    Icons.Default.Animation,
+                    key = AllIconsKeys.Actions.RunAll,
                     contentDescription = "Animation",
                     tint =
                         if (lowerState == EpaViewStateLower.Animation) {
-                            MaterialTheme.colors.primary
+                            JewelTheme.contentColor
                         } else {
-                            Color.Companion.Unspecified
+                            Color.Unspecified
                         },
                 )
             }
@@ -133,19 +128,19 @@ fun TabsUi(
                     )
                 },
                 modifier =
-                    Modifier.Companion.background(
-                        if (lowerState == EpaViewStateLower.Statistics) Color.Companion.LightGray else Color.Companion.Transparent,
+                    Modifier.background(
+                        if (lowerState == EpaViewStateLower.Statistics) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
             ) {
                 Icon(
-                    Icons.Default.Numbers,
+                    key = AllIconsKeys.Actions.ShowImportStatements,
                     contentDescription = "Statistics",
                     tint =
                         if (lowerState == EpaViewStateLower.Statistics) {
-                            MaterialTheme.colors.primary
+                            JewelTheme.contentColor
                         } else {
-                            Color.Companion.Unspecified
+                            Color.Unspecified
                         },
                 )
             }
