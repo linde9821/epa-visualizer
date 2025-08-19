@@ -27,6 +27,7 @@ dependencies {
     implementation(compose.components.resources)
 
     implementation(libs.jewel)
+    implementation(libs.jna.core)
     implementation(libs.jewel.decorated)
     implementation(libs.intellijPlatform.icons)
 

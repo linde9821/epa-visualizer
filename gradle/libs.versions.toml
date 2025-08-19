@@ -17,6 +17,7 @@ kotlin = "2.2.0"
 compose-version = "1.8.2"
 jewel = "0.29.0-252.24604"
 intelliJPlatformBuild = "252.23892.515"
+jna = "5.17.0"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -35,8 +36,7 @@ selfie-runner = { module = "com.diffplug.selfie:selfie-runner-junit5", version.r
 jewel = { group = "org.jetbrains.jewel", name = "jewel-int-ui-standalone", version.ref = "jewel" }
 jewel-decorated = { group = "org.jetbrains.jewel", name = "jewel-int-ui-decorated-window", version.ref = "jewel" }
 intellijPlatform-icons = { module = "com.jetbrains.intellij.platform:icons", version.ref = "intelliJPlatformBuild" }
-jewel-markdown-core = { group = "org.jetbrains.jewel", name = "jewel-markdown-core", version.ref = "jewel" }
-jewel-markdown-intUiStandaloneStyling = { group = "org.jetbrains.jewel", name = "jewel-markdown-int-ui-standalone-styling", version.ref = "jewel" }
+jna-core = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
