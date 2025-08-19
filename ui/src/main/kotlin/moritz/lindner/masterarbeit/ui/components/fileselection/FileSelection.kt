@@ -1,23 +1,10 @@
 package moritz.lindner.masterarbeit.ui.components.fileselection
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,9 +13,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.AwtWindow
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.OutlinedButton
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
@@ -45,35 +36,19 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "EPA Visualizer",
-            style = MaterialTheme.typography.h4,
-        )
+        Text("EPA Visualizer", style = JewelTheme.typography.h1TextStyle)
 
-        Image(
-            painter = painterResource("logo.png"),
-            contentDescription = "App Logo",
-            modifier =
-                Modifier
-                    .fillMaxWidth(0.4f)
-                    .aspectRatio(1f),
-        )
-
-        Button(
-            shape = RoundedCornerShape(24.dp),
+        OutlinedButton(
             onClick = { showDialog = true },
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-            modifier =
-                Modifier
-                    .height(40.dp),
         ) {
-            Icon(
-                imageVector = Icons.Default.Upload,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(Modifier.width(6.dp))
-            Text("Select event log", style = MaterialTheme.typography.button)
+            Row() {
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Upload,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 10.dp)
+                )
+                Text("Select event log file", style = JewelTheme.typography.regular)
+            }
         }
 
         if (showDialog) {

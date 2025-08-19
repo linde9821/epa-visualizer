@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
@@ -61,18 +62,6 @@ fun main() {
     val backgroundDispatcher = executor.asCoroutineDispatcher()
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
-//        Window(
-//            onCloseRequest = ::exitApplication,
-//            state =
-//                WindowState(
-//                    placement = WindowPlacement.Maximized,
-//                    isMinimized = false,
-//                ),
-//            title = "EPA Visualizer",
-//            icon = painterResource("logo.png"),
-//        ) {
-//            EPAVisualizerUi(backgroundDispatcher)
-//        }
 
         val textStyle = JewelTheme.createDefaultTextStyle()
         val editorStyle = JewelTheme.createEditorTextStyle()
@@ -90,15 +79,17 @@ fun main() {
             DecoratedWindow(
                 onCloseRequest = ::exitApplication,
                 state = WindowState(
-                    placement = WindowPlacement.Maximized,
+                    placement = WindowPlacement.Floating,
                     isMinimized = false,
+                    size = DpSize(800.dp, 800.dp)
                 ),
-                title = "$applicationName",
-                icon = painterResource("logo.png"),
+                title = applicationName,
+                icon = painterResource("icons/logo.png"),
             ) {
                 TitleBar(Modifier.newFullscreenControls()) {
                     Row(Modifier.align(Alignment.CenterHorizontally)) {
                         Text(applicationName)
+                        Icon(Icons.logo, "App Logo")
                     }
 
                     Row(Modifier.align(Alignment.End)) {
@@ -125,6 +116,7 @@ fun main() {
 
 object Icons {
     val gitHub: PathIconKey = PathIconKey("icons/github.svg", Icons::class.java)
+    val logo: PathIconKey = PathIconKey("icons/logo.png", Icons::class.java)
 }
 
 object Constants {
