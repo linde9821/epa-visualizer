@@ -19,7 +19,7 @@ fun StatisticItem(
             Modifier
                 .padding(vertical = 2.dp),
     ) {
-        Text("$label: ", style = JewelTheme.typography.regular,)
-        Text(value.toString(), style = JewelTheme.typography.regular,)
+        Text("$label: ", style = JewelTheme.typography.regular)
+        Text(value.toString(), style = JewelTheme.typography.regular)
     }
 }

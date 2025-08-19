@@ -17,7 +17,6 @@ import androidx.compose.ui.window.AwtWindow
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
-import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
@@ -27,6 +26,7 @@ import java.io.File
 
 @Composable
 fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
+
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -37,8 +37,6 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("EPA Visualizer", style = JewelTheme.typography.h0TextStyle)
-
         DefaultButton(
             onClick = { showDialog = true },
         ) {

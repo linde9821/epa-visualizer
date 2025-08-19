@@ -59,7 +59,7 @@ fun LayoutOptionUi(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Layout Settings", style = JewelTheme.typography.h1TextStyle,)
+            Text("Layout Settings", style = JewelTheme.typography.h1TextStyle)
         }
 
         Spacer(Modifier.height(10.dp))

@@ -48,7 +48,6 @@ event logs in `.xes` and `.xes.gz` formats.
 
 ## 📝 Planned Features and Known Issues
 
-
 ### Layouts
 
 - **New Layout:** *Weighted Direct Angular Placement*  

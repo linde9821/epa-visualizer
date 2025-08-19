@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -35,19 +34,27 @@ fun ControlUI(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             IconButton(onClick = onBackward) {
-                Icon(key = AllIconsKeys.Actions.Play_back,  tint = JewelTheme.contentColor, contentDescription = "Rewind")
+                Icon(
+                    key = AllIconsKeys.Actions.Play_back,
+                    tint = JewelTheme.contentColor,
+                    contentDescription = "Rewind"
+                )
             }
 
             IconButton(onClick = { onButton(!isPlaying) }) {
                 Icon(
-                    key = if (isPlaying) AllIconsKeys.Actions.Pause else  AllIconsKeys.Actions.Play_forward,
+                    key = if (isPlaying) AllIconsKeys.Actions.Pause else AllIconsKeys.Actions.Play_forward,
                     contentDescription = if (isPlaying) "Stop" else "Play",
                     tint = JewelTheme.contentColor
                 )
             }
 
             IconButton(onClick = onForward) {
-                Icon(key = AllIconsKeys.Actions.Play_forward, contentDescription = "Forward", tint = JewelTheme.contentColor)
+                Icon(
+                    key = AllIconsKeys.Actions.Play_forward,
+                    contentDescription = "Forward",
+                    tint = JewelTheme.contentColor
+                )
             }
         }
 
