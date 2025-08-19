@@ -24,14 +24,11 @@ import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapp
 import moritz.lindner.masterarbeit.epa.construction.builder.EventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.ui.components.common.RadioButtonSingleSelectionColumn
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
-import org.jetbrains.jewel.ui.component.Dropdown
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.component.separator
 import org.jetbrains.jewel.ui.typography
 import java.io.File
 
