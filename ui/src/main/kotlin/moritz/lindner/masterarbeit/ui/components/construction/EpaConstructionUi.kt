@@ -20,21 +20,24 @@ import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapp
 import moritz.lindner.masterarbeit.epa.construction.builder.EventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.ui.state.ApplicationState
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.ErrorInlineBanner
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
+import org.jetbrains.jewel.ui.theme.defaultBannerStyle
 import org.jetbrains.jewel.ui.typography
-import java.io.File
 
 @Composable
 fun EpaConstructionUi(
-    file: File,
+    state: ApplicationState.FileSelected,
     onAbort: () -> Unit,
     onStartConstructionStart: (ExtendedPrefixAutomatonBuilder<Long>) -> Unit,
 ) {
+    val file = state.file
     val mappers =
         listOf(
             SampleEventMapper(),
@@ -107,6 +110,12 @@ fun EpaConstructionUi(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            if (state.constructionError != null) {
+                ErrorInlineBanner(
+                    text = state.constructionError,
+                )
+            }
+
             Row {
                 Icon(
                     key = AllIconsKeys.Actions.MoveToButton,

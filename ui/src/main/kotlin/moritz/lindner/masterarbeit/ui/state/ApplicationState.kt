@@ -9,6 +9,7 @@ sealed class ApplicationState {
 
     data class FileSelected(
         val file: File,
+        val constructionError: String?
     ) : ApplicationState()
 
     data class EpaConstructionRunning(

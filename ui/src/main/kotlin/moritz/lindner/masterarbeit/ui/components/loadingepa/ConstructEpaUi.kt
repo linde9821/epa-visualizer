@@ -49,7 +49,7 @@ fun ConstructEpaUi(
                 yield()
                 onEPAConstructed(epa)
             } catch (e: NullPointerException) {
-                onError("Check Mapper", e)
+                onError("Couldn't parse event log. Check mapper.", e)
             } catch (_: CancellationException) {
                 // Job was cancelled, no need to handle
             } catch (e: Exception) {

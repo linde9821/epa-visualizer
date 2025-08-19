@@ -16,7 +16,8 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.asCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.Constants.applicationName
+import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
+import moritz.lindner.masterarbeit.ui.common.Icons
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -33,7 +34,6 @@ import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.Tooltip
-import org.jetbrains.jewel.ui.icon.PathIconKey
 import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.TitleBar
 import org.jetbrains.jewel.window.newFullscreenControls
@@ -84,7 +84,7 @@ fun main() {
                     isMinimized = false,
                     size = DpSize(800.dp, 800.dp)
                 ),
-                title = applicationName,
+                title = APPLICATION_NAME,
                 icon = painterResource("icons/logo.png"),
             ) {
                 TitleBar(Modifier.newFullscreenControls()) {
@@ -93,12 +93,12 @@ fun main() {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(applicationName)
+                        Text(APPLICATION_NAME)
                         Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
                     }
 
                     Row(Modifier.align(Alignment.End)) {
-                        Tooltip({ Text("Open the $applicationName repository on Github") }) {
+                        Tooltip({ Text("Open the $APPLICATION_NAME repository on Github") }) {
                             IconButton(
                                 {
                                     Desktop.getDesktop()
@@ -119,11 +119,3 @@ fun main() {
     executor.shutdownNow()
 }
 
-object Icons {
-    val gitHub: PathIconKey = PathIconKey("icons/github.svg", Icons::class.java)
-    val logo: PathIconKey = PathIconKey("icons/logo.png", Icons::class.java)
-}
-
-object Constants {
-    val applicationName = "EPA Visualizer"
-}
