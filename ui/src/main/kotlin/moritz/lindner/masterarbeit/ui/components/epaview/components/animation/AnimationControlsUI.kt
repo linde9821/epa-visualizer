@@ -12,6 +12,10 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun AnimationControlsUI(
@@ -74,9 +78,20 @@ fun AnimationControlsUI(
             val last = animation?.getLast()?.first ?: 0
             val current = viewModel.animationState.value.time
 
-            Text("Start: $first")
-            Text("Now: $current")
-            Text("End: $last")
+            Text("Start: ${first.asFormattedLocalDateTime()}")
+            Text("Now: ${current.asFormattedLocalDateTime()}")
+            Text("End: ${last.asFormattedLocalDateTime()}")
         }
     }
+}
+
+fun Long.asFormattedLocalDateTime(): String {
+    val localDateTime = LocalDateTime.ofInstant(
+        Instant.ofEpochMilli(this),
+        ZoneId.systemDefault()
+    )
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+    val formattedDate = localDateTime.format(formatter)
+
+    return formattedDate
 }
