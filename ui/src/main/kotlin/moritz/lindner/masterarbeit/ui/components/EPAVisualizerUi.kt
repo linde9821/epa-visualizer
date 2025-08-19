@@ -26,25 +26,6 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("Unknown error") }
 
-//    val lightBlueColorPalette =
-//        lightColors(
-//            primary = Color(0xFF1976D2),
-//            primaryVariant = Color(0xFF1565C0),
-//            secondary = Color(0xFF90CAF9),
-//            background = Color(0xFFF5F8FB),
-//            surface = Color(0xFFFFFFFF),
-//            onPrimary = Color.White,
-//            onSecondary = Color.Black,
-//            onBackground = Color.Black,
-//            onSurface = Color.Black,
-//        )
-
-//    MaterialTheme(colors = lightBlueColorPalette) {
-//        Surface(
-//            elevation = 8.dp,
-//            color = MaterialTheme.colors.surface,
-//            modifier = Modifier.fillMaxSize(),
-//        ) {
     Column {
         when (val currentState = state) {
             ApplicationState.NoFileSelected ->

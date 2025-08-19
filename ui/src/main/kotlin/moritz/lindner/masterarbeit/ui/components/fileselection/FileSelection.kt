@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +19,7 @@ import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.awt.FileDialog
 import java.awt.Frame
@@ -44,7 +44,7 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         ) {
             Row {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Upload,
+                    key = AllIconsKeys.Actions.AddFile,
                     contentDescription = null,
                     tint = JewelTheme.contentColor,
                     modifier = Modifier.padding(end = 10.dp),

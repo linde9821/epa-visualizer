@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +31,6 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
                 .border(
                     width = 1.dp,
                     color = Color.Gray,
-                    shape = RoundedCornerShape(8.dp),
                 ).padding(16.dp),
     ) {
         Row(
@@ -54,8 +54,9 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
             Row(
                 modifier =
                     Modifier
-                        .fillMaxSize() // take full screen or parent size
-                        .padding(16.dp),
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 StatisticsElement(

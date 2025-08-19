@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowCircleLeft
-import androidx.compose.material.icons.filled.BuildCircle
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,6 +25,7 @@ import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.io.File
 
@@ -77,7 +74,7 @@ fun EpaConstructionUi(
             ) {
                 Row {
                     Icon(
-                        Icons.Default.ArrowCircleLeft,
+                        key = AllIconsKeys.Actions.Back,
                         contentDescription = null,
                         tint = JewelTheme.contentColor,
                         modifier = Modifier.padding(end = 10.dp),
@@ -98,7 +95,7 @@ fun EpaConstructionUi(
             ) {
                 Row {
                     Icon(
-                        Icons.Default.BuildCircle,
+                        key = AllIconsKeys.Toolwindows.ToolWindowBuild,
                         contentDescription = null,
                         tint = JewelTheme.contentColor,
                         modifier = Modifier.padding(end = 10.dp)
@@ -112,7 +109,7 @@ fun EpaConstructionUi(
         ) {
             Row {
                 Icon(
-                    Icons.Default.Map,
+                    key = AllIconsKeys.Actions.MoveToButton,
                     contentDescription = null,
                     tint = JewelTheme.contentColor,
                     modifier = Modifier.padding(end = 10.dp)

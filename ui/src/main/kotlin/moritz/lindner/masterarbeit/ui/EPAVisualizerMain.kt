@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ import org.jetbrains.jewel.intui.standalone.theme.default
 import org.jetbrains.jewel.intui.standalone.theme.lightThemeDefinition
 import org.jetbrains.jewel.intui.window.decoratedWindow
 import org.jetbrains.jewel.intui.window.styling.light
+import org.jetbrains.jewel.intui.window.styling.lightWithLightHeader
 import org.jetbrains.jewel.ui.ComponentStyling
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
@@ -72,7 +74,7 @@ fun main() {
         IntUiTheme(
             theme = themeDefinition,
             styling = ComponentStyling.default().decoratedWindow(
-                titleBarStyle = TitleBarStyle.light(),
+                titleBarStyle = TitleBarStyle.lightWithLightHeader(),
                 windowStyle = DecoratedWindowStyle.light()
             ),
         ) {
@@ -87,9 +89,13 @@ fun main() {
                 icon = painterResource("icons/logo.png"),
             ) {
                 TitleBar(Modifier.newFullscreenControls()) {
-                    Row(Modifier.align(Alignment.CenterHorizontally)) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(applicationName)
-                        Icon(Icons.logo, "App Logo")
+                        Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
                     }
 
                     Row(Modifier.align(Alignment.End)) {
