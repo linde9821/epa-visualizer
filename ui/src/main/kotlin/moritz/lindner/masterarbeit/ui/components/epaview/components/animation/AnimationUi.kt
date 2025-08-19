@@ -1,20 +1,11 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.animation
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -36,6 +26,12 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.Slider
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 import kotlin.math.roundToInt
 
 @Composable
@@ -49,20 +45,14 @@ fun AnimationUi(
     Column(
         modifier =
             Modifier
-                .fillMaxSize()
-                .padding(1.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = RoundedCornerShape(4.dp),
-                ).padding(4.dp),
+                .fillMaxSize(),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Animation", style = MaterialTheme.typography.h4)
+            Text("Animation", style = JewelTheme.typography.h1TextStyle)
         }
 
         if (filteredEpa != null) {
@@ -76,10 +66,7 @@ fun AnimationUi(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Button(
-                            shape = RoundedCornerShape(24.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            modifier = Modifier.height(48.dp),
+                        DefaultButton(
                             onClick = {
                                 state = AnimationSelectionState.SingleCase
                             },
@@ -87,10 +74,7 @@ fun AnimationUi(
                             Text("Select Case")
                         }
 
-                        Button(
-                            shape = RoundedCornerShape(24.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            modifier = Modifier.height(48.dp),
+                        DefaultButton(
                             onClick = {
                                 state = AnimationSelectionState.WholeLog
                             },
@@ -192,8 +176,6 @@ fun TimelineSliderSingleCaseUi(
                 .acceptDepthFirst(AutomatonVisitorWithProgressBar(singleCaseAnimationBuilder, "casesAnimation"))
             yield()
             animation = singleCaseAnimationBuilder.build()
-
-            val (time, state) = animation!!.getFirst()
 
             viewModel.updateAnimation(
                 AnimationState.Empty,

@@ -8,16 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
@@ -25,12 +27,7 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(1.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = RoundedCornerShape(8.dp),
-                ).padding(16.dp),
+                .padding(16.dp),
     ) {
         Row(
             modifier =
@@ -40,13 +37,11 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Statistics", style = MaterialTheme.typography.h4)
+            Text("Statistics", style = JewelTheme.typography.h1TextStyle)
 
             if (statisticsState == null) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    strokeWidth = 4.dp,
-                    color = MaterialTheme.colors.primary,
                 )
             }
         }
@@ -55,8 +50,9 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
             Row(
                 modifier =
                     Modifier
-                        .fillMaxSize() // take full screen or parent size
-                        .padding(16.dp),
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 StatisticsElement(

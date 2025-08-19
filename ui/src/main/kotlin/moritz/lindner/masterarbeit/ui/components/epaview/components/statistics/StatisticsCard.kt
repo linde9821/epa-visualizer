@@ -1,22 +1,17 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.statistics
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun StatisticsElement(
@@ -24,32 +19,25 @@ fun StatisticsElement(
     statistics: Statistics<Long>?,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier =
-            modifier
-                .fillMaxHeight() // make sure the Box takes full height for scrolling to work
-                .verticalScroll(rememberScrollState())
-                .padding(6.dp),
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(4.dp),
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.subtitle2,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        Text(
+            text = title,
+            style = JewelTheme.typography.h4TextStyle,
+            modifier = Modifier.padding(bottom = 3.dp),
+        )
 
-            if (statistics != null) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
+        if (statistics != null) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(8.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         StatisticItem("Partitions", statistics.partitionsCount)
@@ -59,16 +47,13 @@ fun StatisticsElement(
                         StatisticItem("Activities", statistics.activityCount)
                     }
 
-                    VerticalDivider()
-
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(8.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         Text(
-                            "Top 4 Activities",
-                            style = MaterialTheme.typography.body2,
-                            modifier = Modifier.padding(bottom = 8.dp),
+                            "Top 4 Activities:",
+                            style = JewelTheme.typography.regular,
                         )
 
                         statistics.activityFrequency
@@ -79,34 +64,24 @@ fun StatisticsElement(
                                 StatisticItem(activity.toString(), frequency)
                             }
                     }
+                }
 
-                    VerticalDivider()
-
+                Row {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(4.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         Text(
                             "Time",
-                            style = MaterialTheme.typography.body2,
-                            modifier = Modifier.padding(bottom = 8.dp),
+                            style = JewelTheme.typography.regular,
+                            modifier = Modifier.padding(bottom = 4.dp),
                         )
                         StatisticItem("First Event", statistics.interval.first)
                         StatisticItem("Last Event", statistics.interval.second)
                     }
+
                 }
             }
         }
     }
-}
-
-@Composable
-fun VerticalDivider() {
-    Divider(
-        modifier =
-            Modifier
-                .fillMaxHeight()
-                .width(1.dp),
-        color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-    )
 }

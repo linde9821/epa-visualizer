@@ -33,6 +33,10 @@ class EpaViewModel(
     private val _filter: MutableStateFlow<EpaFilter<Long>> = MutableStateFlow(NoOpFilter<Long>())
     val filter: StateFlow<EpaFilter<Long>> = _filter
 
+    fun setFilterUiTabIndex(index: Int) {
+        _Epa_uiState.update { it.copy(filterUiSelectedTabIndex = index) }
+    }
+
     fun updateFilter(filter: EpaFilter<Long>) {
         _filter.value = filter
     }
@@ -61,6 +65,7 @@ class EpaViewModel(
                 null,
                 true,
                 null,
+                0
             ),
         )
     val epaUiState: StateFlow<EpaUiState> = _Epa_uiState.asStateFlow()
@@ -98,9 +103,15 @@ class EpaViewModel(
 
                 try {
                     withContext(backgroundDispatcher) {
-                        logger.info { "applying filter" }
-                        val filteredEpa = filter.apply(completeEpa.copy())
+                        val filteredEpa = if (filter != NoOpFilter<Long>()) {
+                            logger.info { "applying filter" }
+                            filter.apply(completeEpa.copy())
+                        } else {
+                            logger.info { "no filter update necessary" }
+                            completeEpa
+                        }
                         yield()
+
                         _Epa_uiState.update { it.copy(filteredEpa = filteredEpa) }
 
                         logger.info { "building tree" }

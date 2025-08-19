@@ -2,25 +2,23 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.animation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -32,6 +30,9 @@ import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.Text
 
 @Composable
 fun SingleCaseAnimationUI(
@@ -55,43 +56,41 @@ fun SingleCaseAnimationUI(
         isLoading = false
     }
 
-    Column(modifier = Modifier.Companion.padding(16.dp)) {
-        Row {
-            Button(
-                shape = RoundedCornerShape(24.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                modifier = Modifier.height(48.dp),
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DefaultButton(
                 onClick = {
                     showDialog = true
                     selectedCase = null
-                    viewModel.updateAnimation(
-                        AnimationState.Companion.Empty,
-                    )
-                },
+                    viewModel.updateAnimation(AnimationState.Empty)
+                }
             ) {
                 Text("Select Case")
             }
-            Spacer(Modifier.Companion.width(8.dp))
 
             if (selectedCase != null) {
-                Text("Case: $selectedCase")
+                Text(
+                    text = "Case: $selectedCase",
+                    style = JewelTheme.defaultTextStyle,
+                    modifier = Modifier.weight(1f) // Takes available space
+                )
             }
 
-            Button(
-                shape = RoundedCornerShape(24.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                modifier = Modifier.height(48.dp),
+            DefaultButton(
                 onClick = {
-                    viewModel.updateAnimation(
-                        AnimationState.Companion.Empty,
-                    )
+                    viewModel.updateAnimation(AnimationState.Empty)
                     onClose()
-                },
+                }
             ) {
                 Text("Close")
             }
         }
-
         Spacer(Modifier.Companion.height(8.dp))
 
         if (selectedCase != null) {
@@ -106,7 +105,7 @@ fun SingleCaseAnimationUI(
             ) {
                 if (!isLoading) {
                     Box(
-                        Modifier.Companion.padding(16.dp),
+                        Modifier.padding(16.dp),
                     ) {
                         Row {
                             LazyColumn {
@@ -115,32 +114,15 @@ fun SingleCaseAnimationUI(
                                     Text(
                                         text = case,
                                         modifier =
-                                            Modifier.Companion
+                                            Modifier
                                                 .padding(8.dp)
                                                 .background(if (isSelected) Color.Companion.LightGray else Color.Companion.Transparent)
-                                                .clickable { selectedCase = case }
+                                                .clickable {
+                                                    selectedCase = case
+                                                    showDialog = false
+                                                }
                                                 .padding(8.dp),
                                     )
-                                }
-                            }
-                            Column {
-                                Button(
-                                    shape = RoundedCornerShape(24.dp),
-                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                    modifier = Modifier.height(48.dp),
-                                    onClick = {
-                                        showDialog = false
-                                    },
-                                ) {
-                                    Text("Run")
-                                }
-                                Button(
-                                    shape = RoundedCornerShape(24.dp),
-                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                    modifier = Modifier.height(48.dp),
-                                    onClick = { showDialog = false },
-                                ) {
-                                    Text("Close")
                                 }
                             }
                         }

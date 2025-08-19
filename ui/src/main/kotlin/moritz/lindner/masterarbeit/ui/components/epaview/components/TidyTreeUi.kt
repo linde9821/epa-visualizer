@@ -1,12 +1,11 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +39,8 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
@@ -119,6 +120,7 @@ fun TidyTreeUi(
 
     val canvasModifier =
         modifier
+            .background(Color.White)
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
@@ -152,14 +154,10 @@ fun TidyTreeUi(
 
     if (epaUiState.isLoading || epaUiState.layout == null || !labelsGenerated) {
         Box(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize().background(Color.White),
             contentAlignment = Alignment.Center,
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(200.dp),
-                strokeWidth = 6.dp,
-                color = MaterialTheme.colors.primary,
-            )
+            CircularProgressIndicator(Modifier.align(Alignment.Center).size(50.dp))
         }
     } else {
         Canvas(modifier = canvasModifier) {
@@ -237,9 +235,9 @@ private fun DrawScope.drawEPA(
                 val isAnimating =
                     animationState.currentTimeStates.any {
                         it.state == state.from &&
-                            it.nextState == state &&
-                            it.from <= animationState.time &&
-                            animationState.time < (it.to ?: Long.MAX_VALUE)
+                                it.nextState == state &&
+                                it.from <= animationState.time &&
+                                animationState.time < (it.to ?: Long.MAX_VALUE)
                     }
 
                 val edgePaint = if (isAnimating) redStroke else blackStroke
@@ -341,14 +339,14 @@ fun interpolateBezier(
     return Offset(
         x =
             u.pow(3) * start.x +
-                3 * u.pow(2) * t * c1.x +
-                3 * u * t.pow(2) * c2.x +
-                t.pow(3) * end.x,
+                    3 * u.pow(2) * t * c1.x +
+                    3 * u * t.pow(2) * c2.x +
+                    t.pow(3) * end.x,
         y =
             u.pow(3) * start.y +
-                3 * u.pow(2) * t * c1.y +
-                3 * u * t.pow(2) * c2.y +
-                t.pow(3) * end.y,
+                    3 * u.pow(2) * t * c1.y +
+                    3 * u * t.pow(2) * c2.y +
+                    t.pow(3) * end.y,
     )
 }
 

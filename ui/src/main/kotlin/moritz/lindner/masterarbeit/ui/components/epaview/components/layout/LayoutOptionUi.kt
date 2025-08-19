@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutSelection
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun LayoutOptionUi(
@@ -43,22 +44,15 @@ fun LayoutOptionUi(
     var layoutSelection by remember { mutableStateOf(layouts.first()) }
 
     Column(
-        modifier =
-            modifier
-                .padding(1.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = RoundedCornerShape(4.dp),
-                ).padding(4.dp),
-        horizontalAlignment = Alignment.Companion.End,
+        modifier = modifier.padding(start = 10.dp),
+        horizontalAlignment = Alignment.End,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Layout Settings", style = MaterialTheme.typography.h4)
+            Text("Layout Settings", style = JewelTheme.typography.h1TextStyle)
         }
 
         Spacer(Modifier.height(10.dp))
@@ -87,6 +81,7 @@ fun LayoutOptionUi(
                 )
             },
             layouts = layouts,
+            selectedLayout = layoutSelection,
             onLayoutSelectionChange = {
                 layoutSelection = it
                 logger.info { "setting layout to $it" }

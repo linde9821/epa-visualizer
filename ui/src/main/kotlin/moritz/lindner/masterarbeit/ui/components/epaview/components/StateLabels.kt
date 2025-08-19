@@ -41,10 +41,6 @@ class StateLabels(
 
             canvas.clear(backgroundColor)
 
-            // Left-align horizontally, baseline-align vertically
-            val x = 0f
-            val y = textLine.ascent.absoluteValue
-
             canvas.drawTextLine(textLine, 5f, textLine.ascent.absoluteValue + 2f, paint)
 
             val image = surface.makeImageSnapshot()
