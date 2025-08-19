@@ -1,22 +1,15 @@
 package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.construction.EpaConstructionUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.EpaTreeViewUi
@@ -52,66 +45,62 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
 //            color = MaterialTheme.colors.surface,
 //            modifier = Modifier.fillMaxSize(),
 //        ) {
-//            Column {
-//                when (val currentState = state) {
-//                    ApplicationState.NoFileSelected ->
-//                        FileSelectionUi { file ->
-//                            state = ApplicationState.FileSelected(file)
-//                        }
-//
-//                    is ApplicationState.FileSelected ->
-//                        EpaConstructionUi(
-//                            file = currentState.file,
-//                            onAbort = { state = ApplicationState.NoFileSelected },
-//                            onStartConstructionStart = { builder ->
-//                                state = ApplicationState.EpaConstructionRunning(currentState.file, builder)
-//                            },
-//                        )
-//
-//                    is ApplicationState.EpaConstructionRunning -> {
-//                        ConstructEpaUi(scope, backgroundDispatcher, currentState.builder, { epa ->
-//                            state = ApplicationState.EpaConstructed(epa)
-//                        }, {
-//                            state = ApplicationState.FileSelected(currentState.selectedFile)
-//                        }) { error, e ->
-//                            showErrorDialog = true
-//                            errorMessage = error
-//                            logger.error(e, { error })
-//                        }
-//
-//                        if (showErrorDialog) {
-//                            AlertDialog(
-//                                onDismissRequest = { showErrorDialog = false },
-//                                confirmButton = {
-//                                    TextButton(onClick = {
-//                                        showErrorDialog = false
-//                                        state = ApplicationState.FileSelected(currentState.selectedFile)
-//                                    }) {
-//                                        Text("OK")
-//                                    }
-//                                },
-//                                title = {
-//                                    Text("Error")
-//                                },
-//                                text = {
-//                                    Text(errorMessage)
-//                                },
-//                            )
-//                        }
-//                    }
-//
-//                    is ApplicationState.EpaConstructed ->
-//                        EpaTreeViewUi(
-//                            currentState.extendedPrefixAutomaton,
-//                            backgroundDispatcher,
-//                            onClose = {
-//                                state = ApplicationState.NoFileSelected
-//                            },
-//                        )
-//                }
-//            }
-//        }
-//    }
+    Column {
+        when (val currentState = state) {
+            ApplicationState.NoFileSelected ->
+                FileSelectionUi { file ->
+                    state = ApplicationState.FileSelected(file)
+                }
 
+            is ApplicationState.FileSelected ->
+                EpaConstructionUi(
+                    file = currentState.file,
+                    onAbort = { state = ApplicationState.NoFileSelected },
+                    onStartConstructionStart = { builder ->
+                        state = ApplicationState.EpaConstructionRunning(currentState.file, builder)
+                    },
+                )
 
+            is ApplicationState.EpaConstructionRunning -> {
+                ConstructEpaUi(scope, backgroundDispatcher, currentState.builder, { epa ->
+                    state = ApplicationState.EpaConstructed(epa)
+                }, {
+                    state = ApplicationState.FileSelected(currentState.selectedFile)
+                }) { error, e ->
+                    showErrorDialog = true
+                    errorMessage = error
+                    logger.error(e, { error })
+                }
+
+                if (showErrorDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showErrorDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showErrorDialog = false
+                                state = ApplicationState.FileSelected(currentState.selectedFile)
+                            }) {
+                                Text("OK")
+                            }
+                        },
+                        title = {
+                            Text("Error")
+                        },
+                        text = {
+                            Text(errorMessage)
+                        },
+                    )
+                }
+            }
+
+            is ApplicationState.EpaConstructed ->
+                EpaTreeViewUi(
+                    currentState.extendedPrefixAutomaton,
+                    backgroundDispatcher,
+                    onClose = {
+                        state = ApplicationState.NoFileSelected
+                    },
+                )
+        }
+    }
 }

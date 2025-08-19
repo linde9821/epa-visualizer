@@ -98,11 +98,11 @@ fun main() {
             ) {
                 TitleBar(Modifier.newFullscreenControls()) {
                     Row(Modifier.align(Alignment.CenterHorizontally)) {
-                        Text("$applicationName")
+                        Text(applicationName)
                     }
 
                     Row(Modifier.align(Alignment.End)) {
-                        Tooltip({ Text("Open $applicationName Github repository") }) {
+                        Tooltip({ Text("Open the $applicationName repository on Github") }) {
                             IconButton(
                                 {
                                     Desktop.getDesktop()
@@ -113,7 +113,6 @@ fun main() {
                                 Icon(Icons.gitHub, "Github")
                             }
                         }
-
                     }
 
                 }

@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.bundles.log4j)
     implementation(libs.logging)
     implementation(compose.materialIconsExtended)
+    implementation(compose.components.resources)
 
     implementation(libs.jewel)
     implementation(libs.jewel.decorated)
