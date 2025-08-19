@@ -7,4 +7,5 @@ data class EpaUiState(
     val layout: TreeLayout?,
     val isLoading: Boolean,
     val filteredEpa: ExtendedPrefixAutomaton<Long>?,
+    val filterUiSelectedTabIndex: Int
 )

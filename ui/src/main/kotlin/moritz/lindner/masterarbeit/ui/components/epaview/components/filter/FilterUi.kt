@@ -8,17 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ScrollableTabRow
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.Composable
@@ -33,6 +23,15 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.SimpleTabContent
+import org.jetbrains.jewel.ui.component.TabData
+import org.jetbrains.jewel.ui.component.TabStrip
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.theme.defaultTabStyle
+import org.jetbrains.jewel.ui.typography
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -41,10 +40,11 @@ fun FilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
     backgroundDispatcher: CoroutineDispatcher,
     modifier: Modifier = Modifier,
+    selectedTabIndex: Int,
+    onSetIndex: (Int) -> Unit,
     onApply: (EpaFilter<Long>) -> Unit,
 ) {
-    val tabs = listOf("Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
-    var selectedIndex by remember { mutableStateOf(0) }
+    val tabNames = listOf("Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
 
     val filterByIndex =
         remember {
@@ -66,72 +66,59 @@ fun FilterUi(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Filters", style = MaterialTheme.typography.h4)
+            Text("Filters", style = JewelTheme.typography.h1TextStyle)
 
-            Button(
+            DefaultButton(
                 onClick = {
                     val combinedFilters =
                         EpaFilter.combine(filterByIndex.values.toList())
                     onApply(combinedFilters)
                 },
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.Companion.height(48.dp),
             ) {
-                Icon(Icons.Default.FilterList, contentDescription = "Abort")
-                Spacer(Modifier.Companion.width(8.dp))
-                Text("Apply", color = Color.Companion.White, style = MaterialTheme.typography.button)
+                Row {
+                    Icon(Icons.Default.FilterList, contentDescription = "Abort")
+                    Text("Apply", color = Color.White, style = JewelTheme.typography.regular,)
+                }
             }
         }
 
-        ScrollableTabRow(
-            selectedTabIndex = selectedIndex,
-            backgroundColor = Color.Companion.White,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    color = MaterialTheme.colors.primary,
-                    height = 3.dp,
-                )
-            },
-            divider = {
-                Divider(
-                    color = Color.LightGray,
-                    thickness = 1.dp,
-                )
-            },
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedIndex == index,
-                    onClick = { selectedIndex = index },
-                    text = { Text(title) },
-                )
-            }
+        val tabData = tabNames.mapIndexed { index, name ->
+            TabData.Default(
+                closable = false,
+                selected = index == selectedTabIndex,
+                content = { tabState ->
+                    SimpleTabContent(label = name, state = tabState)
+                },
+                onClick = { onSetIndex(index) },
+            )
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TabStrip(tabs = tabData, style = JewelTheme.defaultTabStyle, modifier = Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.Companion.height(8.dp))
 
-        // TODO: fix reset by using state hoisting
         Column(modifier = Modifier.padding(8.dp)) {
-            when (selectedIndex) {
+            when (selectedTabIndex) {
                 0 ->
                     ActivityFilterTabUi(epa) {
-                        filterByIndex[selectedIndex] = it
+                        filterByIndex[selectedTabIndex] = it
                     }
 
                 1 ->
                     StateFrequencyFilterUi(epa, backgroundDispatcher) {
-                        filterByIndex[selectedIndex] = it
+                        filterByIndex[selectedTabIndex] = it
                     }
 
                 2 -> {
                     PartitionFrequencyFilterUi(epa, backgroundDispatcher) {
-                        filterByIndex[selectedIndex] = it
+                        filterByIndex[selectedTabIndex] = it
                     }
                 }
 
                 else -> {
-                    Text("${tabs[selectedIndex]} not implemented", style = MaterialTheme.typography.subtitle1)
+                    Text("${tabNames[selectedTabIndex]} not implemented", style = JewelTheme.typography.regular,)
                 }
             }
         }

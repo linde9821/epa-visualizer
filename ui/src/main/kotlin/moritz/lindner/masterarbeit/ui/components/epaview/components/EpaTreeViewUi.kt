@@ -79,6 +79,8 @@ fun EpaTreeViewUi(
                                 Modifier
                                     .weight(1f)
                                     .fillMaxHeight(),
+                            selectedTabIndex = epaUiState.filterUiSelectedTabIndex,
+                            onSetIndex = epaViewModel::setFilterUiTabIndex
                         )
                     }
 
