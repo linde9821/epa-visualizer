@@ -59,6 +59,9 @@ compose.desktop {
                 "-XX:MaxGCPauseMillis=250",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
+                "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.management/java.lang.management=ALL-UNNAMED"
             )
 
         buildTypes.release.proguard {
@@ -77,16 +80,19 @@ compose.desktop {
                 iconFile.set(project.file("src/main/resources/logo.icns"))
                 bundleID = "moritz.lindner.masterarbeit"
                 dockName = "EPA Visualizer"
+                modules("jdk.unsupported")
             }
 
             windows {
                 iconFile.set(project.file("src/main/resources/logo.ico"))
                 menuGroup = "EPA Visualizer"
+                modules("jdk.unsupported")
             }
 
             linux {
                 menuGroup = "EPA Visualizer"
                 iconFile.set(project.file("src/main/resources/logo.png"))
+                modules("jdk.unsupported")
             }
         }
     }
