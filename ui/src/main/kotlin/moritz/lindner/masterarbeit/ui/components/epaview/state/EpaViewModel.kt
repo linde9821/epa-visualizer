@@ -98,9 +98,15 @@ class EpaViewModel(
 
                 try {
                     withContext(backgroundDispatcher) {
-                        logger.info { "applying filter" }
-                        val filteredEpa = filter.apply(completeEpa.copy())
+                        val filteredEpa = if (filter != NoOpFilter<Long>()) {
+                            logger.info { "applying filter" }
+                            filter.apply(completeEpa.copy())
+                        } else {
+                            logger.info { "no filter update necessary" }
+                            completeEpa
+                        }
                         yield()
+
                         _Epa_uiState.update { it.copy(filteredEpa = filteredEpa) }
 
                         logger.info { "building tree" }

@@ -7,16 +7,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun StatisticsElement(
@@ -29,84 +28,73 @@ fun StatisticsElement(
             modifier
                 .fillMaxHeight() // make sure the Box takes full height for scrolling to work
                 .verticalScroll(rememberScrollState())
-                .padding(6.dp),
+                .padding(2.dp),
     ) {
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(4.dp),
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.subtitle2,
-                modifier = Modifier.padding(bottom = 8.dp),
+                style = JewelTheme.typography.h4TextStyle,
+                modifier = Modifier.padding(bottom = 3.dp),
             )
 
             if (statistics != null) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                Column (
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                    ) {
-                        StatisticItem("Partitions", statistics.partitionsCount)
-                        StatisticItem("States", statistics.stateCount)
-                        StatisticItem("Events", statistics.eventCount)
-                        StatisticItem("Cases", statistics.caseCount)
-                        StatisticItem("Activities", statistics.activityCount)
+                    Row {
+                        Column(
+                            modifier = Modifier.padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            StatisticItem("Partitions", statistics.partitionsCount)
+                            StatisticItem("States", statistics.stateCount)
+                            StatisticItem("Events", statistics.eventCount)
+                            StatisticItem("Cases", statistics.caseCount)
+                            StatisticItem("Activities", statistics.activityCount)
+                        }
+
+                        Column(
+                            modifier = Modifier.padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                "Top 4 Activities:",
+                                style = JewelTheme.typography.regular,
+                            )
+
+                            statistics.activityFrequency
+                                .toList()
+                                .sortedByDescending { it.second }
+                                .take(4)
+                                .forEach { (activity, frequency) ->
+                                    StatisticItem(activity.toString(), frequency)
+                                }
+                        }
                     }
 
-                    VerticalDivider()
+                    Row {
+                        Column(
+                            modifier = Modifier.padding(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                "Time",
+                                style = JewelTheme.typography.regular,
+                                modifier = Modifier.padding(bottom = 4.dp),
+                            )
+                            StatisticItem("First Event", statistics.interval.first)
+                            StatisticItem("Last Event", statistics.interval.second)
+                        }
 
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                    ) {
-                        Text(
-                            "Top 4 Activities",
-                            style = MaterialTheme.typography.body2,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                        )
-
-                        statistics.activityFrequency
-                            .toList()
-                            .sortedByDescending { it.second }
-                            .take(4)
-                            .forEach { (activity, frequency) ->
-                                StatisticItem(activity.toString(), frequency)
-                            }
-                    }
-
-                    VerticalDivider()
-
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
-                    ) {
-                        Text(
-                            "Time",
-                            style = MaterialTheme.typography.body2,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                        )
-                        StatisticItem("First Event", statistics.interval.first)
-                        StatisticItem("Last Event", statistics.interval.second)
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-fun VerticalDivider() {
-    Divider(
-        modifier =
-            Modifier
-                .fillMaxHeight()
-                .width(1.dp),
-        color = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-    )
 }
