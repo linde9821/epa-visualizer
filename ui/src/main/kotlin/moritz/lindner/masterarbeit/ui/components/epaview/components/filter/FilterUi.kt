@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
@@ -59,16 +58,15 @@ fun FilterUi(
 
             DefaultButton(
                 onClick = {
-                    val combinedFilters =
-                        EpaFilter.combine(filterByIndex.values.toList())
+                    val combinedFilters = EpaFilter.combine(filterByIndex.values.toList())
                     onApply(combinedFilters)
                 },
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Apply", color = Color.White, style = JewelTheme.typography.regular)
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Apply", style = JewelTheme.typography.regular)
                     Icon(key = AllIconsKeys.Actions.Rerun, contentDescription = "Apply", tint = JewelTheme.contentColor)
                 }
             }
@@ -85,33 +83,20 @@ fun FilterUi(
             )
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TabStrip(tabs = tabData, style = JewelTheme.defaultTabStyle, modifier = Modifier.weight(1f))
-        }
+        TabStrip(
+            tabs = tabData, 
+            style = JewelTheme.defaultTabStyle, 
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Column(modifier = Modifier.padding(8.dp)) {
             when (selectedTabIndex) {
-                0 ->
-                    ActivityFilterTabUi(epa) {
-                        filterByIndex[selectedTabIndex] = it
-                    }
-
-                1 ->
-                    StateFrequencyFilterUi(epa, backgroundDispatcher) {
-                        filterByIndex[selectedTabIndex] = it
-                    }
-
-                2 -> {
-                    PartitionFrequencyFilterUi(epa, backgroundDispatcher) {
-                        filterByIndex[selectedTabIndex] = it
-                    }
-                }
-
-                else -> {
-                    Text("${tabNames[selectedTabIndex]} not implemented", style = JewelTheme.typography.regular)
-                }
+                0 -> ActivityFilterTabUi(epa) { filterByIndex[selectedTabIndex] = it }
+                1 -> StateFrequencyFilterUi(epa, backgroundDispatcher) { filterByIndex[selectedTabIndex] = it }
+                2 -> PartitionFrequencyFilterUi(epa, backgroundDispatcher) { filterByIndex[selectedTabIndex] = it }
+                else -> Text("${tabNames[selectedTabIndex]} not implemented", style = JewelTheme.typography.regular)
             }
         }
     }

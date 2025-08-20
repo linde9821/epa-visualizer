@@ -1,14 +1,11 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,11 +25,7 @@ fun TabsUi(
 ) {
     Column(
         modifier = Modifier
-                .fillMaxHeight()
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                ),
+            .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
@@ -58,10 +51,10 @@ fun TabsUi(
                     key = AllIconsKeys.General.Filter,
                     contentDescription = "Filter",
                     tint = if (upperState == EpaViewStateUpper.Filter) {
-                            JewelTheme.contentColor
-                        } else {
-                            Color.Unspecified
-                        },
+                        JewelTheme.contentColor
+                    } else {
+                        Color.Unspecified
+                    },
                     modifier = Modifier.size(23.dp)
                 )
             }

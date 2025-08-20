@@ -3,7 +3,9 @@ package moritz.lindner.masterarbeit.ui.components.construction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -26,9 +28,9 @@ import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.ErrorInlineBanner
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.ListComboBox
+import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
-import org.jetbrains.jewel.ui.theme.defaultBannerStyle
 import org.jetbrains.jewel.ui.typography
 
 @Composable
@@ -38,8 +40,7 @@ fun EpaConstructionUi(
     onStartConstructionStart: (ExtendedPrefixAutomatonBuilder<Long>) -> Unit,
 ) {
     val file = state.file
-    val mappers =
-        listOf(
+    val mappers = listOf(
             SampleEventMapper(),
             BPI2017OfferChallengeEventMapper(),
             BPI2017ChallengeEventMapper(),
@@ -50,83 +51,49 @@ fun EpaConstructionUi(
     val selectedMapper: EventLogMapper<Long> = mappers[selectedIndex]
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Mapper Selection",
-            style = JewelTheme.typography.h1TextStyle,
-            modifier = Modifier.padding(bottom = 16.dp),
+            text = "Configure EPA Construction",
+            style = JewelTheme.typography.h1TextStyle
         )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
         Text(
             text = "Selected file: ${file.name}",
-            style = JewelTheme.typography.regular,
-            modifier = Modifier.padding(bottom = 16.dp),
+            style = JewelTheme.typography.regular
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            DefaultButton(
-                onClick = {
-                    onAbort()
-                },
-            ) {
-                Row {
-                    Icon(
-                        key = AllIconsKeys.Actions.Back,
-                        contentDescription = null,
-                        tint = JewelTheme.contentColor,
-                        modifier = Modifier.padding(end = 10.dp),
-                    )
-                    Text("Change file", style = JewelTheme.typography.regular)
-                }
-            }
-
-            DefaultButton(
-                onClick = {
-                    val builder =
-                        ExtendedPrefixAutomatonBuilder<Long>().apply {
-                            setFile(file)
-                            setEventLogMapper(selectedMapper)
-                        }
-                    onStartConstructionStart(builder)
-                }
-            ) {
-                Row {
-                    Icon(
-                        key = AllIconsKeys.Toolwindows.ToolWindowBuild,
-                        contentDescription = null,
-                        tint = JewelTheme.contentColor,
-                        modifier = Modifier.padding(end = 10.dp)
-                    )
-                    Text("Construct EPA", style = JewelTheme.typography.regular)
-                }
-            }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        if (state.constructionError != null) {
+            ErrorInlineBanner(
+                text = state.constructionError,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (state.constructionError != null) {
-                ErrorInlineBanner(
-                    text = state.constructionError,
-                )
-            }
-
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Icon(
                     key = AllIconsKeys.Actions.MoveToButton,
                     contentDescription = null,
-                    tint = JewelTheme.contentColor,
-                    modifier = Modifier.padding(end = 10.dp)
+                    tint = JewelTheme.contentColor
                 )
                 Text(
                     "Select Event Log Mapper:",
-                    style = JewelTheme.typography.regular,
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    style = JewelTheme.typography.regular
                 )
             }
 
@@ -134,8 +101,52 @@ fun EpaConstructionUi(
                 items = mappers.map { it.name },
                 selectedIndex = selectedIndex,
                 onSelectedItemChange = { selectedIndex = it },
-                modifier = Modifier.width(200.dp)
+                modifier = Modifier.width(250.dp)
             )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            OutlinedButton(
+                onClick = onAbort
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        key = AllIconsKeys.Actions.Back,
+                        contentDescription = null,
+                        tint = JewelTheme.contentColor
+                    )
+                    Text("Change File", style = JewelTheme.typography.regular)
+                }
+            }
+
+            DefaultButton(
+                onClick = {
+                    val builder = ExtendedPrefixAutomatonBuilder<Long>().apply {
+                        setFile(file)
+                        setEventLogMapper(selectedMapper)
+                    }
+                    onStartConstructionStart(builder)
+                }
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        key = AllIconsKeys.Toolwindows.ToolWindowBuild,
+                        contentDescription = null,
+                        tint = JewelTheme.contentColor
+                    )
+                    Text("Construct EPA", style = JewelTheme.typography.regular)
+                }
+            }
         }
     }
 }

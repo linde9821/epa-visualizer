@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -25,10 +27,11 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
-import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
+import org.jetbrains.jewel.ui.typography
 import kotlin.coroutines.cancellation.CancellationException
 
 @Composable
@@ -69,19 +72,36 @@ fun ConstructEpaUi(
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
+            modifier = Modifier.padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(45.dp),
+            Text(
+                text = "Building EPA",
+                style = JewelTheme.typography.h2TextStyle
             )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = "This may take a few moments depending on the size of your event log",
+                style = JewelTheme.typography.regular
+            )
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            CircularProgressIndicator(
+                modifier = Modifier.size(48.dp),
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             AnimatedLoadingText(
                 baseText = "Constructing EPA"
             )
+            
+            Spacer(modifier = Modifier.height(32.dp))
 
-            DefaultButton(
+            OutlinedButton(
                 onClick = {
                     epaConstructionJob?.cancel()
                     epaConstructionJob = null
@@ -94,10 +114,9 @@ fun ConstructEpaUi(
                 ) {
                     Icon(
                         key = AllIconsKeys.Actions.Close,
-                        tint = JewelTheme.contentColor,
-                        contentDescription = "Abort"
+                        contentDescription = "Cancel"
                     )
-                    Text("Abort")
+                    Text("Cancel", style = JewelTheme.typography.regular)
                 }
             }
         }

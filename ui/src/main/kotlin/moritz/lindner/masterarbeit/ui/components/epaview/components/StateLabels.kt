@@ -7,19 +7,19 @@ import org.jetbrains.skia.Surface
 import kotlin.math.absoluteValue
 
 class StateLabels(
-    val backgroundColor: Int,
-    val baseFontSize: Float,
+    private val backgroundColor: Int,
+    private val baseFontSize: Float,
 ) {
     private val labelByState = HashMap<String, Image>()
 
-    val paint =
+    private val paint =
         org.jetbrains.skia.Paint().apply {
             color = Color.BLACK
             mode = org.jetbrains.skia.PaintMode.FILL
             isAntiAlias = true
         }
 
-    val skFont =
+    private val skFont =
         org.jetbrains.skia
             .Font()
             .apply { size = baseFontSize }

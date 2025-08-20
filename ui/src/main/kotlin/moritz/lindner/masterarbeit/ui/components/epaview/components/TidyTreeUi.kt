@@ -179,6 +179,7 @@ fun TidyTreeUi(
 
                 if (!epaUiState.isLoading && epaUiState.layout != null && epaUiState.layout.isBuilt() && labelsGenerated) {
                     (epaUiState.layout as? RadialTreeLayout)?.let {
+                        // TODO: might be removed
                         drawDepthCircles(it)
                     }
 
@@ -199,7 +200,7 @@ fun TidyTreeUi(
     }
 }
 
-private fun DrawScope.drawEPA(
+fun DrawScope.drawEPA(
     layout: TreeLayout,
     boundingBox: Rectangle,
     animationState: AnimationState,
