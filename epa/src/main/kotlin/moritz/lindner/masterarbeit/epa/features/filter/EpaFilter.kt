@@ -11,7 +11,10 @@ import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter.Companion.combi
  *
  * @param T The timestamp type used in the automaton's events.
  */
-fun interface EpaFilter<T : Comparable<T>> {
+interface EpaFilter<T : Comparable<T>> {
+
+    val name: String
+
     /**
      * Applies this filter to the given [ExtendedPrefixAutomaton].
      *

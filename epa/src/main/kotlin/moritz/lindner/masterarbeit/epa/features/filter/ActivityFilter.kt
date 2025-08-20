@@ -20,6 +20,9 @@ import moritz.lindner.masterarbeit.epa.domain.State
 class ActivityFilter<T : Comparable<T>>(
     private val allowedActivities: HashSet<Activity>,
 ) : EpaFilter<T> {
+
+    override val name = "Activity filter"
+
     /**
      * Applies the activity-based filtering logic to the given automaton.
      *

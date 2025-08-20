@@ -17,6 +17,10 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 class StateFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
+
+    override val name: String
+        get() = "State Frequency Filter"
+
     /**
      * Applies the state frequency filter to the automaton.
      *
