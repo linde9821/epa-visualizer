@@ -29,7 +29,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
+import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Text

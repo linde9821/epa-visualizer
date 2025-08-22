@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components
+package moritz.lindner.masterarbeit.ui.components.epaview.state
 
 sealed class EpaViewStateUpper {
     data object Filter : EpaViewStateUpper()

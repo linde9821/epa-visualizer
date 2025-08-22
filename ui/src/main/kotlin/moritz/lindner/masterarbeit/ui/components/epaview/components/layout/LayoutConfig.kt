@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.layout
+package moritz.lindner.masterarbeit.ui.components.epaview.components.layout
 
 data class LayoutConfig(
     val radius: Float,

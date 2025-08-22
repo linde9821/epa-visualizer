@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components
+package moritz.lindner.masterarbeit.ui.components.epaview.components.tree
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -39,7 +39,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.logger
-import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode

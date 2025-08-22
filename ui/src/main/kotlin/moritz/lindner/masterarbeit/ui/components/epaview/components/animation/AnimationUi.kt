@@ -24,7 +24,7 @@ import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
+import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator

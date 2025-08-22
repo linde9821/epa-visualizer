@@ -18,10 +18,11 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.An
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutOptionUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.statistics.StatisticsComparisonUi
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
 import kotlin.math.PI
-
-fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
 @Composable
 fun EpaTreeViewUi(
@@ -71,16 +72,13 @@ fun EpaTreeViewUi(
                     EpaViewStateUpper.Filter -> {
                         FilterUi(
                             epa = epa,
-                            backgroundDispatcher,
-                            onApply = {
-                                epaViewModel.updateFilter(it)
-                            },
+                            epaUiState = epaUiState,
+                            epaViewModel = epaViewModel,
+                            backgroundDispatcher = backgroundDispatcher,
                             modifier =
                                 Modifier
                                     .weight(1f)
                                     .fillMaxHeight(),
-                            selectedTabIndex = epaUiState.filterUiSelectedTabIndex,
-                            onSetIndex = epaViewModel::setFilterUiTabIndex
                         )
                     }
 

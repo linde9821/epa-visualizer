@@ -1,7 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,10 +14,6 @@ import moritz.lindner.masterarbeit.ui.components.fileselection.FileSelectionUi
 import moritz.lindner.masterarbeit.ui.components.loadingepa.ConstructEpaUi
 import moritz.lindner.masterarbeit.ui.logger
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
-import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.component.DefaultButton
-import org.jetbrains.jewel.ui.component.ErrorDefaultBanner
-import org.jetbrains.jewel.ui.theme.defaultBannerStyle
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {

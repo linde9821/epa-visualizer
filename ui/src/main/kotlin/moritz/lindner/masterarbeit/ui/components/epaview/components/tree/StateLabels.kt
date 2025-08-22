@@ -1,9 +1,13 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components
+package moritz.lindner.masterarbeit.ui.components.epaview.components.tree
 
 import moritz.lindner.masterarbeit.epa.domain.State
 import org.jetbrains.skia.Color
+import org.jetbrains.skia.Font
 import org.jetbrains.skia.Image
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Surface
+import org.jetbrains.skia.TextLine
 import kotlin.math.absoluteValue
 
 class StateLabels(
@@ -13,15 +17,14 @@ class StateLabels(
     private val labelByState = HashMap<String, Image>()
 
     private val paint =
-        org.jetbrains.skia.Paint().apply {
+        Paint().apply {
             color = Color.BLACK
-            mode = org.jetbrains.skia.PaintMode.FILL
+            mode = PaintMode.FILL
             isAntiAlias = true
         }
 
     private val skFont =
-        org.jetbrains.skia
-            .Font()
+        Font()
             .apply { size = baseFontSize }
 
     fun getLabelForState(state: State): Image? = labelByState[state.name]
@@ -30,7 +33,7 @@ class StateLabels(
         val label = state.name
         if (!labelByState.containsKey(label)) {
             val textLine =
-                org.jetbrains.skia.TextLine
+                TextLine
                     .make(label, skFont)
 
             val width = (textLine.width + 10f).toInt()

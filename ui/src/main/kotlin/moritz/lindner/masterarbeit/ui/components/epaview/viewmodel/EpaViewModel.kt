@@ -1,8 +1,10 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.state
+package moritz.lindner.masterarbeit.ui.components.epaview.viewmodel
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,14 +17,15 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
-import moritz.lindner.masterarbeit.epa.features.filter.NoOpFilter
-import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
-import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutConfig
-import moritz.lindner.masterarbeit.ui.components.epaview.layout.LayoutSelection
-import moritz.lindner.masterarbeit.ui.components.epaview.layout.TreeLayoutConstructionHelper
+import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutConfig
+import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutSelection
+import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.TreeLayoutConstructionHelper
+import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
 import moritz.lindner.masterarbeit.ui.logger
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -30,15 +33,13 @@ class EpaViewModel(
     val completeEpa: ExtendedPrefixAutomaton<Long>,
     val backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
-    private val _filter: MutableStateFlow<EpaFilter<Long>> = MutableStateFlow(NoOpFilter<Long>())
-    val filter: StateFlow<EpaFilter<Long>> = _filter
 
-    fun setFilterUiTabIndex(index: Int) {
-        _Epa_uiState.update { it.copy(filterUiSelectedTabIndex = index) }
-    }
-
-    fun updateFilter(filter: EpaFilter<Long>) {
-        _filter.value = filter
+    fun updateFilters(filters: List<EpaFilter<Long>>) {
+        _Epa_uiState.update {
+            it.copy(
+                filters = filters
+            )
+        }
     }
 
     fun updateLayout(layoutConfig: LayoutConfig) {
@@ -65,12 +66,12 @@ class EpaViewModel(
                 null,
                 true,
                 null,
-                0
+                emptyList()
             ),
         )
     val epaUiState: StateFlow<EpaUiState> = _Epa_uiState.asStateFlow()
 
-    private val _animationState = MutableStateFlow(AnimationState.Empty)
+    private val _animationState = MutableStateFlow(AnimationState.Companion.Empty)
     val animationState = _animationState.asStateFlow()
 
     private val coroutineScope = CoroutineScope(backgroundDispatcher + SupervisorJob())
@@ -80,19 +81,16 @@ class EpaViewModel(
 
     init {
         coroutineScope.launch {
-            var lastFilter: EpaFilter<Long>? = null
-            var lastLayoutConfig: LayoutConfig? = null
-            var lastFilterEpa: ExtendedPrefixAutomaton<Long>? = null
-            var lastLayout: TreeLayout? = null
-
             combine(
-                _filter,
                 _layout.distinctUntilChanged { a, b ->
                     a.radius == b.radius && a.margin == b.margin && a.layout == b.layout
                 },
-            ) { filter, layout ->
-                Pair(filter, layout)
-            }.collectLatest { (filter, layoutConfig) ->
+                _Epa_uiState.distinctUntilChanged { a, b ->
+                    a.filters == b.filters
+                }
+            ) { a, b ->
+                Pair(a, b)
+            }.collectLatest { (layoutConfig, epaState) ->
                 logger.info { "running state update" }
 
                 _Epa_uiState.update { it.copy(isLoading = true) }
@@ -103,16 +101,11 @@ class EpaViewModel(
 
                 try {
                     withContext(backgroundDispatcher) {
-                        val filteredEpa = if (filter != NoOpFilter<Long>()) {
-                            logger.info { "applying filter" }
-                            filter.apply(completeEpa.copy())
-                        } else {
-                            logger.info { "no filter update necessary" }
-                            completeEpa
+                        logger.info { "applying filters" }
+                        val filteredEpa = epaState.filters.fold(completeEpa) { epa, filter ->
+                            filter.apply(epa)
                         }
                         yield()
-
-                        _Epa_uiState.update { it.copy(filteredEpa = filteredEpa) }
 
                         logger.info { "building tree" }
                         val treeVisitor = EpaToTree<Long>()
@@ -125,11 +118,6 @@ class EpaViewModel(
 
                         layout.build(treeVisitor.root)
                         yield()
-
-                        lastFilter = filter
-                        lastFilterEpa = filteredEpa
-                        lastLayoutConfig = layoutConfig
-                        lastLayout = layout
 
                         logger.info { "update ui" }
 
@@ -158,15 +146,18 @@ class EpaViewModel(
     private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomaton<Long>?) {
         withContext(backgroundDispatcher) {
             val fullVisitor = StatisticsVisitor<Long>()
-            completeEpa.acceptDepthFirst(AutomatonVisitorWithProgressBar(fullVisitor, "full-statistics"))
-
-            yield()
+            val statistics1 = async {
+                completeEpa.acceptDepthFirst(AutomatonVisitorWithProgressBar(fullVisitor, "full-statistics"))
+            }
 
             val filterVisitor = StatisticsVisitor<Long>()
-            filteredEpa?.acceptDepthFirst(AutomatonVisitorWithProgressBar(filterVisitor, "filtered-statistics"))
+            val statistics2 = async {
+                filteredEpa?.acceptDepthFirst(AutomatonVisitorWithProgressBar(filterVisitor, "filtered-statistics"))
+            }
 
             yield()
 
+            awaitAll(statistics1, statistics2)
             _statistics.update {
                 StatisticsState(
                     fullEpa = fullVisitor.build(),
