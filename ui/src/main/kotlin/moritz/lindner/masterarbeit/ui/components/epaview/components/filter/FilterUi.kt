@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.filter
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,17 +24,20 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.AutoHideBehavior
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import kotlin.math.log10
 import kotlin.math.pow
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
@@ -46,7 +49,8 @@ fun FilterUi(
     val tabNames = listOf("Select new filter", "Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
     var selectedIndex by remember { mutableStateOf(0) }
     var currentFilter by remember { mutableStateOf<EpaFilter<Long>?>(null) }
-    val currentFilters = remember(epaUiState.filters) { mutableStateListOf<EpaFilter<Long>>().apply { addAll(epaUiState.filters) } }
+    val currentFilters =
+        remember(epaUiState.filters) { mutableStateListOf<EpaFilter<Long>>().apply { addAll(epaUiState.filters) } }
 
     Column(
         modifier = modifier.padding(16.dp),
@@ -64,6 +68,7 @@ fun FilterUi(
                 onClick = {
                     epaViewModel.updateFilters(currentFilters)
                 },
+                enabled = currentFilters.isNotEmpty()
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -108,9 +113,9 @@ fun FilterUi(
                 DefaultButton(
                     onClick = {
                         currentFilter?.let { cf ->
+                            selectedIndex = 0
                             currentFilters.add(cf)
                             currentFilter = null
-                            selectedIndex = 0
                         }
                     },
                     enabled = currentFilter != null
@@ -167,18 +172,40 @@ fun FilterUi(
                 ) {
                     currentFilters.forEachIndexed { index, filter ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            modifier = Modifier.fillMaxWidth().padding(4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Column {
+                                if (epaUiState.filters.contains(filter)) {
+                                    Tooltip(
+                                        tooltip = { Text("This filter is applied.") },
+                                    ) {
+                                        Icon(
+                                            key = AllIconsKeys.General.GreenCheckmark,
+                                            contentDescription = "Applied",
+                                        )
+                                    }
+                                } else {
+                                    Tooltip(
+                                        tooltip = { Text("This filter is currently not applied.") },
+                                    ) {
+                                        Icon(
+                                            key = AllIconsKeys.General.Note,
+                                            contentDescription = "Not Applied",
+                                        )
+                                    }
+                                }
+                            }
                             Column(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = 12.dp)
                             ) {
                                 Text(
                                     text = filter.name,
                                     style = JewelTheme.typography.medium
                                 )
-                                // Optionally add filter description/details here
                                 Text(
                                     text = "Filter ${index + 1}",
                                     style = JewelTheme.typography.small,
