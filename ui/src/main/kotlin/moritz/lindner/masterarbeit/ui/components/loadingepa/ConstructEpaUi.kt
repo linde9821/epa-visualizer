@@ -97,25 +97,38 @@ fun ConstructEpaUi(
                 style = JewelTheme.typography.h2TextStyle
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = "This may take a few moments depending on the size of your event log",
                 style = JewelTheme.typography.regular
             )
 
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = currentTask.ifEmpty { "Initializing..." },
+                    style = JewelTheme.typography.h3TextStyle
+                )
+                
+                val progressPercent = if (totalProgress > 0) {
+                    (currentProgress.toFloat() / totalProgress * 100).toInt()
+                } else 0
+                
+                Text(
+                    text = "$progressPercent% • $currentProgress / $totalProgress",
+                    style = JewelTheme.typography.small,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                
+                HorizontalProgressBar(
+                    progress = if (totalProgress > 0) currentProgress.toFloat() / totalProgress else 0f,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
-
-            AnimatedLoadingText(
-                baseText = "Constructing EPA: $currentTask"
-            )
-
-            HorizontalProgressBar(
-                progress = currentProgress.toFloat() / totalProgress.toFloat(),
-                modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedButton(
                 onClick = {
