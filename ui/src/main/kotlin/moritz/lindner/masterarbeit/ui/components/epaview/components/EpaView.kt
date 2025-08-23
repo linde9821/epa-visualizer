@@ -93,6 +93,7 @@ fun EpaTreeViewUi(
 
                     EpaViewStateUpper.Layout -> {
                         LayoutUi(
+                            epaViewModel = epaViewModel,
                             modifier =
                                 Modifier
                                     .weight(1f)

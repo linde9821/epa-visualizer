@@ -98,30 +98,34 @@ class EpaViewModel(
                         }
                         yield()
 
-                        logger.info { "building tree" }
-                        val treeVisitor = EpaToTree<Long>()
-                        filteredEpa.copy().acceptDepthFirst(treeVisitor)
-                        yield()
+                        async {
+                            logger.info { "building tree" }
+                            val treeVisitor = EpaToTree<Long>()
+                            filteredEpa.copy().acceptDepthFirst(treeVisitor)
+                            yield()
 
-                        logger.info { "building tree layout" }
-                        val layout = LayoutFactory.create(layoutConfig)
-                        yield()
+                            logger.info { "building tree layout" }
+                            val layout = LayoutFactory.create(layoutConfig)
+                            yield()
 
-                        layout.build(treeVisitor.root)
-                        yield()
+                            layout.build(treeVisitor.root)
+                            yield()
 
-                        logger.info { "update ui" }
+                            logger.info { "update ui" }
 
-                        _Epa_uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                layout = layout,
-                                filteredEpa = filteredEpa
-                            )
+                            _Epa_uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    layout = layout,
+                                    filteredEpa = filteredEpa
+                                )
+                            }
                         }
 
-                        logger.info { "building statistics" }
-                        computeStatistics(filteredEpa)
+                        async {
+                            logger.info { "building statistics" }
+                            computeStatistics(filteredEpa)
+                        }
                     }
                 } catch (e: CancellationException) {
                     logger.warn { "Cancellation Exception ${e.message}" }

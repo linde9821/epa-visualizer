@@ -22,12 +22,14 @@ fun LayoutConfigUI(
 
                 is LayoutConfig.DirectAngular -> when (paramName) {
                     "layerSpace" -> config.layerSpace
+                    "rotation" -> config.rotation
                     else -> 0f
                 }
 
                 is LayoutConfig.RadialWalker -> when (paramName) {
                     "layerSpace" -> config.layerSpace
                     "margin" -> config.margin
+                    "rotation" -> config.rotation
                     else -> 0f
                 }
             }

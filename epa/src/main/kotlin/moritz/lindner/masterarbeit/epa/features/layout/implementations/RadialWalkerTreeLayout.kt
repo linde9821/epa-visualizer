@@ -30,6 +30,7 @@ import kotlin.math.sin
 class RadialWalkerTreeLayout(
     val layerSpace: Float,
     val margin: Float,
+    val rotation: Float,
     expectedCapacity: Int = 10000,
 ) : RadialTreeLayout {
     private val logger = KotlinLogging.logger {}
@@ -283,7 +284,7 @@ class RadialWalkerTreeLayout(
 
             val normalizedX = (x - xMin) / (xMax - xMin)
             val radius = node.depth * layerSpace
-            val theta = (normalizedX * usableAngle) + 90f.degreesToRadians()
+            val theta = (normalizedX * usableAngle) + rotation
 
             nodePlacementInformation.copy(
                 coordinate =
