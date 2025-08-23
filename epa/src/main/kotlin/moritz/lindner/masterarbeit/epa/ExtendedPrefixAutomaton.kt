@@ -40,14 +40,16 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
      *
      * @throws IllegalStateException If the state is not part of the automaton.
      */
-    fun partition(start: State): Int = partitionByState[start] ?: throw IllegalStateException("No state with start $start")
+    fun partition(start: State): Int =
+        partitionByState[start] ?: throw IllegalStateException("No state with start $start")
 
     /**
      * Returns all events associated with the given state.
      *
      * @throws IllegalStateException If the state is not part of the automaton.
      */
-    fun sequence(state: State): Set<Event<T>> = sequenceByState[state] ?: throw IllegalStateException("No sequence for state $state")
+    fun sequence(state: State): Set<Event<T>> =
+        sequenceByState[state] ?: throw IllegalStateException("No sequence for state $state")
 
     private var visitedStates = 0L
 

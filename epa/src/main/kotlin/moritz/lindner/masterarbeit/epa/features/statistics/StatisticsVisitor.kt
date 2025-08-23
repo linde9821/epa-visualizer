@@ -136,8 +136,8 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
                 } else {
                     activityFrequency.values.sorted()[
                         (
-                            activityFrequency.size / 2
-                        ),
+                                activityFrequency.size / 2
+                                ),
                     ]
                 }
             appendLine("  median frequency: $median")

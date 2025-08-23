@@ -7,21 +7,22 @@
 ## 🔍 Overview
 
 **EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from event logs.  
-An EPA is a prefix automaton extended with partitions, where each partition represents a distinct *variant* (unique 
+An EPA is a prefix automaton extended with partitions, where each partition represents a distinct *variant* (unique
 execution trace) observed in the event log.
 
-EPAs provide a complete, non-abstracted representation of all observed process behavior — preserving full trace 
+EPAs provide a complete, non-abstracted representation of all observed process behavior — preserving full trace
 information while capturing shared prefixes in a compact graphical form.  
-This enables interactive and animated visualization of process behavior and variation, with a primary focus on exploring 
+This enables interactive and animated visualization of process behavior and variation, with a primary focus on exploring
 variants within the process.
 
 The tool helps users understand process complexity and behavior through:
+
 - variant-based views of the process
 - structural insights into common prefixes and branching points
-- flexible filtering options to explore and manage large or deep EPAs 
+- flexible filtering options to explore and manage large or deep EPAs
 - statistics and animations of events flowing through an EPA
 
-Key capabilities include advanced filtering, playback of process cases, and statistical summaries. The tool supports 
+Key capabilities include advanced filtering, playback of process cases, and statistical summaries. The tool supports
 event logs in `.xes` and `.xes.gz` formats.
 
 ---
@@ -29,20 +30,20 @@ event logs in `.xes` and `.xes.gz` formats.
 ## ✨ Features
 
 - **Event Log Import**:
-  - Supports `.xes` and `.xes.gz` formats
+    - Supports `.xes` and `.xes.gz` formats
 - **EPA Construction**:
-  - Automatic generation of an Extended Prefix Automaton from event logs
+    - Automatic generation of an Extended Prefix Automaton from event logs
 - **Visualization**:
-  - Multiple graph layout algorithms
-  - Zoom, scroll, and interactive navigation
-  - Animated playback of complete logs or individual cases
-  - Flexible filter combinations for tailored analysis
+    - Multiple graph layout algorithms
+    - Zoom, scroll, and interactive navigation
+    - Animated playback of complete logs or individual cases
+    - Flexible filter combinations for tailored analysis
 - **Statistics**:
-  - Events per node
-  - Case counts
-  - Activity frequencies
-  - Time intervals
-  - Partition-based statistics
+    - Events per node
+    - Case counts
+    - Activity frequencies
+    - Time intervals
+    - Partition-based statistics
 
 ---
 
@@ -70,19 +71,23 @@ event logs in `.xes` and `.xes.gz` formats.
   → Filter the visualization to only show nodes within a given radius (depth) interval.
 
 - **New Filter:** *Normalized Entropy Partition Filter*  
-  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process complexity of event sequences and models discovered by process mining).
+  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process
+  complexity of event sequences and models discovered by process mining).
 
 - **New Filter:** *Normalized Entropy Variant Filter*  
-  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process complexity of event sequences and models discovered by process mining).
+  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process
+  complexity of event sequences and models discovered by process mining).
 
 ### Visualization
 
 - **State Properties**  
-  → States could have visual properties (color, size, etc.) mapped to various attributes — also changing dynamically during animation.
+  → States could have visual properties (color, size, etc.) mapped to various attributes — also changing dynamically
+  during animation.
   (Differentiate edge thickness or color based on event count, the ideas are endless)
 
 - **Case Properties**  
-  → Each case in the animation could display various properties, with the ability to track a selected case during the animation.
+  → Each case in the animation could display various properties, with the ability to track a selected case during the
+  animation.
 
 - **Event Properties**  
   → Each event in the animation could display various properties (visualized per event instance).
@@ -92,9 +97,6 @@ event logs in `.xes` and `.xes.gz` formats.
 - Improve observability during loading  
   → Currently the UI shows an indeterminate progress bar. This could be changed to display actual progress  
   (both the construction and visitor processes can be extended/utilized to track "x out of total elements processed").
-
-- More "desktop look & feel"  
-  → Switching to [JetBrains Jewel](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel) components could provide a more native desktop style.
 
 ### Others
 
@@ -107,7 +109,8 @@ event logs in `.xes` and `.xes.gz` formats.
 - Pre-render the tree layout to a texture and render the texture instead of the entire tree on every frame  
   _(similar to how labels are currently rendered in the tree); rerender only when necessary (e.g., after filtering)_
 
-- Core data structures in EPA construction are optimized, but some data structures and algorithms in animation/statistics
+- Core data structures in EPA construction are optimized, but some data structures and algorithms in
+  animation/statistics
   and others are not optimal — can be improved for better performance
 
 ### Known Bugs
@@ -154,9 +157,9 @@ Out-of-the-box, the project provides mappers for logs included in the resources 
 ### Writing code
 
 The project is designed for easy extension.
-In most cases, using the `AutomatonVisitor` interface is sufficient for adding new functionality — it provides complete 
+In most cases, using the `AutomatonVisitor` interface is sufficient for adding new functionality — it provides complete
 and correct traversal (depth-first or breadth-first) of the EPA.
-Core features such as filtering, animation, and statistics are already implemented using this pattern — making it a 
+Core features such as filtering, animation, and statistics are already implemented using this pattern — making it a
 natural extension point for new features or experiments.
 
 ## 🖥️ Technologies
@@ -168,15 +171,19 @@ natural extension point for new features or experiments.
 ---
 
 ## 📚 Background
-This software is part of a university Studienarbeit (pre-master thesis project) exploring new visualization techniques 
+
+This software is part of a university Studienarbeit (pre-master thesis project) exploring new visualization techniques
 for process mining.
 
 Based on concepts from (but not limited to):
-- Augusto, Mendling, Vidgof, & Wurm (2022) – The connection between process complexity of event sequences and models discovered by process mining
+
+- Augusto, Mendling, Vidgof, & Wurm (2022) – The connection between process complexity of event sequences and models
+  discovered by process mining
 - Visualization: Radial tidy tree with optimizations from Buchheim et al. (2002)
 - TODO: add all references
 
 ## 🙋‍♂️ Author
+
 Moritz Lindner
 Senior DevOps Engineer & Informatik M.Sc. Student
 Berlin, Germany

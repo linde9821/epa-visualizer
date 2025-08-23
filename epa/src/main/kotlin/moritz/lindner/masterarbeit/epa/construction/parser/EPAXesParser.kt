@@ -35,7 +35,8 @@ class EPAXesParser : XesXmlParser() {
      * @param file The file to test.
      * @return True if a parser strategy is available and can parse the file; false otherwise.
      */
-    override fun canParse(file: File): Boolean = parserStrategyByExtension[file.extension]?.also { parser = it }?.canParse(file) ?: false
+    override fun canParse(file: File): Boolean =
+        parserStrategyByExtension[file.extension]?.also { parser = it }?.canParse(file) ?: false
 
     /**
      * Parses the given input stream into a list of [XLog]s, showing a progress bar while reading.

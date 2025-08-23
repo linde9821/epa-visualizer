@@ -27,8 +27,8 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
-import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
@@ -79,16 +79,16 @@ fun ConstructEpaUi(
                 text = "Building EPA",
                 style = JewelTheme.typography.h2TextStyle
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "This may take a few moments depending on the size of your event log",
                 style = JewelTheme.typography.regular
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             CircularProgressIndicator(
                 modifier = Modifier.size(48.dp),
             )
@@ -98,7 +98,7 @@ fun ConstructEpaUi(
             AnimatedLoadingText(
                 baseText = "Constructing EPA"
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedButton(

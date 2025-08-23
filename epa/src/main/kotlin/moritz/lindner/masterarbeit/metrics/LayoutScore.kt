@@ -4,8 +4,6 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -39,19 +37,25 @@ class LayoutScore(
                     val densityScore = normalizedDensityScores[index]
 
                     layout to
-                        Result(
-                            area = scores[index].first.toDouble(),
-                            areaScore = areaScore,
-                            density = scores[index].second,
-                            densityScore = densityScore,
-                        )
+                            Result(
+                                area = scores[index].first.toDouble(),
+                                areaScore = areaScore,
+                                density = scores[index].second,
+                                densityScore = densityScore,
+                            )
                 }.toMap()
 
         csvWriter().open("./results.csv") {
             writeRow("", "area", "normalized area", "variance", "normalized uniformity")
 
             results.forEach { (layout, result) ->
-                writeRow(layout::class.java.simpleName, result.area, result.areaScore, result.density, result.densityScore)
+                writeRow(
+                    layout::class.java.simpleName,
+                    result.area,
+                    result.areaScore,
+                    result.density,
+                    result.densityScore
+                )
             }
         }
 

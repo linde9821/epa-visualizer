@@ -12,6 +12,7 @@ sealed class LayoutConfig(val name: String) {
             "distance" to ParameterInfo("Distance", 0.1f, 100.0f),
             "yDistance" to ParameterInfo("Y Distance", 10.0f, 200.0f, 5.0f)
         )
+
         override fun updateParameter(name: String, value: Float) = when (name) {
             "distance" -> copy(distance = value)
             "yDistance" -> copy(yDistance = value)
@@ -27,6 +28,7 @@ sealed class LayoutConfig(val name: String) {
             "layerSpace" to ParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
             "margin" to ParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f)
         )
+
         override fun updateParameter(name: String, value: Float) = when (name) {
             "layerSpace" -> copy(layerSpace = value)
             "margin" -> copy(margin = value)
@@ -40,6 +42,7 @@ sealed class LayoutConfig(val name: String) {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f)
         )
+
         override fun updateParameter(name: String, value: Float) = when (name) {
             "layerSpace" -> copy(layerSpace = value)
             else -> this

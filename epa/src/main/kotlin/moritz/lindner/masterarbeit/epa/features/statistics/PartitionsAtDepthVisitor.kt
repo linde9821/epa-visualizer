@@ -4,8 +4,6 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 class PartitionsAtDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     val statesByDepth = mutableMapOf<Int, List<State>>()

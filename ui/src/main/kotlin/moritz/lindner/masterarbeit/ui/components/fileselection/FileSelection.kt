@@ -45,21 +45,21 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
             contentDescription = "App Logo",
             modifier = Modifier.size(64.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             text = "Welcome to $APPLICATION_NAME",
             style = JewelTheme.typography.h1TextStyle
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Select an event log file to get started",
             style = JewelTheme.typography.regular
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
 
         DefaultButton(

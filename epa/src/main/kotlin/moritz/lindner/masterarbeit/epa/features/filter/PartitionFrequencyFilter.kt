@@ -65,8 +65,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
             epa.transitions
                 .filter { transition ->
                     transition.activity in filteredActivities &&
-                        transition.start in filteredStates &&
-                        transition.end in filteredStates
+                            transition.start in filteredStates &&
+                            transition.end in filteredStates
                 }.toSet()
 
         val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
