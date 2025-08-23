@@ -24,20 +24,28 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
      * @param log The iterable collection of [XTrace]s representing the event log.
      * @return A list of [Event]s sorted by their [Event.timestamp], each with a reference to its predecessor.
      */
-    fun build(log: Iterable<XTrace>): List<Event<T>> =
-        log
-            .flatMap { trace ->
+    fun build(log: Iterable<XTrace>, progressCallback: EpaBuildProgressCallback? = null): List<Event<T>> {
+        val xTraces = log.toList()
+
+        return xTraces
+            .flatMapIndexed { index, trace ->
                 var previous: Event<T>? = null
 
                 trace
-                    .toList()
                     .map { event -> map(event, trace) }
                     .map { current ->
                         current.copy(predecessor = previous).also {
                             previous = current
                         }
+                    }.also {
+                        progressCallback?.onProgress(
+                            current = (index + 1).toLong(),
+                            total = xTraces.size.toLong(),
+                            task = "Convert XTraces to sorted list of events"
+                        )
                     }
             }.sortedBy { it.timestamp }
+    }
 
     /**
      * Maps a single [XEvent] and its containing [XTrace] into a domain-specific [Event] object.

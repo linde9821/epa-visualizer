@@ -27,7 +27,6 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
-import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -51,7 +50,7 @@ fun SingleCaseAnimationUI(
         withContext(backgroundDispatcher) {
             selectedCase = null
             eventsByCasesCollector = EventsByCasesCollector()
-            epa.copy().acceptDepthFirst(AutomatonVisitorWithProgressBar(eventsByCasesCollector, "case animation"))
+            epa.copy().acceptDepthFirst(eventsByCasesCollector)
         }
         isLoading = false
     }

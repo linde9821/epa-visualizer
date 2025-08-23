@@ -1,9 +1,6 @@
 package moritz.lindner.masterarbeit.epa.construction.builder
 
-import me.tongfei.progressbar.ConsoleProgressBarConsumer
-import me.tongfei.progressbar.ProgressBar
-import me.tongfei.progressbar.ProgressBarBuilder
-import me.tongfei.progressbar.ProgressBarStyle
+
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.parser.EPAXesParser
 import moritz.lindner.masterarbeit.epa.domain.Activity
@@ -13,6 +10,66 @@ import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import org.deckfour.xes.`in`.XesXmlParser
 import java.io.File
+import java.io.InputStream
+
+fun interface EpaBuildProgressCallback {
+    fun onProgress(current: Long, total: Long, task: String)
+}
+
+class ProgressInputStream(
+    private val inputStream: InputStream,
+    private val totalSize: Long,
+    private val progressCallback: (bytesRead: Long, totalSize: Long, percentage: Float) -> Unit,
+    private val updateIntervalMs: Long = 100
+) : InputStream() {
+
+    private var bytesRead: Long = 0
+    private var lastUpdateTime: Long = 0
+
+    override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+        val result = inputStream.read(buffer, offset, length)
+        if (result > 0) {
+            bytesRead += result
+
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastUpdateTime >= updateIntervalMs) {
+                notifyProgress()
+                lastUpdateTime = currentTime
+            }
+        }
+        return result
+    }
+
+    private fun notifyProgress() {
+        val percentage = if (totalSize > 0) (bytesRead.toFloat() / totalSize.toFloat()) * 100f else 0f
+        progressCallback(bytesRead, totalSize, percentage)
+    }
+
+    override fun read(): Int {
+        val byte = inputStream.read()
+        if (byte != -1) {
+            bytesRead++
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastUpdateTime >= updateIntervalMs) {
+                notifyProgress()
+                lastUpdateTime = currentTime
+            }
+        }
+        return byte
+    }
+
+    override fun close() {
+        // Send final progress update
+        notifyProgress()
+        inputStream.close()
+    }
+
+    // Delegate other methods...
+    override fun available() = inputStream.available()
+    override fun mark(readlimit: Int) = inputStream.mark(readlimit)
+    override fun reset() = inputStream.reset()
+    override fun markSupported() = inputStream.markSupported()
+}
 
 /**
  * Builder class for constructing an [ExtendedPrefixAutomaton] from an XES event log file.
@@ -25,6 +82,7 @@ import java.io.File
 class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
     private var eventLogMapper: EventLogMapper<T>? = null
     private var file: File? = null
+    private var progressCallback: EpaBuildProgressCallback? = null
     private val parser: XesXmlParser = EPAXesParser()
 
     private var nextPartition = 1
@@ -37,6 +95,11 @@ class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
      */
     fun setEventLogMapper(mapper: EventLogMapper<T>): ExtendedPrefixAutomatonBuilder<T> {
         eventLogMapper = mapper
+        return this
+    }
+
+    fun setProgressCallback(callback: EpaBuildProgressCallback): ExtendedPrefixAutomatonBuilder<T> {
+        progressCallback = callback
         return this
     }
 
@@ -68,33 +131,16 @@ class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
         require(file!!.exists()) { "file must exist" }
         require(parser.canParse(file!!)) { "file can't be parsed" }
 
-        val log = parser.parse(file!!.inputStream()).first()
+        val progressInputStream = ProgressInputStream(
+            file!!.inputStream(),
+            file!!.length(),
+            { bytesRead, totalSize, percentage ->
+                progressCallback?.onProgress(bytesRead, totalSize, "parsing xes")
+            }
+        )
+        val log = parser.parse(progressInputStream).first()
 
-        val plainEventLog =
-            eventLogMapper!!.build(
-                ProgressBar.wrap(
-                    log!!,
-                    ProgressBarBuilder()
-                        .showSpeed()
-                        .setConsumer(ConsoleProgressBarConsumer(System.out))
-                        .setTaskName("plain log")
-                        .setMaxRenderedLength(80)
-                        .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
-                        .setUnit(" Traces", 1L),
-                ),
-            )
-
-        val plainLog =
-            ProgressBar.wrap(
-                plainEventLog,
-                ProgressBarBuilder()
-                    .showSpeed()
-                    .setConsumer(ConsoleProgressBarConsumer(System.out))
-                    .setTaskName("EPA")
-                    .setMaxRenderedLength(80)
-                    .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
-                    .setUnit(" Events", 1L),
-            )
+        val plainEventLog = eventLogMapper!!.build(log, progressCallback)
 
         val states: MutableSet<State> = hashSetOf(State.Root)
         val transitions: MutableSet<Transition> = hashSetOf()
@@ -105,34 +151,40 @@ class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
         val transitionByPredecessorStateAndActivity = hashMapOf<Pair<State, Activity>, Transition>()
         val transitionByPredecessorState = hashMapOf<State, Transition>()
 
-        plainLog.forEach { event ->
-            val predecessorState = lastActivityByState[event.caseIdentifier] ?: State.Root
+        plainEventLog
+            .forEachIndexed { index, event ->
+                progressCallback?.onProgress(
+                    current = (index + 1).toLong(),
+                    total = plainEventLog.size.toLong(),
+                    task = "Constructing EPA"
+                )
+                val predecessorState = lastActivityByState[event.caseIdentifier] ?: State.Root
 
-            val currentActivity: State?
+                val currentActivity: State?
 
-            val existingTransition = transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)]
+                val existingTransition = transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)]
 
-            if (existingTransition != null) {
-                currentActivity = existingTransition.end
-            } else {
-                val existingTransitionFromPredecessor = transitionByPredecessorState[predecessorState]
+                if (existingTransition != null) {
+                    currentActivity = existingTransition.end
+                } else {
+                    val existingTransitionFromPredecessor = transitionByPredecessorState[predecessorState]
 
-                val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
+                    val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
 
-                val newState = PrefixState(predecessorState, event.activity)
-                states.add(newState)
-                val newTransition = Transition(predecessorState, event.activity, newState)
-                transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)] = newTransition
-                transitionByPredecessorState[predecessorState] = newTransition
-                transitions.add(newTransition)
-                activities.add(event.activity)
-                partitionByState[newState] = c
-                currentActivity = newState
+                    val newState = PrefixState(predecessorState, event.activity)
+                    states.add(newState)
+                    val newTransition = Transition(predecessorState, event.activity, newState)
+                    transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)] = newTransition
+                    transitionByPredecessorState[predecessorState] = newTransition
+                    transitions.add(newTransition)
+                    activities.add(event.activity)
+                    partitionByState[newState] = c
+                    currentActivity = newState
+                }
+
+                sequences.computeIfAbsent(currentActivity) { mutableSetOf() }.add(event)
+                lastActivityByState[event.caseIdentifier] = currentActivity
             }
-
-            sequences.computeIfAbsent(currentActivity) { mutableSetOf() }.add(event)
-            lastActivityByState[event.caseIdentifier] = currentActivity
-        }
 
         return ExtendedPrefixAutomaton(
             eventLogName = file!!.name,

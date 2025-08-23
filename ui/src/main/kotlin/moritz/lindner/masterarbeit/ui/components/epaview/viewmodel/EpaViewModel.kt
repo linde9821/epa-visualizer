@@ -21,7 +21,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
-import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
@@ -101,7 +100,7 @@ class EpaViewModel(
 
                         logger.info { "building tree" }
                         val treeVisitor = EpaToTree<Long>()
-                        filteredEpa.copy().acceptDepthFirst(AutomatonVisitorWithProgressBar(treeVisitor, "tree"))
+                        filteredEpa.copy().acceptDepthFirst(treeVisitor)
                         yield()
 
                         logger.info { "building tree layout" }
@@ -140,12 +139,12 @@ class EpaViewModel(
         withContext(backgroundDispatcher) {
             val fullVisitor = StatisticsVisitor<Long>()
             val statistics1 = async {
-                completeEpa.acceptDepthFirst(AutomatonVisitorWithProgressBar(fullVisitor, "full-statistics"))
+                completeEpa.acceptDepthFirst(fullVisitor)
             }
 
             val filterVisitor = StatisticsVisitor<Long>()
             val statistics2 = async {
-                filteredEpa?.acceptDepthFirst(AutomatonVisitorWithProgressBar(filterVisitor, "filtered-statistics"))
+                filteredEpa?.acceptDepthFirst(filterVisitor)
             }
 
             yield()

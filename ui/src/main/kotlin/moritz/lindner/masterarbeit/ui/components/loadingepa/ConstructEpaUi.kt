@@ -6,11 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,9 +25,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaBuildProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.HorizontalProgressBar
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
@@ -45,10 +48,24 @@ fun ConstructEpaUi(
 ) {
     var epaConstructionJob by remember { mutableStateOf<Job?>(null) }
 
-    epaConstructionJob =
-        scope.launch(backgroundDispatcher) {
+    var currentTask by remember { mutableStateOf("") }
+    var currentProgress by remember { mutableStateOf(0L) }
+    var totalProgress by remember { mutableStateOf(0L) }
+
+    val progressCallback = EpaBuildProgressCallback { current, total, task ->
+        currentTask = task
+        currentProgress = current
+        totalProgress = total
+    }
+
+    LaunchedEffect(Unit) {
+        epaConstructionJob = scope.launch(backgroundDispatcher) {
             try {
-                val epa = builder.build()
+                logger.info { "Start construction" }
+                val epa = builder
+                    .setProgressCallback(progressCallback)
+                    .build()
+                logger.info { "construction finished" }
                 yield()
                 onEPAConstructed(epa)
             } catch (e: NullPointerException) {
@@ -59,7 +76,7 @@ fun ConstructEpaUi(
                 onError(e.toString(), e)
             }
         }
-
+    }
     // Ensure job is cancelled when the composable leaves composition
     DisposableEffect(Unit) {
         onDispose {
@@ -87,16 +104,15 @@ fun ConstructEpaUi(
                 style = JewelTheme.typography.regular
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-            )
-
             Spacer(modifier = Modifier.height(24.dp))
 
             AnimatedLoadingText(
-                baseText = "Constructing EPA"
+                baseText = "Constructing EPA: $currentTask"
+            )
+
+            HorizontalProgressBar(
+                progress = currentProgress.toFloat() / totalProgress.toFloat(),
+                modifier = Modifier.padding(top = 16.dp).fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(32.dp))
