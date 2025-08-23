@@ -43,8 +43,7 @@ fun AnimationUi(
     var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
 
     Column(
-        modifier =
-            Modifier
+        modifier = Modifier
                 .fillMaxSize(),
     ) {
         Row(

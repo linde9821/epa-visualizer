@@ -284,8 +284,8 @@ private fun drawTokensWithSpreading(
 ) {
     animationState
         .currentTimeStates
-        .filter {
-            visibleNodes.contains(it.state)
+        .filter { timedState ->
+            visibleNodes.contains(timedState.state)
         }.forEachIndexed { index, timedState ->
             val progress =
                 if (timedState.to == null || timedState.nextState == null) {

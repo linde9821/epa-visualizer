@@ -59,7 +59,7 @@ fun ControlUI(
         }
 
         Text(
-            text = "$stepSize × $multiplier = ${(stepSize * multiplier).toLong()}",
+            text = "$stepSize x $multiplier = ${(stepSize * multiplier).toLong()}",
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 

@@ -65,7 +65,7 @@ class EpaViewModel(
             EpaUiState(
                 null,
                 true,
-                null,
+                completeEpa,
                 emptyList()
             ),
         )
@@ -125,6 +125,7 @@ class EpaViewModel(
                             it.copy(
                                 isLoading = false,
                                 layout = layout,
+                                filteredEpa = filteredEpa
                             )
                         }
 
