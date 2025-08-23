@@ -4,13 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
@@ -140,4 +145,11 @@ fun TabsUi(
             }
         }
     }
+
+    Divider(
+        orientation = Orientation.Vertical,
+        modifier = Modifier.fillMaxHeight(),
+        thickness = 1.dp,
+        color = JewelTheme.contentColor.copy(alpha = 0.2f)
+    )
 }

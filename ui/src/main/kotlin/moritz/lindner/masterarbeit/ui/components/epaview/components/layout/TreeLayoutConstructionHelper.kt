@@ -1,11 +1,11 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.layout
+package moritz.lindner.masterarbeit.ui.components.epaview.components.layout
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.ui.components.epaview.components.degreesToRadians
+import kotlin.math.PI
 
 object TreeLayoutConstructionHelper {
     fun build(
@@ -38,3 +38,5 @@ object TreeLayoutConstructionHelper {
             }
         }
 }
+
+fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f

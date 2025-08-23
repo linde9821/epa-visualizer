@@ -12,16 +12,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.AnimationUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutOptionUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.statistics.StatisticsComparisonUi
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
-import kotlin.math.PI
-
-fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
+import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.Divider
 
 @Composable
 fun EpaTreeViewUi(
@@ -71,20 +75,23 @@ fun EpaTreeViewUi(
                     EpaViewStateUpper.Filter -> {
                         FilterUi(
                             epa = epa,
-                            backgroundDispatcher,
-                            onApply = {
-                                epaViewModel.updateFilter(it)
-                            },
+                            epaUiState = epaUiState,
+                            epaViewModel = epaViewModel,
+                            backgroundDispatcher = backgroundDispatcher,
                             modifier =
                                 Modifier
                                     .weight(1f)
                                     .fillMaxHeight(),
-                            selectedTabIndex = epaUiState.filterUiSelectedTabIndex,
-                            onSetIndex = epaViewModel::setFilterUiTabIndex
+                        )
+                        Divider(
+                            orientation = Orientation.Vertical,
+                            modifier = Modifier.fillMaxHeight(),
+                            thickness = 1.dp,
+                            color = JewelTheme.contentColor.copy(alpha = 0.2f)
                         )
                     }
 
-                    EpaViewStateUpper.Layout ->
+                    EpaViewStateUpper.Layout -> {
                         LayoutOptionUi(
                             modifier =
                                 Modifier
@@ -93,6 +100,13 @@ fun EpaTreeViewUi(
                         ) {
                             epaViewModel.updateLayout(it)
                         }
+                        Divider(
+                            orientation = Orientation.Vertical,
+                            modifier = Modifier.fillMaxHeight(),
+                            thickness = 1.dp,
+                            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+                        )
+                    }
 
                     EpaViewStateUpper.None -> null
                 }
@@ -110,6 +124,13 @@ fun EpaTreeViewUi(
 
             // LOWER
             if (lowerState != EpaViewStateLower.None) {
+                Divider(
+                    orientation = Orientation.Horizontal,
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = JewelTheme.contentColor.copy(alpha = 0.2f)
+                )
+
                 Row(
                     modifier =
                         Modifier

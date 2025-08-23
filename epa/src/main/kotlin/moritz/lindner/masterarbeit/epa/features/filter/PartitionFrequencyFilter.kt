@@ -18,6 +18,9 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFr
 class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
+    override val name: String
+        get() = "Partition Frequency Filter"
+
     /**
      * Applies the frequency-based partition filtering logic to the given automaton.
      *

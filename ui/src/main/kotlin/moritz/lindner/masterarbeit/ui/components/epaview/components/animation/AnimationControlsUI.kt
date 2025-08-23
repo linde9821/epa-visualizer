@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewModel
+import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import java.time.Instant

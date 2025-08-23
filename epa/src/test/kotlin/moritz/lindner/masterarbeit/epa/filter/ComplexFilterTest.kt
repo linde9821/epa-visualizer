@@ -29,9 +29,7 @@ class ComplexFilterTest {
                 ),
             ) // must remove partition ending with c
 
-        val sut = EpaFilter.combine(listOf(filter1, filter2))
-
-        val result = sut.apply(epa)
+        val result = filter2.apply(filter1.apply(epa))
 
         assertThat(result.states).hasSize(3)
         assertThat(result.transitions).hasSize(2)

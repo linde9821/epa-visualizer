@@ -10,6 +10,8 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
  * @param T The timestamp type used in the automaton's events.
  */
 class NoOpFilter<T : Comparable<T>> : EpaFilter<T> {
+    override val name: String = "NoOp Filter"
+
     /**
      * Returns the original [ExtendedPrefixAutomaton] without any modifications.
      */
