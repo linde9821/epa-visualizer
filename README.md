@@ -92,12 +92,6 @@ event logs in `.xes` and `.xes.gz` formats.
 - **Event Properties**  
   → Each event in the animation could display various properties (visualized per event instance).
 
-### UI
-
-- Improve observability during loading  
-  → Currently the UI shows an indeterminate progress bar. This could be changed to display actual progress  
-  (both the construction and visitor processes can be extended/utilized to track "x out of total elements processed").
-
 ### Others
 
 - The tree layout algorithm is fairly general and could be provided as a standalone library for others to use.
