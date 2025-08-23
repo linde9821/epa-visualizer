@@ -22,7 +22,6 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
-import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
@@ -44,7 +43,7 @@ fun AnimationUi(
 
     Column(
         modifier = Modifier
-                .fillMaxSize(),
+            .fillMaxSize(),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -172,7 +171,7 @@ fun TimelineSliderSingleCaseUi(
         withContext(dispatcher) {
             extendedPrefixAutomaton
                 .copy()
-                .acceptDepthFirst(AutomatonVisitorWithProgressBar(singleCaseAnimationBuilder, "casesAnimation"))
+                .acceptDepthFirst(singleCaseAnimationBuilder)
             yield()
             animation = singleCaseAnimationBuilder.build()
 

@@ -17,7 +17,7 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.AnimationUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
-import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutOptionUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.statistics.StatisticsComparisonUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
@@ -92,7 +92,8 @@ fun EpaTreeViewUi(
                     }
 
                     EpaViewStateUpper.Layout -> {
-                        LayoutOptionUi(
+                        LayoutUi(
+                            epaViewModel = epaViewModel,
                             modifier =
                                 Modifier
                                     .weight(1f)

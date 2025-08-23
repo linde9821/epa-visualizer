@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.plugin.compose)
+    alias(libs.plugins.gradle.buildconfig.plugin)
 }
 
 group = "moritz.lindner.masterarbeit"
@@ -96,4 +97,9 @@ compose.desktop {
             }
         }
     }
+}
+
+buildConfig {
+    buildConfigField("String", "APP_VERSION", "\"${project.version}\"")
+    packageName("moritz.lindner.masterarbeit.buildconfig") // replace with your package
 }

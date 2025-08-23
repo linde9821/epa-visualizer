@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.logging)
     implementation(libs.jaxb.api)
     implementation(libs.openxes)
-    implementation(libs.progressbar)
     implementation(libs.rtree)
     implementation(libs.csv)
 

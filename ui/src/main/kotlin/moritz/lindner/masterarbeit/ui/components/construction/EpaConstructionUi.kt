@@ -41,11 +41,11 @@ fun EpaConstructionUi(
 ) {
     val file = state.file
     val mappers = listOf(
-            SampleEventMapper(),
-            BPI2017OfferChallengeEventMapper(),
-            BPI2017ChallengeEventMapper(),
-            BPI2018ChallangeMapper(),
-        )
+        SampleEventMapper(),
+        BPI2017OfferChallengeEventMapper(),
+        BPI2017ChallengeEventMapper(),
+        BPI2018ChallangeMapper(),
+    )
 
     var selectedIndex by remember { mutableIntStateOf(0) }
     val selectedMapper: EventLogMapper<Long> = mappers[selectedIndex]
@@ -61,16 +61,16 @@ fun EpaConstructionUi(
             text = "Configure EPA Construction",
             style = JewelTheme.typography.h1TextStyle
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Selected file: ${file.name}",
             style = JewelTheme.typography.regular
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         if (state.constructionError != null) {
             ErrorInlineBanner(
                 text = state.constructionError,
@@ -104,9 +104,9 @@ fun EpaConstructionUi(
                 modifier = Modifier.width(250.dp)
             )
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {

@@ -6,11 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,11 +25,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaBuildProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
-import org.jetbrains.jewel.ui.component.OutlinedButton
+import org.jetbrains.jewel.ui.component.HorizontalProgressBar
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
@@ -45,10 +48,24 @@ fun ConstructEpaUi(
 ) {
     var epaConstructionJob by remember { mutableStateOf<Job?>(null) }
 
-    epaConstructionJob =
-        scope.launch(backgroundDispatcher) {
+    var currentTask by remember { mutableStateOf("") }
+    var currentProgress by remember { mutableStateOf(0L) }
+    var totalProgress by remember { mutableStateOf(0L) }
+
+    val progressCallback = EpaBuildProgressCallback { current, total, task ->
+        currentTask = task
+        currentProgress = current
+        totalProgress = total
+    }
+
+    LaunchedEffect(Unit) {
+        epaConstructionJob = scope.launch(backgroundDispatcher) {
             try {
-                val epa = builder.build()
+                logger.info { "Start construction" }
+                val epa = builder
+                    .setProgressCallback(progressCallback)
+                    .build()
+                logger.info { "construction finished" }
                 yield()
                 onEPAConstructed(epa)
             } catch (e: NullPointerException) {
@@ -59,7 +76,7 @@ fun ConstructEpaUi(
                 onError(e.toString(), e)
             }
         }
-
+    }
     // Ensure job is cancelled when the composable leaves composition
     DisposableEffect(Unit) {
         onDispose {
@@ -79,27 +96,39 @@ fun ConstructEpaUi(
                 text = "Building EPA",
                 style = JewelTheme.typography.h2TextStyle
             )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
                 text = "This may take a few moments depending on the size of your event log",
                 style = JewelTheme.typography.regular
             )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = currentTask.ifEmpty { "Initializing..." },
+                    style = JewelTheme.typography.h3TextStyle
+                )
+                
+                val progressPercent = if (totalProgress > 0) {
+                    (currentProgress.toFloat() / totalProgress * 100).toInt()
+                } else 0
+                
+                Text(
+                    text = "$progressPercent% • $currentProgress / $totalProgress",
+                    style = JewelTheme.typography.small,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                
+                HorizontalProgressBar(
+                    progress = if (totalProgress > 0) currentProgress.toFloat() / totalProgress else 0f,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            AnimatedLoadingText(
-                baseText = "Constructing EPA"
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedButton(
                 onClick = {

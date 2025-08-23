@@ -26,6 +26,7 @@ import kotlin.math.sin
  */
 class DirectAngularPlacementTreeLayout(
     private val layerSpace: Float,
+    private val rotation: Float,
     expectedCapacity: Int = 10000,
 ) : RadialTreeLayout {
     private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
@@ -52,7 +53,7 @@ class DirectAngularPlacementTreeLayout(
             nodePlacementByState[tree.state] = NodePlacement(Coordinate(0f, 0f), tree)
         } else {
             val radius = layerSpace * tree.depth
-            val theta = (start + end) / 2f
+            val theta = ((start + end) / 2f) + rotation
 
             nodePlacementByState[tree.state] =
                 NodePlacement(

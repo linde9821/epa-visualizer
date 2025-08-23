@@ -9,11 +9,11 @@ kotlin-logging-jvm = "7.0.12"
 log4j = "2.25.1"
 openxes = "2.16"
 jaxb-api = "2.4.0-b180830.0359"
-progressbar = "0.10.1"
 rtree2 = "0.9.3"
 csv-jvm = "1.10.0"
 selfie = "2.5.3"
 kotlin = "2.2.10"
+gradle-buildconfig = "5.6.7"
 compose-version = "1.8.2"
 jewel = "0.29.0-252.24604"
 intelliJPlatformBuild = "252.23892.515"
@@ -29,7 +29,6 @@ log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "lo
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 openxes = { module = "org.deckfour:openxes", version.ref = "openxes" }
 jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb-api" }
-progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
 rtree = { module = "com.github.davidmoten:rtree2", version.ref = "rtree2" }
 csv = { module = "com.jsoizo:kotlin-csv-jvm", version.ref = "csv-jvm" }
 selfie-runner = { module = "com.diffplug.selfie:selfie-runner-junit5", version.ref = "selfie" }
@@ -45,3 +44,5 @@ log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose-version" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+gradle-buildconfig-plugin = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
+

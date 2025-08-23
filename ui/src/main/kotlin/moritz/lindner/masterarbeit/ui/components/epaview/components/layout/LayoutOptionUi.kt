@@ -3,9 +3,7 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.layout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,79 +13,61 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.ui.logger
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.Divider
+import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
 
 @Composable
-fun LayoutOptionUi(
+fun LayoutUi(
     modifier: Modifier = Modifier,
+    epaViewModel: EpaViewModel,
     onUpdate: (LayoutConfig) -> Unit,
 ) {
-    var radius by remember { mutableStateOf(120.0f) }
-    var margin by remember { mutableStateOf(3.0f) }
-    val layouts: List<LayoutSelection> =
-        listOf(
-            LayoutSelection("Walker Radial Tree"),
-            LayoutSelection("Walker"),
-            LayoutSelection(
-                "Direct Angular Placement",
-            ),
-        )
-
-    var layoutSelection by remember { mutableStateOf(layouts.first()) }
+    val layouts = listOf(
+        LayoutConfig.RadialWalker(),
+        LayoutConfig.Walker(),
+        LayoutConfig.DirectAngular(),
+    )
+    var layoutSelectionIndex by remember { mutableStateOf(0) }
+    var selectedLayout by remember(layoutSelectionIndex) { mutableStateOf(layouts[layoutSelectionIndex]) }
 
     Column(
-        modifier = modifier.padding(start = 10.dp),
-        horizontalAlignment = Alignment.End,
+        modifier = modifier.padding(start = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Text("Layout Settings", style = JewelTheme.typography.h1TextStyle)
+
+        Divider(
+            orientation = Orientation.Horizontal,
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+        )
+
         Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Layout Settings", style = JewelTheme.typography.h1TextStyle)
+            Text("Algorithm:")
+            ListComboBox(
+                items = layouts.map { it.name },
+                selectedIndex = layoutSelectionIndex,
+                onSelectedItemChange = { index ->
+                    layoutSelectionIndex = index
+                    onUpdate(selectedLayout)
+                },
+            )
         }
 
-        Spacer(Modifier.height(10.dp))
 
-        LayoutSettings(
-            radius = radius,
-            onRadiusChange = {
-                radius = it
-                onUpdate(
-                    LayoutConfig(
-                        radius = radius,
-                        margin = margin,
-                        layout = layoutSelection,
-                    ),
-                )
-            },
-            margin = margin,
-            onMarginChange = {
-                margin = it
-                onUpdate(
-                    LayoutConfig(
-                        radius = radius,
-                        margin = margin,
-                        layout = layoutSelection,
-                    ),
-                )
-            },
-            layouts = layouts,
-            selectedLayout = layoutSelection,
-            onLayoutSelectionChange = {
-                layoutSelection = it
-                logger.info { "setting layout to $it" }
-                onUpdate(
-                    LayoutConfig(
-                        radius = radius,
-                        margin = margin,
-                        layout = layoutSelection,
-                    ),
-                )
-            },
-        )
+        LayoutConfigUI(selectedLayout) { newConfig ->
+            selectedLayout = newConfig
+            onUpdate(selectedLayout)
+        }
     }
 }
