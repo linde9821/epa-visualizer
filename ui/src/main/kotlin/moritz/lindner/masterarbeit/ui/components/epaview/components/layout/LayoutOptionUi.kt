@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +18,6 @@ import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.ListComboBox
-import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
 
@@ -72,39 +70,3 @@ fun LayoutUi(
     }
 }
 
-@Composable
-fun LayoutConfigUI(
-    config: LayoutConfig,
-    onConfigChange: (LayoutConfig) -> Unit
-) {
-    Column {
-        config.getParameters().forEach { (paramName, info) ->
-            val currentValue = when (config) {
-                is LayoutConfig.Walker -> when (paramName) {
-                    "distance" -> config.distance
-                    "yDistance" -> config.yDistance
-                    else -> 0f
-                }
-
-                is LayoutConfig.DirectAngular -> when (paramName) {
-                    "layerSpace" -> config.layerSpace
-                    else -> 0f
-                }
-
-                is LayoutConfig.RadialWalker -> when (paramName) {
-                    "layerSpace" -> config.layerSpace
-                    "margin" -> config.margin
-                    else -> 0f
-                }
-            }
-
-            Text("${info.name}: ${"%.1f".format(currentValue)}")
-            Slider(
-                value = currentValue,
-                onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value)) },
-                valueRange = info.min..info.max,
-                steps = ((info.max - info.min) / info.step).toInt()
-            )
-        }
-    }
-}
