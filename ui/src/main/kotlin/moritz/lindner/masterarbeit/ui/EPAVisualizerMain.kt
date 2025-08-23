@@ -16,6 +16,7 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.asCoroutineDispatcher
+import moritz.lindner.masterarbeit.buildconfig.BuildConfig
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
 import moritz.lindner.masterarbeit.ui.common.Icons
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
@@ -90,11 +91,16 @@ fun main() {
                 TitleBar(Modifier.newFullscreenControls()) {
                     Row(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(APPLICATION_NAME)
-                        Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
+                        Tooltip(
+                            tooltip = { Text("$APPLICATION_NAME version ${BuildConfig.APP_VERSION}") }
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically,) {
+                                Text(APPLICATION_NAME)
+                                Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
+                            }
+                        }
                     }
 
                     Row(Modifier.align(Alignment.End)) {
