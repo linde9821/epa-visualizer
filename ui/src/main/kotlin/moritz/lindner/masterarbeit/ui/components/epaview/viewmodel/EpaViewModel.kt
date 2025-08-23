@@ -17,12 +17,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitorWithProgressBar
-import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutConfig
-import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutSelection
-import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.TreeLayoutConstructionHelper
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
@@ -50,14 +49,7 @@ class EpaViewModel(
         _animationState.value = animationState
     }
 
-    private val _layout =
-        MutableStateFlow(
-            LayoutConfig(
-                200.0f,
-                5f,
-                LayoutSelection("Walker Radial Tree"),
-            ),
-        )
+    private val _layout: MutableStateFlow<LayoutConfig> = MutableStateFlow(LayoutConfig.RadialWalker())
     val layout: StateFlow<LayoutConfig> = _layout
 
     private val _Epa_uiState =
@@ -83,7 +75,7 @@ class EpaViewModel(
         coroutineScope.launch {
             combine(
                 _layout.distinctUntilChanged { a, b ->
-                    a.radius == b.radius && a.margin == b.margin && a.layout == b.layout
+                    a == b
                 },
                 _Epa_uiState.distinctUntilChanged { a, b ->
                     a.filters == b.filters
@@ -113,7 +105,7 @@ class EpaViewModel(
                         yield()
 
                         logger.info { "building tree layout" }
-                        val layout = TreeLayoutConstructionHelper.build(layoutConfig, filteredEpa)
+                        val layout = LayoutFactory.create(layoutConfig)
                         yield()
 
                         layout.build(treeVisitor.root)
