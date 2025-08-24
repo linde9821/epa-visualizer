@@ -49,7 +49,7 @@ import kotlin.math.sin
 import org.jetbrains.skia.Color as SkiaColor
 
 @Composable
-fun TidyTreeUi(
+fun TreeCanvas(
     epaUiState: EpaUiState,
     animationState: AnimationState,
     backgroundDispatcher: ExecutorCoroutineDispatcher,

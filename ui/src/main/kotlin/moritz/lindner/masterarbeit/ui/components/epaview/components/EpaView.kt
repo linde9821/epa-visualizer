@@ -19,7 +19,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.An
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.statistics.StatisticsComparisonUi
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
@@ -112,7 +112,7 @@ fun EpaTreeViewUi(
                     EpaViewStateUpper.None -> null
                 }
 
-                TidyTreeUi(
+                TreeCanvas(
                     epaUiState,
                     animationState,
                     backgroundDispatcher,

@@ -28,8 +28,7 @@ fun TabsUi(
     onClose: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxHeight(),
+        modifier = Modifier.fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
@@ -45,8 +44,7 @@ fun TabsUi(
                         if (upperState != EpaViewStateUpper.Filter) EpaViewStateUpper.Filter else EpaViewStateUpper.None,
                     )
                 },
-                modifier =
-                    Modifier.background(
+                modifier = Modifier.background(
                         if (upperState == EpaViewStateUpper.Filter) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
