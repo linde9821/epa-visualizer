@@ -140,7 +140,7 @@ The project consists of two modules:
 ### Run the App
 
 > **_NOTE:_**  The application requires a [JetbrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) to run.
-> 
+
 ```bash
 ./gradlew run
 ```

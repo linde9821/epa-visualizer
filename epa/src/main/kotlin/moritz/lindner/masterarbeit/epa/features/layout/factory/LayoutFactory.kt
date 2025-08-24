@@ -9,8 +9,16 @@ import kotlin.math.PI
 object LayoutFactory {
     fun create(config: LayoutConfig): TreeLayout = when (config) {
         is LayoutConfig.Walker -> WalkerTreeLayout(config.distance, config.yDistance)
-        is LayoutConfig.RadialWalker -> RadialWalkerTreeLayout(config.layerSpace, config.margin.degreesToRadians(), config.rotation.degreesToRadians())
-        is LayoutConfig.DirectAngular -> DirectAngularPlacementTreeLayout(config.layerSpace, config.rotation.degreesToRadians())
+        is LayoutConfig.RadialWalker -> RadialWalkerTreeLayout(
+            config.layerSpace,
+            config.margin.degreesToRadians(),
+            config.rotation.degreesToRadians()
+        )
+
+        is LayoutConfig.DirectAngular -> DirectAngularPlacementTreeLayout(
+            config.layerSpace,
+            config.rotation.degreesToRadians()
+        )
     }
 
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f

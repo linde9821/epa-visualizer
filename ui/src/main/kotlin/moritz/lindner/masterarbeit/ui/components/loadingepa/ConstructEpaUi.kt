@@ -111,17 +111,17 @@ fun ConstructEpaUi(
                     text = currentTask.ifEmpty { "Initializing..." },
                     style = JewelTheme.typography.h3TextStyle
                 )
-                
+
                 val progressPercent = if (totalProgress > 0) {
                     (currentProgress.toFloat() / totalProgress * 100).toInt()
                 } else 0
-                
+
                 Text(
                     text = "$progressPercent% • $currentProgress / $totalProgress",
                     style = JewelTheme.typography.small,
                     modifier = Modifier.padding(top = 4.dp)
                 )
-                
+
                 HorizontalProgressBar(
                     progress = if (totalProgress > 0) currentProgress.toFloat() / totalProgress else 0f,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)

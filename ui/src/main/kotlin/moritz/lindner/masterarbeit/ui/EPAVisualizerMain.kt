@@ -96,7 +96,7 @@ fun main() {
                         Tooltip(
                             tooltip = { Text("$APPLICATION_NAME version ${BuildConfig.APP_VERSION}") }
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically,) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(APPLICATION_NAME)
                                 Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
                             }
