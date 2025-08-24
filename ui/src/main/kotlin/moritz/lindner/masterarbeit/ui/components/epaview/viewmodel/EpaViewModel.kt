@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,59 +73,53 @@ class EpaViewModel(
 
     init {
         coroutineScope.launch {
-            combine(
-                _layout.distinctUntilChanged { a, b ->
-                    a == b
-                },
-                _Epa_uiState.distinctUntilChanged { a, b ->
-                    a.filters == b.filters
-                }
-            ) { a, b ->
-                Pair(a, b)
-            }.collectLatest { (layoutConfig, epaState) ->
+            val layoutFlow = _layout.distinctUntilChanged { a, b ->
+                a == b
+            }
+            val filtersFlow = _Epa_uiState
+                .map { uiState -> uiState.filters }
+                .distinctUntilChanged()
+
+            // Track previous values to detect what changed
+            var previousLayout: LayoutConfig? = null
+            var previousFilters: List<EpaFilter<Long>>? = null
+            var currentFilteredEpa: ExtendedPrefixAutomaton<Long>? = null
+
+            combine(layoutFlow, filtersFlow) { layout, filters ->
+                layout to filters
+            }.collectLatest { (layoutConfig, filters) ->
                 logger.info { "running state update" }
 
-                _Epa_uiState.update { it.copy(isLoading = true) }
-
-                _statistics.update {
-                    null
-                }
+                _Epa_uiState.update { uiState -> uiState.copy(isLoading = true) }
 
                 try {
                     withContext(backgroundDispatcher) {
-                        logger.info { "applying filters" }
-                        val filteredEpa = epaState.filters.fold(completeEpa) { epa, filter ->
-                            filter.apply(epa)
-                        }
-                        yield()
-
-                        async {
-                            logger.info { "building tree" }
-                            val treeVisitor = EpaToTree<Long>()
-                            filteredEpa.copy().acceptDepthFirst(treeVisitor)
-                            yield()
-
-                            logger.info { "building tree layout" }
-                            val layout = LayoutFactory.create(layoutConfig)
-                            yield()
-
-                            layout.build(treeVisitor.root)
-                            yield()
-
-                            logger.info { "update ui" }
-
-                            _Epa_uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    layout = layout,
-                                    filteredEpa = filteredEpa
-                                )
+                        if (filters != previousFilters) {
+                            launch {
+                                computeStatistics(currentFilteredEpa)
                             }
+                        } else {
+                            logger.info { "Skipping statistics computation (data unchanged)" }
                         }
 
-                        async {
-                            logger.info { "building statistics" }
-                            computeStatistics(filteredEpa)
+                        if (filters != previousFilters) {
+                            currentFilteredEpa = applyFilter(filters)
+                            previousFilters = filters
+                            yield()
+                            _Epa_uiState.update { uiState -> uiState.copy(filteredEpa = currentFilteredEpa) }
+                        } else {
+                            logger.info { "Skipping filter application (filters unchanged)" }
+                        }
+
+                        val shouldRebuildLayout = layoutConfig != previousLayout || filters != previousFilters
+                        if (shouldRebuildLayout && currentFilteredEpa != null) {
+                            launch {
+                                buildTree(currentFilteredEpa, layoutConfig)
+                                previousLayout = layoutConfig
+                            }
+                        } else {
+                            logger.info { "Skipping layout rebuild (layout unchanged and no new data)" }
+                            _Epa_uiState.update { it.copy(isLoading = false) }
                         }
                     }
                 } catch (e: CancellationException) {
@@ -139,8 +134,48 @@ class EpaViewModel(
         }
     }
 
+    private suspend fun buildTree(
+        filteredEpa: ExtendedPrefixAutomaton<Long>,
+        layoutConfig: LayoutConfig
+    ) {
+        logger.info { "building tree" }
+        val treeVisitor = EpaToTree<Long>()
+        filteredEpa.copy().acceptDepthFirst(treeVisitor)
+        yield()
+
+        logger.info { "building tree layout" }
+        val layout = LayoutFactory.create(layoutConfig)
+        yield()
+
+        // TODO: ensure that it works even when epa is empty
+        layout.build(treeVisitor.root)
+        yield()
+
+        logger.info { "update ui" }
+
+        _Epa_uiState.update { uiState ->
+            uiState.copy(
+                isLoading = false,
+                layout = layout,
+                filteredEpa = filteredEpa
+            )
+        }
+    }
+
+    private fun applyFilter(filters: List<EpaFilter<Long>>): ExtendedPrefixAutomaton<Long> {
+        logger.info { "applying filters" }
+        return filters.fold(completeEpa) { epa, filter ->
+            filter.apply(epa)
+        }
+    }
+
     private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomaton<Long>?) {
         withContext(backgroundDispatcher) {
+            logger.info { "building statistics" }
+            _statistics.update {
+                null
+            }
+
             val fullVisitor = StatisticsVisitor<Long>()
             val statistics1 = async {
                 completeEpa.acceptDepthFirst(fullVisitor)
