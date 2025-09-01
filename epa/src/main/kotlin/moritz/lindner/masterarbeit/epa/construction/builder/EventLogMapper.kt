@@ -25,26 +25,26 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
      * @return A list of [Event]s sorted by their [Event.timestamp], each with a reference to its predecessor.
      */
     fun build(log: Iterable<XTrace>, progressCallback: EpaBuildProgressCallback? = null): List<Event<T>> {
-        val xTraces = log.toList()
+        val traces = log.toList()
 
-        return xTraces
+        return traces
             .flatMapIndexed { index, trace ->
-                var previous: Event<T>? = null
-
                 trace
                     .map { event -> map(event, trace) }
-                    .map { current ->
-                        current.copy(predecessor = previous).also {
-                            previous = current
-                        }
+                    .sortedBy { event -> event.timestamp }
+                    .mapIndexed { index, event ->
+                        event.copy(
+                            predecessorIndex = if (index <= 0) null else index - 1,
+                            successorIndex = if (index >= trace.size - 1) null else index + 1,
+                        )
                     }.also {
                         progressCallback?.onProgress(
                             current = (index + 1).toLong(),
-                            total = xTraces.size.toLong(),
+                            total = traces.size.toLong(),
                             task = "Convert XTraces to sorted list of events"
                         )
                     }
-            }.sortedBy { it.timestamp }
+            }
     }
 
     /**
