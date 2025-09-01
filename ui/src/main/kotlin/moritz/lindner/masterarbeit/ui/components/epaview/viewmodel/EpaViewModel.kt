@@ -102,6 +102,7 @@ class EpaViewModel(
                             logger.info { "Skipping statistics computation (data unchanged)" }
                         }
 
+                        val shouldRebuildLayout = layoutConfig != previousLayout || filters != previousFilters
                         if (filters != previousFilters) {
                             currentFilteredEpa = applyFilter(filters)
                             previousFilters = filters
@@ -111,7 +112,6 @@ class EpaViewModel(
                             logger.info { "Skipping filter application (filters unchanged)" }
                         }
 
-                        val shouldRebuildLayout = layoutConfig != previousLayout || filters != previousFilters
                         if (shouldRebuildLayout && currentFilteredEpa != null) {
                             launch {
                                 buildTree(currentFilteredEpa, layoutConfig)
