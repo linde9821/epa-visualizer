@@ -53,4 +53,6 @@ interface TreeLayout : Iterable<NodePlacement> {
      * @return true if layout has been computed, false otherwise.
      */
     fun isBuilt(): Boolean
+
+    fun getAllCoordinates(): List<NodePlacement>
 }

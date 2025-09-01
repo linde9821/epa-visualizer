@@ -82,6 +82,10 @@ class DirectAngularPlacementTreeLayout(
 
     override fun isBuilt(): Boolean = isBuilt
 
+    override fun getAllCoordinates(): List<NodePlacement> {
+        return nodePlacementByState.values.toList()
+    }
+
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         val search =
             rTree

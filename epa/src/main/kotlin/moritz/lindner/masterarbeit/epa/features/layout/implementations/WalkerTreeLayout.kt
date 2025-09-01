@@ -331,5 +331,9 @@ class WalkerTreeLayout(
 
     override fun isBuilt(): Boolean = isBuilt
 
+    override fun getAllCoordinates(): List<NodePlacement> {
+        return nodePlacementByState.values.toList()
+    }
+
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }
