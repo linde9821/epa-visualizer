@@ -148,11 +148,16 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
     override fun toString(): String =
         buildString {
             appendLine(eventLogName)
+            appendLine("States:")
             appendLine(states.joinToString(","))
+            appendLine("Activities:")
             appendLine(activities.joinToString(","))
+            appendLine("Transitions:")
             appendLine(transitions.joinToString(","))
-            appendLine(partitionByState.map { "${it.key}:${it.value}" }.joinToString(","))
-            appendLine(sequenceByState.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(","))
+            appendLine("Partition by state: State -> C")
+            appendLine(partitionByState.map { entry -> "${entry.key}:${entry.value}" }.joinToString(","))
+            appendLine("Sequence by state: State -> list(Event)")
+            appendLine(sequenceByState.map { entry -> "${entry.key}:${entry.value.sortedBy { it.timestamp }.joinToString(",")}" }.joinToString(","))
         }
 
     /**
