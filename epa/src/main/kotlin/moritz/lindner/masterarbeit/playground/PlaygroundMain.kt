@@ -1,12 +1,16 @@
 package moritz.lindner.masterarbeit.playground
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.features.dot.DotExport
+import moritz.lindner.masterarbeit.epa.domain.Event
+import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import java.io.File
 
 fun main() {
@@ -31,10 +35,43 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-    val dot = DotExport<Long>()
-    epa.acceptDepthFirst(dot)
-
-    File("./dia.dot").writeText(dot.dot)
-
     logger.info { "build EPA successfully" }
+
+    val paritionFrequencyFilter = NormalizedPartitionFrequencyVisitor<Long>()
+
+    epa.acceptDepthFirst(paritionFrequencyFilter)
+
+    val topPartitions = paritionFrequencyFilter.getTopN(2).map { it.key!! }.toSet()
+
+    epa.acceptDepthFirst(object : AutomatonVisitor<Long> {
+
+        val sequenceByPartition = HashMap<Int, List<Event<Long>>>()
+
+        override fun visit(
+            extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+            state: State,
+            depth: Int
+        ) {
+            val partition = extendedPrefixAutomaton.partition(state)
+            if (topPartitions.contains(partition)) {
+                val sequence = extendedPrefixAutomaton
+                    .sequence(state)
+                    .sortedBy { it.timestamp }
+                if (sequence.last().successorIndex == null) {
+                    sequenceByPartition[partition] = sequence
+                }
+            }
+        }
+
+        override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>) {
+            println("Sequence by partition")
+            sequenceByPartition.forEach { (partition, sequence) ->
+                println("Partition $partition")
+                sequence.forEach { event ->
+                    println(event)
+                }
+                println()
+            }
+        }
+    })
 }
