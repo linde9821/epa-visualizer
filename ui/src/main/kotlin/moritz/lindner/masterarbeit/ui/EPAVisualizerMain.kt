@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -46,6 +47,8 @@ import java.net.URI
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
+import javax.swing.JOptionPane
+import javax.swing.JOptionPane.showMessageDialog
 
 val logger = KotlinLogging.logger {}
 
@@ -88,6 +91,18 @@ fun main() {
                 title = APPLICATION_NAME,
                 icon = painterResource("icons/logo.png"),
             ) {
+
+                LaunchedEffect(Unit) {
+                    if (Desktop.isDesktopSupported()) {
+                        val desktop = Desktop.getDesktop()
+                        if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+                            desktop.setAboutHandler { _ ->
+                                showAboutDialog()
+                            }
+                        }
+                    }
+                }
+
                 TitleBar(Modifier.newFullscreenControls()) {
                     Row(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -125,3 +140,36 @@ fun main() {
     executor.shutdownNow()
 }
 
+private fun showAboutDialog() {
+    showMessageDialog(
+        null,
+        """
+        $APPLICATION_NAME
+        Version: ${BuildConfig.APP_VERSION}
+        
+        Interactive Visualization of Extended Prefix Automaton Using Radial Trees
+        
+        A tool for analyzing trace variants in large, complex event logs using 
+        Extended Prefix Automata (EPA) and radial tidy tree layouts. This 
+        visualization approach encodes thousands of trace variants while 
+        minimizing visual clutter and supporting interactive filtering.
+        
+        Built as part of a Master's Thesis and Study Project (Studienarbeit) at 
+        Humboldt-Universität zu Berlin.
+        
+        This application and the master thesis is currently under development and not finished.
+        
+        Built with Kotlin and Compose Desktop
+        Process Mining • Event Log Visualization • Variant Analysis
+        
+        Author: Moritz Lindner
+        Supervisor: Prof. Dr. Jan Mendling
+        
+        GitHub: https://github.com/linde9821/epa-visualizer
+        
+        © 2025 Moritz Lindner
+        """.trimIndent(),
+        "About $APPLICATION_NAME",
+        JOptionPane.INFORMATION_MESSAGE
+    )
+}
