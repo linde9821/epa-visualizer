@@ -63,7 +63,6 @@ fun main() {
     setSystemProperties()
     val backgroundDispatcher = buildDispatcherAndMonitoring()
 
-
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
 
