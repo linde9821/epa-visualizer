@@ -47,7 +47,9 @@ import org.jetbrains.skiko.SkikoProperties
 import java.awt.Desktop
 import java.net.URI
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.ThreadFactory
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 val logger = KotlinLogging.logger {}
@@ -59,7 +61,8 @@ fun main() {
     logger.info { "Starting EPA-Visualizer" }
 
     setSystemProperties()
-    val backgroundDispatcher = buildDispatcher()
+    val backgroundDispatcher = buildDispatcherAndMonitoring()
+
 
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
@@ -135,7 +138,7 @@ fun main() {
     }
 }
 
-private fun buildDispatcher(): ExecutorCoroutineDispatcher {
+private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
     val i = AtomicInteger(0)
     val threadFactory = ThreadFactory { runnable ->
         Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
@@ -143,6 +146,19 @@ private fun buildDispatcher(): ExecutorCoroutineDispatcher {
     val threads = Runtime.getRuntime().availableProcessors() / 2
     val executor = Executors.newFixedThreadPool(threads, threadFactory)
     val backgroundDispatcher = executor.asCoroutineDispatcher()
+
+    val memoryMonitor = ScheduledThreadPoolExecutor(1)
+
+    memoryMonitor.scheduleAtFixedRate({
+        val runtime = Runtime.getRuntime()
+        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+        val maxMemory = runtime.maxMemory()
+        val usagePercent = (usedMemory.toDouble() / maxMemory * 100).toInt()
+
+        if (usagePercent > 70) {
+            logger.warn { "High memory usage: $usagePercent%" }
+        }
+    }, 0, 30, TimeUnit.SECONDS)
 
     logger.info { "Starting background dispatcher with $threads threads" }
 
