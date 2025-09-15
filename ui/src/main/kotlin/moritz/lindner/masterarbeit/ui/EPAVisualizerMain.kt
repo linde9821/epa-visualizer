@@ -179,10 +179,6 @@ private fun setSystemProperties() {
 
     // Windows-specific properties
     System.setProperty("sun.awt.useSystemAAFontSettings", "on")
-    System.setProperty(
-        "swing.defaultlaf",
-        System.getProperty("swing.defaultlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel")
-    )
 
     // Linux/Unix-specific properties
     System.setProperty("awt.useSystemAAFontSettings", "lcd")
