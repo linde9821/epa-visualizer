@@ -6,26 +6,33 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.buildconfig.BuildConfig
+import moritz.lindner.masterarbeit.ui.common.AboutPanel.showAboutDialog
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
 import moritz.lindner.masterarbeit.ui.common.Icons
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
+import moritz.lindner.masterarbeit.ui.generated.resources.Res
+import moritz.lindner.masterarbeit.ui.generated.resources.logo
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.jewel.foundation.DisabledAppearanceValues
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.intui.standalone.theme.createDefaultTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.createEditorTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.default
+import org.jetbrains.jewel.intui.standalone.theme.light
 import org.jetbrains.jewel.intui.standalone.theme.lightThemeDefinition
 import org.jetbrains.jewel.intui.window.decoratedWindow
 import org.jetbrains.jewel.intui.window.styling.light
@@ -44,7 +51,9 @@ import org.jetbrains.skiko.SkikoProperties
 import java.awt.Desktop
 import java.net.URI
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.ThreadFactory
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 val logger = KotlinLogging.logger {}
@@ -54,22 +63,23 @@ val logger = KotlinLogging.logger {}
 @ExperimentalJewelApi
 fun main() {
     logger.info { "Starting EPA-Visualizer" }
-    val i = AtomicInteger(0)
 
-    val threadFactory =
-        ThreadFactory { runnable ->
-            Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
-        }
-    val executor = Executors.newFixedThreadPool(4, threadFactory)
-    val backgroundDispatcher = executor.asCoroutineDispatcher()
+    setSystemProperties()
+    val backgroundDispatcher = buildDispatcherAndMonitoring()
+
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
 
         val textStyle = JewelTheme.createDefaultTextStyle()
         val editorStyle = JewelTheme.createEditorTextStyle()
+        val disabledAppearanceValues = DisabledAppearanceValues.light()
 
         val themeDefinition =
-            JewelTheme.lightThemeDefinition(defaultTextStyle = textStyle, editorTextStyle = editorStyle)
+            JewelTheme.lightThemeDefinition(
+                defaultTextStyle = textStyle,
+                editorTextStyle = editorStyle,
+                disabledAppearanceValues = disabledAppearanceValues
+            )
 
         IntUiTheme(
             theme = themeDefinition,
@@ -86,8 +96,20 @@ fun main() {
                     size = DpSize(800.dp, 800.dp)
                 ),
                 title = APPLICATION_NAME,
-                icon = painterResource("icons/logo.png"),
+                icon = painterResource(Res.drawable.logo),
             ) {
+
+                LaunchedEffect(Unit) {
+                    if (Desktop.isDesktopSupported()) {
+                        val desktop = Desktop.getDesktop()
+                        if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+                            desktop.setAboutHandler { _ ->
+                                showAboutDialog()
+                            }
+                        }
+                    }
+                }
+
                 TitleBar(Modifier.newFullscreenControls()) {
                     Row(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -122,6 +144,56 @@ fun main() {
             }
         }
     }
-    executor.shutdownNow()
 }
 
+private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
+    val i = AtomicInteger(0)
+    val threadFactory = ThreadFactory { runnable ->
+        Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
+    }
+    val threads = Runtime.getRuntime().availableProcessors() / 2
+    val executor = Executors.newFixedThreadPool(threads, threadFactory)
+    val backgroundDispatcher = executor.asCoroutineDispatcher()
+
+    val memoryMonitor = ScheduledThreadPoolExecutor(1)
+
+    memoryMonitor.scheduleAtFixedRate({
+        val runtime = Runtime.getRuntime()
+        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+        val maxMemory = runtime.maxMemory()
+        val usagePercent = (usedMemory.toDouble() / maxMemory * 100).toInt()
+
+        if (usagePercent > 70) {
+            logger.warn { "High memory usage: $usagePercent%" }
+        }
+    }, 0, 30, TimeUnit.SECONDS)
+
+    logger.info { "Starting background dispatcher with $threads threads" }
+
+    Runtime.getRuntime().addShutdownHook(Thread {
+        logger.info { "Application is shutting" }
+        backgroundDispatcher.close()
+        executor.shutdownNow()
+        logger.info { "Shutdown complete" }
+    })
+
+    return backgroundDispatcher
+}
+
+private fun setSystemProperties() {
+    // Cross-platform application name settings
+    System.setProperty("apple.awt.application.name", APPLICATION_NAME) // macOS
+    System.setProperty("awt.useSystemAAFontSettings", "on") // Better font rendering
+    System.setProperty("swing.aatext", "true") // Anti-aliasing
+
+    // Windows-specific properties
+    System.setProperty("sun.awt.useSystemAAFontSettings", "on")
+
+    // Linux/Unix-specific properties
+    System.setProperty("awt.useSystemAAFontSettings", "lcd")
+    System.setProperty("swing.aatext", "true")
+
+    // General application properties that work across platforms
+    System.setProperty("java.awt.headless", "false")
+    System.setProperty("file.encoding", "UTF-8")
+}

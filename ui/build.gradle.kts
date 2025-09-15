@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     google()
@@ -99,7 +99,22 @@ compose.desktop {
     }
 }
 
+fun getGitCommitHash(): String {
+    return try {
+        val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+            .directory(file("."))
+            .start()
+        val result = process.inputStream.bufferedReader().readText().trim()
+        process.waitFor()
+        if (process.exitValue() == 0) result else "unknown"
+    } catch (_: Exception) {
+        "unknown"
+    }
+}
+
 buildConfig {
-    buildConfigField("String", "APP_VERSION", "\"${project.version}\"")
-    packageName("moritz.lindner.masterarbeit.buildconfig") // replace with your package
+    val gitHash = getGitCommitHash()
+    val versionWithHash = "${project.version}-$gitHash"
+    buildConfigField("String", "APP_VERSION", "\"${versionWithHash}\"")
+    packageName("moritz.lindner.masterarbeit.buildconfig")
 }
