@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
@@ -23,12 +22,17 @@ import moritz.lindner.masterarbeit.ui.common.AboutPanel.showAboutDialog
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
 import moritz.lindner.masterarbeit.ui.common.Icons
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
+import moritz.lindner.masterarbeit.ui.generated.resources.Res
+import moritz.lindner.masterarbeit.ui.generated.resources.logo
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.jewel.foundation.DisabledAppearanceValues
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.intui.standalone.theme.createDefaultTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.createEditorTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.default
+import org.jetbrains.jewel.intui.standalone.theme.light
 import org.jetbrains.jewel.intui.standalone.theme.lightThemeDefinition
 import org.jetbrains.jewel.intui.window.decoratedWindow
 import org.jetbrains.jewel.intui.window.styling.light
@@ -68,9 +72,14 @@ fun main() {
 
         val textStyle = JewelTheme.createDefaultTextStyle()
         val editorStyle = JewelTheme.createEditorTextStyle()
+        val disabledAppearanceValues = DisabledAppearanceValues.light()
 
         val themeDefinition =
-            JewelTheme.lightThemeDefinition(defaultTextStyle = textStyle, editorTextStyle = editorStyle)
+            JewelTheme.lightThemeDefinition(
+                defaultTextStyle = textStyle,
+                editorTextStyle = editorStyle,
+                disabledAppearanceValues = disabledAppearanceValues
+            )
 
         IntUiTheme(
             theme = themeDefinition,
@@ -87,7 +96,7 @@ fun main() {
                     size = DpSize(800.dp, 800.dp)
                 ),
                 title = APPLICATION_NAME,
-                icon = painterResource("icons/logo.png"),
+                icon = painterResource(Res.drawable.logo),
             ) {
 
                 LaunchedEffect(Unit) {
