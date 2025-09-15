@@ -58,6 +58,24 @@ val logger = KotlinLogging.logger {}
 @ExperimentalJewelApi
 fun main() {
     logger.info { "Starting EPA-Visualizer" }
+
+    // Cross-platform application name settings
+    System.setProperty("apple.awt.application.name", APPLICATION_NAME) // macOS
+    System.setProperty("awt.useSystemAAFontSettings", "on") // Better font rendering
+    System.setProperty("swing.aatext", "true") // Anti-aliasing
+
+    // Windows-specific properties
+    System.setProperty("sun.awt.useSystemAAFontSettings", "on")
+    System.setProperty("swing.defaultlaf", System.getProperty("swing.defaultlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel"))
+
+    // Linux/Unix-specific properties
+    System.setProperty("awt.useSystemAAFontSettings", "lcd")
+    System.setProperty("swing.aatext", "true")
+
+    // General application properties that work across platforms
+    System.setProperty("java.awt.headless", "false")
+    System.setProperty("file.encoding", "UTF-8")
+
     val i = AtomicInteger(0)
 
     val threadFactory =
