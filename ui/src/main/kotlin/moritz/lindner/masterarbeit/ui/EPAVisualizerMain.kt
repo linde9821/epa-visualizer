@@ -16,6 +16,7 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.buildconfig.BuildConfig
 import moritz.lindner.masterarbeit.ui.common.AboutPanel.showAboutDialog
@@ -48,8 +49,6 @@ import java.net.URI
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
-import javax.swing.JOptionPane
-import javax.swing.JOptionPane.showMessageDialog
 
 val logger = KotlinLogging.logger {}
 
@@ -59,31 +58,9 @@ val logger = KotlinLogging.logger {}
 fun main() {
     logger.info { "Starting EPA-Visualizer" }
 
-    // Cross-platform application name settings
-    System.setProperty("apple.awt.application.name", APPLICATION_NAME) // macOS
-    System.setProperty("awt.useSystemAAFontSettings", "on") // Better font rendering
-    System.setProperty("swing.aatext", "true") // Anti-aliasing
+    setSystemProperties()
+    val backgroundDispatcher = buildDispatcher()
 
-    // Windows-specific properties
-    System.setProperty("sun.awt.useSystemAAFontSettings", "on")
-    System.setProperty("swing.defaultlaf", System.getProperty("swing.defaultlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel"))
-
-    // Linux/Unix-specific properties
-    System.setProperty("awt.useSystemAAFontSettings", "lcd")
-    System.setProperty("swing.aatext", "true")
-
-    // General application properties that work across platforms
-    System.setProperty("java.awt.headless", "false")
-    System.setProperty("file.encoding", "UTF-8")
-
-    val i = AtomicInteger(0)
-
-    val threadFactory =
-        ThreadFactory { runnable ->
-            Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
-        }
-    val executor = Executors.newFixedThreadPool(4, threadFactory)
-    val backgroundDispatcher = executor.asCoroutineDispatcher()
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
 
@@ -156,5 +133,47 @@ fun main() {
             }
         }
     }
-    executor.shutdownNow()
+}
+
+private fun buildDispatcher(): ExecutorCoroutineDispatcher {
+    val i = AtomicInteger(0)
+    val threadFactory = ThreadFactory { runnable ->
+        Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
+    }
+    val threads = Runtime.getRuntime().availableProcessors() / 2
+    val executor = Executors.newFixedThreadPool(threads, threadFactory)
+    val backgroundDispatcher = executor.asCoroutineDispatcher()
+
+    logger.info { "Starting background dispatcher with $threads threads" }
+
+    Runtime.getRuntime().addShutdownHook(Thread {
+        logger.info { "Application is shutting" }
+        backgroundDispatcher.close()
+        executor.shutdownNow()
+        logger.info { "Shutdown complete" }
+    })
+
+    return backgroundDispatcher
+}
+
+private fun setSystemProperties() {
+    // Cross-platform application name settings
+    System.setProperty("apple.awt.application.name", APPLICATION_NAME) // macOS
+    System.setProperty("awt.useSystemAAFontSettings", "on") // Better font rendering
+    System.setProperty("swing.aatext", "true") // Anti-aliasing
+
+    // Windows-specific properties
+    System.setProperty("sun.awt.useSystemAAFontSettings", "on")
+    System.setProperty(
+        "swing.defaultlaf",
+        System.getProperty("swing.defaultlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel")
+    )
+
+    // Linux/Unix-specific properties
+    System.setProperty("awt.useSystemAAFontSettings", "lcd")
+    System.setProperty("swing.aatext", "true")
+
+    // General application properties that work across platforms
+    System.setProperty("java.awt.headless", "false")
+    System.setProperty("file.encoding", "UTF-8")
 }
