@@ -1,6 +1,6 @@
 # EPA Visualizer
 
-🎓 _HU Studienarbeit — Moritz Lindner_
+🎓 _HU Masterarbeit — Moritz Lindner_
 
 [![Gradle Build & Test](https://github.com/linde9821/epa-visualizer/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/linde9821/epa-visualizer/actions/workflows/gradle.yml)
 
@@ -133,8 +133,9 @@ The project consists of two modules:
 
 ### Prerequisites
 
-- JDK **21+**
-- Kotlin **2.1.20+**
+- JetBrains Runtime **21+** (it must be a jetbrains JDK due to the usage
+  of [jewels](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel))
+- Kotlin **2.2.20+**
 - Gradle (or use the included Gradle wrapper)
 
 ### Run the App
