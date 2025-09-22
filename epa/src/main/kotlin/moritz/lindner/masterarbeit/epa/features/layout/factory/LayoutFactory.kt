@@ -6,7 +6,16 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWal
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import kotlin.math.PI
 
+/**
+ * Factory for creating TreeLayout instances based on configuration.
+ */
 object LayoutFactory {
+    /**
+     * Creates a TreeLayout implementation based on the provided configuration.
+     *
+     * @param config The layout configuration specifying algorithm and parameters.
+     * @return A TreeLayout instance configured according to the provided config.
+     */
     fun create(config: LayoutConfig): TreeLayout = when (config) {
         is LayoutConfig.Walker -> WalkerTreeLayout(config.distance, config.yDistance)
         is LayoutConfig.RadialWalker -> RadialWalkerTreeLayout(
@@ -21,5 +30,8 @@ object LayoutFactory {
         )
     }
 
+    /**
+     * Converts degrees to radians.
+     */
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 }
