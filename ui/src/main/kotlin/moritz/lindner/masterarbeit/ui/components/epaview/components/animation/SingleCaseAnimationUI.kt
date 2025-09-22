@@ -46,13 +46,13 @@ fun SingleCaseAnimationUI(
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
     var selectedCase by remember { mutableStateOf<String?>(null) }
-    var eventsByCasesCollector by remember { mutableStateOf(emptyMap<String, List<Event<Long>>>()) }
+    var eventsByCase by remember { mutableStateOf(emptyMap<String, List<Event<Long>>>()) }
 
     LaunchedEffect(epa) {
         isLoading = true
         withContext(backgroundDispatcher) {
             selectedCase = null
-            eventsByCasesCollector = epaService.getEventsByCase(epa)
+            eventsByCase = epaService.getEventsByCase(epa)
         }
         isLoading = false
     }
@@ -110,7 +110,7 @@ fun SingleCaseAnimationUI(
                     ) {
                         Row {
                             LazyColumn {
-                                items(eventsByCasesCollector.keys.toList()) { case ->
+                                items(eventsByCase.keys.toList()) { case ->
                                     val isSelected = case == selectedCase
                                     Text(
                                         text = case,
