@@ -123,9 +123,9 @@ class EpaViewModel(
                         }
                     }
                 } catch (e: CancellationException) {
-                    logger.warn { "Cancellation Exception ${e.message}" }
+                    logger.warn(e) { "Cancellation Exception ${e.message}" }
                 } catch (e: Exception) {
-                    logger.error { "Error building layout: ${e.message}" }
+                    logger.error(e) { "Error building layout: ${e.message}" }
                     _Epa_uiState.update {
                         it.copy(isLoading = false, layout = null, filteredEpa = null)
                     }
