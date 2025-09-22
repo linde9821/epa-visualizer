@@ -15,11 +15,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
-import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
@@ -30,6 +30,8 @@ class EpaViewModel(
     val completeEpa: ExtendedPrefixAutomaton<Long>,
     val backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
+
+    private val epaService = EpaService<Long>()
 
     fun updateFilters(filters: List<EpaFilter<Long>>) {
         _Epa_uiState.update {
@@ -167,26 +169,22 @@ class EpaViewModel(
         withContext(backgroundDispatcher) {
             logger.info { "building statistics" }
 
-            val fullVisitor = StatisticsVisitor<Long>()
-            val fullVisitorUpdate = if (_statistics.value == null) {
-                completeEpa.acceptDepthFirst(fullVisitor)
-                true
-            } else {
-                false
+            if (_statistics.value == null) {
+                val fullStatistics = epaService.getStatistics(completeEpa)
+                _statistics.update { statisticsState ->
+                    StatisticsState(
+                        fullEpa = fullStatistics,
+                        filteredEpa = null
+                    )
+                }
             }
 
-            val filterVisitor = StatisticsVisitor<Long>()
-            filteredEpa?.acceptDepthFirst(filterVisitor)
+            if (filteredEpa != null) {
+                val filterStatistics = epaService.getStatistics(filteredEpa)
 
-            _statistics.update { statisticsState ->
-                if (fullVisitorUpdate) {
-                    StatisticsState(
-                        fullEpa = fullVisitor.build(),
-                        filteredEpa = filteredEpa?.let { filterVisitor.build() },
-                    )
-                } else {
+                _statistics.update { statisticsState ->
                     statisticsState?.copy(
-                        filteredEpa = filteredEpa?.let { filterVisitor.build() },
+                        filteredEpa = filterStatistics
                     )
                 }
             }
