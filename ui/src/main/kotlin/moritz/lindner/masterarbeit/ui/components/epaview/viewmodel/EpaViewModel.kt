@@ -94,7 +94,7 @@ class EpaViewModel(
                     withContext(backgroundDispatcher) {
                         val shouldRebuildLayout = layoutConfig != previousLayout || newFilters != previousFilters
 
-                        if (newFilters != previousFilters) {
+                        if (newFilters != previousFilters || currentFilteredEpa == null) {
                             currentFilteredEpa = applyFilter(newFilters)
                             computeStatistics(currentFilteredEpa)
                             previousFilters = newFilters
