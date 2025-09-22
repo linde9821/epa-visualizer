@@ -16,10 +16,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.api.LayoutService
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
-import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
-import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaUiState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
@@ -32,6 +31,7 @@ class EpaViewModel(
 ) {
 
     private val epaService = EpaService<Long>()
+    private val layoutService = LayoutService<Long>()
 
     fun updateFilters(filters: List<EpaFilter<Long>>) {
         _Epa_uiState.update {
@@ -97,7 +97,8 @@ class EpaViewModel(
                         val shouldRebuildLayout = layoutConfig != previousLayout || newFilters != previousFilters
 
                         if (newFilters != previousFilters || currentFilteredEpa == null) {
-                            currentFilteredEpa = applyFilter(newFilters)
+                            logger.info { "applying filters" }
+                            currentFilteredEpa = epaService.applyFilters(completeEpa, newFilters)
                             computeStatistics(currentFilteredEpa)
                             previousFilters = newFilters
                             yield()
@@ -109,9 +110,15 @@ class EpaViewModel(
 
                         if (shouldRebuildLayout) {
                             launch {
-                                buildTree(currentFilteredEpa ?: completeEpa, layoutConfig)
-                                previousLayout = layoutConfig
+                                val layout = layoutService.buildLayout(currentFilteredEpa, layoutConfig)
                                 yield()
+                                previousLayout = layoutConfig
+                                _Epa_uiState.update { uiState ->
+                                    uiState.copy(
+                                        isLoading = false,
+                                        layout = layout,
+                                    )
+                                }
                             }
                         } else {
                             logger.info { "Skipping layout rebuild (layout unchanged and no new data)" }
@@ -127,41 +134,6 @@ class EpaViewModel(
                     }
                 }
             }
-        }
-    }
-
-    private suspend fun buildTree(
-        filteredEpa: ExtendedPrefixAutomaton<Long>,
-        layoutConfig: LayoutConfig
-    ) {
-        logger.info { "building tree" }
-        val treeVisitor = EpaToTree<Long>()
-        filteredEpa.copy().acceptDepthFirst(treeVisitor)
-        yield()
-
-        logger.info { "building tree layout" }
-        val layout = LayoutFactory.create(layoutConfig)
-        yield()
-
-        // TODO: ensure that it works even when epa is empty
-        layout.build(treeVisitor.root)
-        yield()
-
-        logger.info { "update ui" }
-
-        _Epa_uiState.update { uiState ->
-            uiState.copy(
-                isLoading = false,
-                layout = layout,
-                filteredEpa = filteredEpa
-            )
-        }
-    }
-
-    private fun applyFilter(filters: List<EpaFilter<Long>>): ExtendedPrefixAutomaton<Long> {
-        logger.info { "applying filters" }
-        return filters.fold(completeEpa) { epa, filter ->
-            filter.apply(epa)
         }
     }
 
