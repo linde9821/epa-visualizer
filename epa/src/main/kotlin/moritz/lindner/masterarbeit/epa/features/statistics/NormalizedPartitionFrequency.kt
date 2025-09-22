@@ -1,0 +1,31 @@
+package moritz.lindner.masterarbeit.epa.features.statistics
+
+class NormalizedPartitionFrequency(
+    private val relativeFrequencyByPartition: HashMap<Int, Float>
+) {
+    /**
+     * Returns the normalized frequency of events for the given partition.
+     *
+     * @param c The partition index.
+     * @return The frequency as a float between 0.0 and 1.0.
+     * @throws NullPointerException if the partition was not visited.
+     */
+    fun frequencyByPartition(c: Int): Float = relativeFrequencyByPartition[c]!!
+
+    /**
+     * Returns the minimum normalized frequency across all partitions.
+     */
+    fun min(): Float = relativeFrequencyByPartition.values.min()
+
+    /**
+     * Returns the maximum normalized frequency across all partitions.
+     */
+    fun max(): Float = relativeFrequencyByPartition.values.max()
+
+    fun getPartitionsSortedByFrequencyDescending(): List<Int> {
+        return relativeFrequencyByPartition
+            .toList()
+            .sortedByDescending { (_, value) -> value }
+            .map { (key, _) -> key }
+    }
+}

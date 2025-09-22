@@ -19,9 +19,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Icon
@@ -36,24 +37,26 @@ fun PartitionFrequencyFilterUi(
     dispatcher: CoroutineDispatcher,
     onFilter: (EpaFilter<Long>) -> Unit,
 ) {
+    val epaService = EpaService<Long>()
+
     var sliderValue by remember(epa) { mutableStateOf(0.0f) }
     var threshold by remember(epa) { mutableStateOf(0.0f) }
     var isLoading by remember { mutableStateOf(true) }
-    val frequencyPartitionVisitor by remember(epa) { mutableStateOf(NormalizedPartitionFrequencyVisitor<Long>()) }
+    var normalizedPartitionFrequency: NormalizedPartitionFrequency? by remember(epa) { mutableStateOf(null) }
 
     LaunchedEffect(epa) {
         isLoading = true
         withContext(dispatcher) {
             logger.info { "building partition filter" }
-            epa.copy().acceptDepthFirst(frequencyPartitionVisitor)
+            normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa)
         }
         isLoading = false
     }
 
     Column {
         if (!isLoading) {
-            val rawMinFreq = frequencyPartitionVisitor.min()
-            val rawMaxFreq = frequencyPartitionVisitor.max() + 0.1f
+            val rawMinFreq = normalizedPartitionFrequency!!.min()
+            val rawMaxFreq = normalizedPartitionFrequency!!.max() + 0.1f
 
             val minFreq = max(rawMinFreq, 1e-6f)
             val maxFreq = max(rawMaxFreq, minFreq * 10f)
@@ -63,7 +66,6 @@ fun PartitionFrequencyFilterUi(
                 Text("max=$maxFreq")
                 Text("threshold=${"%.4f".format(threshold)}")
             }
-
 
             Slider(
                 value = sliderValue,
@@ -78,14 +80,13 @@ fun PartitionFrequencyFilterUi(
             )
 
             LazyColumn {
-                val partitions = epa.getAllPartitions()
-                    .sortedByDescending { frequencyPartitionVisitor.frequencyByPartition(it) }
+                val partitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending()
                 items(partitions) { partition ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val frequency = frequencyPartitionVisitor.frequencyByPartition(partition)
+                        val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
                         if (frequency < threshold) {
                             Icon(
                                 key = AllIconsKeys.General.Note,

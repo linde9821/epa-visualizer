@@ -48,4 +48,3 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
         return NormalizedStateFrequency(relativeFrequencyByState)
     }
 }
-

@@ -4,6 +4,8 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
@@ -32,4 +34,12 @@ class EpaService<T : Comparable<T>> {
         epa.acceptDepthFirst(visitor)
         return visitor.build()
     }
+
+    fun getNormalizedPartitionFrequency(epa: ExtendedPrefixAutomaton<T>): NormalizedPartitionFrequency {
+        val visitor = NormalizedPartitionFrequencyVisitor<T>()
+        epa.acceptDepthFirst(visitor)
+        return visitor.build()
+    }
+
+    fun getParitionsSorted()
 }
