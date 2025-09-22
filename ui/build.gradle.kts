@@ -73,7 +73,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
             description = "EPA Visualizer"
-            packageVersion = "1.0.0"
+            packageVersion = version.toString()
             vendor = "Moritz Lindner"
             licenseFile = rootProject.file("LICENSE")
 
