@@ -72,7 +72,12 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
-            description = "EPA Visualizer"
+            description = "Interactive Visualization of Extended Prefix Automaton Using Radial Trees\n" +
+                    "        \n" +
+                    "        A tool for analyzing trace variants in large, complex event logs using \n" +
+                    "        Extended Prefix Automata (EPA) and radial tidy tree layouts. This \n" +
+                    "        visualization approach encodes thousands of trace variants while \n" +
+                    "        minimizing visual clutter and supporting interactive filtering."
             packageVersion = version.toString()
             vendor = "Moritz Lindner"
             licenseFile = rootProject.file("LICENSE")
