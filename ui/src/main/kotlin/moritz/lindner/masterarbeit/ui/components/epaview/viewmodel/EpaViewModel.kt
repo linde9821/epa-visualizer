@@ -63,7 +63,7 @@ class EpaViewModel(
         )
     val epaUiState: StateFlow<EpaUiState> = _Epa_uiState.asStateFlow()
 
-    private val _animationState = MutableStateFlow(AnimationState.Companion.Empty)
+    private val _animationState = MutableStateFlow(AnimationState.Empty)
     val animationState = _animationState.asStateFlow()
 
     private val coroutineScope = CoroutineScope(backgroundDispatcher + SupervisorJob())

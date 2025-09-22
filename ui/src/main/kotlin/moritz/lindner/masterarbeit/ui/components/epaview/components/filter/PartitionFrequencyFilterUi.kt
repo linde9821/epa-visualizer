@@ -37,6 +37,7 @@ fun PartitionFrequencyFilterUi(
     dispatcher: CoroutineDispatcher,
     onFilter: (EpaFilter<Long>) -> Unit,
 ) {
+
     val epaService = EpaService<Long>()
 
     var sliderValue by remember(epa) { mutableStateOf(0.0f) }

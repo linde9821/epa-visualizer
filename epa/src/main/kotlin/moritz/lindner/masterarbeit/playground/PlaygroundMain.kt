@@ -13,13 +13,11 @@ fun main() {
     val logger = KotlinLogging.logger {}
 
     val sample = File("./data/eventlogs/sample.xes") to SampleEventMapper()
-    val sample2 = File("./data/eventlogs/sample2.xes") to SampleEventMapper()
-    val loops = File("./data/eventlogs/loops.xes") to SampleEventMapper()
-    val challenge2017Offers =
-        File("./data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
-    val challenge2017 =
-        File("./data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
-    val challenge2018 = File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
+    File("./data/eventlogs/sample2.xes") to SampleEventMapper()
+    File("./data/eventlogs/loops.xes") to SampleEventMapper()
+    File("./data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
+    File("./data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
+    File("./epa/src/main/resources/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallangeMapper()
 
     val (file, mapper) = sample
 

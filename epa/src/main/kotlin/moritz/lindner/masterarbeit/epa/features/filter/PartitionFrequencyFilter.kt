@@ -18,6 +18,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFr
 class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
+
     override val name: String
         get() = "Partition Frequency Filter"
 
@@ -34,35 +35,35 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
 
         val partitions = epa
             .getAllPartitions()
-                .associateWith(normalizedPartitionFrequency::frequencyByPartition)
-                .filter { (a, b) -> b >= threshold || a == 0 }
-                .keys
-                .toList()
+            .associateWith(normalizedPartitionFrequency::frequencyByPartition)
+            .filter { (a, b) -> b >= threshold || a == 0 }
+            .keys
+            .toList()
 
         // remove orphans
         val filteredStates = epa.states
-                .filter { state ->
-                    val partition = epa.partition(state)
-                    partition in partitions
-                }.toSet()
+            .filter { state ->
+                val partition = epa.partition(state)
+                partition in partitions
+            }.toSet()
 
         val filteredActivities = epa.activities
-                .filter { activity ->
-                    filteredStates.any { state ->
-                        if (state is State.PrefixState) {
-                            activity == state.via
-                        } else {
-                            false
-                        }
+            .filter { activity ->
+                filteredStates.any { state ->
+                    if (state is State.PrefixState) {
+                        activity == state.via
+                    } else {
+                        false
                     }
-                }.toSet()
+                }
+            }.toSet()
 
         val filteredTransitions = epa.transitions
-                .filter { transition ->
-                    transition.activity in filteredActivities &&
-                            transition.start in filteredStates &&
-                            transition.end in filteredStates
-                }.toSet()
+            .filter { transition ->
+                transition.activity in filteredActivities &&
+                        transition.start in filteredStates &&
+                        transition.end in filteredStates
+            }.toSet()
 
         val partitionByState = filteredStates.associateWith(epa::partition)
         val sequenceByState = filteredStates.associateWith(epa::sequence)

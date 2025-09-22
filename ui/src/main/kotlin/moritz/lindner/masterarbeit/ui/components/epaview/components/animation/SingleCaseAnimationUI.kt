@@ -92,7 +92,7 @@ fun SingleCaseAnimationUI(
                 Text("Close")
             }
         }
-        Spacer(Modifier.Companion.height(8.dp))
+        Spacer(Modifier.height(8.dp))
 
         if (selectedCase != null) {
             TimelineSliderSingleCaseUi(epa, backgroundDispatcher, viewModel, selectedCase!!)
@@ -117,7 +117,7 @@ fun SingleCaseAnimationUI(
                                         modifier =
                                             Modifier
                                                 .padding(8.dp)
-                                                .background(if (isSelected) Color.Companion.LightGray else Color.Companion.Transparent)
+                                                .background(if (isSelected) Color.LightGray else Color.Transparent)
                                                 .clickable {
                                                     selectedCase = case
                                                     showDialog = false

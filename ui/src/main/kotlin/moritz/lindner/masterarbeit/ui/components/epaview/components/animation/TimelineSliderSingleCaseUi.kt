@@ -45,7 +45,7 @@ fun TimelineSliderSingleCaseUi(
             yield()
 
             viewModel.updateAnimation(
-                AnimationState.Companion.Empty,
+                AnimationState.Empty,
             )
         }
         isLoading = false
@@ -66,7 +66,7 @@ fun TimelineSliderSingleCaseUi(
 
                 val animationState =
                     if (state == null) {
-                        AnimationState.Companion.Empty
+                        AnimationState.Empty
                     } else {
                         AnimationState(
                             time = state.first,

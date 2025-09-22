@@ -24,7 +24,7 @@ class AnimationService<T : Comparable<T>> {
         epa: ExtendedPrefixAutomaton<T>,
         epsilon: T,
         increment: (T, T) -> T,
-        ): EventLogAnimation<T> {
+    ): EventLogAnimation<T> {
         val builder = WholeEventLogAnimationBuilder<T>(epa.eventLogName)
         epa.acceptDepthFirst(builder)
         return builder.build(

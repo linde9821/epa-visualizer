@@ -23,6 +23,6 @@ fun AnimatedLoadingText(baseText: String) {
 
     Text(
         text = baseText + ".".repeat(dotCount),
-        style = JewelTheme.Companion.defaultTextStyle,
+        style = JewelTheme.defaultTextStyle,
     )
 }
