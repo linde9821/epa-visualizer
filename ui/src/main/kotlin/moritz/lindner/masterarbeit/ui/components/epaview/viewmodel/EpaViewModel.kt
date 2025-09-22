@@ -3,8 +3,6 @@ package moritz.lindner.masterarbeit.ui.components.epaview.viewmodel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -82,40 +80,36 @@ class EpaViewModel(
 
             // Track previous values to detect what changed
             var previousLayout: LayoutConfig? = null
-            var previousFilters: List<EpaFilter<Long>>? = null
+            var previousFilters: List<EpaFilter<Long>> = emptyList()
             var currentFilteredEpa: ExtendedPrefixAutomaton<Long>? = null
 
             combine(layoutFlow, filtersFlow) { layout, filters ->
                 layout to filters
-            }.collectLatest { (layoutConfig, filters) ->
+            }.collectLatest { (layoutConfig, newFilters) ->
                 logger.info { "running state update" }
 
                 _Epa_uiState.update { uiState -> uiState.copy(isLoading = true) }
 
                 try {
                     withContext(backgroundDispatcher) {
-                        if (filters != previousFilters) {
-                            launch {
-                                computeStatistics(currentFilteredEpa)
-                            }
-                        } else {
-                            logger.info { "Skipping statistics computation (data unchanged)" }
-                        }
+                        val shouldRebuildLayout = layoutConfig != previousLayout || newFilters != previousFilters
 
-                        val shouldRebuildLayout = layoutConfig != previousLayout || filters != previousFilters
-                        if (filters != previousFilters) {
-                            currentFilteredEpa = applyFilter(filters)
-                            previousFilters = filters
+                        if (newFilters != previousFilters) {
+                            currentFilteredEpa = applyFilter(newFilters)
+                            computeStatistics(currentFilteredEpa)
+                            previousFilters = newFilters
                             yield()
+
                             _Epa_uiState.update { uiState -> uiState.copy(filteredEpa = currentFilteredEpa) }
                         } else {
                             logger.info { "Skipping filter application (filters unchanged)" }
                         }
 
-                        if (shouldRebuildLayout && currentFilteredEpa != null) {
+                        if (shouldRebuildLayout) {
                             launch {
-                                buildTree(currentFilteredEpa, layoutConfig)
+                                buildTree(currentFilteredEpa ?: completeEpa, layoutConfig)
                                 previousLayout = layoutConfig
+                                yield()
                             }
                         } else {
                             logger.info { "Skipping layout rebuild (layout unchanged and no new data)" }
