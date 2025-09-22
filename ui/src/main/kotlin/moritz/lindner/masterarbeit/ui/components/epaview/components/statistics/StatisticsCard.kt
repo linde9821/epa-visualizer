@@ -76,8 +76,8 @@ fun StatisticsElement(
                             style = JewelTheme.typography.regular,
                             modifier = Modifier.padding(bottom = 4.dp),
                         )
-                        StatisticItem("First Event", statistics.interval.first)
-                        StatisticItem("Last Event", statistics.interval.second)
+                        StatisticItem("First Event", statistics.interval.first ?: "not present")
+                        StatisticItem("Last Event", statistics.interval.second ?: "not present")
                     }
 
                 }

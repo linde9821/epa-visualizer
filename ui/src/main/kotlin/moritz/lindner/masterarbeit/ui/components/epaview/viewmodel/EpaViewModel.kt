@@ -3,8 +3,6 @@ package moritz.lindner.masterarbeit.ui.components.epaview.viewmodel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -82,40 +80,36 @@ class EpaViewModel(
 
             // Track previous values to detect what changed
             var previousLayout: LayoutConfig? = null
-            var previousFilters: List<EpaFilter<Long>>? = null
+            var previousFilters: List<EpaFilter<Long>> = emptyList()
             var currentFilteredEpa: ExtendedPrefixAutomaton<Long>? = null
 
             combine(layoutFlow, filtersFlow) { layout, filters ->
                 layout to filters
-            }.collectLatest { (layoutConfig, filters) ->
+            }.collectLatest { (layoutConfig, newFilters) ->
                 logger.info { "running state update" }
 
                 _Epa_uiState.update { uiState -> uiState.copy(isLoading = true) }
 
                 try {
                     withContext(backgroundDispatcher) {
-                        if (filters != previousFilters) {
-                            launch {
-                                computeStatistics(currentFilteredEpa)
-                            }
-                        } else {
-                            logger.info { "Skipping statistics computation (data unchanged)" }
-                        }
+                        val shouldRebuildLayout = layoutConfig != previousLayout || newFilters != previousFilters
 
-                        val shouldRebuildLayout = layoutConfig != previousLayout || filters != previousFilters
-                        if (filters != previousFilters) {
-                            currentFilteredEpa = applyFilter(filters)
-                            previousFilters = filters
+                        if (newFilters != previousFilters) {
+                            currentFilteredEpa = applyFilter(newFilters)
+                            computeStatistics(currentFilteredEpa)
+                            previousFilters = newFilters
                             yield()
+
                             _Epa_uiState.update { uiState -> uiState.copy(filteredEpa = currentFilteredEpa) }
                         } else {
                             logger.info { "Skipping filter application (filters unchanged)" }
                         }
 
-                        if (shouldRebuildLayout && currentFilteredEpa != null) {
+                        if (shouldRebuildLayout) {
                             launch {
-                                buildTree(currentFilteredEpa, layoutConfig)
+                                buildTree(currentFilteredEpa ?: completeEpa, layoutConfig)
                                 previousLayout = layoutConfig
+                                yield()
                             }
                         } else {
                             logger.info { "Skipping layout rebuild (layout unchanged and no new data)" }
@@ -123,9 +117,9 @@ class EpaViewModel(
                         }
                     }
                 } catch (e: CancellationException) {
-                    logger.warn { "Cancellation Exception ${e.message}" }
+                    logger.warn(e) { "Cancellation Exception ${e.message}" }
                 } catch (e: Exception) {
-                    logger.error { "Error building layout: ${e.message}" }
+                    logger.error(e) { "Error building layout: ${e.message}" }
                     _Epa_uiState.update {
                         it.copy(isLoading = false, layout = null, filteredEpa = null)
                     }
@@ -172,28 +166,29 @@ class EpaViewModel(
     private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomaton<Long>?) {
         withContext(backgroundDispatcher) {
             logger.info { "building statistics" }
-            _statistics.update {
-                null
-            }
 
             val fullVisitor = StatisticsVisitor<Long>()
-            val statistics1 = async {
+            val fullVisitorUpdate = if (_statistics.value == null) {
                 completeEpa.acceptDepthFirst(fullVisitor)
+                true
+            } else {
+                false
             }
 
             val filterVisitor = StatisticsVisitor<Long>()
-            val statistics2 = async {
-                filteredEpa?.acceptDepthFirst(filterVisitor)
-            }
+            filteredEpa?.acceptDepthFirst(filterVisitor)
 
-            yield()
-
-            awaitAll(statistics1, statistics2)
-            _statistics.update {
-                StatisticsState(
-                    fullEpa = fullVisitor.build(),
-                    filteredEpa = filteredEpa?.let { filterVisitor.build() },
-                )
+            _statistics.update { statisticsState ->
+                if (fullVisitorUpdate) {
+                    StatisticsState(
+                        fullEpa = fullVisitor.build(),
+                        filteredEpa = filteredEpa?.let { filterVisitor.build() },
+                    )
+                } else {
+                    statisticsState?.copy(
+                        filteredEpa = filteredEpa?.let { filterVisitor.build() },
+                    )
+                }
             }
         }
     }

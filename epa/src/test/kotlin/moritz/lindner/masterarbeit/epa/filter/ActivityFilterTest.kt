@@ -62,7 +62,7 @@ class ActivityFilterTest {
     }
 
     @Test
-    fun `must return a epa containing only allowed activities and prune orphans even  if they are inside the chain`() {
+    fun `must return a epa containing only allowed activities and prune orphans even if they are inside the chain`() {
         val epa =
             ExtendedPrefixAutomatonBuilder<Long>()
                 .setFile(File("./src/test/resources/sample.xes"))
@@ -86,5 +86,31 @@ class ActivityFilterTest {
 
         assertThat(result.activities).containsExactlyInAnyOrder(*(allowedActivities.toList()).toTypedArray())
         assertThat(result.states).hasSize(1) // included +1 for root
+    }
+
+    @Test
+    fun `filters are applied so that they cut a partition and do not merge or concatenate`() {
+        val epa =
+            ExtendedPrefixAutomatonBuilder<Long>()
+                .setFile(File("./src/test/resources/sample.xes"))
+                .setEventLogMapper(SampleEventMapper())
+                .build()
+
+        val allowedActivities =
+            hashSetOf(
+                Activity("a"),
+                Activity("b"),
+                Activity("c"),
+                Activity("e"),
+                Activity("f"),
+            )
+        val sut =
+            ActivityFilter<Long>(
+                allowedActivities,
+            )
+
+        val result = sut.apply(epa)
+
+        assertThat(result.activities).hasSize(5)
     }
 }
