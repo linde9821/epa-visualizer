@@ -70,8 +70,8 @@ class StateFrequencyFilter<T : Comparable<T>>(
                             transition.end in filteredStates
                 }.toSet()
 
-        val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
-        val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
+        val partitionByState = filteredStates.associateWith(epa::partition)
+        val sequenceByState = filteredStates.associateWith(epa::sequence)
 
         return ExtendedPrefixAutomaton(
             eventLogName = epa.eventLogName,

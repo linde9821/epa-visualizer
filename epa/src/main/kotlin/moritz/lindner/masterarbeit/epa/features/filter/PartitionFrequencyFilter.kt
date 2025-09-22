@@ -32,25 +32,21 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
         val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
 
-        val partitions =
-            epa
-                .getAllPartitions()
-                .associateWith { partition ->
-                    normalizedPartitionFrequency.frequencyByPartition(partition)
-                }.filter { (a, b) -> b >= threshold || a == 0 }
+        val partitions = epa
+            .getAllPartitions()
+                .associateWith(normalizedPartitionFrequency::frequencyByPartition)
+                .filter { (a, b) -> b >= threshold || a == 0 }
                 .keys
                 .toList()
 
         // remove orphans
-        val filteredStates =
-            epa.states
+        val filteredStates = epa.states
                 .filter { state ->
                     val partition = epa.partition(state)
                     partition in partitions
                 }.toSet()
 
-        val filteredActivities =
-            epa.activities
+        val filteredActivities = epa.activities
                 .filter { activity ->
                     filteredStates.any { state ->
                         if (state is State.PrefixState) {
@@ -61,16 +57,15 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
                     }
                 }.toSet()
 
-        val filteredTransitions =
-            epa.transitions
+        val filteredTransitions = epa.transitions
                 .filter { transition ->
                     transition.activity in filteredActivities &&
                             transition.start in filteredStates &&
                             transition.end in filteredStates
                 }.toSet()
 
-        val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
-        val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
+        val partitionByState = filteredStates.associateWith(epa::partition)
+        val sequenceByState = filteredStates.associateWith(epa::sequence)
 
         return ExtendedPrefixAutomaton(
             eventLogName = epa.eventLogName,
