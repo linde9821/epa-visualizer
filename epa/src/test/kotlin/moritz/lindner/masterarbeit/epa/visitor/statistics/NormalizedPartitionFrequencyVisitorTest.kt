@@ -20,9 +20,11 @@ class NormalizedPartitionFrequencyVisitorTest {
 
         epa.acceptDepthFirst(frequencyVisitor)
 
+        val frequency = frequencyVisitor.build()
+
         val actual =
             epa.getAllPartitions().joinToString("\n") { parition ->
-                "$parition: ${frequencyVisitor.frequencyByPartition(parition)}"
+                "$parition: ${frequency.frequencyByPartition(parition)}"
             }
 
         expectSelfie(actual).toMatchDisk()

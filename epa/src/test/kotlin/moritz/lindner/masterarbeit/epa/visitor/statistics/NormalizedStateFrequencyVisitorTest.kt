@@ -20,9 +20,11 @@ class NormalizedStateFrequencyVisitorTest {
 
         epa.acceptDepthFirst(frequencyVisitor)
 
+        val frequency = frequencyVisitor.build()
+
         val actual =
             epa.states.joinToString("\n") { state ->
-                "$state: ${frequencyVisitor.frequencyByState(state)}"
+                "$state: ${frequency.frequencyByState(state)}"
             }
 
         expectSelfie(actual).toMatchDisk()

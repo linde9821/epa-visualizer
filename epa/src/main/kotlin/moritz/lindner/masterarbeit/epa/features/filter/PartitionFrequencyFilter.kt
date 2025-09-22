@@ -18,6 +18,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFr
 class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
 ) : EpaFilter<T> {
+
     override val name: String
         get() = "Partition Frequency Filter"
 
@@ -29,48 +30,43 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
      */
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
+        epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
+        val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
 
-        epa.copy().acceptDepthFirst(normalizedPartitionFrequencyVisitor)
-
-        val partitions =
-            epa
-                .getAllPartitions()
-                .associateWith { partition ->
-                    normalizedPartitionFrequencyVisitor.frequencyByPartition(partition)
-                }.filter { (a, b) -> b >= threshold || a == 0 }
-                .keys
-                .toList()
+        val partitions = epa
+            .getAllPartitions()
+            .associateWith(normalizedPartitionFrequency::frequencyByPartition)
+            .filter { (a, b) -> b >= threshold || a == 0 }
+            .keys
+            .toList()
 
         // remove orphans
-        val filteredStates =
-            epa.states
-                .filter { state ->
-                    val partition = epa.partition(state)
-                    partition in partitions
-                }.toSet()
+        val filteredStates = epa.states
+            .filter { state ->
+                val partition = epa.partition(state)
+                partition in partitions
+            }.toSet()
 
-        val filteredActivities =
-            epa.activities
-                .filter { activity ->
-                    filteredStates.any { state ->
-                        if (state is State.PrefixState) {
-                            activity == state.via
-                        } else {
-                            false
-                        }
+        val filteredActivities = epa.activities
+            .filter { activity ->
+                filteredStates.any { state ->
+                    if (state is State.PrefixState) {
+                        activity == state.via
+                    } else {
+                        false
                     }
-                }.toSet()
+                }
+            }.toSet()
 
-        val filteredTransitions =
-            epa.transitions
-                .filter { transition ->
-                    transition.activity in filteredActivities &&
-                            transition.start in filteredStates &&
-                            transition.end in filteredStates
-                }.toSet()
+        val filteredTransitions = epa.transitions
+            .filter { transition ->
+                transition.activity in filteredActivities &&
+                        transition.start in filteredStates &&
+                        transition.end in filteredStates
+            }.toSet()
 
-        val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
-        val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
+        val partitionByState = filteredStates.associateWith(epa::partition)
+        val sequenceByState = filteredStates.associateWith(epa::sequence)
 
         return ExtendedPrefixAutomaton(
             eventLogName = epa.eventLogName,
