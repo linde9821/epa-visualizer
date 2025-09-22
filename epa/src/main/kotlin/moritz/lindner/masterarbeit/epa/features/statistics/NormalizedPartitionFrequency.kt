@@ -22,6 +22,11 @@ class NormalizedPartitionFrequency(
      */
     fun max(): Float = relativeFrequencyByPartition.values.max()
 
+    /**
+     * Returns all partitions sorted by their normalized frequency in descending order.
+     *
+     * @return A list of partition indices ordered from highest to lowest frequency.
+     */
     fun getPartitionsSortedByFrequencyDescending(): List<Int> {
         return relativeFrequencyByPartition
             .toList()
