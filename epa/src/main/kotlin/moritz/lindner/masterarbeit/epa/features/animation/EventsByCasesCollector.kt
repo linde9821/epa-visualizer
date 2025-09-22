@@ -17,7 +17,18 @@ class EventsByCasesCollector<T : Comparable<T>> : AutomatonVisitor<T> {
     val eventsByCase = hashMapOf<String, List<Event<T>>>()
 
     /** The set of all unique case identifiers seen during traversal. */
-    val cases = mutableSetOf<String>()
+    private val cases = mutableSetOf<String>()
+
+    fun build(): Map<String, List<Event<T>>> {
+        return eventsByCase
+    }
+
+    /**
+     * Called before the automaton traversal begins. Currently, does nothing.
+     */
+    override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
+
+    }
 
     /**
      * Called after the automaton traversal ends. Currently, ensures all keys from [eventsByCase]

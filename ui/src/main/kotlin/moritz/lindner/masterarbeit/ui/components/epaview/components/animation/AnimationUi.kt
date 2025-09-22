@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,23 +14,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
-import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
-import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
-import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.DefaultButton
-import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
-import kotlin.math.roundToInt
 
 @Composable
 fun AnimationUi(
@@ -154,61 +144,3 @@ fun findStepSize(
     return preferredSteps.firstOrNull { it >= rawStep } ?: rawStep
 }
 
-@Composable
-fun TimelineSliderSingleCaseUi(
-    extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    dispatcher: CoroutineDispatcher,
-    viewModel: EpaViewModel,
-    case: String,
-) {
-    var isLoading by remember { mutableStateOf(true) }
-    var animation by remember { mutableStateOf<EventLogAnimation<Long>?>(null) }
-    val singleCaseAnimationBuilder = SingleCaseAnimationBuilder<Long>(case)
-    var sliderValue by remember { mutableStateOf(0f) }
-
-    LaunchedEffect(extendedPrefixAutomaton) {
-        isLoading = true
-        withContext(dispatcher) {
-            extendedPrefixAutomaton
-                .copy()
-                .acceptDepthFirst(singleCaseAnimationBuilder)
-            yield()
-            animation = singleCaseAnimationBuilder.build()
-
-            viewModel.updateAnimation(
-                AnimationState.Empty,
-            )
-        }
-        isLoading = false
-    }
-
-    if (isLoading) {
-        CircularProgressIndicator()
-    } else if (animation != null) {
-        Slider(
-            value = sliderValue,
-            onValueChange = { newValue ->
-                sliderValue = newValue
-
-                val index = sliderValue.roundToInt().coerceIn(0, animation!!.totalAmountOfEvents - 1)
-                val state = animation!!.getNthEntry(index)
-
-                logger.info { "Getting state at $index" }
-
-                val animationState =
-                    if (state == null) {
-                        AnimationState.Empty
-                    } else {
-                        AnimationState(
-                            time = state.first,
-                            currentTimeStates = setOf(state.second),
-                        )
-                    }
-                viewModel.updateAnimation(animationState)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            valueRange = 0f..(animation!!.totalAmountOfEvents.toFloat() - 1f),
-            steps = animation!!.totalAmountOfEvents - 1,
-        )
-    }
-}
