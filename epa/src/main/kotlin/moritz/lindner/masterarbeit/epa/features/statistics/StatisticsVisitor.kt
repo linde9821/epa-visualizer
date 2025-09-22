@@ -98,7 +98,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
             stateCount = totalStates,
             partitionsCount = partitionsCount,
             activityFrequency = activityFrequency,
-            interval = first!! to last!!,
+            interval = first to last,
         )
     }
 
