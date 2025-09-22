@@ -172,28 +172,29 @@ class EpaViewModel(
     private suspend fun computeStatistics(filteredEpa: ExtendedPrefixAutomaton<Long>?) {
         withContext(backgroundDispatcher) {
             logger.info { "building statistics" }
-            _statistics.update {
-                null
-            }
 
             val fullVisitor = StatisticsVisitor<Long>()
-            val statistics1 = async {
+            val fullVisitorUpdate = if (_statistics.value == null) {
                 completeEpa.acceptDepthFirst(fullVisitor)
+                true
+            } else {
+                false
             }
 
             val filterVisitor = StatisticsVisitor<Long>()
-            val statistics2 = async {
-                filteredEpa?.acceptDepthFirst(filterVisitor)
-            }
+            filteredEpa?.acceptDepthFirst(filterVisitor)
 
-            yield()
-
-            awaitAll(statistics1, statistics2)
-            _statistics.update {
-                StatisticsState(
-                    fullEpa = fullVisitor.build(),
-                    filteredEpa = filteredEpa?.let { filterVisitor.build() },
-                )
+            _statistics.update { statisticsState ->
+                if (fullVisitorUpdate) {
+                    StatisticsState(
+                        fullEpa = fullVisitor.build(),
+                        filteredEpa = filteredEpa?.let { filterVisitor.build() },
+                    )
+                } else {
+                    statisticsState?.copy(
+                        filteredEpa = filteredEpa?.let { filterVisitor.build() },
+                    )
+                }
             }
         }
     }
