@@ -30,12 +30,13 @@ class StateFrequencyFilter<T : Comparable<T>>(
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
         epa.copy().acceptDepthFirst(normalizedStateFrequencyVisitor)
+        val normalizedStateFrequency = normalizedStateFrequencyVisitor.build()
 
         val statesWithAllowedActivities =
             epa.states
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> normalizedStateFrequencyVisitor.frequencyByState(state) >= threshold
+                        is State.PrefixState -> normalizedStateFrequency.frequencyByState(state) >= threshold
                         State.Root -> true
                     }
                 }.toSet()

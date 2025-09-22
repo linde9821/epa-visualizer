@@ -29,14 +29,14 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
      */
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
-
-        epa.copy().acceptDepthFirst(normalizedPartitionFrequencyVisitor)
+        epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
+        val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
 
         val partitions =
             epa
                 .getAllPartitions()
                 .associateWith { partition ->
-                    normalizedPartitionFrequencyVisitor.frequencyByPartition(partition)
+                    normalizedPartitionFrequency.frequencyByPartition(partition)
                 }.filter { (a, b) -> b >= threshold || a == 0 }
                 .keys
                 .toList()
