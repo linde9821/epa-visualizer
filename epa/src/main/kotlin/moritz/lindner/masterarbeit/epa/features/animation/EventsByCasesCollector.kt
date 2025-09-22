@@ -24,13 +24,6 @@ class EventsByCasesCollector<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     /**
-     * Called before the automaton traversal begins. Currently, does nothing.
-     */
-    override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-
-    }
-
-    /**
      * Called after the automaton traversal ends. Currently, ensures all keys from [eventsByCase]
      * are reflected in [cases], which may be useful for consistency if `visit` wasn't called.
      */

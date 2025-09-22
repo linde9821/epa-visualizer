@@ -1,5 +1,10 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
+/**
+ * Contains normalized frequency statistics for partitions in an Extended Prefix Automaton.
+ * 
+ * @param relativeFrequencyByPartition Map of partition indices to their normalized frequencies.
+ */
 class NormalizedPartitionFrequency(
     private val relativeFrequencyByPartition: HashMap<Int, Float>
 ) {
