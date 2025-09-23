@@ -49,7 +49,7 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
      * @throws IllegalStateException If the state is not part of the automaton.
      */
     fun sequence(state: State): Set<Event<T>> =
-        sequenceByState[state] ?: throw IllegalStateException("No sequence for state $state")
+        sequenceByState[state] ?: emptySet()//throw IllegalStateException("No sequence for state $state")
 
     private var visitedStates = 0L
 
