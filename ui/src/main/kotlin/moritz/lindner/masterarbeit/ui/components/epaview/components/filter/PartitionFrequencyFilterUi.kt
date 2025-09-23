@@ -20,16 +20,41 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.features.filter.CompressionFilter
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import kotlin.math.max
+
+@Composable
+fun ChainPruningFilterUi(
+    epa: ExtendedPrefixAutomaton<Long>,
+    dispatcher: CoroutineDispatcher,
+    onFilter: (EpaFilter<Long>) -> Unit,
+) {
+
+    var isChecked by remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Enable Chain Pruning: ")
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = {
+                isChecked = !isChecked
+                onFilter(CompressionFilter())
+            }
+        )
+    }
+}
 
 @Composable
 fun PartitionFrequencyFilterUi(
