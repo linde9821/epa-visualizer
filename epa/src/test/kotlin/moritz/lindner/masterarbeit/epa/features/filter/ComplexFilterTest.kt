@@ -1,10 +1,8 @@
-package moritz.lindner.masterarbeit.epa.filter
+package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.domain.Activity
-import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
-import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File

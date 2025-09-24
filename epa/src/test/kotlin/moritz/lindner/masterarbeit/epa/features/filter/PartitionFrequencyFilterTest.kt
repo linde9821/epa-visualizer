@@ -1,27 +1,26 @@
-package moritz.lindner.masterarbeit.epa.filter
+package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class StateFrequencyFilterTest {
+class PartitionFrequencyFilterTest {
     @Test
-    fun `must remove all states where the frequency is below the threshold`() {
+    fun `must remove all partitions where the frequency is below the threshold`() {
         val epa =
             ExtendedPrefixAutomatonBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val sut = StateFrequencyFilter<Long>(0.3f)
+        val sut = PartitionFrequencyFilter<Long>(0.95f)
 
         val result = sut.apply(epa)
 
-        assertThat(result.states).hasSize(2)
-        assertThat(result.transitions).hasSize(1)
-        assertThat(result.activities).hasSize(1)
+        assertThat(result.states).hasSize(1)
+        assertThat(result.transitions).hasSize(0)
+        assertThat(result.activities).hasSize(0)
     }
 }
