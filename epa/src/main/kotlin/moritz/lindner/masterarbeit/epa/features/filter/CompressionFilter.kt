@@ -89,7 +89,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
                 }
 
                 if (shouldMarkInvalid) {
-                    println("marking $parent")
                     parent.copy(isInvalid = true)
                 } else {
                     parent
