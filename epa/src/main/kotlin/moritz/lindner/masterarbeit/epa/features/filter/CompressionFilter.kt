@@ -96,7 +96,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         var childrenByState = mutableMapOf<State, List<MarkedState>>()
 
         fun markParentsIfInvalid(chains: SyntheticStates<T>): Map<State, MarkedState> {
-            return parentByState.mapValues { (state, parent) ->
+            return parentByState.mapValues { (_, parent) ->
                 val shouldMarkInvalid = chains.chains.any { chain ->
                     parent.state == chain.last()
                 }
@@ -200,7 +200,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         fun updateParents(syntheticStates: SyntheticStates<T>): Map<State, MarkedState> {
-            return parentByState.mapValues { (state, parent) ->
+            return parentByState.mapValues { (_, parent) ->
                 if (parent.isInvalid) {
                     val chain = syntheticStates.chainByChainEnd[parent.state]!!
                     syntheticStates.syntheticStateByChain[chain]!!.copy(isInvalid = false)
@@ -209,7 +209,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         fun updateChildren(syntheticStates: SyntheticStates<T>): Map<State, List<MarkedState>> {
-            return childrenByState.mapValues { (state, children) ->
+            return childrenByState.mapValues { (_, children) ->
                 children.map { child ->
                     if (child.isInvalid) {
                         val chain = syntheticStates.chainByChainStart[child.state]
@@ -219,7 +219,10 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             }
         }
 
-        fun buildNewEpa(epa: ExtendedPrefixAutomaton<T>, syntheticStates: SyntheticStates<T>): ExtendedPrefixAutomaton<T> {
+        fun buildNewEpa(
+            epa: ExtendedPrefixAutomaton<T>,
+            syntheticStates: SyntheticStates<T>
+        ): ExtendedPrefixAutomaton<T> {
             val oldToNewStateMapping = mutableMapOf<State, State>()
 
             // Root state maps to itself
