@@ -311,7 +311,7 @@ class WalkerTreeLayout(
         logger.info { "finished layout construction" }
     }
 
-    override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]?.coordinate ?: throw IllegalStateException("State $state not found")
+    override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         val search =

@@ -207,24 +207,74 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         fun buildNewEpa(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
-            // Create new states with updated parents
-            val stateMapping = parentByState.mapKeys { (state, parent) ->
-                state to when (state) {
-                    is State.PrefixState -> State.PrefixState(
-                        from = parent.state,
-                        via = state.via
-                    )
-                    else -> state
+            val oldToNewStateMapping = mutableMapOf<State, State>()
+
+            // Root state maps to itself
+            oldToNewStateMapping[State.Root] = State.Root
+
+            // Step 1: Build states in dependency order (parents before children)
+            val processedStates = mutableSetOf<State>()
+            val stateQueue = ArrayDeque<State>()
+
+            // Start with states that have Root as parent
+            parentByState.entries
+                .filter { (_, parent) -> parent.state == State.Root }
+                .forEach { (state, _) -> stateQueue.add(state) }
+
+            // Process states in dependency order
+            while (stateQueue.isNotEmpty()) {
+                val currentState = stateQueue.removeFirst()
+
+                if (currentState in processedStates) continue
+
+                val parentInfo = parentByState[currentState]
+                if (parentInfo == null) {
+                    processedStates.add(currentState)
+                    continue
                 }
-            }.map { it.key.first to it.key.second }.toMap()
 
-            val newStates = stateMapping.values.toSet() + State.Root
+                // Check if parent has been processed
+                val parentState = parentInfo.state
+                if (parentState !in oldToNewStateMapping && parentState != State.Root) {
+                    // Parent not ready, put current state back and try parent first
+                    stateQueue.addLast(currentState)
+                    if (parentState !in processedStates) {
+                        stateQueue.addFirst(parentState)
+                    }
+                    continue
+                }
 
-            // Create transitions using new state references
-            val transitions = childrenByState.flatMap { (oldState, children) ->
+                // Create new state with proper parent reference
+                val newState = when (currentState) {
+                    is State.PrefixState -> {
+                        val newParent = oldToNewStateMapping[parentState] ?: parentState
+                        State.PrefixState(
+                            from = newParent,
+                            via = currentState.via
+                        )
+                    }
+
+                    else -> currentState
+                }
+
+                oldToNewStateMapping[currentState] = newState
+                processedStates.add(currentState)
+
+                // Add children to queue
+                val children = childrenByState[currentState] ?: emptyList()
+                children.forEach { child ->
+                    if (child.state !in processedStates) {
+                        stateQueue.add(child.state)
+                    }
+                }
+            }
+
+            // Step 2: Create transitions using new state instances
+            val newTransitions = childrenByState.flatMap { (oldParentState, children) ->
                 children.map { child ->
-                    val newStart = stateMapping[oldState] ?: oldState
-                    val newEnd = stateMapping[child.state] ?: child.state
+                    val newStart = oldToNewStateMapping[oldParentState] ?: oldParentState
+                    val newEnd = oldToNewStateMapping[child.state] ?: child.state
+
                     Transition(
                         start = newStart,
                         activity = (child.state as State.PrefixState).via,
@@ -233,13 +283,16 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
                 }
             }
 
+            val allNewStates = oldToNewStateMapping.values.toSet()
+
             return ExtendedPrefixAutomaton<T>(
                 eventLogName = epa.eventLogName + "compressed",
-                states = newStates,
-                activities = transitions.map { it.activity }.toSet(),
-                transitions = transitions.toSet(),
+                states = allNewStates,
+                activities = newTransitions.map { it.activity }.toSet(),
+                transitions = newTransitions.toSet(),
                 partitionByState = emptyMap(),
                 sequenceByState = emptyMap()
             )
-        }    }
+        }
+    }
 }
