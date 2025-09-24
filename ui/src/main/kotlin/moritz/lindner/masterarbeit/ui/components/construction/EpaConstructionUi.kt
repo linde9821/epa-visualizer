@@ -25,8 +25,8 @@ import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
-import org.jetbrains.jewel.ui.component.ErrorInlineBanner
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.InlineErrorBanner
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
@@ -72,7 +72,7 @@ fun EpaConstructionUi(
         Spacer(modifier = Modifier.height(24.dp))
 
         if (state.constructionError != null) {
-            ErrorInlineBanner(
+            InlineErrorBanner(
                 text = state.constructionError,
             )
             Spacer(modifier = Modifier.height(16.dp))
