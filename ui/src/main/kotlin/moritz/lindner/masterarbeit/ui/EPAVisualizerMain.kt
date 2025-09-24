@@ -89,7 +89,6 @@ fun main() {
             ),
         ) {
             DecoratedWindow(
-                alwaysOnTop = true,
                 onCloseRequest = ::exitApplication,
                 state = WindowState(
                     placement = WindowPlacement.Floating,
