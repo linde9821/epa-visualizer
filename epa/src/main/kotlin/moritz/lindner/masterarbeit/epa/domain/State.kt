@@ -39,7 +39,7 @@ sealed class State(
      * @property via The [Activity] that led from [from] to this state.
      */
     class PrefixState(
-        val from: State,
+        var from: State,
         val via: Activity,
     ) : State(via.name) {
         /**
