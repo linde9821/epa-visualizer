@@ -141,7 +141,7 @@ fun FilterUi(
                     1 -> ActivityFilterTabUi(epa) { currentFilter = it }
                     2 -> StateFrequencyFilterUi(epa, backgroundDispatcher) { currentFilter = it }
                     3 -> PartitionFrequencyFilterUi(epa, backgroundDispatcher) { currentFilter = it }
-                    4 -> ChainPruningFilterUi(epa, backgroundDispatcher) { currentFilter = it }
+                    4 -> ChainPruningFilterUi { currentFilter = it }
                     else -> Text(
                         "${tabNames[selectedIndex]} not implemented",
                         style = JewelTheme.typography.regular

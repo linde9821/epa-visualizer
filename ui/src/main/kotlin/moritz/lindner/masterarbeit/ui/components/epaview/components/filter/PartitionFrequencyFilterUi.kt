@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.filter
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,29 +31,31 @@ import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import kotlin.math.max
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChainPruningFilterUi(
-    epa: ExtendedPrefixAutomaton<Long>,
-    dispatcher: CoroutineDispatcher,
-    onFilter: (EpaFilter<Long>) -> Unit,
-) {
+fun ChainPruningFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
 
     var isChecked by remember { mutableStateOf(false) }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Enable Chain Pruning: ")
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = {
-                isChecked = !isChecked
-                onFilter(CompressionFilter())
-            }
-        )
+    Tooltip({
+        Text("Depending on the size of the event log the chain compression might take some time to compute.")
+    }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Enable Chain Pruning: ")
+            Checkbox(
+                checked = isChecked,
+                onCheckedChange = {
+                    isChecked = !isChecked
+                    onFilter(CompressionFilter())
+                }
+            )
+        }
     }
 }
 
