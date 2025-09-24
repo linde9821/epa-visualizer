@@ -1,10 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import com.google.common.collect.ArrayListMultimap
-import com.google.common.collect.Multimap
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Activity
-import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 
@@ -31,19 +28,23 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         val chains = mapping.detectChains()
-        mapping.markeParentsIfInvalid(chains)
-        mapping.markChildrenIfInvalid(chains)
+
+        // Update to use returned immutable maps
+        mapping.parentByState = mapping.markParentsIfInvalid(chains).toMutableMap()
+        mapping.childrenByState = mapping.markChildrenIfInvalid(chains).toMutableMap()
+
         mapping.addSyntheticStates(chains)
         mapping.removeAllStatesWhichArePartOfChain(chains)
-        mapping.updateParents(chains)
-        mapping.updateChildren(chains)
 
-        return mapping.buildNewEpa(epa)
+        mapping.parentByState = mapping.updateParents(chains).toMutableMap()
+        mapping.childrenByState = mapping.updateChildren(chains).toMutableMap()
+
+        return mapping.buildNewEpa(epa.copy())
     }
 
-    class MarkedState(
-        var state: State,
-        var isInvalid: Boolean
+    data class MarkedState(
+        val state: State,
+        val isInvalid: Boolean
     ) {
         override fun toString(): String {
             return "$state: $isInvalid"
@@ -73,30 +74,38 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         override fun toString(): String {
-            return chains.map { chains -> chains.joinToString(",") }.joinToString("\n")
+            return chains.joinToString("\n") { chains -> chains.joinToString(",") }
         }
     }
 
-    class Mapping <T : Comparable<T>> {
+    class Mapping<T : Comparable<T>> {
         var parentByState = mutableMapOf<State, MarkedState>()
         var childrenByState = mutableMapOf<State, List<MarkedState>>()
 
-        fun markeParentsIfInvalid(chains: SyntheticStates) {
-            chains.chains.forEach { chain ->
-                parentByState.forEach { state, parent ->
-                    if (parent.state == chain.last()) {
-                        println("marking $parent")
-                        parentByState[state]?.isInvalid = true
-                    }
+        fun markParentsIfInvalid(chains: SyntheticStates): Map<State, MarkedState> {
+            return parentByState.mapValues { (state, parent) ->
+                val shouldMarkInvalid = chains.chains.any { chain ->
+                    parent.state == chain.last()
+                }
+
+                if (shouldMarkInvalid) {
+                    println("marking $parent")
+                    parent.copy(isInvalid = true)
+                } else {
+                    parent
                 }
             }
         }
 
-        fun markChildrenIfInvalid(chains: SyntheticStates) {
-            childrenByState.forEach { _, children ->
-                children.forEach { child ->
+        fun markChildrenIfInvalid(chains: SyntheticStates): Map<State, List<MarkedState>> {
+            return childrenByState.mapValues { (_, children) ->
+                children.map { child ->
                     val isPresent = chains.chainByChainStart[child.state] != null
-                    if (isPresent) child.isInvalid = true
+                    if (isPresent) {
+                        child.copy(isInvalid = true)
+                    } else {
+                        child
+                    }
                 }
             }
         }
@@ -178,56 +187,60 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             childrenByState = newchildrenByState
         }
 
-        fun updateParents(syntheticStates: SyntheticStates) {
-            parentByState.forEach { state, parent ->
+        fun updateParents(syntheticStates: SyntheticStates): Map<State, MarkedState> {
+            return parentByState.mapValues { (state, parent) ->
                 if (parent.isInvalid) {
                     val chain = syntheticStates.chainByChainEnd[parent.state]!!
-                    val newstate = syntheticStates.syntheticStateByChain[chain]!!
-                    newstate.isInvalid = false
-                    parentByState[state] = newstate
-                }
+                    syntheticStates.syntheticStateByChain[chain]!!.copy(isInvalid = false)
+                } else parent
             }
         }
 
-        fun updateChildren(syntheticStates: SyntheticStates) {
-            childrenByState.forEach { state, children ->
-                val update = children.map { child ->
+        fun updateChildren(syntheticStates: SyntheticStates): Map<State, List<MarkedState>> {
+            return childrenByState.mapValues { (state, children) ->
+                children.map { child ->
                     if (child.isInvalid) {
                         val chain = syntheticStates.chainByChainStart[child.state]
-                        val newState = syntheticStates.syntheticStateByChain[chain]!!
-                        newState.isInvalid = false
-                        newState
+                        syntheticStates.syntheticStateByChain[chain]!!.copy(isInvalid = false)
                     } else child
                 }
-                childrenByState.put(state, update)
             }
         }
 
         fun buildNewEpa(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
+            // Create new states with updated parents
+            val stateMapping = parentByState.mapKeys { (state, parent) ->
+                state to when (state) {
+                    is State.PrefixState -> State.PrefixState(
+                        from = parent.state,
+                        via = state.via
+                    )
+                    else -> state
+                }
+            }.map { it.key.first to it.key.second }.toMap()
 
-            val transitions = childrenByState.flatMap { (state, children) ->
+            val newStates = stateMapping.values.toSet() + State.Root
+
+            // Create transitions using new state references
+            val transitions = childrenByState.flatMap { (oldState, children) ->
                 children.map { child ->
+                    val newStart = stateMapping[oldState] ?: oldState
+                    val newEnd = stateMapping[child.state] ?: child.state
                     Transition(
-                        start = state,
+                        start = newStart,
                         activity = (child.state as State.PrefixState).via,
-                        end = child.state
+                        end = newEnd
                     )
                 }
             }
 
-            parentByState.map { (state, parent) ->
-                state as State.PrefixState
-                state.from = parent.state
-            }
-
             return ExtendedPrefixAutomaton<T>(
                 eventLogName = epa.eventLogName + "compressed",
-                states = (listOf(State.Root) + parentByState.keys.toList()).toSet(),
+                states = newStates,
                 activities = transitions.map { it.activity }.toSet(),
                 transitions = transitions.toSet(),
                 partitionByState = emptyMap(),
                 sequenceByState = emptyMap()
             )
-        }
-    }
+        }    }
 }
