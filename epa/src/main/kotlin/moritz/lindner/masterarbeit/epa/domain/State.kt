@@ -45,7 +45,7 @@ sealed class State(
         /**
          * Returns a readable representation of the prefix path, e.g., "root -> A -> B".
          */
-        override fun toString(): String = "$via"
+        override fun toString(): String = "[${from.name}] -> $via"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
