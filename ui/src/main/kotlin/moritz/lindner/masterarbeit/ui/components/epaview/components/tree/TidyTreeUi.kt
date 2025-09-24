@@ -182,17 +182,21 @@ fun TidyTreeUi(
                         drawDepthCircles(it)
                     }
 
-                    drawEPA(
-                        epaUiState.layout,
-                        boundingBox,
-                        animationState,
-                        stateLabels,
-                        scale,
-                        redFill,
-                        redStroke,
-                        blackFill,
-                        blackStroke,
-                    )
+                    try {
+                        drawEPA(
+                            epaUiState.layout,
+                            boundingBox,
+                            animationState,
+                            stateLabels,
+                            scale,
+                            redFill,
+                            redStroke,
+                            blackFill,
+                            blackStroke,
+                        )
+                    } catch (e: Exception) {
+                        logger.error(e) { "error while drawing: $e" }
+                    }
                 }
             }
         }
