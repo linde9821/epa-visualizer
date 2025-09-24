@@ -13,191 +13,221 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         get() = "Compression Filter"
 
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
+        val mapping = Mapping<T>()
+
         val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
-        val parentsByState = invertMap(childrenByParent)
+        val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { it.start }.first() }
 
-        val childrenByParentWithOneChildren =
-            childrenByParent.filterValues { it.size == 1 }.filterKeys { it as? State.PrefixState != null }
-                .mapValues { it.value.first() as State.PrefixState }
-
-        val activitiesToRemove = emptyList<Activity>()//childrenByParentWithOneChildren.values.map { it.via }
-
-        val preStates = epa.states.filter { !childrenByParentWithOneChildren.keys.contains(it) }
-        val prePartitionByState = preStates.associateWith { epa.partition(it) }
-        val preActivities = epa.activities.filter { !activitiesToRemove.contains(it) }
-        val preSeqByState: Map<State, Set<Event<T>>> = preStates.associateWith { epa.sequence(it) }
-
-        val umergedLists = childrenByParentWithOneChildren.map { singleTargetState ->
-            listOf(singleTargetState.key) + followChain(singleTargetState.key, childrenByParent, emptyList())
+        childrenByParent.forEach { state, children ->
+            mapping.addChildrenForState(state, children.map { MarkedState(it as State.PrefixState, false) })
         }
 
-        val chains = mergeLists(umergedLists)
-        val activityByChain = chains.associateWith { chain ->
-            chain.fold(Activity("")) { a, b ->
-                Activity(a.name + (b as State.PrefixState).name)
-            }
+        parentByChild.forEach { state, parent ->
+            mapping.addParentForState(state, MarkedState(parent, false))
         }
-        val newActivities = preActivities + activityByChain.values
+
+        epa.states.forEach { state ->
+            mapping.addIfNotPresent(state)
+        }
+
+        val chains = mapping.detectChains()
+        mapping.markeParentsIfInvalid(chains)
+        mapping.markChildrenIfInvalid(chains)
+        mapping.addSyntheticStates(chains)
+        mapping.removeAllStatesWhichArePartOfChain(chains)
+        mapping.updateParents(chains)
+        mapping.updateChildren(chains)
+
+        return mapping.buildNewEpa(epa)
+    }
+
+    class MarkedState(
+        var state: State,
+        var isInvalid: Boolean
+    ) {
+        override fun toString(): String {
+            return "$state: $isInvalid"
+        }
+    }
+
+    class SyntheticStates(
+        val chains: List<List<State.PrefixState>>,
+    ) {
+        private val allChainParts = chains.flatten().toSet()
+
+        val chainByChainStart = chains.map { it.first() to it }.toMap()
+        val chainByChainEnd = chains.map { it.last() to it }.toMap()
+
         val syntheticStateByChain = chains.associateWith { chain ->
-            chain.reduce { a, b ->
-                State.PrefixState(
-                    from = (a as State.PrefixState).from,
-                    via = activityByChain[chain]!!
-                )
-            }
-        }
-        val seqBySyntetic: Map<State, Set<Event<T>>> = chains.associateWith { chain ->
-            chain.fold(emptyList<Event<T>>()) { acc, state ->
-                acc + epa.sequence(state)
-            }.toSet()
-        }.mapKeys { syntheticStateByChain[it.key]!! }
-
-        val parBySynthetic = chains.associateWith { chain ->
-            epa.partition(chain.first())
-        }.mapKeys { syntheticStateByChain[it.key]!! }
-
-        val syntheticStateByChainStart = syntheticStateByChain.mapKeys { a -> a.key.first() }
-
-        val newSeqByState = mergeMapsMulti(preSeqByState, seqBySyntetic)
-        val newParByState = mergeMaps(prePartitionByState, parBySynthetic)
-
-        val syntheticByChainparts = buildMap {
-            syntheticStateByChain.forEach { (states, synth) ->
-                states.forEach { state ->
-                    put(state, synth)
-                }
-            }
+            MarkedState(
+                state = State.PrefixState(
+                    from = chain.first().from,
+                    via = chain.fold(Activity("")) { acc, s -> Activity(acc.name + s.name) }
+                ),
+                isInvalid = true
+            )
         }
 
-        val fromCorrectedPreStates = preStates
-            .map { state ->
-                if (state is State.PrefixState) {
-                    val from = state.from
-                    if (chains.flatten().contains(from)) {
-                        val newFrom = syntheticByChainparts[from]!!
-                        State.PrefixState(
-                            from = newFrom,
-                            via = state.via
-                        )
-                    } else state
-                } else {
-                    state
-                }
-            }
-        val newStates = (fromCorrectedPreStates + syntheticStateByChain.values).toSet()
+        fun isPartOfChain(state: State): Boolean {
+            return allChainParts.contains(state)
+        }
 
-        val syntheticByParent = buildMap<State, List<State>> {
-            childrenByParent.forEach { (parent, children) ->
-                children.forEach { child ->
-                    if (syntheticStateByChainStart[child] != null) {
-                        val alreadyPresnt = get(parent) ?: emptyList<State>()
-                        put(parent, listOf(syntheticStateByChainStart[child]!!) + alreadyPresnt)
+        override fun toString(): String {
+            return chains.map { chains -> chains.joinToString(",") }.joinToString("\n")
+        }
+    }
+
+    class Mapping <T : Comparable<T>> {
+        var parentByState = mutableMapOf<State, MarkedState>()
+        var childrenByState = mutableMapOf<State, List<MarkedState>>()
+
+        fun markeParentsIfInvalid(chains: SyntheticStates) {
+            chains.chains.forEach { chain ->
+                parentByState.forEach { state, parent ->
+                    if (parent.state == chain.last()) {
+                        println("marking $parent")
+                        parentByState[state]?.isInvalid = true
                     }
                 }
             }
         }
 
-        val childrenBySynthetic = chains.associateWith { chain ->
-            val last = chain.last()
-            val targets = (childrenByParent[last] ?: emptyList())
-
-            targets.map { target ->
-                // if target is synthetic
-                if (chains.flatten().contains(target)) {
-                    println("yes")
-                    val newFrom = syntheticByChainparts[target]!!
-                    println("newFrom for $target is $newFrom")
-                    newFrom
-                } else State.PrefixState(
-                    from = syntheticStateByChain[chain]!!,
-                    via = (target as State.PrefixState).via
-                )
-            }
-        }.mapKeys { syntheticStateByChain[it.key]!! }
-        val finalMapping = buildMap<State, List<State>> {
-            childrenByParent.forEach { parent, children ->
-                if (childrenByParentWithOneChildren[parent] != null) return@forEach
-                if (chains.flatten().contains(parent)) return@forEach
-                val newChildren = children.filter {
-                    childrenByParentWithOneChildren[it] == null
+        fun markChildrenIfInvalid(chains: SyntheticStates) {
+            childrenByState.forEach { _, children ->
+                children.forEach { child ->
+                    val isPresent = chains.chainByChainStart[child.state] != null
+                    if (isPresent) child.isInvalid = true
                 }
-                put(parent, newChildren)
-            }
-
-            syntheticByParent.forEach { parent, synthetic ->
-                val alreadyPreeasent = get(parent) ?: emptyList()
-
-                put(parent, alreadyPreeasent + synthetic)
-            }
-
-            putAll(childrenBySynthetic)
-        }
-
-        val transitions = finalMapping.flatMap { (parent, children) ->
-            children.map { child ->
-                Transition(
-                    start = parent,
-                    activity = (child as State.PrefixState).via,
-                    end = child
-                )
             }
         }
 
-        return ExtendedPrefixAutomaton(
-            eventLogName = epa.eventLogName,
-            states = newStates,
-            activities = newActivities.toSet(),
-            transitions = transitions.toSet(),
-            partitionByState = newParByState,
-            sequenceByState = newSeqByState
-        )
-    }
+        fun addParentForState(key: State, value: MarkedState) {
+            parentByState.put(key, value)
+        }
 
-    private fun followChain(a: State, mappings: Map<State, List<State>>, acc: List<State>): List<State> {
-        if (mappings[a] != null) {
-            val n = mappings[a]!!.first()
-            return if (mappings[a]!!.size == 1) followChain(n, mappings, acc + n)
-            else acc
-        } else return acc
-    }
+        fun addChildrenForState(key: State, values: List<MarkedState>) {
+            val children = childrenByState.get(key) ?: emptyList()
 
-    private fun mergeLists(lists: List<List<State>>): List<List<State>> {
-        return lists.filter { current ->
-            // Keep only those lists that are not strict subsets of any other
-            lists.none { other ->
-                current != other && other.containsAll(current)
+            childrenByState.put(key, children + values)
+        }
+
+        fun addIfNotPresent(state: State) {
+            if (childrenByState.contains(state).not()) {
+                childrenByState.put(state, emptyList())
             }
         }
-    }
 
-    private fun <T> invertMap(map: Map<T, List<T>>): Multimap<T, T> {
-        val multimap: Multimap<T, T> = ArrayListMultimap.create()
-        for ((key, values) in map) {
-            for (value in values) {
-                multimap.put(value, key)
+        fun <T> mergeSublistsKeepLongest(lists: List<List<T>>): List<List<T>> {
+            return lists.filter { currentList ->
+                // Keep this list only if no other list contains all of its elements
+                lists.none { otherList ->
+                    otherList != currentList && otherList.containsAll(currentList)
+                }
             }
         }
-        return multimap
-    }
 
-    private fun <T, R> mergeMapsMulti(
-        first: Map<T, Set<R>>,
-        second: Map<T, Set<R>>
-    ): Map<T, Set<R>> {
-        return (first.keys + second.keys).associateWith { key ->
-            (first[key].orEmpty() + second[key].orEmpty())
+        fun detectChains(): SyntheticStates {
+            val chains = childrenByState
+                .filter { it.key is State.PrefixState }
+                .filter { it.value.size == 1 }
+                .map { (state, _) ->
+                    listOf(state) + followChain(state, emptyList())
+                }.map { chain ->
+                    chain.map { it as State.PrefixState }
+                }
+
+            return SyntheticStates(mergeSublistsKeepLongest(chains))
         }
-    }
 
-    private fun <T, R> mergeMaps(
-        first: Map<T, R>,
-        second: Map<T, R>
-    ): Map<T, R> {
-        return (first.keys + second.keys).associateWith { key ->
-            first[key].let { v ->
-                if (v != null) v
-                else second[key]!!
+        fun followChain(a: State, acc: List<State>): List<State> {
+            if (childrenByState[a] != null && childrenByState[a]!!.isNotEmpty()) {
+                val n = childrenByState[a]!!.first()
+                return if (childrenByState[a]!!.size == 1) followChain(n.state, acc + n.state)
+                else acc
+            } else return acc
+        }
+
+        override fun toString(): String {
+            return "parents:\n${parentByState.map { "${it.key} -> ${it.value}\n" }}\n" +
+                    "children:\n${childrenByState.map { "${it.key} -> [${it.value.joinToString()}]" }}"
+        }
+
+        fun addSyntheticStates(syntheticStates: SyntheticStates) {
+            syntheticStates.chains.forEach { chain ->
+                val parent = parentByState[chain.first()]!!
+                parentByState.put(syntheticStates.syntheticStateByChain[chain]!!.state, parent)
+
+                val children = childrenByState[chain.last()]!!
+                childrenByState.put(syntheticStates.syntheticStateByChain[chain]!!.state, children)
             }
+        }
+
+        fun removeAllStatesWhichArePartOfChain(syntheticStates: SyntheticStates) {
+            val newparentByState = mutableMapOf<State, MarkedState>()
+            val newchildrenByState = mutableMapOf<State, List<MarkedState>>()
+
+            parentByState.forEach { state, p ->
+                if (syntheticStates.isPartOfChain(state).not()) newparentByState.put(state, p)
+            }
+
+            childrenByState.forEach { state, c ->
+                if (syntheticStates.isPartOfChain(state).not()) newchildrenByState.put(state, c)
+            }
+
+            parentByState = newparentByState
+            childrenByState = newchildrenByState
+        }
+
+        fun updateParents(syntheticStates: SyntheticStates) {
+            parentByState.forEach { state, parent ->
+                if (parent.isInvalid) {
+                    val chain = syntheticStates.chainByChainEnd[parent.state]!!
+                    val newstate = syntheticStates.syntheticStateByChain[chain]!!
+                    newstate.isInvalid = false
+                    parentByState[state] = newstate
+                }
+            }
+        }
+
+        fun updateChildren(syntheticStates: SyntheticStates) {
+            childrenByState.forEach { state, children ->
+                val update = children.map { child ->
+                    if (child.isInvalid) {
+                        val chain = syntheticStates.chainByChainStart[child.state]
+                        val newState = syntheticStates.syntheticStateByChain[chain]!!
+                        newState.isInvalid = false
+                        newState
+                    } else child
+                }
+                childrenByState.put(state, update)
+            }
+        }
+
+        fun buildNewEpa(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
+
+            val transitions = childrenByState.flatMap { (state, children) ->
+                children.map { child ->
+                    Transition(
+                        start = state,
+                        activity = (child.state as State.PrefixState).via,
+                        end = child.state
+                    )
+                }
+            }
+
+            parentByState.map { (state, parent) ->
+                state as State.PrefixState
+                state.from = parent.state
+            }
+
+            return ExtendedPrefixAutomaton<T>(
+                eventLogName = epa.eventLogName + "compressed",
+                states = (listOf(State.Root) + parentByState.keys.toList()).toSet(),
+                activities = transitions.map { it.activity }.toSet(),
+                transitions = transitions.toSet(),
+                partitionByState = emptyMap(),
+                sequenceByState = emptyMap()
+            )
         }
     }
 }
