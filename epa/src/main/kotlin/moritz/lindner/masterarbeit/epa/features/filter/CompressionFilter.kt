@@ -10,39 +10,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
     override val name: String
         get() = "Compression Filter"
 
-    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
-        val mapping = Mapping<T>()
-
-        val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
-        val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { it.start }.first() }
-
-        childrenByParent.forEach { state, children ->
-            mapping.addChildrenForState(state, children.map { MarkedState(it as State.PrefixState, false) })
-        }
-
-        parentByChild.forEach { state, parent ->
-            mapping.addParentForState(state, MarkedState(parent, false))
-        }
-
-        epa.states.forEach { state ->
-            mapping.addIfNotPresent(state)
-        }
-
-        val syntheticStates = mapping.detectChains(epa)
-
-        // Update to use returned immutable maps
-        mapping.parentByState = mapping.markParentsIfInvalid(syntheticStates).toMutableMap()
-        mapping.childrenByState = mapping.markChildrenIfInvalid(syntheticStates).toMutableMap()
-
-        mapping.addSyntheticStates(syntheticStates)
-        mapping.removeAllStatesWhichArePartOfChain(syntheticStates)
-
-        mapping.parentByState = mapping.updateParents(syntheticStates).toMutableMap()
-        mapping.childrenByState = mapping.updateChildren(syntheticStates).toMutableMap()
-
-        return mapping.buildNewEpa(epa.copy(), syntheticStates)
-    }
-
     data class MarkedState(
         val state: State,
         val isInvalid: Boolean
@@ -60,9 +27,11 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
 
         val chainByChainStart = chains.associateBy { it.first() }
         val chainByChainEnd = chains.associateBy { it.last() }
+        val chainEnds = chains.map { it.last() }.toSet()
+        val chainStarts = chains.map { it.first() }.toSet()
 
         val partitionByChain = chains.associateWith { chain ->
-            // TODO: does this make sense?
+            // does it really make sens to just take partition of the first chain state
             epa.partition(chain.first())
         }
 
@@ -95,11 +64,14 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         var parentByState = mutableMapOf<State, MarkedState>()
         var childrenByState = mutableMapOf<State, List<MarkedState>>()
 
+        override fun toString(): String {
+            return "parents:\n${parentByState.map { "${it.key} -> ${it.value}\n" }}\n" +
+                    "children:\n${childrenByState.map { "${it.key} -> [${it.value.joinToString()}]" }}"
+        }
+
         fun markParentsIfInvalid(chains: SyntheticStates<T>): Map<State, MarkedState> {
             return parentByState.mapValues { (_, parent) ->
-                val shouldMarkInvalid = chains.chains.any { chain ->
-                    parent.state == chain.last()
-                }
+                val shouldMarkInvalid = parent.state in chains.chainEnds
 
                 if (shouldMarkInvalid) {
                     parent.copy(isInvalid = true)
@@ -112,7 +84,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         fun markChildrenIfInvalid(chains: SyntheticStates<T>): Map<State, List<MarkedState>> {
             return childrenByState.mapValues { (_, children) ->
                 children.map { child ->
-                    val isPresent = chains.chainByChainStart[child.state] != null
+                    val isPresent = child.state in chains.chainStarts
                     if (isPresent) {
                         child.copy(isInvalid = true)
                     } else {
@@ -129,16 +101,16 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         fun addChildrenForState(key: State, values: List<MarkedState>) {
             val children = childrenByState.get(key) ?: emptyList()
 
-            childrenByState.put(key, children + values)
+            childrenByState[key] = children + values
         }
 
         fun addIfNotPresent(state: State) {
             if (childrenByState.contains(state).not()) {
-                childrenByState.put(state, emptyList())
+                childrenByState[state] = emptyList()
             }
         }
 
-        fun <T> mergeSublistsKeepLongest(lists: List<List<T>>): List<List<T>> {
+        private fun <T> mergeSublistsKeepLongest(lists: List<List<T>>): List<List<T>> {
             return lists.filter { currentList ->
                 // Keep this list only if no other list contains all of its elements
                 lists.none { otherList ->
@@ -151,35 +123,32 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             val chains = childrenByState
                 .filter { it.key is State.PrefixState }
                 .filter { it.value.size == 1 }
-                .map { (state, _) ->
-                    listOf(state) + followChain(state, emptyList())
-                }.map { chain ->
-                    chain.map { it as State.PrefixState }
-                }
+                .map { (state, _) -> listOf(state) + followChain(state, mutableListOf())
+                }.map { chain -> chain.map { it as State.PrefixState } }
 
             return SyntheticStates(epa = epa, chains = mergeSublistsKeepLongest(chains))
         }
 
-        fun followChain(a: State, acc: List<State>): List<State> {
-            if (childrenByState[a] != null && childrenByState[a]!!.isNotEmpty()) {
-                val n = childrenByState[a]!!.first()
-                return if (childrenByState[a]!!.size == 1) followChain(n.state, acc + n.state)
-                else acc
-            } else return acc
-        }
-
-        override fun toString(): String {
-            return "parents:\n${parentByState.map { "${it.key} -> ${it.value}\n" }}\n" +
-                    "children:\n${childrenByState.map { "${it.key} -> [${it.value.joinToString()}]" }}"
+        private tailrec fun followChain(a: State, acc: MutableList<State>): List<State> {
+            val children = childrenByState[a]
+            return when {
+                children == null || children.isEmpty() -> acc
+                children.size == 1 -> {
+                    val next = children.first().state
+                    acc.add(next)
+                    followChain(next, acc)
+                }
+                else -> acc
+            }
         }
 
         fun addSyntheticStates(syntheticStates: SyntheticStates<T>) {
             syntheticStates.chains.forEach { chain ->
                 val parent = parentByState[chain.first()]!!
-                parentByState.put(syntheticStates.syntheticStateByChain[chain]!!.state, parent)
+                parentByState[syntheticStates.syntheticStateByChain[chain]!!.state] = parent
 
                 val children = childrenByState[chain.last()]!!
-                childrenByState.put(syntheticStates.syntheticStateByChain[chain]!!.state, children)
+                childrenByState[syntheticStates.syntheticStateByChain[chain]!!.state] = children
             }
         }
 
@@ -225,7 +194,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         ): ExtendedPrefixAutomaton<T> {
             val oldToNewStateMapping = mutableMapOf<State, State>()
 
-            // Root state maps to itself
             oldToNewStateMapping[State.Root] = State.Root
 
             // Step 1: Build states in dependency order (parents before children)
@@ -317,7 +285,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             )
         }
 
-
         private fun buildPartitionMapping(
             epa: ExtendedPrefixAutomaton<T>,
             syntheticStates: SyntheticStates<T>,
@@ -354,7 +321,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             val newSequenceByState = mutableMapOf<State, Set<Event<T>>>()
 
             // Add sequences for non-chain states (mapped to new state instances)
-
             epa.states.map { state ->
                 state to epa.sequence(state)
             }.forEach { (oldState, sequence) ->
@@ -375,4 +341,38 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             return newSequenceByState
         }
     }
+
+    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
+        val mapping = Mapping<T>()
+
+        val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
+        val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { it.start }.first() }
+
+        childrenByParent.forEach { (state, children) ->
+            mapping.addChildrenForState(state, children.map { MarkedState(it as State.PrefixState, false) })
+        }
+
+        parentByChild.forEach { (state, parent) ->
+            mapping.addParentForState(state, MarkedState(parent, false))
+        }
+
+        epa.states.forEach { state ->
+            mapping.addIfNotPresent(state)
+        }
+
+        val syntheticStates = mapping.detectChains(epa)
+
+        // Update to use returned immutable maps
+        mapping.parentByState = mapping.markParentsIfInvalid(syntheticStates).toMutableMap()
+        mapping.childrenByState = mapping.markChildrenIfInvalid(syntheticStates).toMutableMap()
+
+        mapping.addSyntheticStates(syntheticStates)
+        mapping.removeAllStatesWhichArePartOfChain(syntheticStates)
+
+        mapping.parentByState = mapping.updateParents(syntheticStates).toMutableMap()
+        mapping.childrenByState = mapping.updateChildren(syntheticStates).toMutableMap()
+
+        return mapping.buildNewEpa(epa.copy(), syntheticStates)
+    }
+
 }
