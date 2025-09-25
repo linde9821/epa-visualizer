@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.1.0"
+version = "1.3.0"
 
 repositories {
     google()
@@ -72,8 +72,13 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
-            description = "EPA Visualizer"
-            packageVersion = "1.0.0"
+            description = "Interactive Visualization of Extended Prefix Automaton Using Radial Trees\n" +
+                    "        \n" +
+                    "        A tool for analyzing trace variants in large, complex event logs using \n" +
+                    "        Extended Prefix Automata (EPA) and radial tidy tree layouts. This \n" +
+                    "        visualization approach encodes thousands of trace variants while \n" +
+                    "        minimizing visual clutter and supporting interactive filtering."
+            packageVersion = version.toString()
             vendor = "Moritz Lindner"
             licenseFile = rootProject.file("LICENSE")
 
@@ -99,7 +104,22 @@ compose.desktop {
     }
 }
 
+fun getGitCommitHash(): String {
+    return try {
+        val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+            .directory(file("."))
+            .start()
+        val result = process.inputStream.bufferedReader().readText().trim()
+        process.waitFor()
+        if (process.exitValue() == 0) result else "unknown"
+    } catch (_: Exception) {
+        "unknown"
+    }
+}
+
 buildConfig {
-    buildConfigField("String", "APP_VERSION", "\"${project.version}\"")
-    packageName("moritz.lindner.masterarbeit.buildconfig") // replace with your package
+    val gitHash = getGitCommitHash()
+    val versionWithHash = "${project.version}-$gitHash"
+    buildConfigField("String", "APP_VERSION", "\"${versionWithHash}\"")
+    packageName("moritz.lindner.masterarbeit.buildconfig")
 }

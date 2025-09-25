@@ -19,25 +19,18 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<
     private val relativeFrequencyByPartition = HashMap<Int, Float>()
     private var allEvents = 0
 
-    /**
-     * Returns the normalized frequency of events for the given partition.
-     *
-     * @param c The partition index.
-     * @return The frequency as a float between 0.0 and 1.0.
-     * @throws NullPointerException if the partition was not visited.
-     */
-    fun frequencyByPartition(c: Int): Float = relativeFrequencyByPartition[c]!!
-
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val statesByPartition = extendedPrefixAutomaton.states.groupBy { extendedPrefixAutomaton.partition(it) }
+        val statesByPartition = extendedPrefixAutomaton
+            .states
+            .groupBy(extendedPrefixAutomaton::partition)
 
-        val frequencyByPartition =
-            statesByPartition.mapValues { (partition, states) ->
-                states.sumOf { extendedPrefixAutomaton.sequence(it).size }
+        val frequencyByPartition = statesByPartition
+            .mapValues { (_, states) ->
+                states.sumOf { state -> extendedPrefixAutomaton.sequence(state).size }
             }
 
         relativeFrequencyByPartition.putAll(
-            frequencyByPartition.mapValues { (partition, frequency) ->
+            frequencyByPartition.mapValues { (_, frequency) ->
                 frequency.toFloat() / allEvents
             },
         )
@@ -51,13 +44,7 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<
         allEvents++
     }
 
-    /**
-     * Returns the minimum normalized frequency across all partitions.
-     */
-    fun min(): Float = relativeFrequencyByPartition.values.min()
-
-    /**
-     * Returns the maximum normalized frequency across all partitions.
-     */
-    fun max(): Float = relativeFrequencyByPartition.values.max()
+    fun build(): NormalizedPartitionFrequency {
+        return NormalizedPartitionFrequency(relativeFrequencyByPartition)
+    }
 }

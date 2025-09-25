@@ -26,7 +26,8 @@ import androidx.compose.ui.window.DialogWindow
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
+import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -40,17 +41,18 @@ fun SingleCaseAnimationUI(
     viewModel: EpaViewModel,
     onClose: () -> Unit,
 ) {
+    val epaService = EpaService<Long>()
+
     var isLoading by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
     var selectedCase by remember { mutableStateOf<String?>(null) }
-    var eventsByCasesCollector by remember { mutableStateOf(EventsByCasesCollector<Long>()) }
+    var eventsByCase by remember { mutableStateOf(emptyMap<String, List<Event<Long>>>()) }
 
     LaunchedEffect(epa) {
         isLoading = true
         withContext(backgroundDispatcher) {
             selectedCase = null
-            eventsByCasesCollector = EventsByCasesCollector()
-            epa.copy().acceptDepthFirst(eventsByCasesCollector)
+            eventsByCase = epaService.getEventsByCase(epa)
         }
         isLoading = false
     }
@@ -90,7 +92,7 @@ fun SingleCaseAnimationUI(
                 Text("Close")
             }
         }
-        Spacer(Modifier.Companion.height(8.dp))
+        Spacer(Modifier.height(8.dp))
 
         if (selectedCase != null) {
             TimelineSliderSingleCaseUi(epa, backgroundDispatcher, viewModel, selectedCase!!)
@@ -108,14 +110,14 @@ fun SingleCaseAnimationUI(
                     ) {
                         Row {
                             LazyColumn {
-                                items(eventsByCasesCollector.cases.toList()) { case ->
+                                items(eventsByCase.keys.toList()) { case ->
                                     val isSelected = case == selectedCase
                                     Text(
                                         text = case,
                                         modifier =
                                             Modifier
                                                 .padding(8.dp)
-                                                .background(if (isSelected) Color.Companion.LightGray else Color.Companion.Transparent)
+                                                .background(if (isSelected) Color.LightGray else Color.Transparent)
                                                 .clickable {
                                                     selectedCase = case
                                                     showDialog = false

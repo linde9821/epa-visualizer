@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.kotlin.plugin.compose) apply false
+    alias(libs.plugins.gradle.buildconfig.plugin) apply false
+    alias(libs.plugins.composeHotReload) apply false
 }
 
 subprojects {

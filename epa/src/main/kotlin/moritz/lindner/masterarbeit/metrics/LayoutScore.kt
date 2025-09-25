@@ -22,12 +22,12 @@ class LayoutScore(
 
         val normalizedAreaScores =
             minMaxNormalize(
-                scores.map { (area, score) -> area.toDouble() },
+                scores.map { (area, _) -> area.toDouble() },
             ).map { 1.0 - it }
 
         val normalizedDensityScores =
             minMaxNormalize(
-                scores.map { (area, score) -> score },
+                scores.map { (_, score) -> score },
             )
 
         val results =

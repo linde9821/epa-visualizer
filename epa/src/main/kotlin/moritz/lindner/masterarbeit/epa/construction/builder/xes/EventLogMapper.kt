@@ -1,5 +1,6 @@
-package moritz.lindner.masterarbeit.epa.construction.builder
+package moritz.lindner.masterarbeit.epa.construction.builder.xes
 
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XTrace
@@ -24,7 +25,7 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
      * @param log The iterable collection of [XTrace]s representing the event log.
      * @return A list of [Event]s sorted by their [Event.timestamp], each with a reference to its predecessor.
      */
-    fun build(log: Iterable<XTrace>, progressCallback: EpaBuildProgressCallback? = null): List<Event<T>> {
+    fun build(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
         val traces = log.toList()
 
         return traces

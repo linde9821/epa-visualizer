@@ -11,8 +11,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.AnimationService
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
-import moritz.lindner.masterarbeit.epa.features.animation.WholeEventLogAnimationBuilder
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import moritz.lindner.masterarbeit.ui.logger
@@ -25,6 +25,8 @@ fun TimelineSliderWholeLogUi(
     dispatcher: CoroutineDispatcher,
     onClose: () -> Unit,
 ) {
+    val animationService = AnimationService<Long>()
+
     var isLoading by remember(extendedPrefixAutomaton) { mutableStateOf(true) }
     var eventLogAnimation by remember(extendedPrefixAutomaton) { mutableStateOf<EventLogAnimation<Long>?>(null) }
     var sliderValue by remember(extendedPrefixAutomaton) { mutableStateOf(0f) }
@@ -36,18 +38,13 @@ fun TimelineSliderWholeLogUi(
     LaunchedEffect(extendedPrefixAutomaton) {
         isLoading = true
         isPlaying = false
-        viewModel.updateAnimation(AnimationState.Companion.Empty)
+        viewModel.updateAnimation(AnimationState.Empty)
         withContext(dispatcher) {
-            val eventLogAnimationVisitor = WholeEventLogAnimationBuilder<Long>(extendedPrefixAutomaton.eventLogName)
-            extendedPrefixAutomaton
-                .copy()
-                .acceptDepthFirst(eventLogAnimationVisitor)
-            yield()
-            eventLogAnimation =
-                eventLogAnimationVisitor.build(
-                    epsilon = 10L,
-                    increment = Long::plus,
-                )
+            eventLogAnimation = animationService.createFullLogAnimation(
+                extendedPrefixAutomaton,
+                10L,
+                Long::plus,
+            )
         }
         viewModel.updateAnimation(AnimationState.Empty)
         sliderValue = eventLogAnimation!!.getFirst().first.toFloat()

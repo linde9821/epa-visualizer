@@ -30,12 +30,13 @@ class StateFrequencyFilter<T : Comparable<T>>(
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>()
         epa.copy().acceptDepthFirst(normalizedStateFrequencyVisitor)
+        val normalizedStateFrequency = normalizedStateFrequencyVisitor.build()
 
         val statesWithAllowedActivities =
             epa.states
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> normalizedStateFrequencyVisitor.frequencyByState(state) >= threshold
+                        is State.PrefixState -> normalizedStateFrequency.frequencyByState(state) >= threshold
                         State.Root -> true
                     }
                 }.toSet()
@@ -69,8 +70,8 @@ class StateFrequencyFilter<T : Comparable<T>>(
                             transition.end in filteredStates
                 }.toSet()
 
-        val partitionByState = filteredStates.associateWith { state -> epa.partition(state) }
-        val sequenceByState = filteredStates.associateWith { state -> epa.sequence(state) }
+        val partitionByState = filteredStates.associateWith(epa::partition)
+        val sequenceByState = filteredStates.associateWith(epa::sequence)
 
         return ExtendedPrefixAutomaton(
             eventLogName = epa.eventLogName,

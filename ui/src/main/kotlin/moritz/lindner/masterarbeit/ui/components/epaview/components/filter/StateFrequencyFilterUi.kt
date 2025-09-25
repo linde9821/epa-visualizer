@@ -19,9 +19,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Icon
@@ -36,26 +37,29 @@ fun StateFrequencyFilterUi(
     dispatcher: CoroutineDispatcher,
     onFilter: (EpaFilter<Long>) -> Unit,
 ) {
+
+    val epaService = EpaService<Long>()
+
     var sliderValue by remember { mutableStateOf(0.0f) }
     var threshold by remember { mutableStateOf(0.0f) }
     var isLoading by remember { mutableStateOf(true) }
-    val frequencyStateVisitor by remember(epa) {
-        mutableStateOf(NormalizedStateFrequencyVisitor<Long>())
+    var normalizedStateFrequency: NormalizedStateFrequency? by remember(epa) {
+        mutableStateOf(null)
     }
 
     LaunchedEffect(epa) {
         isLoading = true
         withContext(dispatcher) {
             logger.info { "building state filter" }
-            epa.copy().acceptDepthFirst(frequencyStateVisitor)
+            normalizedStateFrequency = epaService.getNormalizedStateFrequency(epa)
         }
         isLoading = false
     }
 
     Column {
         if (!isLoading) {
-            val rawMinFreq = frequencyStateVisitor.min()
-            val rawMaxFreq = frequencyStateVisitor.max()
+            val rawMinFreq = normalizedStateFrequency!!.min()
+            val rawMaxFreq = normalizedStateFrequency!!.max()
 
             val minFreq = max(rawMinFreq, 1e-6f)
             val maxFreq = max(rawMaxFreq, minFreq * 10f)
@@ -79,10 +83,10 @@ fun StateFrequencyFilterUi(
             )
             LazyColumn {
                 val states = epa.states.toList().sortedByDescending {
-                    frequencyStateVisitor.frequencyByState(it)
+                    normalizedStateFrequency!!.frequencyByState(it)
                 }
                 items(states) { state ->
-                    val frequency = frequencyStateVisitor.frequencyByState(state)
+                    val frequency = normalizedStateFrequency!!.frequencyByState(state)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically

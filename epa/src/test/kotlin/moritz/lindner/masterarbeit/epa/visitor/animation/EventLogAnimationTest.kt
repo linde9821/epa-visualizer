@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.visitor.animation
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
 import org.assertj.core.api.Assertions.assertThat
@@ -10,7 +10,7 @@ import java.io.File
 
 class EventLogAnimationTest {
     private fun buildSingleCaseAnimation(): EventLogAnimation<Long> {
-        val builder = ExtendedPrefixAutomatonBuilder<Long>()
+        val builder = EpaFromXesBuilder<Long>()
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())
         val epa = builder.build()

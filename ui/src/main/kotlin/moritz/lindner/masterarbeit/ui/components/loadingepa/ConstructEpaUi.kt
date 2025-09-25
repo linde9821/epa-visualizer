@@ -25,8 +25,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.construction.builder.EpaBuildProgressCallback
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.HorizontalProgressBar
@@ -41,7 +41,7 @@ import kotlin.coroutines.cancellation.CancellationException
 fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
-    builder: ExtendedPrefixAutomatonBuilder<Long>,
+    builder: EpaFromXesBuilder<Long>,
     onEPAConstructed: (ExtendedPrefixAutomaton<Long>) -> Unit,
     onAbort: () -> Unit,
     onError: (String, Throwable) -> Unit,
@@ -52,7 +52,7 @@ fun ConstructEpaUi(
     var currentProgress by remember { mutableStateOf(0L) }
     var totalProgress by remember { mutableStateOf(0L) }
 
-    val progressCallback = EpaBuildProgressCallback { current, total, task ->
+    val progressCallback = EpaProgressCallback { current, total, task ->
         currentTask = task
         currentProgress = current
         totalProgress = total

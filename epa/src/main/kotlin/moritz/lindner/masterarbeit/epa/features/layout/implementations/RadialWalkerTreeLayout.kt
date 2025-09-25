@@ -329,7 +329,10 @@ class RadialWalkerTreeLayout(
 
     override fun getMaxDepth(): Int = maxDepth
 
-    override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate
+    override fun getCoordinate(state: State): Coordinate =
+        nodePlacementByState[state]?.coordinate ?: throw IllegalStateException(
+            "No coodinate for $state present"
+        )
 
     override fun getCircleRadius(): Float = layerSpace
 
@@ -348,8 +351,6 @@ class RadialWalkerTreeLayout(
                 ).toList()
         return search.map { it.value() }
     }
-
-    private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }
