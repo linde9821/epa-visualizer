@@ -42,8 +42,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-
-
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(21)
