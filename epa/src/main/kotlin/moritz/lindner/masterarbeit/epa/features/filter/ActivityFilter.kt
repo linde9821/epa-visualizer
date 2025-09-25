@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.State
 
@@ -18,10 +19,13 @@ import moritz.lindner.masterarbeit.epa.domain.State
  * @property allowedActivities The set of activity labels to retain in the filtered automaton.
  */
 class ActivityFilter<T : Comparable<T>>(
-    private val allowedActivities: HashSet<Activity>,
+    allowedActivities: HashSet<Activity>,
 ) : EpaFilter<T> {
 
     override val name = "Activity filter"
+
+    val allowedActivities = allowedActivities.map { it.name }.toSet()
+
 
     /**
      * Applies the activity-based filtering logic to the given automaton.
@@ -34,52 +38,18 @@ class ActivityFilter<T : Comparable<T>>(
             epa.states
                 .filter { state ->
                     when (state) {
-                        is State.PrefixState -> state.via in allowedActivities
+                        is State.PrefixState -> state.via.name in allowedActivities
                         State.Root -> true
                     }
                 }.toSet()
+        
+        val builder = EpaFromComponentsBuilder<T>()
+            .fromExisting(epa)
+            .setStates(statesWithAllowedActivities)
+            .setActivities(epa.activities)
+            .pruneStatesUnreachableByTransitions(true)
 
-        // remove orphans
-        val filteredStates =
-            statesWithAllowedActivities
-                .filter { state ->
-                    when (state) {
-                        is State.PrefixState -> chainIsValid(state)
-                        State.Root -> true
-                    }
-                }.toSet()
-
-        val filteredActivities = epa.activities.filter { activity -> allowedActivities.contains(activity) }.toSet()
-
-        val filteredTransitions =
-            epa.transitions
-                .filter { transition ->
-                    transition.activity in allowedActivities &&
-                            transition.start in filteredStates &&
-                            transition.end in filteredStates
-                }.toSet()
-
-        val partitionByState = filteredStates.associateWith(epa::partition)
-        val sequenceByState = filteredStates.associateWith(epa::sequence)
-
-        return ExtendedPrefixAutomaton(
-            eventLogName = epa.eventLogName,
-            states = filteredStates,
-            activities = filteredActivities,
-            transitions = filteredTransitions,
-            partitionByState = partitionByState,
-            sequenceByState = sequenceByState,
-        )
+        return builder.build()
     }
 
-    // TODO: check this works more thoroughly
-    private fun chainIsValid(state: State.PrefixState): Boolean =
-        if (state.via in allowedActivities) {
-            when (state.from) {
-                is State.PrefixState -> chainIsValid(state.from)
-                State.Root -> true
-            }
-        } else {
-            false
-        }
 }

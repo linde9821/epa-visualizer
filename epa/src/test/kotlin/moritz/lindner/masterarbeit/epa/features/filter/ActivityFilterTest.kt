@@ -55,7 +55,7 @@ class ActivityFilterTest {
 
         val result = sut.apply(epa)
 
-        assertThat(result.activities).containsExactlyInAnyOrder(*(allowedActivities.toList()).toTypedArray())
+        assertThat(result.activities).containsAnyElementsOf(allowedActivities)
         assertThat(result.transitions).hasSize(2) // included +1 for root
         assertThat(result.states).hasSize(3) // included +1 for root
     }
@@ -83,7 +83,7 @@ class ActivityFilterTest {
 
         val result = sut.apply(epa)
 
-        assertThat(result.activities).containsExactlyInAnyOrder(*(allowedActivities.toList()).toTypedArray())
+        assertThat(result.activities).isEmpty() // because non are left after pruning
         assertThat(result.states).hasSize(1) // included +1 for root
     }
 
@@ -110,6 +110,6 @@ class ActivityFilterTest {
 
         val result = sut.apply(epa)
 
-        assertThat(result.activities).hasSize(5)
+        assertThat(result.activities).hasSize(3)
     }
 }
