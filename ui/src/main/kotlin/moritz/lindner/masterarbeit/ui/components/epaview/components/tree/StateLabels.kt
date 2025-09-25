@@ -8,13 +8,14 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Surface
 import org.jetbrains.skia.TextLine
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.absoluteValue
 
 class StateLabels(
     private val backgroundColor: Int,
     private val baseFontSize: Float,
 ) {
-    private val labelByState = HashMap<String, Image>()
+    private val labelByState = ConcurrentHashMap<String, Image>()
 
     private val paint =
         Paint().apply {

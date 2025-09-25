@@ -28,6 +28,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -108,12 +110,20 @@ fun TidyTreeUi(
         labelsGenerated = false
         withContext(backgroundDispatcher) {
             logger.info { "generating labels" }
-            epaUiState.filteredEpa?.states?.forEachIndexed { index, state ->
-                stateLabels.generateLabelForState(state)
-                if (index % 20 == 0) yield()
+            val states = epaUiState.filteredEpa?.states?.toList() ?: emptyList()
+            val chunkSize = 100
+
+            states.chunked(chunkSize).forEachIndexed { chunkIndex, chunk ->
+                chunk.map { state ->
+                    async { stateLabels.generateLabelForState(state) }
+                }.awaitAll()
+
+                val processed = (chunkIndex + 1) * chunkSize
+                logger.debug { "Processed $processed/${states.size} labels" }
+                yield()
             }
-            logger.info { "labels generated" }
-        }
+
+            logger.info { "labels generated" }        }
         labelsGenerated = true
     }
 
