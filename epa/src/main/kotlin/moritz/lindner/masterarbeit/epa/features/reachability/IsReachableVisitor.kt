@@ -33,7 +33,6 @@ class IsReachableVisitor<T : Comparable<T>>(
         depth: Int
     ) {
         if (state in statesToCheckReach) {
-            println("$state is reachable")
             reachableStates.add(state)
         }
     }

@@ -377,7 +377,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val mapping = Mapping<T>()
 
-        println("Create Mappings")
         val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
         val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { transition -> transition.start }.first() }
 
@@ -393,27 +392,15 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             mapping.addIfNotPresent(state)
         }
 
-        println("Detect Chains")
         val syntheticStates = mapping.detectChains(epa)
 
-        // Update to use returned immutable maps
-        println("invalidate parents")
         mapping.parentByState = mapping.markParentsIfInvalid(syntheticStates).toMutableMap()
-        println("invalidate children")
         mapping.childrenByState = mapping.markChildrenIfInvalid(syntheticStates).toMutableMap()
-
-        println("add synthetics")
         mapping.addSyntheticStates(syntheticStates)
-
-        println("remove old states")
         mapping.removeAllStatesWhichArePartOfChain(syntheticStates)
-
-        println("update parents")
         mapping.parentByState = mapping.updateParents(syntheticStates).toMutableMap()
-        println("update children")
         mapping.childrenByState = mapping.updateChildren(syntheticStates).toMutableMap()
 
-        println("building new epa")
         return mapping.buildNewEpa(epa.copy(), syntheticStates)
     }
 }
