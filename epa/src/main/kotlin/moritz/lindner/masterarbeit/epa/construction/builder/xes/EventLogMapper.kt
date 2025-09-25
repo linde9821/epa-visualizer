@@ -28,6 +28,8 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
     fun build(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
         val traces = log.toList()
 
+        var count = 0
+
         return traces
             .flatMapIndexed { index, trace ->
                 trace
@@ -35,9 +37,11 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
                     .sortedBy { event -> event.timestamp }
                     .mapIndexed { index, event ->
                         event.copy(
-                            predecessorIndex = if (index <= 0) null else index - 1,
-                            successorIndex = if (index >= trace.size - 1) null else index + 1,
-                        )
+                            predecessorIndex = if (index <= 0) null else (index - 1) + count,
+                            successorIndex = if (index >= trace.size - 1) null else (index + 1) + count,
+                        ).also {
+                            count++
+                        }
                     }.also {
                         progressCallback?.onProgress(
                             current = (index + 1).toLong(),
