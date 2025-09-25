@@ -176,7 +176,7 @@ fun TidyTreeUi(
 
                 val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
-                if (!epaUiState.isLoading && epaUiState.layout != null && epaUiState.layout.isBuilt() && labelsGenerated) {
+                if (!epaUiState.isLoading && epaUiState.layout.isBuilt() && labelsGenerated) {
                     (epaUiState.layout as? RadialTreeLayout)?.let {
                         // TODO: might be removed
                         drawDepthCircles(it)
