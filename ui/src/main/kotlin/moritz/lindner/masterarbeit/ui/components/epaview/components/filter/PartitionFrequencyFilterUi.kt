@@ -59,6 +59,7 @@ fun ChainPruningFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PartitionFrequencyFilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
@@ -107,27 +108,31 @@ fun PartitionFrequencyFilterUi(
                 },
                 valueRange = 0f..1f,
             )
+            Tooltip({
+                Text("This shows only what would happen if the filter is applied to the current epa. If filters are applied before this the effects of this filter change.")
+            }) {
+                LazyColumn {
+                    val partitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending()
+                    items(partitions) { partition ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
+                            if (frequency < threshold) {
+                                Icon(
+                                    key = AllIconsKeys.General.Note,
+                                    contentDescription = "Below threshold",
+                                )
+                            }
+                            Text("Partition $partition:")
+                            Spacer(modifier = Modifier.weight(1f))
 
-            LazyColumn {
-                val partitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending()
-                items(partitions) { partition ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
-                        if (frequency < threshold) {
-                            Icon(
-                                key = AllIconsKeys.General.Note,
-                                contentDescription = "Below threshold",
-                            )
+                            Text("${"%.4f".format(frequency)}%")
                         }
-                        Text("Partition $partition:")
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Text("${"%.4f".format(frequency)}%")
                     }
                 }
+
             }
         } else {
             CircularProgressIndicator(
