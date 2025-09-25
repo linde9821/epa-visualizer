@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.api
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
@@ -17,6 +18,8 @@ import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
  * @param T The type of timestamps used in the event log.
  */
 class EpaService<T : Comparable<T>> {
+
+    private val logger = KotlinLogging.logger {  }
 
     /**
      * Computes general statistics for the EPA.
@@ -38,7 +41,10 @@ class EpaService<T : Comparable<T>> {
      * @return A new filtered Extended Prefix Automaton.
      */
     fun applyFilters(epa: ExtendedPrefixAutomaton<T>, filters: List<EpaFilter<T>>): ExtendedPrefixAutomaton<T> {
-        return filters.fold(epa) { acc, filter -> filter.apply(acc) }
+        return filters.fold(epa) { acc, filter ->
+            logger.info { "Applying filter ${filter.name}" }
+            filter.apply(acc.copy())
+        }
     }
 
     /**
