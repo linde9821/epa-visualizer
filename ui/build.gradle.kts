@@ -42,15 +42,30 @@ tasks.test {
     useJUnitPlatform()
 }
 
+
+
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(21)
+        vendor = JvmVendorSpec.JETBRAINS
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        vendor = JvmVendorSpec.JETBRAINS
     }
 }
 
 compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
+        
+        javaHome = javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
+            vendor.set(JvmVendorSpec.JETBRAINS)
+        }.get().metadata.installationPath.asFile.absolutePath
 
         jvmArgs +=
             listOf(
@@ -101,12 +116,9 @@ compose.desktop {
 
 fun getGitCommitHash(): String {
     return try {
-        val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
-            .directory(file("."))
-            .start()
-        val result = process.inputStream.bufferedReader().readText().trim()
-        process.waitFor()
-        if (process.exitValue() == 0) result else "unknown"
+        providers.exec {
+            commandLine("git", "rev-parse", "--short", "HEAD")
+        }.standardOutput.asText.get().dropLast(1)
     } catch (_: Exception) {
         "unknown"
     }
@@ -115,6 +127,7 @@ fun getGitCommitHash(): String {
 buildConfig {
     val gitHash = getGitCommitHash()
     val versionWithHash = "${project.version}-$gitHash"
+    logger.info("Version: $versionWithHash")
     buildConfigField("String", "APP_VERSION", "\"${versionWithHash}\"")
     packageName("moritz.lindner.masterarbeit.buildconfig")
 }
