@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.printing
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -11,13 +12,16 @@ class PrintingVisitor<T : Comparable<T>>(
     private val printTransition: Boolean = true,
     private val printEvent: Boolean = true,
 ) : AutomatonVisitor<T> {
+
+    private val logger = KotlinLogging.logger { }
+
     override fun visit(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
         if (printState) {
-            println("$state (depth = $depth)")
+            logger.info { "$state (depth = $depth)" }
         }
     }
 
@@ -27,7 +31,7 @@ class PrintingVisitor<T : Comparable<T>>(
         depth: Int,
     ) {
         if (printTransition) {
-            println("$transition")
+            logger.info { "$transition" }
         }
     }
 
@@ -37,7 +41,7 @@ class PrintingVisitor<T : Comparable<T>>(
         depth: Int,
     ) {
         if (printEvent) {
-            println("$event")
+            logger.info { "$event" }
         }
     }
 }

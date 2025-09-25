@@ -1,11 +1,11 @@
 package moritz.lindner.masterarbeit.playground
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017ChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallangeMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.dot.DotExport
 import java.io.File
 
@@ -24,7 +24,7 @@ fun main() {
     logger.info { "Parsing ${file.absolutePath}" }
 
     val epa =
-        ExtendedPrefixAutomatonBuilder<Long>()
+        EpaFromXesBuilder<Long>()
             .setFile(file)
             .setEventLogMapper(mapper)
             .build()

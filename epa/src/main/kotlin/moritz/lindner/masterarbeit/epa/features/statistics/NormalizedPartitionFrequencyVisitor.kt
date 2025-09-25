@@ -19,13 +19,14 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<
     private val relativeFrequencyByPartition = HashMap<Int, Float>()
     private var allEvents = 0
 
-
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val statesByPartition = extendedPrefixAutomaton.states.groupBy { extendedPrefixAutomaton.partition(it) }
+        val statesByPartition = extendedPrefixAutomaton
+            .states
+            .groupBy(extendedPrefixAutomaton::partition)
 
-        val frequencyByPartition =
-            statesByPartition.mapValues { (_, states) ->
-                states.sumOf { extendedPrefixAutomaton.sequence(it).size }
+        val frequencyByPartition = statesByPartition
+            .mapValues { (_, states) ->
+                states.sumOf { state -> extendedPrefixAutomaton.sequence(state).size }
             }
 
         relativeFrequencyByPartition.putAll(

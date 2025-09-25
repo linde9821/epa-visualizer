@@ -171,7 +171,7 @@ private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
     logger.info { "Starting background dispatcher with $threads threads" }
 
     Runtime.getRuntime().addShutdownHook(Thread {
-        logger.info { "Application is shutting" }
+        logger.info { "Application is shutting down" }
         backgroundDispatcher.close()
         executor.shutdownNow()
         logger.info { "Shutdown complete" }

@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.filter
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,17 +21,45 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.features.filter.CompressionFilter
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import kotlin.math.max
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ChainPruningFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
+
+    var isChecked by remember { mutableStateOf(false) }
+
+    Tooltip({
+        Text("Depending on the size of the event log the chain compression might take some time to compute.")
+    }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Enable Chain Pruning: ")
+            Checkbox(
+                checked = isChecked,
+                onCheckedChange = {
+                    isChecked = !isChecked
+                    onFilter(CompressionFilter())
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PartitionFrequencyFilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
@@ -79,27 +108,31 @@ fun PartitionFrequencyFilterUi(
                 },
                 valueRange = 0f..1f,
             )
+            Tooltip({
+                Text("This shows only what would happen if the filter is applied to the current epa. If filters are applied before this the effects of this filter change.")
+            }) {
+                LazyColumn {
+                    val partitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending()
+                    items(partitions) { partition ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
+                            if (frequency < threshold) {
+                                Icon(
+                                    key = AllIconsKeys.General.Note,
+                                    contentDescription = "Below threshold",
+                                )
+                            }
+                            Text("Partition $partition:")
+                            Spacer(modifier = Modifier.weight(1f))
 
-            LazyColumn {
-                val partitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending()
-                items(partitions) { partition ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
-                        if (frequency < threshold) {
-                            Icon(
-                                key = AllIconsKeys.General.Note,
-                                contentDescription = "Below threshold",
-                            )
+                            Text("${"%.4f".format(frequency)}%")
                         }
-                        Text("Partition $partition:")
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Text("${"%.4f".format(frequency)}%")
                     }
                 }
+
             }
         } else {
             CircularProgressIndicator(

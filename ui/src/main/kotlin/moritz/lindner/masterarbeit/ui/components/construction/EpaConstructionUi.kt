@@ -16,17 +16,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017ChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.EventLogMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallangeMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
-import org.jetbrains.jewel.ui.component.ErrorInlineBanner
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.InlineErrorBanner
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.Text
@@ -37,7 +37,7 @@ import org.jetbrains.jewel.ui.typography
 fun EpaConstructionUi(
     state: ApplicationState.FileSelected,
     onAbort: () -> Unit,
-    onStartConstructionStart: (ExtendedPrefixAutomatonBuilder<Long>) -> Unit,
+    onStartConstructionStart: (EpaFromXesBuilder<Long>) -> Unit,
 ) {
     val file = state.file
     val mappers = listOf(
@@ -72,7 +72,7 @@ fun EpaConstructionUi(
         Spacer(modifier = Modifier.height(24.dp))
 
         if (state.constructionError != null) {
-            ErrorInlineBanner(
+            InlineErrorBanner(
                 text = state.constructionError,
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -128,7 +128,7 @@ fun EpaConstructionUi(
 
             DefaultButton(
                 onClick = {
-                    val builder = ExtendedPrefixAutomatonBuilder<Long>().apply {
+                    val builder = EpaFromXesBuilder<Long>().apply {
                         setFile(file)
                         setEventLogMapper(selectedMapper)
                     }

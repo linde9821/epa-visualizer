@@ -1,44 +1,43 @@
-package moritz.lindner.masterarbeit.epa.construction.builder
-
+package moritz.lindner.masterarbeit.epa.construction.builder.xes
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.parser.EPAXesParser
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import org.deckfour.xes.`in`.XesXmlParser
 import java.io.File
 
 /**
- * Builder class for constructing an [ExtendedPrefixAutomaton] from an XES event log file.
+ * Builder class for constructing an [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] from an XES event log file.
  *
- * This builder takes care of parsing the XES file, mapping it to domain-specific [Event]s using a provided
+ * This builder takes care of parsing the XES file, mapping it to domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using a provided
  * [EventLogMapper], and building the extended prefix automaton.
  *
  * @param T The timestamp type used in the event log, which must be [Comparable].
  */
-class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
+class EpaFromXesBuilder<T : Comparable<T>> {
     private var eventLogMapper: EventLogMapper<T>? = null
     private var file: File? = null
-    private var progressCallback: EpaBuildProgressCallback? = null
+    private var progressCallback: EpaProgressCallback? = null
     private val parser: XesXmlParser = EPAXesParser()
 
     private var nextPartition = 1
 
     /**
-     * Sets the [EventLogMapper] used to convert XES [XEvent]s into domain-specific [Event]s.
+     * Sets the [EventLogMapper] used to convert XES [XEvent]s into domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s.
      *
      * @param mapper The implementation of [EventLogMapper] to be used.
      * @return This builder instance for chaining.
      */
-    fun setEventLogMapper(mapper: EventLogMapper<T>): ExtendedPrefixAutomatonBuilder<T> {
+    fun setEventLogMapper(mapper: EventLogMapper<T>): EpaFromXesBuilder<T> {
         eventLogMapper = mapper
         return this
     }
 
-    fun setProgressCallback(callback: EpaBuildProgressCallback): ExtendedPrefixAutomatonBuilder<T> {
+    fun setProgressCallback(callback: EpaProgressCallback): EpaFromXesBuilder<T> {
         progressCallback = callback
         return this
     }
@@ -49,13 +48,13 @@ class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
      * @param f The input file in XES format.
      * @return This builder instance for chaining.
      */
-    fun setFile(f: File): ExtendedPrefixAutomatonBuilder<T> {
+    fun setFile(f: File): EpaFromXesBuilder<T> {
         file = f
         return this
     }
 
     /**
-     * Builds the [ExtendedPrefixAutomaton] using the configured file and mapper.
+     * Builds the [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] using the configured file and mapper.
      *
      * This method performs several steps:
      * - Parses the XES file
@@ -63,7 +62,7 @@ class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
      * - constructs extended prefix automaton
      *
      * @throws IllegalArgumentException if required configuration is missing or the file cannot be parsed.
-     * @return A fully constructed [ExtendedPrefixAutomaton] instance.
+     * @return A fully constructed [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] instance.
      */
     fun build(): ExtendedPrefixAutomaton<T> {
         require(eventLogMapper != null) { "plainEventLog cannot be null" }
@@ -111,7 +110,7 @@ class ExtendedPrefixAutomatonBuilder<T : Comparable<T>> {
 
                     val c = getPartition(existingTransitionFromPredecessor, partitionByState, predecessorState)
 
-                    val newState = PrefixState(predecessorState, event.activity)
+                    val newState = State.PrefixState(predecessorState, event.activity)
                     states.add(newState)
                     val newTransition = Transition(predecessorState, event.activity, newState)
                     transitionByPredecessorStateAndActivity[Pair(predecessorState, event.activity)] = newTransition

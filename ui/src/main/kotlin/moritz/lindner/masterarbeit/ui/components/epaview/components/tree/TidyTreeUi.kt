@@ -176,23 +176,27 @@ fun TidyTreeUi(
 
                 val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
-                if (!epaUiState.isLoading && epaUiState.layout != null && epaUiState.layout.isBuilt() && labelsGenerated) {
+                if (!epaUiState.isLoading && epaUiState.layout.isBuilt() && labelsGenerated) {
                     (epaUiState.layout as? RadialTreeLayout)?.let {
                         // TODO: might be removed
                         drawDepthCircles(it)
                     }
 
-                    drawEPA(
-                        epaUiState.layout,
-                        boundingBox,
-                        animationState,
-                        stateLabels,
-                        scale,
-                        redFill,
-                        redStroke,
-                        blackFill,
-                        blackStroke,
-                    )
+                    try {
+                        drawEPA(
+                            epaUiState.layout,
+                            boundingBox,
+                            animationState,
+                            stateLabels,
+                            scale,
+                            redFill,
+                            redStroke,
+                            blackFill,
+                            blackStroke,
+                        )
+                    } catch (e: Exception) {
+                        logger.error(e) { "error while drawing: $e" }
+                    }
                 }
             }
         }

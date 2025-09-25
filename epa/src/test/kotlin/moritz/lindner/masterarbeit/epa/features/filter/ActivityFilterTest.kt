@@ -1,9 +1,8 @@
-package moritz.lindner.masterarbeit.epa.filter
+package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.domain.Activity
-import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -12,7 +11,7 @@ class ActivityFilterTest {
     @Test
     fun `must return a epa containing only allowed activities`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
@@ -38,7 +37,7 @@ class ActivityFilterTest {
     @Test
     fun `must return a epa containing only allowed activities and prune orphans`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
@@ -64,7 +63,7 @@ class ActivityFilterTest {
     @Test
     fun `must return a epa containing only allowed activities and prune orphans even if they are inside the chain`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
@@ -91,7 +90,7 @@ class ActivityFilterTest {
     @Test
     fun `filters are applied so that they cut a partition and do not merge or concatenate`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
