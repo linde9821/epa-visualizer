@@ -26,25 +26,40 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
      * @return A list of [Event]s sorted by their [Event.timestamp], each with a reference to its predecessor.
      */
     fun build(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
-        val traces = log.toList()
+        val logSize = log.toList().size.toLong()
 
-        return traces
+        return log
+            .toList()
             .flatMapIndexed { index, trace ->
-                trace
-                    .map { event -> map(event, trace) }
-                    .sortedBy { event -> event.timestamp }
-                    .mapIndexed { index, event ->
-                        event.copy(
-                            predecessorIndex = if (index <= 0) null else (index - 1),
-                            successorIndex = if (index >= trace.size - 1) null else (index + 1),
-                        )
-                    }.also {
-                        progressCallback?.onProgress(
-                            current = (index + 1).toLong(),
-                            total = traces.size.toLong(),
-                            task = "Convert XTraces to sorted list of events"
-                        )
-                    }
+                parseTrace(
+                    trace = trace,
+                    index = index,
+                    logSize = logSize,
+                    progressCallback = progressCallback
+                )
+            }
+    }
+
+    private fun parseTrace(
+        trace: XTrace,
+        index: Int,
+        logSize: Long,
+        progressCallback: EpaProgressCallback?,
+    ): List<Event<T>> {
+        return trace
+            .map { event -> map(event, trace) }
+            .sortedBy(Event<T>::timestamp)
+            .mapIndexed { index, event ->
+                event.copy(
+                    predecessorIndex = if (index <= 0) null else (index - 1),
+                    successorIndex = if (index >= trace.size - 1) null else (index + 1),
+                )
+            }.also {
+                progressCallback?.onProgress(
+                    current = (index + 1).toLong(),
+                    total = logSize,
+                    task = "Convert traces to plain log (sorted list of events)"
+                )
             }
     }
 
