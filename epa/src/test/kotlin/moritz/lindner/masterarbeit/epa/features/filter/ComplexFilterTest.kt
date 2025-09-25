@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +11,7 @@ class ComplexFilterTest {
     @Test
     fun `must apply combined filter correctly`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample_complex.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()

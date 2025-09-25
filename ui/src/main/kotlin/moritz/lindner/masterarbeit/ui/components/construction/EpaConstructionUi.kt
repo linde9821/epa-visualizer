@@ -20,7 +20,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017ChallengeEven
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.EventLogMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -37,7 +37,7 @@ import org.jetbrains.jewel.ui.typography
 fun EpaConstructionUi(
     state: ApplicationState.FileSelected,
     onAbort: () -> Unit,
-    onStartConstructionStart: (ExtendedPrefixAutomatonBuilder<Long>) -> Unit,
+    onStartConstructionStart: (EpaFromXesBuilder<Long>) -> Unit,
 ) {
     val file = state.file
     val mappers = listOf(
@@ -128,7 +128,7 @@ fun EpaConstructionUi(
 
             DefaultButton(
                 onClick = {
-                    val builder = ExtendedPrefixAutomatonBuilder<Long>().apply {
+                    val builder = EpaFromXesBuilder<Long>().apply {
                         setFile(file)
                         setEventLogMapper(selectedMapper)
                     }

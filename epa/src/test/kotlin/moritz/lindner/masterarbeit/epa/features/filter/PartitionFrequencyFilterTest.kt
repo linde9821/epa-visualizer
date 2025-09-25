@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ class PartitionFrequencyFilterTest {
     @Test
     fun `must remove all partitions where the frequency is below the threshold`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/filter_sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()

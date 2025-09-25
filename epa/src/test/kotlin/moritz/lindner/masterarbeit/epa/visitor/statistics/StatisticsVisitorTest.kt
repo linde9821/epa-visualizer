@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.visitor.statistics
 
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +11,7 @@ class StatisticsVisitorTest {
     @Test
     fun `must calculate right amount of paritions`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()

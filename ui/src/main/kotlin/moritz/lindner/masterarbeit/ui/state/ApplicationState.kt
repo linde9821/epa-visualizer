@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.ui.state
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import java.io.File
 
 sealed class ApplicationState {
@@ -14,7 +14,7 @@ sealed class ApplicationState {
 
     data class EpaConstructionRunning(
         val selectedFile: File,
-        val builder: ExtendedPrefixAutomatonBuilder<Long>,
+        val builder: EpaFromXesBuilder<Long>,
     ) : ApplicationState()
 
     data class EpaConstructed(

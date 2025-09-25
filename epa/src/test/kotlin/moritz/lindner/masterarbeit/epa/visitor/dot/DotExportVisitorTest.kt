@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.visitor.dot
 
 import com.diffplug.selfie.Selfie.expectSelfie
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.dot.DotExport
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ import java.io.File
 class DotExportVisitorTest {
     @Test
     fun `must create correct dot export`() {
-        val builder = ExtendedPrefixAutomatonBuilder<Long>()
+        val builder = EpaFromXesBuilder<Long>()
 
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())
@@ -28,7 +28,7 @@ class DotExportVisitorTest {
 
     @Test
     fun `must create correct dot with breath first visit`() {
-        val builder = ExtendedPrefixAutomatonBuilder<Long>()
+        val builder = EpaFromXesBuilder<Long>()
 
         builder.setFile(File("./src/test/resources/sample.xes"))
         builder.setEventLogMapper(SampleEventMapper())

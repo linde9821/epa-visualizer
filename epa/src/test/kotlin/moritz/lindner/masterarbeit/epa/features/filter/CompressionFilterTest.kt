@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
 import com.diffplug.selfie.Selfie.expectSelfie
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -12,7 +12,7 @@ class CompressionFilterTest {
     @Test
     fun `must apply filter as expected`() {
         val epa =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/simple2.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()

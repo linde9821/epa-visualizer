@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.builder
 
 import com.diffplug.selfie.Selfie.expectSelfie
-import moritz.lindner.masterarbeit.epa.construction.builder.ExtendedPrefixAutomatonBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -10,7 +10,7 @@ class ExtendedPrefixAutomatonBuilderTest {
     @Test
     fun `must create expected epa`() {
         val sut =
-            ExtendedPrefixAutomatonBuilder<Long>()
+            EpaFromXesBuilder<Long>()
                 .setFile(File("./src/test/resources/sample.xes"))
                 .setEventLogMapper(SampleEventMapper())
                 .build()
