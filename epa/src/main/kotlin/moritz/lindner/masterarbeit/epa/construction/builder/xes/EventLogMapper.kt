@@ -18,17 +18,15 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
     /**
      * Converts an iterable collection of [XTrace] objects into a chronologically sorted list of [Event]s.
      *
-     * Each event is mapped using [map], and predecessor relationships are established so that each event
-     * knows its immediate predecessor within its trace. The final output is a flat list of all events from
-     * all traces, sorted by their timestamp.
+     * Each event is mapped using [map], and index based predecessor, successor relationships are established so that
+     * each event knows its immediate predecessor, successor within its trace.
+     * The final output is a flat list of all events from all traces, sorted by their timestamp.
      *
      * @param log The iterable collection of [XTrace]s representing the event log.
      * @return A list of [Event]s sorted by their [Event.timestamp], each with a reference to its predecessor.
      */
     fun build(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
         val traces = log.toList()
-
-        var count = 0
 
         return traces
             .flatMapIndexed { index, trace ->
@@ -37,11 +35,9 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
                     .sortedBy { event -> event.timestamp }
                     .mapIndexed { index, event ->
                         event.copy(
-                            predecessorIndex = if (index <= 0) null else (index - 1) + count,
-                            successorIndex = if (index >= trace.size - 1) null else (index + 1) + count,
-                        ).also {
-                            count++
-                        }
+                            predecessorIndex = if (index <= 0) null else (index - 1),
+                            successorIndex = if (index >= trace.size - 1) null else (index + 1),
+                        )
                     }.also {
                         progressCallback?.onProgress(
                             current = (index + 1).toLong(),
