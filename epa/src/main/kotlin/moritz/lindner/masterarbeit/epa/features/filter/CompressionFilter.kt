@@ -110,41 +110,73 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             }
         }
 
-        private fun <T> mergeSublistsKeepLongest(lists: List<List<T>>): List<List<T>> {
-            return lists.filter { currentList ->
-                // Keep this list only if no other list contains all of its elements
-                lists.none { otherList ->
-                    otherList != currentList && otherList.containsAll(currentList)
-                }
-            }
-        }
-
         fun detectChains(epa: ExtendedPrefixAutomaton<T>): SyntheticStates<T> {
-            val chains = childrenByState
-                .filter { it.key is State.PrefixState }
-                .filter { it.value.size == 1 }
-                .map { (state, _) -> listOf(state) + followChain(state, mutableListOf())
-                }.map { chain -> chain.map { it as State.PrefixState } }
+            val processed = mutableSetOf<State>()
+            val chains = mutableListOf<List<State.PrefixState>>()
 
-            return SyntheticStates(epa = epa, chains = mergeSublistsKeepLongest(chains))
-        }
+            // Find all states that are part of single-child relationships
+            val singleChildMap = childrenByState
+                .filter { it.key is State.PrefixState && it.value.size == 1 }
+                .mapValues { it.value.first().state }
 
-        private tailrec fun followChain(a: State, acc: MutableList<State>): List<State> {
-            val children = childrenByState[a]
-            return when {
-                children == null || children.isEmpty() -> acc
-                children.size == 1 -> {
-                    val next = children.first().state
-                    acc.add(next)
-                    followChain(next, acc)
-                }
-                else -> acc
+            // Find chain starts: states with single child that aren't themselves a single child
+            val chainStarts = singleChildMap.keys.filter { state ->
+                // Is this state the single child of another state?
+                val isChildOfSingleParent = parentByState[state]?.let { parent ->
+                    singleChildMap[parent.state] == state
+                } ?: false
+
+                !isChildOfSingleParent // Only start chains from states that aren't single children
             }
+
+            chainStarts.forEach { start ->
+                if (start !in processed) {
+                    val chain = buildChainFromStart(start, singleChildMap, processed)
+                    if (chain.size > 1) {
+                        chains.add(chain.map { it as State.PrefixState })
+                    }
+                }
+            }
+
+            return SyntheticStates(epa = epa, chains = chains)
         }
+
+        private fun buildChainFromStart(
+            start: State,
+            singleChildMap: Map<State, State>,
+            processed: MutableSet<State>
+        ): List<State> {
+            val chain = mutableListOf<State>()
+            var current: State? = start
+
+            while (current != null && current !in processed) {
+                chain.add(current)
+                processed.add(current)
+                current = singleChildMap[current]
+            }
+
+            return chain
+        }
+
+//        private tailrec fun followChain(a: State, acc: MutableList<State>): List<State> {
+//            val children = childrenByState[a]
+//            return when {
+//                children == null || children.isEmpty() -> acc
+//                children.size == 1 -> {
+//                    val next = children.first().state
+//                    acc.add(next)
+//                    followChain(next, acc)
+//                }
+//
+//                else -> acc
+//            }
+//        }
 
         fun addSyntheticStates(syntheticStates: SyntheticStates<T>) {
             syntheticStates.chains.forEach { chain ->
-                val parent = parentByState[chain.first()]!!
+                val parent = parentByState.getOrElse(chain.first(), {
+                    throw Exception("This shouldnt happen")
+                })
                 parentByState[syntheticStates.syntheticStateByChain[chain]!!.state] = parent
 
                 val children = childrenByState[chain.last()]!!
@@ -345,8 +377,9 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
     override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
         val mapping = Mapping<T>()
 
+        println("Create Mappings")
         val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
-        val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { it.start }.first() }
+        val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { transition -> transition.start }.first() }
 
         childrenByParent.forEach { (state, children) ->
             mapping.addChildrenForState(state, children.map { MarkedState(it as State.PrefixState, false) })
@@ -360,19 +393,27 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             mapping.addIfNotPresent(state)
         }
 
+        println("Detect Chains")
         val syntheticStates = mapping.detectChains(epa)
 
         // Update to use returned immutable maps
+        println("invalidate parents")
         mapping.parentByState = mapping.markParentsIfInvalid(syntheticStates).toMutableMap()
+        println("invalidate children")
         mapping.childrenByState = mapping.markChildrenIfInvalid(syntheticStates).toMutableMap()
 
+        println("add synthetics")
         mapping.addSyntheticStates(syntheticStates)
+
+        println("remove old states")
         mapping.removeAllStatesWhichArePartOfChain(syntheticStates)
 
+        println("update parents")
         mapping.parentByState = mapping.updateParents(syntheticStates).toMutableMap()
+        println("update children")
         mapping.childrenByState = mapping.updateChildren(syntheticStates).toMutableMap()
 
+        println("building new epa")
         return mapping.buildNewEpa(epa.copy(), syntheticStates)
     }
-
 }
