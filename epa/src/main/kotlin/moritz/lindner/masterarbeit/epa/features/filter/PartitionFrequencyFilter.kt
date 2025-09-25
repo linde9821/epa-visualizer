@@ -34,7 +34,7 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
         val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
 
-        val partitionsAfterFilter = epa
+        val partitionsAboveThreshold = epa
             .getAllPartitions()
             .associateWith(normalizedPartitionFrequency::frequencyByPartition)
             .filter { (a, b) -> b >= threshold || a == 0 }
@@ -44,7 +44,7 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         val filteredStates = epa.states
             .filter { state ->
                 val partition = epa.partition(state)
-                partition in partitionsAfterFilter
+                partition in partitionsAboveThreshold
             }.toSet()
 
         val epaBuilder = EpaFromComponentsBuilder<T>()
