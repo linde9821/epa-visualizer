@@ -40,7 +40,9 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         event: Event<T>,
         depth: Int,
-    ) { allEvents++ }
+    ) {
+        allEvents++
+    }
 
     fun build(): NormalizedPartitionFrequency {
         return NormalizedPartitionFrequency(relativeFrequencyByPartition)

@@ -378,7 +378,8 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         val mapping = Mapping<T>()
 
         val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
-        val parentByChild = epa.transitions.groupBy { it.end }.mapValues { it.value.map { transition -> transition.start }.first() }
+        val parentByChild =
+            epa.transitions.groupBy { it.end }.mapValues { it.value.map { transition -> transition.start }.first() }
 
         childrenByParent.forEach { (state, children) ->
             mapping.addChildrenForState(state, children.map { MarkedState(it as State.PrefixState, false) })

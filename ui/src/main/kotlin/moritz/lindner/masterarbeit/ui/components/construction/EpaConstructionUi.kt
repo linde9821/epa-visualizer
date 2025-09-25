@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallangeMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 import org.jetbrains.jewel.foundation.theme.JewelTheme

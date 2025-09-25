@@ -19,7 +19,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
  */
 class EpaService<T : Comparable<T>> {
 
-    private val logger = KotlinLogging.logger {  }
+    private val logger = KotlinLogging.logger { }
 
     /**
      * Computes general statistics for the EPA.
