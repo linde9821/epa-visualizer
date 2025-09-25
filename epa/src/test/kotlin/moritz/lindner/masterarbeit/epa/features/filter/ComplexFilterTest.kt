@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.domain.Activity
@@ -32,4 +33,48 @@ class ComplexFilterTest {
         assertThat(result.transitions).hasSize(2)
         assertThat(result.activities).hasSize(2)
     }
+
+    @Test
+    fun `applying partition filter and then compression works`() {
+        val epa =
+            EpaFromXesBuilder<Long>()
+                .setFile(File("./src/test/resources/simple2.xes"))
+                .setEventLogMapper(SampleEventMapper())
+                .build()
+        val epaService = EpaService<Long>()
+
+        val partitionFrequencyFilter = PartitionFrequencyFilter<Long>(threshold = 0.5f)
+        val compressionFilter = CompressionFilter<Long>()
+        val filters = listOf(partitionFrequencyFilter, compressionFilter)
+
+        val onlyPartition = partitionFrequencyFilter.apply(epa)
+        val combined = epaService.applyFilters(epa, filters)
+
+        assertThat(combined.getAllPartitions().size).isEqualTo(onlyPartition.getAllPartitions().size)
+    }
+
+    @Test
+    fun `it must not matter if chaining is applied first or last`() {
+        val epa =
+            EpaFromXesBuilder<Long>()
+                .setFile(File("./src/test/resources/simple2.xes"))
+                .setEventLogMapper(SampleEventMapper())
+                .build()
+
+        val epaService = EpaService<Long>()
+
+        val partitionFrequencyFilter = PartitionFrequencyFilter<Long>(threshold = 0.5f)
+        val compressionFilter = CompressionFilter<Long>()
+
+        val chainingFirst = listOf(compressionFilter, partitionFrequencyFilter)
+        val chainingLast = listOf(partitionFrequencyFilter, compressionFilter)
+
+        val chainingFirstEpa = epaService.applyFilters(epa, chainingFirst)
+        val chainingLastEpa = epaService.applyFilters(epa, chainingLast)
+
+        assertThat(chainingFirstEpa.states).containsExactlyInAnyOrderElementsOf(chainingLastEpa.states)
+        assertThat(chainingFirstEpa.activities).containsExactlyInAnyOrderElementsOf(chainingLastEpa.activities)
+        assertThat(chainingFirstEpa.transitions).containsExactlyInAnyOrderElementsOf(chainingLastEpa.transitions)
+    }
+
 }
