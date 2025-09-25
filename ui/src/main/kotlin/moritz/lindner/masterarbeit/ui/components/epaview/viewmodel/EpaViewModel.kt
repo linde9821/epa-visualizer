@@ -133,6 +133,7 @@ class EpaViewModel(
                         it.copy(isLoading = false, layout = null, filteredEpa = null)
                     }
                 }
+                logger.info { "finished state update" }
             }
         }
     }
