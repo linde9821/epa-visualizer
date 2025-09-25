@@ -1,12 +1,16 @@
 package moritz.lindner.masterarbeit.playground
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallangeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.features.dot.DotExport
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import java.io.File
 
 fun main() {
@@ -29,10 +33,9 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-    val dot = DotExport<Long>()
-    epa.acceptDepthFirst(dot)
-
-    File("./dia.dot").writeText(dot.dot)
-
     logger.info { "build EPA successfully" }
+
+    val paritionFrequencyFilter = NormalizedPartitionFrequencyVisitor<Long>()
+
+    epa.acceptDepthFirst(paritionFrequencyFilter)
 }

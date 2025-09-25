@@ -18,34 +18,49 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
     /**
      * Converts an iterable collection of [XTrace] objects into a chronologically sorted list of [Event]s.
      *
-     * Each event is mapped using [map], and predecessor relationships are established so that each event
-     * knows its immediate predecessor within its trace. The final output is a flat list of all events from
-     * all traces, sorted by their timestamp.
+     * Each event is mapped using [map], and index based predecessor, successor relationships are established so that
+     * each event knows its immediate predecessor, successor within its trace.
+     * The final output is a flat list of all events from all traces, sorted by their timestamp.
      *
      * @param log The iterable collection of [XTrace]s representing the event log.
      * @return A list of [Event]s sorted by their [Event.timestamp], each with a reference to its predecessor.
      */
     fun build(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
-        val xTraces = log.toList()
+        val logSize = log.toList().size.toLong()
 
-        return xTraces
+        return log
+            .toList()
             .flatMapIndexed { index, trace ->
-                var previous: Event<T>? = null
+                parseTrace(
+                    trace = trace,
+                    index = index,
+                    logSize = logSize,
+                    progressCallback = progressCallback
+                )
+            }
+    }
 
-                trace
-                    .map { event -> map(event, trace) }
-                    .map { current ->
-                        current.copy(predecessor = previous).also {
-                            previous = current
-                        }
-                    }.also {
-                        progressCallback?.onProgress(
-                            current = (index + 1).toLong(),
-                            total = xTraces.size.toLong(),
-                            task = "Convert XTraces to sorted list of events"
-                        )
-                    }
-            }.sortedBy { it.timestamp }
+    private fun parseTrace(
+        trace: XTrace,
+        index: Int,
+        logSize: Long,
+        progressCallback: EpaProgressCallback?,
+    ): List<Event<T>> {
+        return trace
+            .map { event -> map(event, trace) }
+            .sortedBy(Event<T>::timestamp)
+            .mapIndexed { index, event ->
+                event.copy(
+                    predecessorIndex = if (index <= 0) null else (index - 1),
+                    successorIndex = if (index >= trace.size - 1) null else (index + 1),
+                )
+            }.also {
+                progressCallback?.onProgress(
+                    current = (index + 1).toLong(),
+                    total = logSize,
+                    task = "Convert traces to plain log (sorted list of events)"
+                )
+            }
     }
 
     /**
