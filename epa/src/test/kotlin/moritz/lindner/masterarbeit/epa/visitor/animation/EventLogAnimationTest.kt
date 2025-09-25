@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.visitor.animation
 
-import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.epa.features.animation.SingleCaseAnimationBuilder
 import org.assertj.core.api.Assertions.assertThat

@@ -1,5 +1,6 @@
-package moritz.lindner.masterarbeit.epa.construction.builder
+package moritz.lindner.masterarbeit.epa.construction.builder.xes
 
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import org.deckfour.xes.model.XEvent
 import org.deckfour.xes.model.XTrace

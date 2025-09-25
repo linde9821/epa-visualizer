@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.visitor.statistics
 
-import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

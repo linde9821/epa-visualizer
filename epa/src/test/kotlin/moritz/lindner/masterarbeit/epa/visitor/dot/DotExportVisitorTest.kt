@@ -1,8 +1,8 @@
 package moritz.lindner.masterarbeit.epa.visitor.dot
 
 import com.diffplug.selfie.Selfie.expectSelfie
-import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromXesBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.dot.DotExport
 import org.junit.jupiter.api.Test
 import java.io.File

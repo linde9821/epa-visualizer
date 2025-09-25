@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.construction.builder
+package moritz.lindner.masterarbeit.epa.construction.builder.xes
 
 import java.io.InputStream
 
