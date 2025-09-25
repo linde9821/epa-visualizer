@@ -14,6 +14,7 @@ import kotlin.math.absoluteValue
 class StateLabels(
     private val backgroundColor: Int,
     private val baseFontSize: Float,
+    private val maxStateLabelLength: Int = 30
 ) {
     private val labelByState = ConcurrentHashMap<String, Image>()
 
@@ -28,10 +29,10 @@ class StateLabels(
         Font()
             .apply { size = baseFontSize }
 
-    fun getLabelForState(state: State): Image? = labelByState[state.name]
+    fun getLabelForState(state: State): Image? = labelByState[trimStateName(state)]
 
     fun generateLabelForState(state: State) {
-        val label = state.name
+        val label = trimStateName(state)
         if (!labelByState.containsKey(label)) {
             val textLine =
                 TextLine
@@ -50,5 +51,11 @@ class StateLabels(
             val image = surface.makeImageSnapshot()
             labelByState[label] = image
         }
+    }
+
+    private fun trimStateName(state: State): String {
+        return if (state.name.length > maxStateLabelLength){
+            "${state.name.take(maxStateLabelLength)}..."
+        } else state.name
     }
 }
