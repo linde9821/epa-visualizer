@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.filter
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,9 +29,11 @@ import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import kotlin.math.max
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StateFrequencyFilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
@@ -81,30 +84,36 @@ fun StateFrequencyFilterUi(
                 },
                 valueRange = 0f..1f,
             )
-            LazyColumn {
-                val states = epa.states.toList().sortedByDescending {
-                    normalizedStateFrequency!!.frequencyByState(it)
-                }
-                items(states) { state ->
-                    val frequency = normalizedStateFrequency!!.frequencyByState(state)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (frequency < threshold) {
-                            Icon(
-                                key = AllIconsKeys.General.Note,
-                                contentDescription = "Below threshold",
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Text("${state.name.take(15)}:")
-                        Spacer(modifier = Modifier.weight(1f))
+            Tooltip({
+                Text("This shows only what would happen if the filter is applied to the current epa. If filters are applied before this the effects of this filter change.")
+            }) {
+                LazyColumn {
+                    val states = epa.states.toList().sortedByDescending {
+                        normalizedStateFrequency!!.frequencyByState(it)
+                    }
+                    items(states) { state ->
+                        val frequency = normalizedStateFrequency!!.frequencyByState(state)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (frequency < threshold) {
+                                Icon(
+                                    key = AllIconsKeys.General.Note,
+                                    contentDescription = "Below threshold",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            Text("${state.name.take(15)}:")
+                            Spacer(modifier = Modifier.weight(1f))
 
-                        Text("${"%.4f".format(frequency)}%")
+                            Text("${"%.4f".format(frequency)}%")
+                        }
                     }
                 }
+
             }
+
         } else {
             CircularProgressIndicator(
                 modifier = Modifier.size(50.dp),
