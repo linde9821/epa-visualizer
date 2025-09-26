@@ -99,7 +99,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         fun addChildrenForState(key: State, values: List<MarkedState>) {
-            val children = childrenByState.get(key) ?: emptyList()
+            val children = childrenByState[key] ?: emptyList()
 
             childrenByState[key] = children + values
         }
@@ -157,20 +157,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
 
             return chain
         }
-
-//        private tailrec fun followChain(a: State, acc: MutableList<State>): List<State> {
-//            val children = childrenByState[a]
-//            return when {
-//                children == null || children.isEmpty() -> acc
-//                children.size == 1 -> {
-//                    val next = children.first().state
-//                    acc.add(next)
-//                    followChain(next, acc)
-//                }
-//
-//                else -> acc
-//            }
-//        }
 
         fun addSyntheticStates(syntheticStates: SyntheticStates<T>) {
             syntheticStates.chains.forEach { chain ->

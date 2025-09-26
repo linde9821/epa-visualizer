@@ -135,7 +135,7 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
         require(states.isNotEmpty()) { "At least one state must be present" }
         require(states.contains(State.Root)) { "Root state must be present" }
 
-        if (pruneUnreachableStates) {
+        return if (pruneUnreachableStates) {
             progressCallback?.onProgress(0, states.size.toLong(), task = "Build Epa From components with pruning")
 
             val filteredTransitions = transitions
@@ -177,7 +177,7 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
 
             progressCallback?.onProgress(states.size.toLong(), states.size.toLong(), task = "Build Epa From components")
 
-            return ExtendedPrefixAutomaton(
+            ExtendedPrefixAutomaton(
                 eventLogName = eventLogName!!,
                 states = reachableStates,
                 activities = reachableActivities,
@@ -187,7 +187,7 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
             )
         } else {
             progressCallback?.onProgress(states.size.toLong(), states.size.toLong(), task = "Build Epa From components")
-            return ExtendedPrefixAutomaton(
+            ExtendedPrefixAutomaton(
                 eventLogName = eventLogName!!,
                 states = states,
                 activities = activities,

@@ -15,8 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.AwtWindow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.AwtWindow
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
 import moritz.lindner.masterarbeit.ui.common.Icons
 import org.jetbrains.jewel.foundation.theme.JewelTheme

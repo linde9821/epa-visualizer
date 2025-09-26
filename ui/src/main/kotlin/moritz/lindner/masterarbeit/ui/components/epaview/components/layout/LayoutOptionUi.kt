@@ -25,7 +25,6 @@ import org.jetbrains.jewel.ui.typography
 @Composable
 fun LayoutUi(
     modifier: Modifier = Modifier,
-    epaViewModel: EpaViewModel,
     onUpdate: (LayoutConfig) -> Unit,
 ) {
     val layouts = listOf(

@@ -13,9 +13,9 @@ class NormalizedPartitionFrequency(
      *
      * @param c The partition index.
      * @return The frequency as a float between 0.0 and 1.0.
-     * @throws NullPointerException if the partition was not visited.
+     * @throws IllegalStateException if the partition was not visited.
      */
-    fun frequencyByPartition(c: Int): Float = relativeFrequencyByPartition[c]!!
+    fun frequencyByPartition(c: Int): Float = relativeFrequencyByPartition[c] ?: throw IllegalStateException("Partition $c was not visited")
 
     /**
      * Returns the minimum normalized frequency across all partitions.

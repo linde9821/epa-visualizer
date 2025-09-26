@@ -15,9 +15,10 @@ class NormalizedStateFrequency(
      *
      * @param state The state whose frequency to retrieve.
      * @return The normalized frequency as a float between 0.0 and 1.0.
-     * @throws NullPointerException if the state was not visited or processed.
+     * @throws IllegalStateException if the state was not visited or processed.
      */
-    fun frequencyByState(state: State): Float = relativeFrequencyByState[state]!!
+    fun frequencyByState(state: State): Float =
+        relativeFrequencyByState[state] ?: throw IllegalStateException("State $state was not visited or processed.")
 
 
     /**

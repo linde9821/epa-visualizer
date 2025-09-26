@@ -42,8 +42,7 @@ class EPAXesParser : XesXmlParser() {
      * @throws IllegalArgumentException If the input stream is null.
      */
     override fun parse(`is`: InputStream?): MutableList<XLog> {
-        if (`is` == null) throw IllegalArgumentException("InputStream cannot be null")
-
+        requireNotNull(`is`) { "InputStream cannot be null" }
         return parser.parse(`is`)
     }
 }

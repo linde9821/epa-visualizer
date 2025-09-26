@@ -14,8 +14,8 @@ class IsReachableVisitor<T : Comparable<T>>(
     private val reachableStates = mutableSetOf<State>()
 
     fun isReachable(state: State): Boolean {
-        if (!isBuilt) throw IllegalStateException("Visitor has not been built yet")
-        if (state !in statesToCheckReach) throw IllegalStateException("State $state was not in set of states to check")
+        check(isBuilt) { "Visitor has not been built yet" }
+        check(state in statesToCheckReach) { "State $state was not in set of states to check" }
 
         return when (state) {
             is State.PrefixState -> state in reachableStates

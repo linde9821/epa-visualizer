@@ -144,7 +144,7 @@ class EpaViewModel(
 
             if (_statistics.value == null) {
                 val fullStatistics = epaService.getStatistics(completeEpa)
-                _statistics.update { statisticsState ->
+                _statistics.update { _ ->
                     StatisticsState(
                         fullEpa = fullStatistics,
                         filteredEpa = null

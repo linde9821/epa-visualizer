@@ -73,7 +73,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
         val progressInputStream = ProgressInputStream(
             file!!.inputStream(),
             file!!.length(),
-            { bytesRead, totalSize, percentage ->
+            { bytesRead, totalSize, _ ->
                 progressCallback?.onProgress(bytesRead, totalSize, "parsing xes")
             }
         )
