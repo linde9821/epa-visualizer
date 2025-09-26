@@ -17,8 +17,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '21' # or your project's version
+          distribution: 'jetbrains'
+          java-version: 21
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
