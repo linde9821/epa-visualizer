@@ -21,10 +21,13 @@ repositories {
 }
 
 dependencies {
-    implementation(compose.desktop.currentOs)
+    implementation(compose.desktop.currentOs) {
+        exclude(group = "org.jetbrains.compose.material")
+    }
     implementation(libs.bundles.log4j)
     implementation(libs.logging)
     implementation(compose.components.resources)
+
 
     implementation(libs.jewel)
     implementation(libs.jna.core)
