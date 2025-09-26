@@ -37,3 +37,6 @@ jobs:
 
       - name: ui tests
         run: xvfb-run ./gradlew ui:test
+
+      - name: build
+        run: ./gradlew packageReleaseDistributionForCurrentOS
