@@ -17,10 +17,10 @@ dependencies {
     implementation(libs.rtree)
     implementation(libs.csv)
 
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
     testImplementation(libs.assertjCore)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

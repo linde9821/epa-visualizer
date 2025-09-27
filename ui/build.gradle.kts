@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.3.3"
+version = "1.4.0"
 
 repositories {
     google()
@@ -24,21 +24,20 @@ dependencies {
     implementation(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")
     }
-    implementation(libs.bundles.log4j)
-    implementation(libs.logging)
     implementation(compose.components.resources)
-
-
     implementation(libs.jewel)
-    implementation(libs.jna.core)
     implementation(libs.jewel.decorated)
     implementation(libs.intellijPlatform.icons)
 
     implementation(project(":epa"))
 
+    implementation(libs.bundles.log4j)
+    implementation(libs.logging)
+    implementation(libs.jna.core)
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertjCore)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
@@ -68,8 +67,7 @@ compose.desktop {
             vendor.set(JvmVendorSpec.JETBRAINS)
         }.get().metadata.installationPath.asFile.absolutePath
 
-        jvmArgs +=
-            listOf(
+        jvmArgs += listOf(
                 "-Xms2g",
                 "-Xmx18g",
                 "-XX:+UseG1GC",
