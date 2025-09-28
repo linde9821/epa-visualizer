@@ -5,7 +5,7 @@ import moritz.lindner.masterarbeit.epa.project.Project
 
 sealed class ApplicationState {
     data class Start(
-        val constructionError: String? = null
+        val error: String? = null
     ) : ApplicationState()
 
     data class ProjectSelected(

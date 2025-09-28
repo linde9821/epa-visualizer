@@ -23,12 +23,15 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
     Column {
         when (val currentState = state) {
             is ApplicationState.Start -> ProjectSelectionUi(
-                error = currentState.constructionError,
+                error = currentState.error,
                 onProjectOpen = {
                     state = ApplicationState.ProjectSelected(it)
                 },
                 onNewProject = {
                     state = ApplicationState.NewProject
+                },
+                onError = { error ->
+                    state = currentState.copy(error = error)
                 }
             )
 

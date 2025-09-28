@@ -17,6 +17,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLaunche
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
 import moritz.lindner.masterarbeit.ui.common.Icons
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
@@ -31,12 +32,18 @@ fun ProjectSelectionUi(
     error: String?,
     onProjectOpen: (directory: Project) -> Unit,
     onNewProject: () -> Unit,
+    onError: (String) -> Unit,
 ) {
 
     val openProjectLauncher = rememberDirectoryPickerLauncher { directory ->
         directory?.let { projectPath ->
-            val project = Project.loadFromFolder(Path(projectPath.file.absolutePath))
-            onProjectOpen(project)
+            try {
+                val project = Project.loadFromFolder(Path(projectPath.file.absolutePath))
+                onProjectOpen(project)
+            } catch (e: Exception) {
+                logger.error(e) { "Couldn't load project" }
+                onError("Couldn't load project: ${e.message}")
+            }
         }
     }
 

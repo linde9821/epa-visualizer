@@ -38,8 +38,6 @@ data class Project(
     companion object {
         const val PROJECT_METADATA_FILE = "project.json"
         const val SOURCE_DIR = "source"
-        const val EPAS_DIR = "epas"
-        const val ORIGINAL_XES_FILE = "original"
 
         /**
          * Creates a new project with current timestamp, copies the XES file, and saves metadata
@@ -61,7 +59,6 @@ data class Project(
 
             Files.createDirectories(projectRoot)
             Files.createDirectories(projectRoot.resolve(SOURCE_DIR))
-            Files.createDirectories(projectRoot.resolve(EPAS_DIR))
 
             val originalName = "${sourceXesPath.toFile().name}"
 
@@ -90,12 +87,18 @@ data class Project(
         fun loadFromFolder(projectRoot: Path): Project {
             val metadataPath = projectRoot.resolve(PROJECT_METADATA_FILE)
             if (!Files.exists(metadataPath)) {
-                throw IllegalArgumentException("No project.json found in $projectRoot")
+                throw IllegalArgumentException("No project.json found in $projectRoot.")
             }
 
             val json = Json { ignoreUnknownKeys = true }
             val jsonContent = Files.readString(metadataPath)
-            return json.decodeFromString<Project>(jsonContent)
+            val project = json.decodeFromString<Project>(jsonContent)
+            
+            if (!Files.exists(project.getXesFilePath())) {
+                throw IllegalArgumentException("Source event log not found: ${project.getXesFilePath()}")
+            }
+            
+            return project
         }
     }
 
@@ -105,7 +108,6 @@ data class Project(
     fun saveMetadata() {
         val projectRoot = getProjectRoot()
         Files.createDirectories(projectRoot)
-        Files.createDirectories(projectRoot.resolve(EPAS_DIR))
 
         val json = Json { prettyPrint = true }
         val jsonContent = json.encodeToString(this)
