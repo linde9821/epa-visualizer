@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 repositories {
@@ -17,9 +17,7 @@ dependencies {
     implementation(libs.openxes)
     implementation(libs.rtree)
     implementation(libs.csv)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0")
-
+    implementation(libs.bundles.serialization)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
