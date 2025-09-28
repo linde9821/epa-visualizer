@@ -27,6 +27,8 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.HorizontalProgressBar
@@ -41,7 +43,7 @@ import kotlin.coroutines.cancellation.CancellationException
 fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
-    builder: EpaFromXesBuilder<Long>,
+    project: Project,
     onEPAConstructed: (ExtendedPrefixAutomaton<Long>) -> Unit,
     onAbort: () -> Unit,
     onError: (String, Throwable) -> Unit,
@@ -62,12 +64,27 @@ fun ConstructEpaUi(
         epaConstructionJob = scope.launch(backgroundDispatcher) {
             try {
                 logger.info { "Start construction" }
-                val epa = builder
-                    .setProgressCallback(progressCallback)
-                    .build()
-                logger.info { "construction finished" }
-                yield()
-                onEPAConstructed(epa)
+
+                val sourceEpa = project.getSourceEpa()
+                if (sourceEpa != null) {
+                    yield()
+                    logger.info { "construction finished using saved epa" }
+                    onEPAConstructed(sourceEpa)
+                } else {
+                    val epa = EpaFromXesBuilder<Long>()
+                        .setProgressCallback(progressCallback)
+                        .setFile(project.getXesFilePath().toFile())
+                        .setEventLogMapper(project.getMapper() as EventLogMapper<Long>)
+                        .build()
+                    logger.info { "construction finished" }
+                    yield()
+                    onEPAConstructed(epa)
+                    scope.launch {
+                        logger.info { "saving epa" }
+                        project.saveSourceEpa(epa)
+                        logger.info { "epa saved" }
+                    }
+                }
             } catch (e: NullPointerException) {
                 onError("Couldn't parse event log. Check mapper.", e)
             } catch (_: CancellationException) {
@@ -151,3 +168,4 @@ fun ConstructEpaUi(
         }
     }
 }
+

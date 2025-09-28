@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallangeMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
@@ -35,16 +35,16 @@ import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun EpaConstructionUi(
-    state: ApplicationState.FileSelected,
+    state: ApplicationState.ProjectSelected,
     onAbort: () -> Unit,
     onStartConstructionStart: (EpaFromXesBuilder<Long>) -> Unit,
 ) {
-    val file = state.file
+    val file = state.project
     val mappers = listOf(
         SampleEventMapper(),
         BPI2017OfferChallengeEventMapper(),
         BPI2017ChallengeEventMapper(),
-        BPI2018ChallangeMapper(),
+        BPI2018ChallengeMapper(),
     )
 
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -128,11 +128,11 @@ fun EpaConstructionUi(
 
             DefaultButton(
                 onClick = {
-                    val builder = EpaFromXesBuilder<Long>().apply {
-                        setFile(file)
-                        setEventLogMapper(selectedMapper)
-                    }
-                    onStartConstructionStart(builder)
+//                    val builder = EpaFromXesBuilder<Long>().apply {
+//                        setFile(file)
+//                        setEventLogMapper(selectedMapper)
+//                    }
+//                    onStartConstructionStart(builder)
                 }
             ) {
                 Row(
