@@ -54,7 +54,7 @@ class StateLabels(
     }
 
     private fun trimStateName(state: State): String {
-        return if (state.name.length > maxStateLabelLength){
+        return if (state.name.length > maxStateLabelLength) {
             "${state.name.take(maxStateLabelLength)}..."
         } else state.name
     }

@@ -90,6 +90,7 @@ class JsonDeserializer<T : Comparable<T>>(
                         val viaActivity = Activity(viaName)
                         State.PrefixState(fromState, viaActivity)
                     }
+
                     else -> throw IllegalArgumentException("Unknown state type: ${jsonState.type}")
                 }
 

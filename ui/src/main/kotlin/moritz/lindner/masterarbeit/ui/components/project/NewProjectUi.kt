@@ -32,7 +32,6 @@ import org.jetbrains.jewel.ui.component.SegmentedControlButtonData
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
 import java.io.File
-import kotlin.io.resolve
 
 @Composable
 fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {

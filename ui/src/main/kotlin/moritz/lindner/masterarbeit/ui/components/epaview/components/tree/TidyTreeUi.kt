@@ -120,7 +120,8 @@ fun TidyTreeUi(
                 yield()
             }
 
-            logger.info { "labels generated" }        }
+            logger.info { "labels generated" }
+        }
         labelsGenerated = true
     }
 

@@ -63,23 +63,23 @@ java {
 compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
-        
+
         javaHome = javaToolchains.launcherFor {
             languageVersion.set(JavaLanguageVersion.of(21))
             vendor.set(JvmVendorSpec.JETBRAINS)
         }.get().metadata.installationPath.asFile.absolutePath
 
         jvmArgs += listOf(
-                "-Xms2g",
-                "-Xmx18g",
-                "-XX:+UseG1GC",
-                "-XX:MaxGCPauseMillis=250",
-                "-XX:+UseStringDeduplication",
-                "-XX:+AlwaysPreTouch",
-                "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
-                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-                "--add-opens", "java.management/java.lang.management=ALL-UNNAMED"
-            )
+            "-Xms2g",
+            "-Xmx18g",
+            "-XX:+UseG1GC",
+            "-XX:MaxGCPauseMillis=250",
+            "-XX:+UseStringDeduplication",
+            "-XX:+AlwaysPreTouch",
+            "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
+            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+            "--add-opens", "java.management/java.lang.management=ALL-UNNAMED"
+        )
 
         buildTypes.release.proguard {
             isEnabled = false
@@ -88,7 +88,8 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
-            description = "Interactive Visualization of Extended Prefix Automaton Using Radial Trees. A tool for analyzing trace variants in large, complex event logs using Extended Prefix Automata (EPA) and radial tidy tree layouts. This visualization approach encodes thousands of trace variants while minimizing visual clutter and supporting interactive filtering."
+            description =
+                "Interactive Visualization of Extended Prefix Automaton Using Radial Trees. A tool for analyzing trace variants in large, complex event logs using Extended Prefix Automata (EPA) and radial tidy tree layouts. This visualization approach encodes thousands of trace variants while minimizing visual clutter and supporting interactive filtering."
             packageVersion = version.toString()
             vendor = "Moritz Lindner"
             licenseFile = rootProject.file("LICENSE")
