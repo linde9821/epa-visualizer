@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.serialization
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -18,38 +17,6 @@ class JsonSerialization<T : Comparable<T>>(
         prettyPrint = this@JsonSerialization.prettyPrint
         encodeDefaults = true
     }
-
-    @Serializable
-    private data class JsonAutomaton(
-        val eventLogName: String,
-        val states: Set<JsonState>,
-        val activities: Set<String>,
-        val transitions: Set<JsonTransition>,
-        val partitionByState: Map<String, Int>,
-        val sequenceByState: Map<String, Set<JsonEvent>>
-    )
-
-    @Serializable
-    private data class JsonState(
-        val type: String, // "root" or "prefix"
-        val name: String,
-        val from: String? = null, // Only for PrefixState
-        val via: String? = null   // Only for PrefixState
-    )
-
-    @Serializable
-    private data class JsonTransition(
-        val start: String,
-        val end: String,
-        val activity: String
-    )
-
-    @Serializable
-    private data class JsonEvent(
-        val timestamp: String,
-        val activity: String,
-        val caseIdentifier: String
-    )
 
     /**
      * Returns the JSON representation of the automaton.

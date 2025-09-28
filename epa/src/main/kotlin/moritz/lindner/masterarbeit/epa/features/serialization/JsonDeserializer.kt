@@ -22,38 +22,6 @@ class JsonDeserializer<T : Comparable<T>>(
         ignoreUnknownKeys = true
     }
 
-    @Serializable
-    private data class JsonAutomaton(
-        val eventLogName: String,
-        val states: Set<JsonState>,
-        val activities: Set<String>,
-        val transitions: Set<JsonTransition>,
-        val partitionByState: Map<String, Int>,
-        val sequenceByState: Map<String, Set<JsonEvent>>
-    )
-
-    @Serializable
-    private data class JsonState(
-        val type: String,
-        val name: String,
-        val from: String? = null,
-        val via: String? = null
-    )
-
-    @Serializable
-    private data class JsonTransition(
-        val start: String,
-        val end: String,
-        val activity: String
-    )
-
-    @Serializable
-    private data class JsonEvent(
-        val timestamp: String,
-        val activity: String,
-        val caseIdentifier: String
-    )
-
     /**
      * Deserializes JSON string to ExtendedPrefixAutomaton
      */
