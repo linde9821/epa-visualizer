@@ -32,11 +32,13 @@ import org.jetbrains.jewel.ui.component.SegmentedControlButtonData
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
 import java.io.File
+import kotlin.math.max
 
 @Composable
 fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
     val steps = listOf("Project Info", "Select XES", "Select Mapper", "Choose Location", "Create")
     var selectedStepIndex by remember { mutableStateOf(0) }
+    var currentMax by remember { mutableStateOf(0) }
 
     // Project creation state
     var projectName by remember { mutableStateOf("") }
@@ -72,7 +74,7 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
                 content = { _ -> Text(stepName) },
                 onSelect = {
                     // Only allow going to previous steps or current step
-                    if (index <= selectedStepIndex) {
+                    if (index <= selectedStepIndex || index <= currentMax) {
                         selectedStepIndex = index
                     }
                 },
@@ -100,13 +102,19 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
             0 -> ProjectInfoStep(
                 projectName = projectName,
                 onProjectNameChange = { projectName = it },
-                onNext = { if (projectName.isNotBlank()) selectedStepIndex = 1 }
+                onNext = {
+                    if (projectName.isNotBlank()) selectedStepIndex = 1
+                    currentMax = max(currentMax, selectedStepIndex)
+                }
             )
 
             1 -> SelectXesStep(
                 selectedFile = selectedXesFile,
                 onFileSelect = { xesFileLauncher.launch() },
-                onNext = { if (selectedXesFile != null) selectedStepIndex = 2 },
+                onNext = {
+                    if (selectedXesFile != null) selectedStepIndex = 2
+                    currentMax = max(currentMax, selectedStepIndex)
+                },
                 onPrevious = { selectedStepIndex = 0 }
             )
 
@@ -114,14 +122,20 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
                 mappers = mappers,
                 selectedMapper = selectedMapper,
                 onMapperSelect = { selectedMapper = it },
-                onNext = { if (selectedMapper != null) selectedStepIndex = 3 },
+                onNext = {
+                    if (selectedMapper != null) selectedStepIndex = 3
+                    currentMax = max(currentMax, selectedStepIndex)
+                },
                 onPrevious = { selectedStepIndex = 1 }
             )
 
             3 -> ChooseLocationStep(
                 selectedFolder = selectedProjectFolder,
                 onFolderSelect = { projectFolderLauncher.launch() },
-                onNext = { if (selectedProjectFolder != null) selectedStepIndex = 4 },
+                onNext = {
+                    if (selectedProjectFolder != null) selectedStepIndex = 4
+                    currentMax = max(currentMax, selectedStepIndex)
+                },
                 onPrevious = { selectedStepIndex = 2 }
             )
 

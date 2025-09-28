@@ -105,6 +105,7 @@ data class Project(
     /**
      * Saves only the project metadata (project.json) to the specified folder
      */
+
     fun saveMetadata() {
         val projectRoot = getProjectRoot()
         Files.createDirectories(projectRoot)

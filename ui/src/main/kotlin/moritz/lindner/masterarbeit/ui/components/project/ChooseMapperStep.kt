@@ -36,19 +36,16 @@ fun ChooseMapperStep(
     onNext: () -> Unit,
     onPrevious: () -> Unit
 ) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedIndex by remember(selectedMapper) {
+        mutableIntStateOf(
+            if (selectedMapper == null) 0 else mappers.map { it.name }.indexOf(selectedMapper.name)
+        )
+    }
 
     // Update selected mapper when index changes
     LaunchedEffect(selectedIndex) {
-        if (selectedIndex < mappers.size) {
+        if (selectedIndex < mappers.size && selectedIndex >= 0) {
             onMapperSelect(mappers[selectedIndex])
-        }
-    }
-
-    // Initialize with first mapper if none selected
-    LaunchedEffect(Unit) {
-        if (selectedMapper == null && mappers.isNotEmpty()) {
-            onMapperSelect(mappers[0])
         }
     }
 

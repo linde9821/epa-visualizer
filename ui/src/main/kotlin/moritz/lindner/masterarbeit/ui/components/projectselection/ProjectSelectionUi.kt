@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components.fileselection
+package moritz.lindner.masterarbeit.ui.components.projectselection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -89,14 +89,16 @@ fun ProjectSelectionUi(
             modifier = Modifier.fillMaxWidth(0.2f)
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.Start
             ) {
                 Icon(
                     key = AllIconsKeys.Actions.NewFolder,
                     contentDescription = null,
                     tint = JewelTheme.contentColor,
                 )
+                Spacer(modifier = Modifier.size(8.dp))
                 Text("New Project", style = JewelTheme.typography.regular)
             }
         }
@@ -111,14 +113,16 @@ fun ProjectSelectionUi(
             modifier = Modifier.fillMaxWidth(0.2f)
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.Start
             ) {
                 Icon(
                     key = AllIconsKeys.Actions.ProjectDirectory,
                     contentDescription = null,
                     tint = JewelTheme.contentColor,
                 )
+                Spacer(modifier = Modifier.size(8.dp))
                 Text("Open Project", style = JewelTheme.typography.regular)
             }
         }
