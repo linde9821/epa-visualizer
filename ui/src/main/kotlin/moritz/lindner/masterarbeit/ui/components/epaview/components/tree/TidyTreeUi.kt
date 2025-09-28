@@ -117,13 +117,11 @@ fun TidyTreeUi(
                 chunk.map { state ->
                     async { stateLabels.generateLabelForState(state) }
                 }.awaitAll()
-
-                val processed = (chunkIndex + 1) * chunkSize
-                logger.debug { "Processed $processed/${states.size} labels" }
                 yield()
             }
 
-            logger.info { "labels generated" }        }
+            logger.info { "labels generated" }
+        }
         labelsGenerated = true
     }
 

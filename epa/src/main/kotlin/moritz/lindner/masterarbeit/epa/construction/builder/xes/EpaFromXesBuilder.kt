@@ -67,7 +67,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     fun build(): ExtendedPrefixAutomaton<T> {
         require(eventLogMapper != null) { "plainEventLog cannot be null" }
         require(file != null) { "file cannot be null" }
-        require(file!!.exists()) { "file must exist" }
+        require(file!!.exists()) { "file ${file?.absolutePath} must exist" }
         require(parser.canParse(file!!)) { "file can't be parsed" }
 
         val progressInputStream = ProgressInputStream(

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 repositories {
@@ -16,11 +17,12 @@ dependencies {
     implementation(libs.openxes)
     implementation(libs.rtree)
     implementation(libs.csv)
+    implementation(libs.bundles.serialization)
 
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
     testImplementation(libs.assertjCore)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

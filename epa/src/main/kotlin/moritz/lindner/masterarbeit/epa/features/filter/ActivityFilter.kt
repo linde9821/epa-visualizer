@@ -42,7 +42,7 @@ class ActivityFilter<T : Comparable<T>>(
                         State.Root -> true
                     }
                 }.toSet()
-        
+
         val builder = EpaFromComponentsBuilder<T>()
             .fromExisting(epa)
             .setStates(statesWithAllowedActivities)

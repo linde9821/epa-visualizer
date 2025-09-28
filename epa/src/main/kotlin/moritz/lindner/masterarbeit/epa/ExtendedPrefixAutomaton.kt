@@ -157,7 +157,11 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
             appendLine("Partition by state: State -> C")
             appendLine(partitionByState.map { entry -> "${entry.key}:${entry.value}" }.joinToString(","))
             appendLine("Sequence by state: State -> list(Event)")
-            appendLine(sequenceByState.map { entry -> "${entry.key}:${entry.value.sortedBy { it.timestamp }.joinToString(",")}" }.joinToString(","))
+            appendLine(sequenceByState.map { entry ->
+                "${entry.key}:${
+                    entry.value.sortedBy { it.timestamp }.joinToString(",")
+                }"
+            }.joinToString(","))
         }
 
     /**

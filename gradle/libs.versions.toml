@@ -19,6 +19,8 @@ jewel = "0.30.0-252.26252"
 intelliJPlatformBuild = "252.26199.158"
 jna = "5.17.0"
 composeHotReload = "1.0.0-beta08"
+filekit = "0.11.0"
+kotlinx-serialization = "1.9.0"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -37,14 +39,21 @@ jewel = { group = "org.jetbrains.jewel", name = "jewel-int-ui-standalone", versi
 jewel-decorated = { group = "org.jetbrains.jewel", name = "jewel-int-ui-decorated-window", version.ref = "jewel" }
 intellijPlatform-icons = { module = "com.jetbrains.intellij.platform:icons", version.ref = "intelliJPlatformBuild" }
 jna-core = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
+filekit = ["filekit-core", "filekit-dialogs-compose"]
+serialization = ["kotlinx-serialization-core", "kotlinx-serialization-json"]
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose-version" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gradle-buildconfig-plugin = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
-composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload"}
+composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
 

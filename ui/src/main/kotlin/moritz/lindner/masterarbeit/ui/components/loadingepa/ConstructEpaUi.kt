@@ -27,6 +27,8 @@ import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.HorizontalProgressBar
@@ -41,7 +43,7 @@ import kotlin.coroutines.cancellation.CancellationException
 fun ConstructEpaUi(
     scope: CoroutineScope,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
-    builder: EpaFromXesBuilder<Long>,
+    project: Project,
     onEPAConstructed: (ExtendedPrefixAutomaton<Long>) -> Unit,
     onAbort: () -> Unit,
     onError: (String, Throwable) -> Unit,
@@ -62,14 +64,20 @@ fun ConstructEpaUi(
         epaConstructionJob = scope.launch(backgroundDispatcher) {
             try {
                 logger.info { "Start construction" }
-                val epa = builder
+
+                val epa = EpaFromXesBuilder<Long>()
                     .setProgressCallback(progressCallback)
+                    .setFile(project.getXesFilePath().toFile())
+                    .setEventLogMapper(project.getMapper() as EventLogMapper<Long>)
                     .build()
                 logger.info { "construction finished" }
                 yield()
                 onEPAConstructed(epa)
+
             } catch (e: NullPointerException) {
-                onError("Couldn't parse event log. Check mapper.", e)
+                val eventLogName = project.getXesFilePath().toFile().name
+                val mapperName = project.getMapper().name
+                onError("Couldn't parse event log $eventLogName with mapper $mapperName.", e)
             } catch (_: CancellationException) {
                 // Job was cancelled, no need to handle
             } catch (e: Exception) {
@@ -151,3 +159,4 @@ fun ConstructEpaUi(
         }
     }
 }
+

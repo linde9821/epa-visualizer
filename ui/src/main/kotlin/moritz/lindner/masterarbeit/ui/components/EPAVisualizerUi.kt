@@ -8,42 +8,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.construction.EpaConstructionUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.EpaTreeViewUi
-import moritz.lindner.masterarbeit.ui.components.fileselection.FileSelectionUi
+import moritz.lindner.masterarbeit.ui.components.fileselection.ProjectSelectionUi
 import moritz.lindner.masterarbeit.ui.components.loadingepa.ConstructEpaUi
+import moritz.lindner.masterarbeit.ui.components.project.NewProjectUi
 import moritz.lindner.masterarbeit.ui.logger
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
-    var state: ApplicationState by remember { mutableStateOf(ApplicationState.NoFileSelected) }
+    var state: ApplicationState by remember { mutableStateOf(ApplicationState.Start()) }
     val scope = rememberCoroutineScope()
 
     Column {
         when (val currentState = state) {
-            ApplicationState.NoFileSelected ->
-                FileSelectionUi { file ->
-                    state = ApplicationState.FileSelected(file, null)
+            is ApplicationState.Start -> ProjectSelectionUi(
+                error = currentState.constructionError,
+                onProjectOpen = {
+                    state = ApplicationState.ProjectSelected(it)
+                },
+                onNewProject = {
+                    state = ApplicationState.NewProject
                 }
+            )
 
-            is ApplicationState.FileSelected ->
-                EpaConstructionUi(
-                    state = currentState,
-                    onAbort = { state = ApplicationState.NoFileSelected },
-                    onStartConstructionStart = { builder ->
-                        state = ApplicationState.EpaConstructionRunning(currentState.file, builder)
-                    },
-                )
+            is ApplicationState.NewProject -> NewProjectUi(
+                onAbort = { state = ApplicationState.Start() },
+                onProjectCreated = { state = ApplicationState.ProjectSelected(it) }
+            )
 
-            is ApplicationState.EpaConstructionRunning -> {
-                ConstructEpaUi(scope, backgroundDispatcher, currentState.builder, { epa ->
+            is ApplicationState.ProjectSelected -> {
+                ConstructEpaUi(scope, backgroundDispatcher, currentState.project, { epa ->
                     state = ApplicationState.EpaConstructed(epa)
                 }, {
-                    state = ApplicationState.FileSelected(currentState.selectedFile, null)
+                    state = ApplicationState.Start()
                 }) { error, e ->
                     logger.error(e) { error }
-                    state = ApplicationState.FileSelected(currentState.selectedFile, error)
+                    state = ApplicationState.Start(error)
                 }
             }
 
@@ -52,9 +53,10 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                     currentState.extendedPrefixAutomaton,
                     backgroundDispatcher,
                     onClose = {
-                        state = ApplicationState.NoFileSelected
+                        state = ApplicationState.Start()
                     },
                 )
         }
     }
 }
+

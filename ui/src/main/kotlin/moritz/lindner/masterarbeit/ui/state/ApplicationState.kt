@@ -1,21 +1,18 @@
 package moritz.lindner.masterarbeit.ui.state
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
-import java.io.File
+import moritz.lindner.masterarbeit.epa.project.Project
 
 sealed class ApplicationState {
-    data object NoFileSelected : ApplicationState()
-
-    data class FileSelected(
-        val file: File,
-        val constructionError: String?
+    data class Start(
+        val constructionError: String? = null
     ) : ApplicationState()
 
-    data class EpaConstructionRunning(
-        val selectedFile: File,
-        val builder: EpaFromXesBuilder<Long>,
+    data class ProjectSelected(
+        val project: Project,
     ) : ApplicationState()
+
+    data object NewProject : ApplicationState()
 
     data class EpaConstructed(
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.3.3"
+version = "1.4.0"
 
 repositories {
     google()
@@ -24,21 +24,22 @@ dependencies {
     implementation(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")
     }
-    implementation(libs.bundles.log4j)
-    implementation(libs.logging)
     implementation(compose.components.resources)
-
-
     implementation(libs.jewel)
-    implementation(libs.jna.core)
     implementation(libs.jewel.decorated)
     implementation(libs.intellijPlatform.icons)
 
     implementation(project(":epa"))
 
+    implementation(libs.bundles.log4j)
+    implementation(libs.logging)
+    implementation(libs.jna.core)
+
+    implementation(libs.bundles.filekit)
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertjCore)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
@@ -62,24 +63,23 @@ java {
 compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
-        
+
         javaHome = javaToolchains.launcherFor {
             languageVersion.set(JavaLanguageVersion.of(21))
             vendor.set(JvmVendorSpec.JETBRAINS)
         }.get().metadata.installationPath.asFile.absolutePath
 
-        jvmArgs +=
-            listOf(
-                "-Xms2g",
-                "-Xmx18g",
-                "-XX:+UseG1GC",
-                "-XX:MaxGCPauseMillis=250",
-                "-XX:+UseStringDeduplication",
-                "-XX:+AlwaysPreTouch",
-                "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
-                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-                "--add-opens", "java.management/java.lang.management=ALL-UNNAMED"
-            )
+        jvmArgs += listOf(
+            "-Xms2g",
+            "-Xmx18g",
+            "-XX:+UseG1GC",
+            "-XX:MaxGCPauseMillis=250",
+            "-XX:+UseStringDeduplication",
+            "-XX:+AlwaysPreTouch",
+            "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
+            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+            "--add-opens", "java.management/java.lang.management=ALL-UNNAMED"
+        )
 
         buildTypes.release.proguard {
             isEnabled = false
@@ -88,7 +88,8 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "EPA Visualizer"
-            description = "Interactive Visualization of Extended Prefix Automaton Using Radial Trees. A tool for analyzing trace variants in large, complex event logs using Extended Prefix Automata (EPA) and radial tidy tree layouts. This visualization approach encodes thousands of trace variants while minimizing visual clutter and supporting interactive filtering."
+            description =
+                "Interactive Visualization of Extended Prefix Automaton Using Radial Trees. A tool for analyzing trace variants in large, complex event logs using Extended Prefix Automata (EPA) and radial tidy tree layouts. This visualization approach encodes thousands of trace variants while minimizing visual clutter and supporting interactive filtering."
             packageVersion = version.toString()
             vendor = "Moritz Lindner"
             licenseFile = rootProject.file("LICENSE")

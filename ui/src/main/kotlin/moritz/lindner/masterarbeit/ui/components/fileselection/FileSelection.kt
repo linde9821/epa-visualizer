@@ -5,33 +5,40 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.AwtWindow
 import androidx.compose.ui.unit.dp
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
 import moritz.lindner.masterarbeit.ui.common.Icons
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.InlineErrorBanner
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
-import java.awt.FileDialog
-import java.awt.Frame
-import java.io.File
+import kotlin.io.path.Path
 
 @Composable
-fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
-    var showDialog by remember { mutableStateOf(false) }
+fun ProjectSelectionUi(
+    error: String?,
+    onProjectOpen: (directory: Project) -> Unit,
+    onNewProject: () -> Unit,
+) {
+
+    val openProjectLauncher = rememberDirectoryPickerLauncher { directory ->
+        directory?.let { projectPath ->
+            val project = Project.loadFromFolder(Path(projectPath.file.absolutePath))
+            onProjectOpen(project)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -56,58 +63,57 @@ fun FileSelectionUi(onFileSelected: (file: File) -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Select an event log file to get started",
+            text = "Open an existing project or create a new one",
             style = JewelTheme.typography.regular
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (error != null) {
+            InlineErrorBanner(
+                text = error,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
 
         DefaultButton(
-            onClick = { showDialog = true },
+            onClick = { onNewProject() },
+            modifier = Modifier.fillMaxWidth(0.2f)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    key = AllIconsKeys.Actions.AddFile,
+                    key = AllIconsKeys.Actions.NewFolder,
                     contentDescription = null,
                     tint = JewelTheme.contentColor,
                 )
-                Text("Select Event Log File", style = JewelTheme.typography.regular)
+                Text("New Project", style = JewelTheme.typography.regular)
             }
         }
 
-        if (showDialog) {
-            FileDialog { path ->
-                showDialog = false
-                if (path != null) {
-                    val file = File(path)
-                    onFileSelected(file)
-                }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        DefaultButton(
+            onClick = {
+                openProjectLauncher.launch()
+            },
+            modifier = Modifier.fillMaxWidth(0.2f)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    key = AllIconsKeys.Actions.ProjectDirectory,
+                    contentDescription = null,
+                    tint = JewelTheme.contentColor,
+                )
+                Text("Open Project", style = JewelTheme.typography.regular)
             }
         }
     }
 }
-
-@Composable
-private fun FileDialog(
-    parent: Frame? = null,
-    onCloseRequest: (result: String?) -> Unit,
-) = AwtWindow(
-    create = {
-        object : FileDialog(parent, "Select Event Log File", LOAD) {
-            override fun isMultipleMode(): Boolean = false
-
-            override fun setVisible(value: Boolean) {
-                super.setVisible(value)
-                if (value && directory != null && file != null) {
-                    onCloseRequest(directory + file)
-                } else {
-                    onCloseRequest(null)
-                }
-            }
-        }
-    },
-    dispose = FileDialog::dispose,
-)

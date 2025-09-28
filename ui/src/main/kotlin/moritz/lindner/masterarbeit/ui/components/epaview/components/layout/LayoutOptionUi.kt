@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
-import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
