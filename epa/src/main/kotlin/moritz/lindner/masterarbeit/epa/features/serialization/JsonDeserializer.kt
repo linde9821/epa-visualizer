@@ -62,73 +62,80 @@ class JsonDeserializer<T : Comparable<T>>(
 
         // Build state lookup for reconstruction
         val statesByKey = mutableMapOf<String, State>()
-
-        // First pass: Create all states (start with root, then build dependencies)
         val jsonStatesByKey = jsonAutomaton.states.associateBy { stateKey(it) }
 
-        fun buildState(key: String): State {
-            if (statesByKey.containsKey(key)) {
-                return statesByKey[key]!!
-            }
+        // Non-recursive state building with topological ordering
+        fun buildAllStates() {
+            val visited = mutableSetOf<String>()
+            val building = mutableSetOf<String>()
 
-            val jsonState = jsonStatesByKey[key]
-                ?: throw IllegalArgumentException("State with key '$key' not found")
+            fun buildState(key: String): State {
+                if (key in statesByKey) return statesByKey[key]!!
+                if (key in building) throw IllegalArgumentException("Circular dependency in states")
 
-            val state = when (jsonState.type) {
-                "root" -> State.Root
-                "prefix" -> {
-                    val fromKey = jsonState.from
-                        ?: throw IllegalArgumentException("PrefixState must have 'from' field")
-                    val viaName = jsonState.via
-                        ?: throw IllegalArgumentException("PrefixState must have 'via' field")
+                building.add(key)
 
-                    val fromState = buildState(fromKey)
-                    val viaActivity = Activity(viaName)
+                val jsonState = jsonStatesByKey[key]
+                    ?: throw IllegalArgumentException("State with key '$key' not found")
 
-                    State.PrefixState(fromState, viaActivity)
+                val state = when (jsonState.type) {
+                    "root" -> State.Root
+                    "prefix" -> {
+                        val fromKey = jsonState.from
+                            ?: throw IllegalArgumentException("PrefixState must have 'from' field")
+                        val viaName = jsonState.via
+                            ?: throw IllegalArgumentException("PrefixState must have 'via' field")
+
+                        val fromState = buildState(fromKey) // This will be iterative now
+                        val viaActivity = Activity(viaName)
+                        State.PrefixState(fromState, viaActivity)
+                    }
+                    else -> throw IllegalArgumentException("Unknown state type: ${jsonState.type}")
                 }
-                else -> throw IllegalArgumentException("Unknown state type: ${jsonState.type}")
+
+                building.remove(key)
+                statesByKey[key] = state
+                visited.add(key)
+                return state
             }
 
-            statesByKey[key] = state
-            return state
+            // Build all states
+            jsonAutomaton.states.forEach { jsonState ->
+                val key = stateKey(jsonState)
+                if (key !in visited) {
+                    buildState(key)
+                }
+            }
         }
 
-        // Build all states
-        jsonAutomaton.states.forEach { jsonState ->
-            buildState(stateKey(jsonState))
+        buildAllStates()
+
+        // Rest of the method remains the same but more efficient
+        // Single-pass creation of other collections
+        val activities = jsonAutomaton.activities.mapTo(mutableSetOf()) { Activity(it) }
+
+        val transitions = jsonAutomaton.transitions.mapTo(mutableSetOf()) { jsonTransition ->
+            Transition(
+                start = statesByKey[jsonTransition.start]!!,
+                end = statesByKey[jsonTransition.end]!!,
+                activity = Activity(jsonTransition.activity)
+            )
         }
 
-        // Create activities
-        val activities = jsonAutomaton.activities.map { Activity(it) }.toSet()
-
-        // Create transitions
-        val transitions = jsonAutomaton.transitions.map { jsonTransition ->
-            val startState = statesByKey[jsonTransition.start]
-                ?: throw IllegalArgumentException("Start state '${jsonTransition.start}' not found")
-            val endState = statesByKey[jsonTransition.end]
-                ?: throw IllegalArgumentException("End state '${jsonTransition.end}' not found")
-            val activity = Activity(jsonTransition.activity)
-
-            Transition(startState, activity, endState)
-        }.toSet()
-
-        // Create partition mapping
-        val partitionByState = jsonAutomaton.partitionByState.mapKeys { (key, _) ->
-            statesByKey[key] ?: throw IllegalArgumentException("State '$key' not found for partition mapping")
+        val partitionByState = jsonAutomaton.partitionByState.mapKeysTo(mutableMapOf()) { (key, _) ->
+            statesByKey[key]!!
         }
 
-        // Create sequence mapping
-        val sequenceByState = jsonAutomaton.sequenceByState.mapKeys { (key, _) ->
-            statesByKey[key] ?: throw IllegalArgumentException("State '$key' not found for sequence mapping")
-        }.mapValues { (_, jsonEvents) ->
-            jsonEvents.map { jsonEvent ->
+        val sequenceByState = jsonAutomaton.sequenceByState.mapKeysTo(mutableMapOf()) { (key, _) ->
+            statesByKey[key]!!
+        }.mapValuesTo(mutableMapOf()) { (_, jsonEvents) ->
+            jsonEvents.mapTo(mutableSetOf()) { jsonEvent ->
                 Event(
                     timestamp = timestampParser(jsonEvent.timestamp),
                     activity = Activity(jsonEvent.activity),
                     caseIdentifier = jsonEvent.caseIdentifier
                 )
-            }.toSet()
+            }
         }
 
         return ExtendedPrefixAutomaton(

@@ -11,7 +11,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
  */
 class JsonSerialization<T : Comparable<T>>(
     private val epa: ExtendedPrefixAutomaton<T>,
-    private val prettyPrint: Boolean = true
+    private val prettyPrint: Boolean = false
 ) {
 
     private val json = Json {
@@ -52,59 +52,77 @@ class JsonSerialization<T : Comparable<T>>(
     )
 
     /**
-     * Converts a State to its string representation for use as keys
-     */
-    private fun stateToKey(state: State): String = when (state) {
-        is State.PrefixState -> "${stateToKey(state.from)}->${state.via.name}"
-        State.Root -> "root"
-    }
-
-    /**
-     * Converts a State to JsonState
-     */
-    private fun stateToJson(state: State): JsonState = when (state) {
-        is State.Root -> JsonState(
-            type = "root",
-            name = state.name
-        )
-        is State.PrefixState -> JsonState(
-            type = "prefix",
-            name = state.name,
-            from = stateToKey(state.from),
-            via = state.via.name
-        )
-    }
-
-    /**
      * Returns the JSON representation of the automaton.
      * Must be called after the visitor has completed traversal.
      */
     fun toJson(): String {
+        // Pre-compute all state keys once
+        val stateKeyCache = mutableMapOf<State, String>()
+
+        fun cachedStateToKey(state: State): String {
+            return stateKeyCache.getOrPut(state) {
+                when (state) {
+                    is State.Root -> "root"
+                    is State.PrefixState -> {
+                        // Build path iteratively, not recursively
+                        val path = mutableListOf<String>()
+                        var current: State = state
+                        while (current is State.PrefixState) {
+                            path.add(current.via.name)
+                            current = current.from
+                        }
+                        path.reverse()
+                        path.joinToString("->", prefix = "root->")
+                    }
+                }
+            }
+        }
+
+        // Single iteration to build all collections
+        val jsonStates = mutableSetOf<JsonState>()
+        val partitionByState = mutableMapOf<String, Int>()
+        val sequenceByState = mutableMapOf<String, Set<JsonEvent>>()
+
+        epa.states.forEach { state ->
+            val key = cachedStateToKey(state)
+
+            jsonStates.add(stateToJson(state, key)) // Pass pre-computed key
+            partitionByState[key] = epa.partition(state)
+            sequenceByState[key] = epa.sequence(state).map { event ->
+                JsonEvent(
+                    timestamp = event.timestamp.toString(),
+                    activity = event.activity.toString(),
+                    caseIdentifier = event.caseIdentifier
+                )
+            }.toSet()
+        }
+
         val jsonAutomaton = JsonAutomaton(
             eventLogName = epa.eventLogName,
-            states = epa.states.map { stateToJson(it) }.toSet(),
+            states = jsonStates,
             activities = epa.activities.map { it.name }.toSet(),
             transitions = epa.transitions.map { transition ->
                 JsonTransition(
-                    start = stateToKey(transition.start),
-                    end = stateToKey(transition.end),
+                    start = cachedStateToKey(transition.start),
+                    end = cachedStateToKey(transition.end),
                     activity = transition.activity.name
                 )
             }.toSet(),
-            partitionByState = epa.states.associate { state ->
-                stateToKey(state) to epa.partition(state)
-            },
-            sequenceByState = epa.states.associate { state ->
-                stateToKey(state) to epa.sequence(state).map { event ->
-                    JsonEvent(
-                        timestamp = event.timestamp.toString(),
-                        activity = event.activity.toString(),
-                        caseIdentifier = event.caseIdentifier
-                    )
-                }.toSet()
-            }
+            partitionByState = partitionByState,
+            sequenceByState = sequenceByState
         )
+
         return json.encodeToString(jsonAutomaton)
+    }
+
+    private fun stateToJson(state: State, precomputedKey: String): JsonState = when (state) {
+        is State.Root -> JsonState(type = "root", name = state.name)
+        is State.PrefixState -> JsonState(
+            type = "prefix",
+            name = state.name,
+            from = precomputedKey.substringBeforeLast("->"),
+            via = state.via.name
+        )
     }
 }
 
