@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
@@ -26,10 +28,14 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMappe
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.OutlinedButton
 import org.jetbrains.jewel.ui.component.SegmentedControl
 import org.jetbrains.jewel.ui.component.SegmentedControlButtonData
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
+import org.jetbrains.jewel.ui.painter.badge.DotBadgeShape
+import org.jetbrains.jewel.ui.painter.hints.Badge
 import org.jetbrains.jewel.ui.typography
 import java.io.File
 import kotlin.math.max
@@ -71,10 +77,21 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
         steps.mapIndexed { index, stepName ->
             SegmentedControlButtonData(
                 selected = index == selectedStepIndex,
-                content = { _ -> Text(stepName) },
+                content = { _ ->
+                    val color = if (index >= currentMax) Color.Red else Color.Green
+                    Row{
+                        Text(stepName)
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            key = AllIconsKeys.General.Settings,
+                            contentDescription = "",
+                            hint =  Badge(color, DotBadgeShape.Default),
+                        )
+                    }
+                },
                 onSelect = {
                     // Only allow going to previous steps or current step
-                    if (index <= selectedStepIndex || index <= currentMax) {
+                    if (index <= selectedStepIndex || index <= currentMax && projectName.isNotBlank()) {
                         selectedStepIndex = index
                     }
                 },
@@ -110,7 +127,10 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
 
             1 -> SelectXesStep(
                 selectedFile = selectedXesFile,
-                onFileSelect = { xesFileLauncher.launch() },
+                onFileSelect = { selectedFile ->
+                    if (selectedFile == null) xesFileLauncher.launch()
+                    else selectedXesFile = File(selectedFile.absolutePath)
+                },
                 onNext = {
                     if (selectedXesFile != null) selectedStepIndex = 2
                     currentMax = max(currentMax, selectedStepIndex)
