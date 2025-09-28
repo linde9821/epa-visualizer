@@ -19,6 +19,7 @@ jewel = "0.30.0-252.26252"
 intelliJPlatformBuild = "252.26199.158"
 jna = "5.17.0"
 composeHotReload = "1.0.0-beta08"
+filekit = "0.11.0"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -38,13 +39,17 @@ jewel-decorated = { group = "org.jetbrains.jewel", name = "jewel-int-ui-decorate
 intellijPlatform-icons = { module = "com.jetbrains.intellij.platform:icons", version.ref = "intelliJPlatformBuild" }
 jna-core = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
+filekit = ["filekit-core", "filekit-dialogs-compose"]
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose-version" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gradle-buildconfig-plugin = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
-composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload"}
+composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
 

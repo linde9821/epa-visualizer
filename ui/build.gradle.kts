@@ -35,6 +35,8 @@ dependencies {
     implementation(libs.logging)
     implementation(libs.jna.core)
 
+    implementation(libs.bundles.filekit)
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertjCore)
