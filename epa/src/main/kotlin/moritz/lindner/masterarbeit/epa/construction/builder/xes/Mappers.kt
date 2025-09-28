@@ -31,7 +31,7 @@ class BPI2017OfferChallengeEventMapper : EventLogMapper<Long>("Challenge Offer 2
         )
 }
 
-class BPI2018ChallangeMapper : EventLogMapper<Long>("Challenge 2018") {
+class BPI2018ChallengeMapper : EventLogMapper<Long>("Challenge 2018") {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
