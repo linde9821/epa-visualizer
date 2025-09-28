@@ -20,6 +20,7 @@ import moritz.lindner.masterarbeit.ui.common.Icons
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.InlineErrorBanner
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
@@ -27,8 +28,9 @@ import kotlin.io.path.Path
 
 @Composable
 fun ProjectSelectionUi(
+    error: String?,
     onProjectOpen: (directory: Project) -> Unit,
-    onNewProject: () -> Unit
+    onNewProject: () -> Unit,
 ) {
 
     val openProjectLauncher = rememberDirectoryPickerLauncher { directory ->
@@ -66,6 +68,14 @@ fun ProjectSelectionUi(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        if (error != null) {
+            InlineErrorBanner(
+                text = error,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
 
         DefaultButton(
             onClick = { onNewProject() },

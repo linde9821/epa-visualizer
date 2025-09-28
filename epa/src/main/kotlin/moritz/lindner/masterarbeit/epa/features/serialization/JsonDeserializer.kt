@@ -110,8 +110,6 @@ class JsonDeserializer<T : Comparable<T>>(
 
         buildAllStates()
 
-        // Rest of the method remains the same but more efficient
-        // Single-pass creation of other collections
         val activities = jsonAutomaton.activities.mapTo(mutableSetOf()) { Activity(it) }
 
         val transitions = jsonAutomaton.transitions.mapTo(mutableSetOf()) { jsonTransition ->

@@ -65,28 +65,19 @@ fun ConstructEpaUi(
             try {
                 logger.info { "Start construction" }
 
-                val sourceEpa = project.getSourceEpa()
-                if (sourceEpa != null) {
-                    yield()
-                    logger.info { "construction finished using saved epa" }
-                    onEPAConstructed(sourceEpa)
-                } else {
-                    val epa = EpaFromXesBuilder<Long>()
-                        .setProgressCallback(progressCallback)
-                        .setFile(project.getXesFilePath().toFile())
-                        .setEventLogMapper(project.getMapper() as EventLogMapper<Long>)
-                        .build()
-                    logger.info { "construction finished" }
-                    yield()
-                    onEPAConstructed(epa)
-                    scope.launch {
-                        logger.info { "saving epa" }
-                        project.saveSourceEpa(epa)
-                        logger.info { "epa saved" }
-                    }
-                }
+                val epa = EpaFromXesBuilder<Long>()
+                    .setProgressCallback(progressCallback)
+                    .setFile(project.getXesFilePath().toFile())
+                    .setEventLogMapper(project.getMapper() as EventLogMapper<Long>)
+                    .build()
+                logger.info { "construction finished" }
+                yield()
+                onEPAConstructed(epa)
+
             } catch (e: NullPointerException) {
-                onError("Couldn't parse event log. Check mapper.", e)
+                val eventLogName = project.getXesFilePath().toFile().name
+                val mapperName = project.getMapper().name
+                onError("Couldn't parse event log $eventLogName with mapper $mapperName.", e)
             } catch (_: CancellationException) {
                 // Job was cancelled, no need to handle
             } catch (e: Exception) {

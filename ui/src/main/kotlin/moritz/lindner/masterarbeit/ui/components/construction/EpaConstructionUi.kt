@@ -71,13 +71,6 @@ fun EpaConstructionUi(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (state.constructionError != null) {
-            InlineErrorBanner(
-                text = state.constructionError,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)

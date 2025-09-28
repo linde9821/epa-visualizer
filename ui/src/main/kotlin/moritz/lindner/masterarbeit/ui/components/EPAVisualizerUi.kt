@@ -59,14 +59,15 @@ import java.io.File
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
-    var state: ApplicationState by remember { mutableStateOf(ApplicationState.Start) }
+    var state: ApplicationState by remember { mutableStateOf(ApplicationState.Start()) }
     val scope = rememberCoroutineScope()
 
     Column {
         when (val currentState = state) {
-            ApplicationState.Start -> ProjectSelectionUi(
+            is ApplicationState.Start -> ProjectSelectionUi(
+                error = currentState.constructionError,
                 onProjectOpen = {
-                    state = ApplicationState.ProjectSelected(it, null)
+                    state = ApplicationState.ProjectSelected(it)
                 },
                 onNewProject = {
                     state = ApplicationState.NewProject
@@ -74,18 +75,18 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
             )
 
             is ApplicationState.NewProject -> NewProjectUi(
-                onAbort = { state = ApplicationState.Start },
-                onProjectCreated = { state = ApplicationState.ProjectSelected(it, null) }
+                onAbort = { state = ApplicationState.Start() },
+                onProjectCreated = { state = ApplicationState.ProjectSelected(it) }
             )
 
             is ApplicationState.ProjectSelected -> {
                 ConstructEpaUi(scope, backgroundDispatcher, currentState.project, { epa ->
                     state = ApplicationState.EpaConstructed(epa)
                 }, {
-                    state = ApplicationState.Start
+                    state = ApplicationState.Start()
                 }) { error, e ->
                     logger.error(e) { error }
-                    state = currentState.copy(constructionError = error)
+                    state = ApplicationState.Start(error)
                 }
             }
 
@@ -94,7 +95,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                     currentState.extendedPrefixAutomaton,
                     backgroundDispatcher,
                     onClose = {
-                        state = ApplicationState.Start
+                        state = ApplicationState.Start()
                     },
                 )
         }
