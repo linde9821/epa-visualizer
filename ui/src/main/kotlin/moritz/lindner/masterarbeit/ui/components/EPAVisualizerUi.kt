@@ -8,11 +8,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.LayoutTest
+import moritz.lindner.masterarbeit.ui.components.epaview.components.NewLayoutTest
 import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
-import moritz.lindner.masterarbeit.ui.components.loadingepa.ConstructEpaUi
 import moritz.lindner.masterarbeit.ui.components.project.NewProjectUi
-import moritz.lindner.masterarbeit.ui.logger
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 
 @Composable
@@ -41,7 +39,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
             )
 
             is ApplicationState.ProjectSelected -> {
-                LayoutTest(
+                NewLayoutTest(
                     project = currentState.project,
                     backgroundDispatcher,
                     onClose = {

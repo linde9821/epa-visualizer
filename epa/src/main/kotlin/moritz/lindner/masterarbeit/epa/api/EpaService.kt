@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.epa.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
@@ -40,10 +41,14 @@ class EpaService<T : Comparable<T>> {
      * @param filters The list of filters to apply in order.
      * @return A new filtered Extended Prefix Automaton.
      */
-    fun applyFilters(epa: ExtendedPrefixAutomaton<T>, filters: List<EpaFilter<T>>): ExtendedPrefixAutomaton<T> {
+    fun applyFilters(
+        epa: ExtendedPrefixAutomaton<T>,
+        filters: List<EpaFilter<T>>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> {
         return filters.fold(epa) { acc, filter ->
             logger.info { "Applying filter ${filter.name}" }
-            filter.apply(acc.copy())
+            filter.apply(acc.copy(), progressCallback)
         }
     }
 
@@ -81,5 +86,9 @@ class EpaService<T : Comparable<T>> {
         val visitor = NormalizedPartitionFrequencyVisitor<T>()
         epa.acceptDepthFirst(visitor)
         return visitor.build()
+    }
+
+    fun filterNames(filters: kotlin.collections.List<EpaFilter<Long>>): String {
+        return filters.joinToString { it.name }
     }
 }

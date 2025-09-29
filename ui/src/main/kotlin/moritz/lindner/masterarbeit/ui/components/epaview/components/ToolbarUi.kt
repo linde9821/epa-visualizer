@@ -21,7 +21,7 @@ import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
-fun TabsUi(
+fun ToolbarUi(
     upperState: EpaViewStateUpper,
     onUpperStateChange: (EpaViewStateUpper) -> Unit,
     lowerState: EpaViewStateLower,
