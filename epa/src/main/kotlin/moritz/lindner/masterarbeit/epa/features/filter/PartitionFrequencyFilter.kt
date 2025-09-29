@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
 
 /**
@@ -29,8 +30,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
      * @param epa The automaton to filter.
      * @return A new [ExtendedPrefixAutomaton] with only frequent partitions retained.
      */
-    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
-        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
+    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> {
+        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>(progressCallback)
         epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
         val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
 
@@ -42,7 +43,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
             .toList()
 
         val filteredStates = epa.states
-            .filter { state ->
+            .filterIndexed { index, state ->
+                progressCallback?.onProgress(index, epa.states.size, "${name}: Filter states")
                 val partition = epa.partition(state)
                 partition in partitionsAboveThreshold
             }.toSet()
@@ -51,6 +53,7 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
             .fromExisting(epa)
             .setStates(filteredStates)
             .pruneStatesUnreachableByTransitions(withPruning)
+            .setProgressCallback(progressCallback)
             .setEventLogName(epa.eventLogName + " $name with threshold ${threshold}f")
 
         return epaBuilder.build()

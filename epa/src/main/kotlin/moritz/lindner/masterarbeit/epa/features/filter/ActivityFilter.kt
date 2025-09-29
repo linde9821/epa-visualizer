@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.State
 
@@ -33,13 +34,15 @@ class ActivityFilter<T : Comparable<T>>(
      * @param epa The automaton to filter.
      * @return A new [ExtendedPrefixAutomaton] that includes only allowed activities and valid state chains.
      */
-    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
+    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> {
         val statesWithAllowedActivities =
             epa.states
-                .filter { state ->
+                .filterIndexed { index, state ->
                     when (state) {
                         is State.PrefixState -> state.via.name in allowedActivities
                         State.Root -> true
+                    }.also {
+                        progressCallback?.onProgress(index, epa.states.size, "$name: Filtering states")
                     }
                 }.toSet()
 
@@ -47,6 +50,7 @@ class ActivityFilter<T : Comparable<T>>(
             .fromExisting(epa)
             .setStates(statesWithAllowedActivities)
             .setActivities(epa.activities)
+            .setProgressCallback(progressCallback)
             .pruneStatesUnreachableByTransitions(true)
 
         return builder.build()

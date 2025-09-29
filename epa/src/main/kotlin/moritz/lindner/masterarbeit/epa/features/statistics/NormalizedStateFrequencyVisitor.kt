@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
@@ -16,7 +17,9 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
+class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
+    private val progressCallback: EpaProgressCallback? = null
+) : AutomatonVisitor<T> {
     private val eventsByState = HashMap<State, Int>()
     private val relativeFrequencyByState = HashMap<State, Float>()
 
@@ -42,6 +45,10 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
         eventsByState.computeIfAbsent(state) {
             extendedPrefixAutomaton.sequence(state).size
         }
+    }
+
+    override fun onProgress(current: Long, total: Long) {
+        progressCallback?.onProgress(current, total, "Compute normalized frequency of events per State")
     }
 
     fun build(): NormalizedStateFrequency {
