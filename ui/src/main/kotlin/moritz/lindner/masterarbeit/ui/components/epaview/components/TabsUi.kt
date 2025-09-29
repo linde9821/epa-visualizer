@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper.*
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
@@ -38,23 +39,48 @@ fun TabsUi(
                 Icon(key = AllIconsKeys.General.Close, contentDescription = "Close", modifier = Modifier.size(23.dp))
             }
 
-            // Filter
+            // Project
             IconButton(
                 onClick = {
                     onUpperStateChange(
-                        if (upperState != EpaViewStateUpper.Filter) EpaViewStateUpper.Filter else EpaViewStateUpper.None,
+                        if (upperState != Project) Project else None,
                     )
                 },
                 modifier =
                     Modifier.background(
-                        if (upperState == EpaViewStateUpper.Filter) Color.LightGray else Color.Transparent,
+                        if (upperState == None) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    )
+            ) {
+                Icon(
+                    key = AllIconsKeys.General.ProjectTab,
+                    contentDescription = "Project",
+                    tint = if (upperState == Project) {
+                        JewelTheme.contentColor
+                    } else {
+                        Color.Unspecified
+                    },
+                    modifier = Modifier.size(23.dp)
+                )
+            }
+
+            // Filter
+            IconButton(
+                onClick = {
+                    onUpperStateChange(
+                        if (upperState != Filter) Filter else None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (upperState == Filter) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
             ) {
                 Icon(
                     key = AllIconsKeys.General.Filter,
                     contentDescription = "Filter",
-                    tint = if (upperState == EpaViewStateUpper.Filter) {
+                    tint = if (upperState == Filter) {
                         JewelTheme.contentColor
                     } else {
                         Color.Unspecified
@@ -67,12 +93,12 @@ fun TabsUi(
             IconButton(
                 onClick = {
                     onUpperStateChange(
-                        if (upperState != EpaViewStateUpper.Layout) EpaViewStateUpper.Layout else EpaViewStateUpper.None,
+                        if (upperState != Layout) Layout else None,
                     )
                 },
                 modifier =
                     Modifier.background(
-                        if (upperState == EpaViewStateUpper.Layout) Color.LightGray else Color.Transparent,
+                        if (upperState == Layout) Color.LightGray else Color.Transparent,
                         shape = CircleShape,
                     ),
             ) {
@@ -80,7 +106,7 @@ fun TabsUi(
                     key = AllIconsKeys.General.Layout,
                     contentDescription = "Map",
                     tint =
-                        if (upperState == EpaViewStateUpper.Layout) {
+                        if (upperState == Layout) {
                             JewelTheme.contentColor
                         } else {
                             Color.Unspecified
@@ -88,6 +114,59 @@ fun TabsUi(
                     modifier = Modifier.size(23.dp)
                 )
             }
+
+            // Analysis
+            IconButton(
+                onClick = {
+                    onUpperStateChange(
+                        if (upperState != Analysis) Analysis else None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (upperState == Analysis) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    key = AllIconsKeys.Actions.DependencyAnalyzer,
+                    contentDescription = "Analyse",
+                    tint =
+                        if (upperState == Layout) {
+                            JewelTheme.contentColor
+                        } else {
+                            Color.Unspecified
+                        },
+                    modifier = Modifier.size(23.dp)
+                )
+            }
+
+            // NLI
+            IconButton(
+                onClick = {
+                    onUpperStateChange(
+                        if (upperState != NaturalLanguage) NaturalLanguage else None,
+                    )
+                },
+                modifier =
+                    Modifier.background(
+                        if (upperState == NaturalLanguage) Color.LightGray else Color.Transparent,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    key = AllIconsKeys.General.Language,
+                    contentDescription = "Natural Language Interface",
+                    tint =
+                        if (upperState == Layout) {
+                            JewelTheme.contentColor
+                        } else {
+                            Color.Unspecified
+                        },
+                    modifier = Modifier.size(23.dp)
+                )
+            }
+
         }
 
         Column {

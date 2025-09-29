@@ -6,4 +6,10 @@ sealed class EpaViewStateUpper {
     data object Layout : EpaViewStateUpper()
 
     data object None : EpaViewStateUpper()
+
+    data object Project : EpaViewStateUpper()
+
+    data object Analysis : EpaViewStateUpper()
+
+    data object NaturalLanguage : EpaViewStateUpper()
 }
