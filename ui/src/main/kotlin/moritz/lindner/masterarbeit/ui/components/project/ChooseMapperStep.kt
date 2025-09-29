@@ -81,14 +81,14 @@ fun ChooseMapperStep(
                     items = mappers.map { it.name },
                     selectedIndex = selectedIndex,
                     onSelectedItemChange = { selectedIndex = it },
-                    modifier = Modifier.Companion.width(250.dp)
+                    modifier = Modifier.width(250.dp)
                 )
 
                 selectedMapper?.let { mapper ->
                     Text(
                         text = "Selected: ${mapper.name}",
-                        style = JewelTheme.Companion.typography.regular.copy(fontSize = 12.sp),
-                        color = JewelTheme.Companion.contentColor.copy(alpha = 0.7f)
+                        style = JewelTheme.typography.regular.copy(fontSize = 12.sp),
+                        color = JewelTheme.contentColor.copy(alpha = 0.7f)
                     )
                 }
             }

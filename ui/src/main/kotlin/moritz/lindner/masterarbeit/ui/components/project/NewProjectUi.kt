@@ -24,6 +24,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017Challenge
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.Mappers
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.logger
@@ -56,12 +57,7 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Available mappers
-    val mappers = listOf(
-        SampleEventMapper(),
-        BPI2017OfferChallengeEventMapper(),
-        BPI2017ChallengeEventMapper(),
-        BPI2018ChallengeMapper(),
-    )
+    val mappers = Mappers.getMappers()
 
     val xesFileLauncher = rememberFilePickerLauncher(
         type = FileKitType.File(extensions = listOf("xes", "gz"))
@@ -112,7 +108,7 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
 
         SegmentedControl(buttons = buttons)
 
-        Spacer(modifier = Modifier.Companion.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Step content
         when (selectedStepIndex) {

@@ -3,37 +3,54 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.api.LayoutService
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.Mappers
 import moritz.lindner.masterarbeit.epa.project.Project
-import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.AnimationUi
-import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
-import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutUi
-import moritz.lindner.masterarbeit.ui.components.epaview.components.statistics.StatisticsComparisonUi
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper.*
-import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.Orientation
-import org.jetbrains.jewel.ui.component.Divider
+import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.HorizontalSplitLayout
+import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.SplitLayoutState
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.VerticalSplitLayout
 import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
+import org.jetbrains.jewel.ui.typography
+
+class ProjectViewModel(
+    project: Project,
+    private val backgroundDispatcher: ExecutorCoroutineDispatcher,
+) {
+    private val _projectState = MutableStateFlow(project)
+    val projectState: StateFlow<Project> = _projectState.asStateFlow()
+
+    private val epaService = EpaService<Long>()
+    private val layoutService = LayoutService<Long>()
+
+    fun updateProject(project: Project) {
+        project.saveMetadata()
+        _projectState.value = project
+    }
+}
 
 @Composable
 fun LayoutTest(
@@ -41,6 +58,16 @@ fun LayoutTest(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
+
+    val viewModel by remember {
+        mutableStateOf(
+            ProjectViewModel(
+                project = project,
+                backgroundDispatcher = backgroundDispatcher,
+            ),
+        )
+    }
+
     val horizontalSplitState = rememberSplitLayoutState(0.3f)
     val verticalSplitState = rememberSplitLayoutState(0.7f)
 
@@ -57,12 +84,12 @@ fun LayoutTest(
             onClose = onClose,
         )
 
-        when(lowerState){
+        when (lowerState) {
             EpaViewStateLower.Animation, EpaViewStateLower.Statistics -> {
                 VerticalSplitLayout(
                     state = verticalSplitState,
                     first = {
-                        UpperLayout(upperState, horizontalSplitState)
+                        UpperLayout(upperState, horizontalSplitState, viewModel)
                     },
                     second = {
                         Text("Lower + $lowerState")
@@ -74,8 +101,43 @@ fun LayoutTest(
             }
 
             EpaViewStateLower.None -> {
-                UpperLayout(upperState, horizontalSplitState)
+                UpperLayout(upperState, horizontalSplitState, viewModel)
             }
+        }
+    }
+}
+
+@Composable
+private fun ProjectUi(
+    viewModel: ProjectViewModel
+) {
+    val mappers = Mappers.getMappers()
+    val project by viewModel.projectState.collectAsState()
+
+    var selectedIndex by remember(project.mapperName) {
+        mutableIntStateOf(
+            mappers.map { it.name }.indexOf(project.mapperName)
+        )
+    }
+
+    Column {
+        Text("Project: ${project.name}")
+        Text("Created on ${project.createdAt}")
+
+        ListComboBox(
+            items = mappers.map { it.name },
+            selectedIndex = selectedIndex,
+            onSelectedItemChange = { selectedIndex = it },
+            modifier = Modifier.width(250.dp)
+        )
+
+        DefaultButton(
+            onClick = {
+                val updatedProject = project.withMapper(mappers[selectedIndex])
+                viewModel.updateProject(updatedProject)
+            },
+        ) {
+            Text("Update")
         }
     }
 }
@@ -83,13 +145,27 @@ fun LayoutTest(
 @Composable
 private fun UpperLayout(
     upperState: EpaViewStateUpper,
-    horizontalSplitState: SplitLayoutState
+    horizontalSplitState: SplitLayoutState,
+    viewModel: ProjectViewModel
 ) {
+
     when (upperState) {
         Filter, Layout, EpaViewStateUpper.Project, Analysis, NaturalLanguage -> {
             HorizontalSplitLayout(
                 state = horizontalSplitState,
-                first = { Text("Left + $upperState") },
+                first = {
+                    when(upperState){
+                        Analysis -> TODO()
+                        Filter -> TODO()
+                        Layout -> TODO()
+                        NaturalLanguage -> TODO()
+                        EpaViewStateUpper.Project -> {
+                            ProjectUi(viewModel)
+                        }
+
+                        else -> {}
+                    }
+                },
                 second = { Text("Right") },
                 modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
                 firstPaneMinWidth = 0.dp,

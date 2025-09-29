@@ -105,7 +105,6 @@ data class Project(
     /**
      * Saves only the project metadata (project.json) to the specified folder
      */
-
     fun saveMetadata() {
         val projectRoot = getProjectRoot()
         Files.createDirectories(projectRoot)
@@ -170,4 +169,6 @@ data class Project(
 
         return mappers[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
     }
+
+    fun withMapper(mapper: EventLogMapper<*>): Project = copy(mapperName = mapper.name)
 }

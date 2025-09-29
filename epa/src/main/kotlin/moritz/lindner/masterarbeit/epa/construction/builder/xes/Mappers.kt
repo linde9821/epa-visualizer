@@ -59,3 +59,14 @@ class SampleEventMapper : EventLogMapper<Long>("Sample") {
             caseIdentifier = (xTrace.attributes["concept:name"] as XAttributeLiteralImpl).value,
         )
 }
+
+object Mappers {
+    fun getMappers(): List<EventLogMapper<Long>> {
+        return listOf(
+            SampleEventMapper(),
+            BPI2017OfferChallengeEventMapper(),
+            BPI2017ChallengeEventMapper(),
+            BPI2018ChallengeMapper(),
+        )
+    }
+}
