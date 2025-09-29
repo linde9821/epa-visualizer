@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.EpaTreeViewUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.LayoutTest
 import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
 import moritz.lindner.masterarbeit.ui.components.loadingepa.ConstructEpaUi
 import moritz.lindner.masterarbeit.ui.components.project.NewProjectUi
@@ -41,24 +41,38 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
             )
 
             is ApplicationState.ProjectSelected -> {
-                ConstructEpaUi(scope, backgroundDispatcher, currentState.project, { epa ->
-                    state = ApplicationState.EpaConstructed(epa)
-                }, {
-                    state = ApplicationState.Start()
-                }) { error, e ->
-                    logger.error(e) { error }
-                    state = ApplicationState.Start(error)
-                }
-            }
-
-            is ApplicationState.EpaConstructed ->
-                EpaTreeViewUi(
-                    currentState.extendedPrefixAutomaton,
+                LayoutTest(
+                    project = currentState.project,
                     backgroundDispatcher,
                     onClose = {
                         state = ApplicationState.Start()
                     },
                 )
+//                ConstructEpaUi(scope, backgroundDispatcher, currentState.project, { epa ->
+//                    state = ApplicationState.EpaConstructed(epa)
+//                }, {
+//                    state = ApplicationState.Start()
+//                }) { error, e ->
+//                    logger.error(e) { error }
+//                    state = ApplicationState.Start(error)
+//                }
+            }
+
+            is ApplicationState.EpaConstructed -> {}
+//                LayoutTest(
+//                    project = currentState,
+//                    backgroundDispatcher,
+//                    onClose = {
+//                        state = ApplicationState.Start()
+//                    },
+//                )
+//                EpaTreeViewUi(
+//                    currentState.extendedPrefixAutomaton,
+//                    backgroundDispatcher,
+//                    onClose = {
+//                        state = ApplicationState.Start()
+//                    },
+//                )
         }
     }
 }

@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.components.epaview.components.animation.AnimationUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutUi
@@ -22,36 +24,31 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.statistics.S
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper.*
 import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
+import org.jetbrains.jewel.ui.component.HorizontalSplitLayout
+import org.jetbrains.jewel.ui.component.SplitLayoutState
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.VerticalSplitLayout
+import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
 
 @Composable
-fun EpaTreeViewUi(
-    epa: ExtendedPrefixAutomaton<Long>,
+fun LayoutTest(
+    project: Project,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    val epaViewModel by remember {
-        mutableStateOf(
-            EpaViewModel(
-                completeEpa = epa,
-                backgroundDispatcher = backgroundDispatcher,
-            ),
-        )
-    }
+    val horizontalSplitState = rememberSplitLayoutState(0.3f)
+    val verticalSplitState = rememberSplitLayoutState(0.7f)
 
-    val epaUiState by epaViewModel.epaUiState.collectAsState()
-    val statisticsState by epaViewModel.statistics.collectAsState()
-    val animationState by epaViewModel.animationState.collectAsState()
-
-    var upperState: EpaViewStateUpper by remember { mutableStateOf(EpaViewStateUpper.None) }
+    var upperState: EpaViewStateUpper by remember { mutableStateOf(EpaViewStateUpper.Project) }
     var lowerState: EpaViewStateLower by remember { mutableStateOf(EpaViewStateLower.None) }
 
-    Row(
-        modifier = Modifier.fillMaxSize(),
-    ) {
+    Row {
+        // Toolbar
         TabsUi(
             upperState = upperState,
             onUpperStateChange = { upperState = it },
@@ -60,96 +57,175 @@ fun EpaTreeViewUi(
             onClose = onClose,
         )
 
-        // OTHER
-        Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(if (lowerState != EpaViewStateUpper.None) 3f else 1f),
-            ) {
-                // UPPER
-                when (upperState) {
-                    EpaViewStateUpper.Filter -> {
-                        FilterUi(
-                            epa = epa,
-                            epaUiState = epaUiState,
-                            epaViewModel = epaViewModel,
-                            backgroundDispatcher = backgroundDispatcher,
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight(),
-                        )
-                        Divider(
-                            orientation = Orientation.Vertical,
-                            modifier = Modifier.fillMaxHeight(),
-                            thickness = 1.dp,
-                            color = JewelTheme.contentColor.copy(alpha = 0.2f)
-                        )
-                    }
-
-                    EpaViewStateUpper.Layout -> {
-                        LayoutUi(
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight(),
-                        ) {
-                            epaViewModel.updateLayout(it)
-                        }
-                        Divider(
-                            orientation = Orientation.Vertical,
-                            modifier = Modifier.fillMaxHeight(),
-                            thickness = 1.dp,
-                            color = JewelTheme.contentColor.copy(alpha = 0.2f)
-                        )
-                    }
-
-                    EpaViewStateUpper.None -> null
-                }
-
-                TidyTreeUi(
-                    epaUiState,
-                    animationState,
-                    backgroundDispatcher,
-                    modifier =
-                        Modifier
-                            .weight(if (upperState != EpaViewStateUpper.None || lowerState != EpaViewStateLower.None) 2f else 1f)
-                            .fillMaxHeight(),
+        when(lowerState){
+            EpaViewStateLower.Animation, EpaViewStateLower.Statistics -> {
+                VerticalSplitLayout(
+                    state = verticalSplitState,
+                    first = {
+                        UpperLayout(upperState, horizontalSplitState)
+                    },
+                    second = {
+                        Text("Lower + $lowerState")
+                    },
+                    modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
+                    firstPaneMinWidth = 300.dp,
+                    secondPaneMinWidth = 0.dp,
                 )
             }
 
-            // LOWER
-            if (lowerState != EpaViewStateLower.None) {
-                Divider(
-                    orientation = Orientation.Horizontal,
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = JewelTheme.contentColor.copy(alpha = 0.2f)
-                )
-
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                ) {
-                    when (lowerState) {
-                        EpaViewStateLower.Animation -> {
-                            AnimationUi(epaUiState.filteredEpa, epaViewModel, backgroundDispatcher)
-                        }
-
-                        EpaViewStateLower.Statistics -> {
-                            StatisticsComparisonUi(statisticsState)
-                        }
-
-                        EpaViewStateLower.None -> null
-                    }
-                }
+            EpaViewStateLower.None -> {
+                UpperLayout(upperState, horizontalSplitState)
             }
         }
     }
 }
+
+@Composable
+private fun UpperLayout(
+    upperState: EpaViewStateUpper,
+    horizontalSplitState: SplitLayoutState
+) {
+    when (upperState) {
+        Filter, Layout, EpaViewStateUpper.Project, Analysis, NaturalLanguage -> {
+            HorizontalSplitLayout(
+                state = horizontalSplitState,
+                first = { Text("Left + $upperState") },
+                second = { Text("Right") },
+                modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
+                firstPaneMinWidth = 0.dp,
+                secondPaneMinWidth = 300.dp,
+            )
+        }
+
+        None -> {
+            Text("Right")
+        }
+    }
+}
+
+//@Composable
+//fun EpaTreeViewUi(
+//    epa: ExtendedPrefixAutomaton<Long>,
+//    backgroundDispatcher: ExecutorCoroutineDispatcher,
+//    onClose: () -> Unit,
+//) {
+//    val epaViewModel by remember {
+//        mutableStateOf(
+//            EpaViewModel(
+//                completeEpa = epa,
+//                backgroundDispatcher = backgroundDispatcher,
+//            ),
+//        )
+//    }
+//
+//    val epaUiState by epaViewModel.epaUiState.collectAsState()
+//    val statisticsState by epaViewModel.statistics.collectAsState()
+//    val animationState by epaViewModel.animationState.collectAsState()
+//
+//    var upperState: EpaViewStateUpper by remember { mutableStateOf(EpaViewStateUpper.None) }
+//    var lowerState: EpaViewStateLower by remember { mutableStateOf(EpaViewStateLower.None) }
+//
+//    Row(
+//        modifier = Modifier.fillMaxSize(),
+//    ) {
+//        TabsUi(
+//            upperState = upperState,
+//            onUpperStateChange = { upperState = it },
+//            lowerState = lowerState,
+//            onLowerStateChange = { lowerState = it },
+//            onClose = onClose,
+//        )
+//
+//        // OTHER
+//        Column(
+//            modifier = Modifier.fillMaxSize(),
+//        ) {
+//            Row(
+//                modifier =
+//                    Modifier
+//                        .fillMaxWidth()
+//                        .weight(if (lowerState != EpaViewStateUpper.None) 3f else 1f),
+//            ) {
+//                // UPPER
+//                when (upperState) {
+//                    EpaViewStateUpper.Filter -> {
+//                        FilterUi(
+//                            epa = epa,
+//                            epaUiState = epaUiState,
+//                            epaViewModel = epaViewModel,
+//                            backgroundDispatcher = backgroundDispatcher,
+//                            modifier =
+//                                Modifier
+//                                    .weight(1f)
+//                                    .fillMaxHeight(),
+//                        )
+//                        Divider(
+//                            orientation = Orientation.Vertical,
+//                            modifier = Modifier.fillMaxHeight(),
+//                            thickness = 1.dp,
+//                            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+//                        )
+//                    }
+//
+//                    EpaViewStateUpper.Layout -> {
+//                        LayoutUi(
+//                            modifier =
+//                                Modifier
+//                                    .weight(1f)
+//                                    .fillMaxHeight(),
+//                        ) {
+//                            epaViewModel.updateLayout(it)
+//                        }
+//                        Divider(
+//                            orientation = Orientation.Vertical,
+//                            modifier = Modifier.fillMaxHeight(),
+//                            thickness = 1.dp,
+//                            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+//                        )
+//                    }
+//
+//                    EpaViewStateUpper.None -> null
+//                }
+//
+//                TidyTreeUi(
+//                    epaUiState,
+//                    animationState,
+//                    backgroundDispatcher,
+//                    modifier =
+//                        Modifier
+//                            .weight(if (upperState != EpaViewStateUpper.None || lowerState != EpaViewStateLower.None) 2f else 1f)
+//                            .fillMaxHeight(),
+//                )
+//            }
+//
+//            // LOWER
+//            if (lowerState != EpaViewStateLower.None) {
+//                Divider(
+//                    orientation = Orientation.Horizontal,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    thickness = 1.dp,
+//                    color = JewelTheme.contentColor.copy(alpha = 0.2f)
+//                )
+//
+//                Row(
+//                    modifier =
+//                        Modifier
+//                            .fillMaxWidth()
+//                            .weight(1f),
+//                ) {
+//                    when (lowerState) {
+//                        EpaViewStateLower.Animation -> {
+//                            AnimationUi(epaUiState.filteredEpa, epaViewModel, backgroundDispatcher)
+//                        }
+//
+//                        EpaViewStateLower.Statistics -> {
+//                            StatisticsComparisonUi(statisticsState)
+//                        }
+//
+//                        EpaViewStateLower.None -> null
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
