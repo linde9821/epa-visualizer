@@ -2,11 +2,16 @@ package moritz.lindner.masterarbeit.ui.components.epaview.state.manager
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,7 +25,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
+import kotlin.coroutines.cancellation.CancellationException
 
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
@@ -54,19 +61,65 @@ class EpaStateManager(
         }
     }
 
+    private fun invalidateAllEpas() {
+        _epaByTabId.value = emptyMap()
+        _stateLabelsByTabId.value = emptyMap()
+        _layoutAndConfigByTabId.value = emptyMap()
+    }
+
+
     init {
+        var rebuildJob: Job? = null
+
+        scope.launch {
+            projectFlow
+                .map { it.getMapper() as? EventLogMapper<Long> }
+                .distinctUntilChanged()
+                .drop(1) // Skip initial value
+                .collect { newMapper ->
+                    // Cancel any in-progress rebuilding
+                    rebuildJob?.cancel()
+
+                    // Invalidate immediately
+                    invalidateAllEpas()
+
+                    // Start new rebuild job
+                    rebuildJob = scope.launch(backgroundDispatcher) {
+                        try {
+                            tabStateManager.tabs.value.forEach { tab ->
+                                // Check if still active
+                                ensureActive()
+                                buildEpaForTab(tab)
+                                buildLayoutForTab(tab)
+                                buildStateLabelsForTab(tab)
+                            }
+                        } catch (e: CancellationException) {
+                            logger.info { "Rebuild cancelled (mapper changed)" }
+                            throw e
+                        } catch (e: Exception) {
+                            logger.error(e) { "Error while building state" }
+                        }
+                    }
+                }
+        }
+
         scope.launch {
             tabStateManager.tabs.collect { tabs ->
-                tabs.forEach { tab ->
-                    // build epa
-                    buildEpaForTab(tab)
+                try {
+                    tabs.forEach { tab ->
+                        // build epa
+                        buildEpaForTab(tab)
 
-                    // build layout
-                    buildLayoutForTab(tab)
+                        // build layout
+                        buildLayoutForTab(tab)
 
-                    // build labels
-                    buildStateLabelsForTab(tab)
+                        // build labels
+                        buildStateLabelsForTab(tab)
+                    }
+                } catch (e: Exception) {
+                    logger.error(e) { "Error while building state" }
                 }
+
             }
         }
     }
