@@ -226,7 +226,7 @@ class EpaStateManager(
                 tabStateManager.updateProgress(
                     tabId = tabId,
                     current = 0,
-                    total = 100,
+                    total = 1,
                     task = "Initializing EPA generation"
                 )
 
@@ -262,7 +262,7 @@ class EpaStateManager(
                 tabStateManager.updateProgress(
                     tabId = tabId,
                     current = 0,
-                    total = 100,
+                    total = 1,
                     task = "Error: ${e.message}"
                 )
             }

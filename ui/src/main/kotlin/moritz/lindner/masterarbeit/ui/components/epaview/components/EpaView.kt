@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateLower
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewStateUpper.Analysis
@@ -116,7 +117,9 @@ private fun UpperLayout(
                             epaStateManager = epaStateManager,
                             backgroundDispatcher = backgroundDispatcher,
                         )
-                        Layout -> TODO()
+                        Layout -> LayoutUi(
+                            tabStateManager = tabStateManager,
+                        )
                         NaturalLanguage -> TODO()
                         EpaViewStateUpper.Project -> {
                             ProjectUi(projectState)
