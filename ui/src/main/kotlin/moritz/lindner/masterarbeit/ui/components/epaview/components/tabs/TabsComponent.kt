@@ -42,6 +42,7 @@ fun TabsComponent(
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
     val layoutByTabId by epaStateManager.layoutAndConfigByTabId.collectAsState()
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
+    val animationState by epaStateManager.animationState.collectAsState()
 
     val currentTab = remember(tabsState, activeTabId) {
         tabsState.find { it.id == activeTabId }
@@ -113,6 +114,7 @@ fun TabsComponent(
                         TidyTreeUi(
                             treeLayout = currentLayout.first,
                             stateLabels = currentStateLabels,
+                            animationState = animationState
                         )
                     }
                 } else {

@@ -42,7 +42,7 @@ import org.jetbrains.skia.Color as SkiaColor
 fun TidyTreeUi(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
-    //animationState: AnimationState,
+    animationState: AnimationState,
     modifier: Modifier = Modifier,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
@@ -146,7 +146,7 @@ fun TidyTreeUi(
                 drawEPA(
                     treeLayout,
                     boundingBox,
-                    //animationState,
+                    animationState,
                     stateLabels,
                     scale,
                     redFill,
@@ -164,7 +164,7 @@ fun TidyTreeUi(
 fun DrawScope.drawEPA(
     layout: TreeLayout,
     boundingBox: Rectangle,
-    //animationState: AnimationState,
+    animationState: AnimationState,
     stateLabels: StateLabels,
     scale: Float,
     redFill: Paint,
@@ -194,15 +194,15 @@ fun DrawScope.drawEPA(
                     }
 
                 // TODO: optimize
-//                val isAnimating =
-//                    animationState.currentTimeStates.any {
-//                        it.state == state.from &&
-//                                it.nextState == state &&
-//                                it.from <= animationState.time &&
-//                                animationState.time < (it.to ?: Long.MAX_VALUE)
-//                    }
+                val isAnimating =
+                    animationState.currentTimeStates.any {
+                        it.state == state.from &&
+                                it.nextState == state &&
+                                it.from <= animationState.time &&
+                                animationState.time < (it.to ?: Long.MAX_VALUE)
+                    }
 
-                val edgePaint = blackStroke //if (isAnimating) redStroke else blackStroke
+                val edgePaint = if (isAnimating) redStroke else blackStroke
                 canvas.nativeCanvas.drawPath(path, edgePaint)
             }
         }
@@ -210,7 +210,7 @@ fun DrawScope.drawEPA(
         // draw nodes
         visibleNodes.forEach { (coordinate, node) ->
             val state = node.state
-            val isActive = false//animationState.contains(state)
+            val isActive = animationState.contains(state)
 
             val cx = coordinate.x
             val cy = -coordinate.y
@@ -235,7 +235,7 @@ fun DrawScope.drawEPA(
         // draw tokens
         try {
             // TODO: this can results in a nullpointer exception when running while updating the epa
-            // drawTokensWithSpreading(animationState, visibleNodes.map { it.node.state }.toSet(), layout, canvas, redFill)
+             drawTokensWithSpreading(animationState, visibleNodes.map { it.node.state }.toSet(), layout, canvas, redFill)
         } catch (e: Exception) {
             logger.error { e }
         }
