@@ -23,6 +23,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilde
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
@@ -47,6 +48,9 @@ class EpaStateManager(
     private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<TreeLayout, LayoutConfig>>>(emptyMap())
     val layoutAndConfigByTabId = _layoutAndConfigByTabId.asStateFlow()
 
+    private val _statisticsByTabId = MutableStateFlow<Map<String, Statistics<Long>>>(emptyMap())
+    val statisticsByTabId = _statisticsByTabId.asStateFlow()
+
     private val projectFlow = projectStateManager.project
 
     fun removeAllForTab(tabId: String) {
@@ -57,6 +61,9 @@ class EpaStateManager(
             currentMap.filterNot { it.key == tabId }
         }
         _layoutAndConfigByTabId.update { currentMap ->
+            currentMap.filterNot { it.key == tabId }
+        }
+        _statisticsByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
         }
     }
@@ -115,12 +122,31 @@ class EpaStateManager(
 
                         // build labels
                         buildStateLabelsForTab(tab)
+
+                        // build statistics
+                        buildStatisticForTab(tab)
                     }
                 } catch (e: Exception) {
                     logger.error(e) { "Error while building state" }
                 }
 
             }
+        }
+    }
+
+    fun buildStatisticForTab(
+        tabState: TabState
+    ) {
+        if (_statisticsByTabId.value.containsKey(tabState.id)) {
+            return
+        }
+
+        val epa = _epaByTabId.value[tabState.id]!!
+
+        val statistics = epaService.getStatistics(epa)
+
+        _statisticsByTabId.update { currentMap ->
+            currentMap + (tabState.id to statistics)
         }
     }
 

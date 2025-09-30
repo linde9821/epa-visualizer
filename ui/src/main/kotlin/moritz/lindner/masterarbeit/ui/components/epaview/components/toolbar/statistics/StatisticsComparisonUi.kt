@@ -10,17 +10,45 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
+import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
 
 @Composable
-fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
+fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: EpaStateManager) {
+
+    val tabsState by tabStateManager.tabs.collectAsState()
+    val activeTabId by tabStateManager.activeTabId.collectAsState()
+    val statisticsByTabId by epaStateManager.statisticsByTabId.collectAsState()
+
+    val currentTab = remember(tabsState, activeTabId) {
+        tabsState.find { it.id == activeTabId }
+    }
+
+    val currentStatistics = remember(statisticsByTabId, activeTabId) {
+        statisticsByTabId[activeTabId]
+    }
+
+    val rootStatistics = remember(statisticsByTabId) {
+        statisticsByTabId.toList().firstOrNull()?.second
+    }
+
+    val statisticsState = rootStatistics?.let {
+        StatisticsState(
+            fullEpa = rootStatistics,
+            filteredEpa = currentStatistics
+        )
+    }
     Column(
         modifier =
             Modifier
@@ -36,33 +64,31 @@ fun StatisticsComparisonUi(statisticsState: StatisticsState<Long>?) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text("Statistics", style = JewelTheme.typography.h1TextStyle)
-
-            if (statisticsState == null) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                )
-            }
         }
 
-        if (statisticsState != null) {
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            if (statisticsState != null) {
                 StatisticsElement(
-                    title = "Complete EPA",
+                    title = "Root EPA",
                     statistics = statisticsState.fullEpa,
                     modifier = Modifier.weight(1f),
                 )
-                StatisticsElement(
-                    title = "Filtered EPA",
-                    statistics = statisticsState.filteredEpa,
-                    modifier = Modifier.weight(1f),
-                )
+                if (statisticsState.filteredEpa != null) {
+                    StatisticsElement(
+                        title = "${currentTab?.title} EPA",
+                        statistics = statisticsState.filteredEpa,
+                        modifier = Modifier.weight(1f),
+                    )
+                } else CircularProgressIndicator()
+            } else {
+                CircularProgressIndicator()
             }
         }
     }

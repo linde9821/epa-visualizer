@@ -19,4 +19,3 @@ class ProjectStateManager(
         // TODO: invalidate existing epas if necessary
     }
 }
-

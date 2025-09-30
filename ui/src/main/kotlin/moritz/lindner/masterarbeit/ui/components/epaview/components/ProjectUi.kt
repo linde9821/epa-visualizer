@@ -19,6 +19,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.Tool
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.project.ProjectOverviewUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.statistics.StatisticsComparisonUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewLowerState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Analysis
@@ -130,7 +131,12 @@ fun LowerLayout(
 ) {
     when (lowerState) {
         EpaViewLowerState.Animation -> TODO()
-        EpaViewLowerState.Statistics -> TODO()
+        EpaViewLowerState.Statistics -> {
+            StatisticsComparisonUi(
+                tabStateManager,
+                epaStateManager,
+            )
+        }
         EpaViewLowerState.None -> {
 
         }
