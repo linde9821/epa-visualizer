@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,8 +22,8 @@ fun ActivityFilterTabUi(
     epa: ExtendedPrefixAutomaton<Long>,
     onFilterUpdate: (ActivityFilter<Long>) -> Unit,
 ) {
-    var enabledActivities by remember(epa) {
-        mutableStateOf(epa.activities.toSet())
+    val enabledActivities = remember(epa) {
+        mutableStateSetOf(*epa.activities.toTypedArray())
     }
 
     LazyColumn(
@@ -47,10 +45,10 @@ fun ActivityFilterTabUi(
                 Checkbox(
                     checked = activity in enabledActivities,
                     onCheckedChange = { isChecked ->
-                        enabledActivities = if (isChecked) {
-                            enabledActivities + activity
+                        if (isChecked) {
+                            enabledActivities.add(activity)
                         } else {
-                            enabledActivities - activity
+                            enabledActivities.remove(activity)
                         }
                         onFilterUpdate(ActivityFilter(enabledActivities.toHashSet()))
                     }

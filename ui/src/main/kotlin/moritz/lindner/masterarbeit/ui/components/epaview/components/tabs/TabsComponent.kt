@@ -51,18 +51,10 @@ fun TabsComponent(
         currentTab?.progress
     }
 
-    val currentEpa = remember(epaByTabId, activeTabId) {
-        activeTabId?.let { epaByTabId[it] }
-    }
-
-    val currentLayout = remember(layoutByTabId, activeTabId) {
-        activeTabId?.let { layoutByTabId[it] }
-    }
-
-    val currentStateLabels = remember(stateLabelsByTabId, activeTabId) {
-        activeTabId?.let { stateLabelsByTabId[it] }
-    }
-
+    val currentEpa = activeTabId?.let { epaByTabId[it] }
+    val currentLayout = activeTabId?.let { layoutByTabId[it] }
+    val currentStateLabels = activeTabId?.let { stateLabelsByTabId[it] }
+    
     val interactionSource = remember { MutableInteractionSource() }
 
     val tabs =
@@ -104,8 +96,7 @@ fun TabsComponent(
             style = JewelTheme.defaultTabStyle,
             interactionSource = interactionSource
         )
-        val activeTab = tabsState.find { it.id == activeTabId }
-        if (activeTab != null) {
+        if (currentTab != null) {
             Box(modifier = Modifier.fillMaxSize()) {
                 if ((currentProgress != null && !currentProgress.isComplete)) {
                     Column(

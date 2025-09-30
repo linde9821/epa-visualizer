@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,8 +44,8 @@ fun StateFrequencyFilterUi(
 
     val epaService = EpaService<Long>()
 
-    var sliderValue by remember { mutableStateOf(0.0f) }
-    var threshold by remember { mutableStateOf(0.0f) }
+    var sliderValue by remember { mutableFloatStateOf(0.0f) }
+    var threshold by remember { mutableFloatStateOf(0.0f) }
     var isLoading by remember { mutableStateOf(true) }
     var normalizedStateFrequency: NormalizedStateFrequency? by remember(epa) {
         mutableStateOf(null)

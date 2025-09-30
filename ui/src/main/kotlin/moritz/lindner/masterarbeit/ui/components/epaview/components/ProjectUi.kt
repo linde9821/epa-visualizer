@@ -1,5 +1,3 @@
-@file:JvmName("ProjectOverviewUiKt")
-
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
 import androidx.compose.foundation.border

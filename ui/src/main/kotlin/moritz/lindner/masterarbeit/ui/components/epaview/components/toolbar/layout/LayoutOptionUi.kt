@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,9 +50,9 @@ fun LayoutUi(
         )
         var layoutSelectionIndex by remember(currentLayout) {
             if (currentLayout != null) {
-                mutableStateOf(availableLayouts.indexOfFirst { it.name == currentLayout?.name })
+                mutableIntStateOf(availableLayouts.indexOfFirst { it.name == currentLayout?.name })
             } else {
-                mutableStateOf(0)
+                mutableIntStateOf(0)
             }
         }
 

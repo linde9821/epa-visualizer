@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +48,7 @@ fun FilterUi(
     modifier: Modifier = Modifier
 ) {
     val tabNames = listOf("Select new filter", "Activity", "State Frequency", "Partition Frequency", "Chain Pruning")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()

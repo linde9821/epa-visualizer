@@ -43,18 +43,13 @@ fun ProjectOverviewUi(
         )
 
         DefaultButton(
+            enabled = mappers[selectedIndex] != project.getMapper(),
             onClick = {
                 val updatedProject = project.withMapper(mappers[selectedIndex])
                 projectStateManager.updateProject(updatedProject)
             },
         ) {
-            Text("Update")
+            Text("Save")
         }
-
-//        EpaConfigTreeView(
-//            projectStateManager,
-//            {},
-//            {}
-//        )
     }
 }
