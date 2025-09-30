@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.NewLayoutTest
+import moritz.lindner.masterarbeit.ui.components.epaview.components.ProjectUi
 import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
 import moritz.lindner.masterarbeit.ui.components.project.NewProjectUi
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
@@ -39,7 +39,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
             )
 
             is ApplicationState.ProjectSelected -> {
-                NewLayoutTest(
+                ProjectUi(
                     project = currentState.project,
                     backgroundDispatcher,
                     onClose = {

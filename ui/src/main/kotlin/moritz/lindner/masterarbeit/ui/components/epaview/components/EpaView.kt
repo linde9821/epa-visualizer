@@ -32,7 +32,7 @@ import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
 import java.util.UUID
 
 @Composable
-fun NewLayoutTest(
+fun ProjectUi(
     project: Project,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
@@ -59,8 +59,24 @@ fun NewLayoutTest(
     val horizontalSplitState = rememberSplitLayoutState(0.3f)
     val verticalSplitState = rememberSplitLayoutState(0.7f)
 
-    var upperState: EpaViewStateUpper by remember { mutableStateOf(EpaViewStateUpper.Project) }
+    var upperState: EpaViewStateUpper by remember { mutableStateOf(EpaViewStateUpper.None) }
     var lowerState: EpaViewStateLower by remember { mutableStateOf(EpaViewStateLower.None) }
+
+    LaunchedEffect(lowerState) {
+        if (lowerState == EpaViewStateLower.None) {
+            verticalSplitState.dividerPosition = 1f
+        } else {
+            verticalSplitState.dividerPosition = 0.7f
+        }
+    }
+
+    LaunchedEffect(upperState) {
+        if (upperState == EpaViewStateUpper.None) {
+            horizontalSplitState.dividerPosition = 0.0f
+        } else {
+            horizontalSplitState.dividerPosition = 0.3f
+        }
+    }
 
     Row {
         // Toolbar
@@ -72,26 +88,26 @@ fun NewLayoutTest(
             onClose = onClose,
         )
 
-        when (lowerState) {
-            EpaViewStateLower.Animation, EpaViewStateLower.Statistics -> {
-                VerticalSplitLayout(
-                    state = verticalSplitState,
-                    first = {
-                        UpperLayout(upperState, horizontalSplitState, projectStateManager, tabsStateManager, epaStateManager, backgroundDispatcher)
-                    },
-                    second = {
-                        Text("Lower + $lowerState")
-                    },
-                    modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
-                    firstPaneMinWidth = 300.dp,
-                    secondPaneMinWidth = 0.dp,
+        VerticalSplitLayout(
+            state = verticalSplitState,
+            first = {
+                UpperLayout(
+                    upperState,
+                    horizontalSplitState,
+                    projectStateManager,
+                    tabsStateManager,
+                    epaStateManager,
+                    backgroundDispatcher
                 )
-            }
-
-            EpaViewStateLower.None -> {
-                UpperLayout(upperState, horizontalSplitState, projectStateManager, tabsStateManager, epaStateManager, backgroundDispatcher)
-            }
-        }
+            },
+            second = {
+                Text("Lower + $lowerState")
+            },
+            modifier = Modifier.fillMaxWidth()
+                .border(4.dp, color = JewelTheme.globalColors.borders.focused),
+            firstPaneMinWidth = 300.dp,
+            secondPaneMinWidth = 0.dp,
+        )
     }
 }
 
@@ -104,50 +120,58 @@ private fun UpperLayout(
     epaStateManager: EpaStateManager,
     backgroundDispatcher: ExecutorCoroutineDispatcher
 ) {
-
-    when (upperState) {
-        Filter, Layout, EpaViewStateUpper.Project, Analysis, NaturalLanguage -> {
-            HorizontalSplitLayout(
-                state = horizontalSplitState,
-                first = {
-                    when (upperState) {
-                        Analysis -> TODO()
-                        Filter -> FilterUi(
-                            tabStateManager = tabStateManager,
-                            epaStateManager = epaStateManager,
-                            backgroundDispatcher = backgroundDispatcher,
-                        )
-                        Layout -> LayoutUi(
-                            tabStateManager = tabStateManager,
-                        )
-                        NaturalLanguage -> TODO()
-                        EpaViewStateUpper.Project -> {
-                            ProjectUi(projectState)
-                        }
-
-                        else -> {}
-                    }
-                },
-                second = {
-                    TabsComponent(
-                        tabStateManager = tabStateManager,
-                        epaStateManager = epaStateManager,
-                        modifier = Modifier
-                    )
-                },
-                modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
-                firstPaneMinWidth = 0.dp,
-                secondPaneMinWidth = 300.dp,
+    HorizontalSplitLayout(
+        state = horizontalSplitState,
+        first = {
+            SidePanelContent(
+                upperState = upperState,
+                projectState = projectState,
+                tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager,
+                backgroundDispatcher = backgroundDispatcher
             )
-        }
-
-        None -> {
+        },
+        second = {
             TabsComponent(
                 tabStateManager = tabStateManager,
                 epaStateManager = epaStateManager,
-                modifier = Modifier
+                backgroundDispatcher = backgroundDispatcher,
             )
+        },
+        modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
+        firstPaneMinWidth = 0.dp,
+        secondPaneMinWidth = 300.dp,
+
+    )
+}
+
+@Composable
+private fun SidePanelContent(
+    upperState: EpaViewStateUpper,
+    projectState: ProjectStateManager,
+    tabStateManager: TabStateManager,
+    epaStateManager: EpaStateManager,
+    backgroundDispatcher: ExecutorCoroutineDispatcher
+) {
+    when (upperState) {
+        Filter -> FilterUi(
+            tabStateManager = tabStateManager,
+            epaStateManager = epaStateManager,
+            backgroundDispatcher = backgroundDispatcher,
+        )
+
+        Layout -> LayoutUi(
+            tabStateManager = tabStateManager,
+        )
+
+        EpaViewStateUpper.Project -> ProjectUi(projectState)
+        Analysis -> { /* TODO */
+        }
+
+        NaturalLanguage -> { /* TODO */
+        }
+
+        None -> { /* Should not happen */
         }
     }
 }
-
