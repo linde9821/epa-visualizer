@@ -13,8 +13,4 @@ sealed class ApplicationState {
     ) : ApplicationState()
 
     data object NewProject : ApplicationState()
-
-    data class EpaConstructed(
-        val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    ) : ApplicationState()
 }

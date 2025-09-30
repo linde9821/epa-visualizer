@@ -16,7 +16,6 @@ import moritz.lindner.masterarbeit.ui.state.ApplicationState
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
     var state: ApplicationState by remember { mutableStateOf(ApplicationState.Start()) }
-    val scope = rememberCoroutineScope()
 
     Column {
         when (val currentState = state) {
@@ -46,31 +45,7 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                         state = ApplicationState.Start()
                     },
                 )
-//                ConstructEpaUi(scope, backgroundDispatcher, currentState.project, { epa ->
-//                    state = ApplicationState.EpaConstructed(epa)
-//                }, {
-//                    state = ApplicationState.Start()
-//                }) { error, e ->
-//                    logger.error(e) { error }
-//                    state = ApplicationState.Start(error)
-//                }
             }
-
-            is ApplicationState.EpaConstructed -> {}
-//                LayoutTest(
-//                    project = currentState,
-//                    backgroundDispatcher,
-//                    onClose = {
-//                        state = ApplicationState.Start()
-//                    },
-//                )
-//                EpaTreeViewUi(
-//                    currentState.extendedPrefixAutomaton,
-//                    backgroundDispatcher,
-//                    onClose = {
-//                        state = ApplicationState.Start()
-//                    },
-//                )
         }
     }
 }

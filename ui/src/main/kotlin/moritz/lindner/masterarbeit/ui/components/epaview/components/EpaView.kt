@@ -79,7 +79,6 @@ fun ProjectUi(
     }
 
     Row {
-        // Toolbar
         ToolbarUi(
             upperState = upperState,
             onUpperStateChange = { upperState = it },
@@ -101,13 +100,34 @@ fun ProjectUi(
                 )
             },
             second = {
-                Text("Lower + $lowerState")
+                LowerLayout(
+                    lowerState,
+                    tabsStateManager,
+                    epaStateManager,
+                    backgroundDispatcher
+                )
             },
             modifier = Modifier.fillMaxWidth()
                 .border(4.dp, color = JewelTheme.globalColors.borders.focused),
             firstPaneMinWidth = 300.dp,
             secondPaneMinWidth = 0.dp,
         )
+    }
+}
+
+@Composable
+fun LowerLayout(
+    lowerState: EpaViewStateLower,
+    tabStateManager: TabStateManager,
+    epaStateManager: EpaStateManager,
+    backgroundDispatcher: ExecutorCoroutineDispatcher
+) {
+    when(lowerState) {
+        EpaViewStateLower.Animation -> TODO()
+        EpaViewStateLower.Statistics -> TODO()
+        EpaViewStateLower.None -> {
+
+        }
     }
 }
 
@@ -141,7 +161,6 @@ private fun UpperLayout(
         modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
         firstPaneMinWidth = 0.dp,
         secondPaneMinWidth = 300.dp,
-
     )
 }
 
@@ -165,10 +184,12 @@ private fun SidePanelContent(
         )
 
         EpaViewStateUpper.Project -> ProjectUi(projectState)
-        Analysis -> { /* TODO */
+        Analysis -> {
+            Text("Analysis not implemented")
         }
 
-        NaturalLanguage -> { /* TODO */
+        NaturalLanguage -> {
+            Text("Natural language not implemented")
         }
 
         None -> { /* Should not happen */

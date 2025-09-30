@@ -124,7 +124,6 @@ fun TabsComponent(
                         TidyTreeUi(
                             treeLayout = currentLayout.first,
                             stateLabels = currentStateLabels,
-                            backgroundDispatcher = backgroundDispatcher,
                         )
                     }
                 } else {

@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -44,7 +43,6 @@ fun TidyTreeUi(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     //animationState: AnimationState,
-    backgroundDispatcher: ExecutorCoroutineDispatcher,
     modifier: Modifier = Modifier,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
