@@ -1,8 +1,10 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,11 +34,14 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateM
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.Orientation
+import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.HorizontalSplitLayout
 import org.jetbrains.jewel.ui.component.SplitLayoutState
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.VerticalSplitLayout
 import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
+import org.jetbrains.jewel.ui.typography
 import java.util.UUID
 
 @Composable
@@ -115,8 +120,7 @@ fun ProjectUi(
                     backgroundDispatcher
                 )
             },
-            modifier = Modifier.fillMaxWidth()
-                .border(4.dp, color = JewelTheme.globalColors.borders.focused),
+            modifier = Modifier.fillMaxWidth(),
             firstPaneMinWidth = 300.dp,
             secondPaneMinWidth = 0.dp,
         )
@@ -138,12 +142,14 @@ fun LowerLayout(
                 backgroundDispatcher = backgroundDispatcher
             )
         }
+
         EpaViewLowerState.Statistics -> {
             StatisticsComparisonUi(
                 tabStateManager,
                 epaStateManager,
             )
         }
+
         EpaViewLowerState.None -> {
 
         }
@@ -177,10 +183,33 @@ private fun UpperLayout(
                 backgroundDispatcher = backgroundDispatcher,
             )
         },
-        modifier = Modifier.fillMaxWidth().border(4.dp, color = JewelTheme.globalColors.borders.normal),
+        modifier = Modifier.fillMaxWidth(),
         firstPaneMinWidth = 0.dp,
         secondPaneMinWidth = 300.dp,
     )
+}
+
+@Composable
+fun SidePanelMenu(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Header
+        Text(title, style = JewelTheme.typography.h1TextStyle)
+        // Separator after header
+        Divider(
+            orientation = Orientation.Horizontal,
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+        )
+        content()
+    }
 }
 
 @Composable
@@ -192,11 +221,15 @@ private fun SidePanelContent(
     backgroundDispatcher: ExecutorCoroutineDispatcher
 ) {
     when (upperState) {
-        Filter -> FilterUi(
-            tabStateManager = tabStateManager,
-            epaStateManager = epaStateManager,
-            backgroundDispatcher = backgroundDispatcher,
-        )
+        Filter -> SidePanelMenu(
+            "Filter"
+        ) {
+            FilterUi(
+                tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager,
+                backgroundDispatcher = backgroundDispatcher
+            )
+        }
 
         Layout -> LayoutUi(
             tabStateManager = tabStateManager,
