@@ -20,7 +20,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTre
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.HorizontalProgressBar
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.SimpleTabContent
@@ -122,7 +122,7 @@ fun TabsComponent(
                         modifier = modifier.fillMaxSize().background(Color.White),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center).size(50.dp))
+                        CircularProgressIndicatorBig(Modifier.align(Alignment.Center).size(50.dp))
                     }
                 }
             }

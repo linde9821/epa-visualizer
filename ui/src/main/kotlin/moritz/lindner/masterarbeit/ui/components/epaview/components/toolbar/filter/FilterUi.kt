@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,6 +28,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateM
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Icon
@@ -67,255 +69,225 @@ fun FilterUi(
     }
 
     var currentEditingFilter by remember(currentTab) { mutableStateOf<EpaFilter<Long>?>(null) }
-    val newFilters = remember(currentTab) { mutableListOf<EpaFilter<Long>>() }
+    val newFilters = remember(currentTab) { mutableStateListOf<EpaFilter<Long>>() }
 
     if (currentTab == null || alreadyAppliedFilters == null || epa == null) {
-        CircularProgressIndicator()
+        CircularProgressIndicatorBig()
     } else {
-        Column(
-            modifier = modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        DefaultButton(
+            onClick = {
+                val epaService = EpaService<Long>()
+                val filters = currentTab.filters + newFilters
+                val name = epaService.filterNames(filters)
+                // add new tab and so on
+                val id = UUID.randomUUID().toString()
+                tabStateManager.addTab(
+                    id = id,
+                    title = name,
+                    filters = filters,
+                    layoutConfig = LayoutConfig.RadialWalker()
+                )
+                tabStateManager.setActiveTab(id)
+            },
+            enabled = newFilters.isNotEmpty()
         ) {
-            // Header section
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Filters", style = JewelTheme.typography.h1TextStyle)
+                Text("Create new EPA with filters", style = JewelTheme.typography.regular)
+                Icon(
+                    key = AllIconsKeys.Actions.Rerun,
+                    contentDescription = "Apply",
+                    tint = JewelTheme.contentColor
+                )
+            }
+        }
 
-                DefaultButton(
-                    onClick = {
-                        val epaService = EpaService<Long>()
-                        val filters = currentTab.filters + newFilters
-                        val name = epaService.filterNames(filters)
-                        // add new tab and so on
-                        val id = UUID.randomUUID().toString()
-                        tabStateManager.addTab(
-                            id = id,
-                            title = name,
-                            filters = filters,
-                            layoutConfig = LayoutConfig.RadialWalker()
-                        )
-                        tabStateManager.setActiveTab(id)
-                    },
-                    enabled = newFilters.isNotEmpty()
+        // Filter selection section
+        Text(
+            "Add New Filter",
+            style = JewelTheme.typography.h2TextStyle
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ListComboBox(
+                items = tabNames,
+                selectedIndex = selectedTabIndex,
+                onSelectedItemChange = { index ->
+                    selectedTabIndex = index
+                },
+                modifier = Modifier.width(140.dp)
+            )
+
+            DefaultButton(
+                onClick = {
+                    currentEditingFilter?.let { filter ->
+                        selectedTabIndex = 0
+                        newFilters.add(filter)
+                        currentEditingFilter = null
+                    }
+                },
+                enabled = currentEditingFilter != null
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Text("Add", style = JewelTheme.typography.regular)
+                    Icon(
+                        key = AllIconsKeys.Actions.AddList,
+                        contentDescription = "Add filter",
+                        tint = JewelTheme.contentColor
+                    )
+                }
+            }
+        }
+
+        // Filter configuration section
+        if (selectedTabIndex > 0) {
+            when (selectedTabIndex) {
+                1 -> ActivityFilterTabUi(epa) { currentEditingFilter = it }
+                2 -> StateFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
+                3 -> PartitionFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
+                4 -> ChainPruningFilterUi { currentEditingFilter = it }
+                else -> Text(
+                    "${tabNames[selectedTabIndex]} not implemented",
+                    style = JewelTheme.typography.regular
+                )
+            }
+        }
+
+        // Active filters section
+        Divider(
+            orientation = Orientation.Horizontal,
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+        )
+
+        Text(
+            "Active Filters (${currentTab.filters.size})",
+            style = JewelTheme.typography.h2TextStyle
+        )
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            currentTab.filters.forEachIndexed { index, filter ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
                     ) {
-                        Text("Create new EPA with filters", style = JewelTheme.typography.regular)
-                        Icon(
-                            key = AllIconsKeys.Actions.Rerun,
-                            contentDescription = "Apply",
-                            tint = JewelTheme.contentColor
+                        Text(
+                            text = filter.name,
+                            style = JewelTheme.typography.medium
+                        )
+                        Text(
+                            text = "Filter ${index + 1}",
+                            style = JewelTheme.typography.small,
+                            color = JewelTheme.contentColor.copy(alpha = 0.7f)
                         )
                     }
                 }
-            }
 
-            // Separator after header
-            Divider(
-                orientation = Orientation.Horizontal,
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 1.dp,
-                color = JewelTheme.contentColor.copy(alpha = 0.2f)
-            )
-
-            // Filter selection section
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    "Add New Filter",
-                    style = JewelTheme.typography.h2TextStyle
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ListComboBox(
-                        items = tabNames,
-                        selectedIndex = selectedTabIndex,
-                        onSelectedItemChange = { index ->
-                            selectedTabIndex = index
-                        },
-                        modifier = Modifier.width(140.dp)
-                    )
-
-                    DefaultButton(
-                        onClick = {
-                            currentEditingFilter?.let { filter ->
-                                selectedTabIndex = 0
-                                newFilters.add(filter)
-                                currentEditingFilter = null
-                            }
-                        },
-                        enabled = currentEditingFilter != null
+                // Arrow pointing to next filter (except for the last one)
+                if (index < currentTab.filters.size - 1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Text("Add", style = JewelTheme.typography.regular)
+                            Text(
+                                "THEN",
+                                style = JewelTheme.typography.small,
+                                color = JewelTheme.contentColor.copy(alpha = 0.6f)
+                            )
                             Icon(
-                                key = AllIconsKeys.Actions.AddList,
-                                contentDescription = "Add filter",
-                                tint = JewelTheme.contentColor
+                                key = AllIconsKeys.General.ArrowDown,
+                                contentDescription = "Next filter",
+                                tint = JewelTheme.contentColor.copy(alpha = 0.6f),
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
                 }
             }
 
-            // Filter configuration section
-            if (selectedTabIndex > 0) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    when (selectedTabIndex) {
-                        1 -> ActivityFilterTabUi(epa) { currentEditingFilter = it }
-                        2 -> StateFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
-                        3 -> PartitionFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
-                        4 -> ChainPruningFilterUi { currentEditingFilter = it }
-                        else -> Text(
-                            "${tabNames[selectedTabIndex]} not implemented",
-                            style = JewelTheme.typography.regular
+            Text(
+                "New Filters (${newFilters.size})",
+                style = JewelTheme.typography.h2TextStyle
+            )
+
+            newFilters.forEachIndexed { index, filter ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
+                    ) {
+                        Row {
+                            Text(
+                                text = filter.name,
+                                style = JewelTheme.typography.medium
+                            )
+                            IconButton(
+                                onClick = {
+                                    newFilters.remove(filter)
+                                }
+                            ) {
+                                Icon(
+                                    key = AllIconsKeys.General.Delete,
+                                    contentDescription = "Delete filter",
+                                    tint = JewelTheme.contentColor.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                        Text(
+                            text = "New Filter ${index + 1}",
+                            style = JewelTheme.typography.small,
+                            color = JewelTheme.contentColor.copy(alpha = 0.7f)
                         )
                     }
                 }
-            }
 
-            // Active filters section
-            Divider(
-                orientation = Orientation.Horizontal,
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 1.dp,
-                color = JewelTheme.contentColor.copy(alpha = 0.2f)
-            )
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    "Active Filters (${currentTab.filters.size})",
-                    style = JewelTheme.typography.h2TextStyle
-                )
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    currentTab.filters.forEachIndexed { index, filter ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                // Arrow pointing to next filter (except for the last one)
+                if (index < newFilters.size - 1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 12.dp)
-                            ) {
-                                Text(
-                                    text = filter.name,
-                                    style = JewelTheme.typography.medium
-                                )
-                                Text(
-                                    text = "Filter ${index + 1}",
-                                    style = JewelTheme.typography.small,
-                                    color = JewelTheme.contentColor.copy(alpha = 0.7f)
-                                )
-                            }
-                        }
-
-                        // Arrow pointing to next filter (except for the last one)
-                        if (index < currentTab.filters.size - 1) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        "THEN",
-                                        style = JewelTheme.typography.small,
-                                        color = JewelTheme.contentColor.copy(alpha = 0.6f)
-                                    )
-                                    Icon(
-                                        key = AllIconsKeys.General.ArrowDown,
-                                        contentDescription = "Next filter",
-                                        tint = JewelTheme.contentColor.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Text(
-                        "New Filters (${newFilters.size})",
-                        style = JewelTheme.typography.h2TextStyle
-                    )
-
-                    newFilters.forEachIndexed { index, filter ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(start = 12.dp)
-                            ) {
-                                Text(
-                                    text = filter.name,
-                                    style = JewelTheme.typography.medium
-                                )
-                                Text(
-                                    text = "New Filter ${index + 1}",
-                                    style = JewelTheme.typography.small,
-                                    color = JewelTheme.contentColor.copy(alpha = 0.7f)
-                                )
-                                IconButton(
-                                    onClick = {
-                                        newFilters.removeAt(index)
-                                    }
-                                ) {
-                                    Icon(
-                                        key = AllIconsKeys.General.Delete,
-                                        contentDescription = "Delete filter",
-                                        tint = JewelTheme.contentColor.copy(alpha = 0.7f)
-                                    )
-                                }
-                            }
-                        }
-
-                        // Arrow pointing to next filter (except for the last one)
-                        if (index < newFilters.size - 1) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        "THEN",
-                                        style = JewelTheme.typography.small,
-                                        color = JewelTheme.contentColor.copy(alpha = 0.6f)
-                                    )
-                                    Icon(
-                                        key = AllIconsKeys.General.ArrowDown,
-                                        contentDescription = "Next filter",
-                                        tint = JewelTheme.contentColor.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
+                            Text(
+                                "THEN",
+                                style = JewelTheme.typography.small,
+                                color = JewelTheme.contentColor.copy(alpha = 0.6f)
+                            )
+                            Icon(
+                                key = AllIconsKeys.General.ArrowDown,
+                                contentDescription = "Next filter",
+                                tint = JewelTheme.contentColor.copy(alpha = 0.6f),
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
                     }
                 }
