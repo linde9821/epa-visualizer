@@ -47,19 +47,16 @@ fun TabsComponent(
         tabsState.find { it.id == activeTabId }
     }
 
-    val currentProgress = remember(currentTab) {
-        currentTab?.progress
-    }
-
+    val currentProgress = currentTab?.progress
     val currentEpa = activeTabId?.let { epaByTabId[it] }
     val currentLayout = activeTabId?.let { layoutByTabId[it] }
     val currentStateLabels = activeTabId?.let { stateLabelsByTabId[it] }
-    
+
     val interactionSource = remember { MutableInteractionSource() }
 
     val tabs =
         remember(tabsState, activeTabId) {
-            tabsState.mapIndexed { index, epaTab ->
+            tabsState.map { epaTab ->
                 TabData.Editor(
                     selected = epaTab.id == activeTabId,
                     content = { tabState ->
@@ -68,10 +65,9 @@ fun TabsComponent(
                             modifier = Modifier.Companion,
                             icon = {
                                 Icon(
-                                    key = AllIconsKeys.Actions.Find,
+                                    key = AllIconsKeys.Graph.Layout,
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp).tabContentAlpha(state = tabState),
-                                    tint = Color.Magenta,
                                 )
                             },
                             label = { Text(epaTab.title) },

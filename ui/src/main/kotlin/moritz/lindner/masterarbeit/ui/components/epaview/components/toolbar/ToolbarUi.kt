@@ -58,7 +58,7 @@ fun ToolbarUi(
                     )
             ) {
                 Icon(
-                    key = AllIconsKeys.General.ProjectTab,
+                    key = AllIconsKeys.General.ProjectStructure,
                     contentDescription = "Project",
                     tint = if (upperState == Project) {
                         JewelTheme.contentColor
@@ -134,7 +134,7 @@ fun ToolbarUi(
                     ),
             ) {
                 Icon(
-                    key = AllIconsKeys.Actions.DependencyAnalyzer,
+                    key = AllIconsKeys.General.InspectionsEye,
                     contentDescription = "Analyse",
                     tint =
                         if (upperState == Layout) {
@@ -160,7 +160,7 @@ fun ToolbarUi(
                     ),
             ) {
                 Icon(
-                    key = AllIconsKeys.General.Language,
+                    key = AllIconsKeys.FileTypes.Text,
                     contentDescription = "Natural Language Interface",
                     tint =
                         if (upperState == Layout) {
@@ -189,7 +189,7 @@ fun ToolbarUi(
                     ),
             ) {
                 Icon(
-                    key = AllIconsKeys.Actions.RunAll,
+                    key = AllIconsKeys.Run.Restart,
                     contentDescription = "Animation",
                     tint =
                         if (lowerState == EpaViewLowerState.Animation) {
