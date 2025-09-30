@@ -19,10 +19,10 @@ import org.jetbrains.jewel.ui.component.Text
 @OptIn(ExperimentalJewelApi::class)
 @Composable
 fun ProjectUi(
-    viewModel: ProjectViewModel
+    projectStateManager: ProjectStateManager
 ) {
     val mappers = Mappers.getMappers()
-    val project by viewModel.projectState.collectAsState()
+    val project by projectStateManager.project.collectAsState()
 
     var selectedIndex by remember(project.mapperName) {
         mutableIntStateOf(
@@ -44,16 +44,16 @@ fun ProjectUi(
         DefaultButton(
             onClick = {
                 val updatedProject = project.withMapper(mappers[selectedIndex])
-                viewModel.updateProject(updatedProject)
+                projectStateManager.updateProject(updatedProject)
             },
         ) {
             Text("Update")
         }
 
-        EpaConfigTreeView(
-            viewModel,
-            {},
-            {}
-        )
+//        EpaConfigTreeView(
+//            projectStateManager,
+//            {},
+//            {}
+//        )
     }
 }

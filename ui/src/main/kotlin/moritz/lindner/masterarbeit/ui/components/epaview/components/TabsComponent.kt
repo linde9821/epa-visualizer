@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,17 +24,37 @@ import org.jetbrains.jewel.ui.component.TabStrip
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
-import kotlin.collections.get
 
 @Composable
 fun TabsComponent(
-    viewModel: ProjectViewModel,
-    modifier: Modifier = Modifier.Companion
+    tabStateManager: TabStateManager,
+    epaStateManager: EpaStateManager,
+    modifier: Modifier = Modifier.Companion,
 ) {
-    val tabsState by viewModel.tabsByConfigId.collectAsState()
-    val activeTabId by viewModel.activeTabId.collectAsState()
-    val tabProgress by viewModel.tabProgressByConfigId.collectAsState()
-    val currentProgress by remember(tabProgress) { mutableStateOf(tabProgress[activeTabId]) }
+    val tabsState by tabStateManager.tabs.collectAsState()
+    val activeTabId by tabStateManager.activeTabId.collectAsState()
+    val epaByTabId by epaStateManager.epaByTabId.collectAsState()
+
+    val currentTab = remember(tabsState, activeTabId) {
+        tabsState.find { it.id == activeTabId }
+    }
+
+    val currentProgress = remember(currentTab) {
+        currentTab?.progress
+    }
+
+    val currentEpa = remember(epaByTabId, activeTabId) {
+        activeTabId?.let { epaByTabId[it] }
+    }
+
+    LaunchedEffect(activeTabId) {
+        activeTabId?.let { tabId ->
+            if (epaByTabId[tabId] == null) {
+                epaStateManager.buildEpaForTab(tabId)
+            }
+        }
+    }
+
     val interactionSource = remember { MutableInteractionSource() }
 
     val tabs =
@@ -50,29 +70,29 @@ fun TabsComponent(
                                 Icon(
                                     key = AllIconsKeys.Actions.Find,
                                     contentDescription = null,
-                                    modifier = Modifier.Companion.size(16.dp).tabContentAlpha(state = tabState),
-                                    tint = Color.Companion.Magenta,
+                                    modifier = Modifier.size(16.dp).tabContentAlpha(state = tabState),
+                                    tint = Color.Magenta,
                                 )
                             },
                             label = { Text(epaTab.title) },
                         )
                     },
                     onClose = {
-
-//                        tabIds = tabIds.toMutableList().apply { removeAt(index) }
-//                        if (selectedTabIndex >= index) {
-//                            val maxPossibleIndex = max(0, tabIds.lastIndex)
-//                            selectedTabIndex = (selectedTabIndex - 1).coerceIn(0..maxPossibleIndex)
-//                        }
+                        if (tabsState.size > 1) {
+                            tabStateManager.removeTab(epaTab.id)
+                            epaStateManager.removeEpaForTab(epaTab.id)
+                        }
                     },
-                    onClick = { TODO() },
+                    onClick = {
+                        tabStateManager.setActiveTab(epaTab.id)
+                    },
                 )
             }
         }
 
     TabStrip(
         tabs = tabs,
-        style = JewelTheme.Companion.defaultTabStyle,
+        style = JewelTheme.defaultTabStyle,
         interactionSource = interactionSource
     )
 
@@ -80,31 +100,32 @@ fun TabsComponent(
         // Tab content
         val activeTab = tabsState.find { it.id == activeTabId }
         if (activeTab != null) {
-            Box(modifier = Modifier.Companion.fillMaxSize()) {
-                if (currentProgress?.isActive == true && currentProgress != null) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                if ((currentProgress != null && !currentProgress.isComplete) || currentEpa == null) {
                     Column(
-                        modifier = Modifier.Companion.align(Alignment.Companion.Center),
-                        horizontalAlignment = Alignment.Companion.CenterHorizontally
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         HorizontalProgressBar(
-                            progress = currentProgress!!.progress(),
-                            modifier = Modifier.Companion.width(200.dp)
+                            progress = currentProgress?.percentage ?: 0f,
+                            modifier = Modifier.width(200.dp)
                         )
+                        Text("${currentProgress?.taskName ?: "loading"}: ${currentProgress?.current ?: 0f} / ${currentProgress?.total ?: 1f}")
                     }
                 } else {
                     // Show EPA content (placeholder for now)
                     Text(
-                        "Tab: ${activeTab.title} - Config: ${activeTab.configId}",
-                        modifier = Modifier.Companion.align(Alignment.Companion.Center)
+                        "EPA PLACEHOLDER: Tab: ${activeTab.title} - Config: ${activeTab.id}",
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
         } else {
             Box(
-                modifier = Modifier.Companion.fillMaxSize(),
-                contentAlignment = Alignment.Companion.Center
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Text("Nothing to see")
+                Text("Nothing to see because no tabs available")
             }
         }
     }

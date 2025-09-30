@@ -385,7 +385,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         progressCallback?.onProgress(2, 4, "$name: detect chains")
         val syntheticStates = mapping.detectChains(epa)
 
-        progressCallback?.onProgress(3, 1, "$name: build new mappings")
+        progressCallback?.onProgress(3, 4, "$name: build new mappings")
         mapping.parentByState = mapping.markParentsIfInvalid(syntheticStates).toMutableMap()
         mapping.childrenByState = mapping.markChildrenIfInvalid(syntheticStates).toMutableMap()
         mapping.addSyntheticStates(syntheticStates)

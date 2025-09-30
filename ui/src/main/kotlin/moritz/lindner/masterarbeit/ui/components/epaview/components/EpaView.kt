@@ -12,7 +12,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.components.epaview.components.filter.FilterUi
@@ -31,24 +30,29 @@ import org.jetbrains.jewel.ui.component.VerticalSplitLayout
 import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
 import java.util.UUID
 
-
 @Composable
 fun NewLayoutTest(
     project: Project,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    val viewModel by remember {
-        mutableStateOf(
-            ProjectViewModel(
-                project = project,
-                backgroundDispatcher = backgroundDispatcher,
-            ),
+    val projectStateManager = remember { ProjectStateManager(project, backgroundDispatcher) }
+    val tabsStateManager = remember { TabStateManager() }
+    val epaStateManager = remember {
+        EpaStateManager(
+            tabStateManager = tabsStateManager,
+            projectStateManager = projectStateManager,
+            backgroundDispatcher = backgroundDispatcher,
         )
     }
 
     LaunchedEffect(Unit) {
-        viewModel.buildRoot()
+        tabsStateManager.addTab(
+            id = UUID.randomUUID().toString(),
+            title = "root",
+            filters = emptyList(),
+            layoutConfig = LayoutConfig.RadialWalker()
+        )
     }
 
     val horizontalSplitState = rememberSplitLayoutState(0.3f)
@@ -72,7 +76,7 @@ fun NewLayoutTest(
                 VerticalSplitLayout(
                     state = verticalSplitState,
                     first = {
-                        UpperLayout(upperState, horizontalSplitState, viewModel, backgroundDispatcher)
+                        UpperLayout(upperState, horizontalSplitState, projectStateManager, tabsStateManager, epaStateManager, backgroundDispatcher)
                     },
                     second = {
                         Text("Lower + $lowerState")
@@ -84,7 +88,7 @@ fun NewLayoutTest(
             }
 
             EpaViewStateLower.None -> {
-                UpperLayout(upperState, horizontalSplitState, viewModel, backgroundDispatcher)
+                UpperLayout(upperState, horizontalSplitState, projectStateManager, tabsStateManager, epaStateManager, backgroundDispatcher)
             }
         }
     }
@@ -94,7 +98,9 @@ fun NewLayoutTest(
 private fun UpperLayout(
     upperState: EpaViewStateUpper,
     horizontalSplitState: SplitLayoutState,
-    viewModel: ProjectViewModel,
+    projectState: ProjectStateManager,
+    tabStateManager: TabStateManager,
+    epaStateManager: EpaStateManager,
     backgroundDispatcher: ExecutorCoroutineDispatcher
 ) {
 
@@ -106,13 +112,14 @@ private fun UpperLayout(
                     when (upperState) {
                         Analysis -> TODO()
                         Filter -> FilterUi(
-                            projectViewModel = viewModel,
+                            tabStateManager = tabStateManager,
+                            epaStateManager = epaStateManager,
                             backgroundDispatcher = backgroundDispatcher,
                         )
                         Layout -> TODO()
                         NaturalLanguage -> TODO()
                         EpaViewStateUpper.Project -> {
-                            ProjectUi(viewModel)
+                            ProjectUi(projectState)
                         }
 
                         else -> {}
@@ -120,7 +127,8 @@ private fun UpperLayout(
                 },
                 second = {
                     TabsComponent(
-                        viewModel = viewModel,
+                        tabStateManager = tabStateManager,
+                        epaStateManager = epaStateManager,
                         modifier = Modifier
                     )
                 },
@@ -132,7 +140,8 @@ private fun UpperLayout(
 
         None -> {
             TabsComponent(
-                viewModel = viewModel,
+                tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager,
                 modifier = Modifier
             )
         }
