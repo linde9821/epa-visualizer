@@ -16,6 +16,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tabs.TabsComponent
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.ToolbarUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.animation.AnimationUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.project.ProjectOverviewUi
@@ -66,7 +67,7 @@ fun ProjectUi(
     val horizontalSplitState = rememberSplitLayoutState(0.3f)
     val verticalSplitState = rememberSplitLayoutState(0.7f)
 
-    var upperState: EpaViewUpperState by remember { mutableStateOf(EpaViewUpperState.None) }
+    var upperState: EpaViewUpperState by remember { mutableStateOf(None) }
     var lowerState: EpaViewLowerState by remember { mutableStateOf(EpaViewLowerState.None) }
 
     LaunchedEffect(lowerState) {
@@ -78,7 +79,7 @@ fun ProjectUi(
     }
 
     LaunchedEffect(upperState) {
-        if (upperState == EpaViewUpperState.None) {
+        if (upperState == None) {
             horizontalSplitState.dividerPosition = 0.0f
         } else {
             horizontalSplitState.dividerPosition = 0.3f
@@ -130,7 +131,13 @@ fun LowerLayout(
     backgroundDispatcher: ExecutorCoroutineDispatcher
 ) {
     when (lowerState) {
-        EpaViewLowerState.Animation -> TODO()
+        EpaViewLowerState.Animation -> {
+            AnimationUi(
+                epaStateManager = epaStateManager,
+                tabStateManager = tabStateManager,
+                backgroundDispatcher = backgroundDispatcher
+            )
+        }
         EpaViewLowerState.Statistics -> {
             StatisticsComparisonUi(
                 tabStateManager,

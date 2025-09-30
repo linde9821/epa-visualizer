@@ -25,6 +25,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
+import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
@@ -53,6 +54,13 @@ class EpaStateManager(
 
     private val projectFlow = projectStateManager.project
 
+    private val _animationState = MutableStateFlow(AnimationState.Empty)
+    val animationState = _animationState.asStateFlow()
+
+    fun updateAnimation(animationState: AnimationState) {
+        _animationState.value = animationState
+    }
+
     fun removeAllForTab(tabId: String) {
         _epaByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
@@ -73,7 +81,6 @@ class EpaStateManager(
         _stateLabelsByTabId.value = emptyMap()
         _layoutAndConfigByTabId.value = emptyMap()
     }
-
 
     init {
         var rebuildJob: Job? = null
@@ -127,6 +134,7 @@ class EpaStateManager(
                         buildStatisticForTab(tab)
                     }
                 } catch (e: Exception) {
+                    // TODO: move try catch into functions and set error for tab
                     logger.error(e) { "Error while building state" }
                 }
 
@@ -142,7 +150,6 @@ class EpaStateManager(
         }
 
         val epa = _epaByTabId.value[tabState.id]!!
-
         val statistics = epaService.getStatistics(epa)
 
         _statisticsByTabId.update { currentMap ->

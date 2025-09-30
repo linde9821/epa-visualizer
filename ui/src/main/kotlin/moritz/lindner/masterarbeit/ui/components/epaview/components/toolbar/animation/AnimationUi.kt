@@ -1,72 +1,100 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.animation
 
-//import moritz.lindner.masterarbeit.ui.components.epaview.viewmodel.EpaViewModel
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
+import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.typography
 
-//@Composable
-//fun AnimationUi(
-//    filteredEpa: ExtendedPrefixAutomaton<Long>?,
-//    viewModel: EpaViewModel,
-//    backgroundDispatcher: ExecutorCoroutineDispatcher,
-//) {
-//    var state: AnimationSelectionState by remember { mutableStateOf(AnimationSelectionState.NothingSelected) }
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize(),
-//    ) {
-//        Row(
-//            modifier = Modifier.fillMaxWidth().padding(8.dp),
-//            horizontalArrangement = Arrangement.SpaceBetween,
-//            verticalAlignment = Alignment.CenterVertically,
-//        ) {
-//            Text("Animation", style = JewelTheme.typography.h1TextStyle)
-//        }
-//
-//        if (filteredEpa != null) {
-//            when (state) {
-//                AnimationSelectionState.NothingSelected -> {
-//                    Row(
-//                        modifier =
-//                            Modifier
-//                                .fillMaxWidth()
-//                                .padding(16.dp),
-//                        horizontalArrangement = Arrangement.SpaceEvenly,
-//                        verticalAlignment = Alignment.CenterVertically,
-//                    ) {
-//                        DefaultButton(
-//                            onClick = {
-//                                state = AnimationSelectionState.SingleCase
-//                            },
-//                        ) {
-//                            Text("Select Case")
-//                        }
-//
-//                        DefaultButton(
-//                            onClick = {
-//                                state = AnimationSelectionState.WholeLog
-//                            },
-//                        ) {
-//                            Text("Animate whole event log (${filteredEpa.eventLogName})")
-//                        }
-//                    }
-//                }
-//
-//                is AnimationSelectionState.SingleCase -> {
-//                    SingleCaseAnimationUI(filteredEpa, backgroundDispatcher, viewModel) {
-//                        state = AnimationSelectionState.NothingSelected
-//                    }
-//                }
-//
-//                AnimationSelectionState.WholeLog ->
-//                    TimelineSliderWholeLogUi(filteredEpa, viewModel, backgroundDispatcher) {
-//                        state = AnimationSelectionState.NothingSelected
-//                    }
-//            }
-//        } else {
-//            CircularProgressIndicator()
-//        }
-//    }
-//}
+
+@Composable
+fun AnimationUi(
+    epaStateManager: EpaStateManager,
+    tabStateManager: TabStateManager,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
+) {
+    val activeTabId by tabStateManager.activeTabId.collectAsState()
+    var state: AnimationSelectionState by remember(activeTabId) { mutableStateOf(AnimationSelectionState.NothingSelected) }
+
+    val epaByTabId by epaStateManager.epaByTabId.collectAsState()
+    val epa = activeTabId?.let { epaByTabId[it] }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Animation", style = JewelTheme.typography.h1TextStyle)
+        }
+
+        if (epa != null && activeTabId != null) {
+            when (state) {
+                AnimationSelectionState.NothingSelected -> {
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        DefaultButton(
+                            onClick = {
+                                state = AnimationSelectionState.SingleCase
+                            },
+                        ) {
+                            Text("Select Case")
+                        }
+
+                        DefaultButton(
+                            onClick = {
+                                state = AnimationSelectionState.WholeLog
+                            },
+                        ) {
+                            Text("Animate whole event log (${epa.eventLogName})")
+                        }
+                    }
+                }
+
+                is AnimationSelectionState.SingleCase -> {
+                    SingleCaseAnimationUI(epa, backgroundDispatcher, epaStateManager) {
+                        state = AnimationSelectionState.NothingSelected
+                    }
+                }
+
+                AnimationSelectionState.WholeLog ->
+                    TimelineSliderWholeLogUi(epa, epaStateManager, activeTabId!!, backgroundDispatcher) {
+                        state = AnimationSelectionState.NothingSelected
+                    }
+            }
+        } else {
+            CircularProgressIndicator()
+        }
+    }
+}
 
 fun findStepSize(
     start: Long,
