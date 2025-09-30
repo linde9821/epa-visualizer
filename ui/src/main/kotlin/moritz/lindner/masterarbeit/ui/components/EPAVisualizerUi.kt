@@ -5,12 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.epaview.components.ProjectUi
+import moritz.lindner.masterarbeit.ui.components.newproject.NewProjectUi
 import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
-import moritz.lindner.masterarbeit.ui.components.project.NewProjectUi
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 
 @Composable
