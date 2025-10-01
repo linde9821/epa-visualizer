@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.project
 
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -42,7 +43,7 @@ fun UpperLayout(
                 backgroundDispatcher = backgroundDispatcher,
             )
         },
-        modifier = Modifier.Companion.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         firstPaneMinWidth = 0.dp,
         secondPaneMinWidth = 300.dp,
     )

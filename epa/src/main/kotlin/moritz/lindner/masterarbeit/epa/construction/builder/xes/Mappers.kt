@@ -37,8 +37,7 @@ class BPI2018ChallengeMapper : EventLogMapper<Long>("Challenge 2018") {
         xTrace: XTrace,
     ): Event<Long> =
         Event(
-            activity =
-                Activity(
+            activity = Activity(
                     ((xEvent.attributes["doctype"] as XAttributeLiteralImpl).value.toString()) + " - " +
                             (xEvent.attributes["subprocess"] as XAttributeLiteralImpl).value.toString() + " - " +
                             (xEvent.attributes["concept:name"] as XAttributeLiteralImpl).value,

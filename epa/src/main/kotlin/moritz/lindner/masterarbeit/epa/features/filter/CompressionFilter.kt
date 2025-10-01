@@ -43,7 +43,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         val syntheticStateByChain = chains.associateWith { chain ->
-            val combinedActivityName = chain.joinToString("-") { it.name }
+            val combinedActivityName = chain.joinToString("-", transform = State.PrefixState::name)
             MarkedState(
                 state = State.PrefixState(
                     from = chain.first().from,

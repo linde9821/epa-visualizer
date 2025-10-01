@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 
 @Composable
 fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: EpaStateManager) {
@@ -69,9 +70,9 @@ fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: Ep
                         statistics = statisticsState.filteredEpa,
                         modifier = Modifier.weight(1f),
                     )
-                } else CircularProgressIndicator()
+                } else CircularProgressIndicatorBig()
             } else {
-                CircularProgressIndicator()
+                CircularProgressIndicatorBig()
             }
         }
     }

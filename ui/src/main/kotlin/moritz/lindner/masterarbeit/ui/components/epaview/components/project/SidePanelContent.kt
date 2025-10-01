@@ -26,7 +26,7 @@ fun SidePanelContent(
     when (upperState) {
         EpaViewUpperState.Project -> PanelMenu(
             "Project Settings",
-            modifier = Modifier.Companion.padding(8.dp),
+            modifier = Modifier.padding(8.dp),
             onClose = { onClose() }
         ) {
             ProjectOverviewUi(projectState)

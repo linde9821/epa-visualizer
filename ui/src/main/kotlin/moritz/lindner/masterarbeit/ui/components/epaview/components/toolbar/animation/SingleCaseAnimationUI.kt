@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.animation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindow
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -115,7 +117,7 @@ fun SingleCaseAnimationUI(
                                         modifier =
                                             Modifier
                                                 .padding(8.dp)
-//                                                .background(if (isSelected) Color.LIGHT_GRAY else Color.TRANSLUCENT)
+                                                .background(if (isSelected) Color.LightGray else Color.Transparent)
                                                 .clickable {
                                                     selectedCase = case
                                                     showDialog = false

@@ -31,25 +31,23 @@ fun ProjectOverviewUi(
         )
     }
 
-    Column {
-        Text("Name: ${project.name}")
-        Text("Created at: ${project.createdAt}")
+    Text("Name: ${project.name}")
+    Text("Created at: ${project.createdAt}")
 
-        ListComboBox(
-            items = mappers.map { it.name },
-            selectedIndex = selectedIndex,
-            onSelectedItemChange = { selectedIndex = it },
-            modifier = Modifier.width(250.dp)
-        )
+    ListComboBox(
+        items = mappers.map { it.name },
+        selectedIndex = selectedIndex,
+        onSelectedItemChange = { selectedIndex = it },
+        modifier = Modifier.width(250.dp)
+    )
 
-        DefaultButton(
-            enabled = mappers[selectedIndex] != project.getMapper(),
-            onClick = {
-                val updatedProject = project.withMapper(mappers[selectedIndex])
-                projectStateManager.updateProject(updatedProject)
-            },
-        ) {
-            Text("Save")
-        }
+    DefaultButton(
+        enabled = mappers[selectedIndex] != project.getMapper(),
+        onClick = {
+            val updatedProject = project.withMapper(mappers[selectedIndex])
+            projectStateManager.updateProject(updatedProject)
+        },
+    ) {
+        Text("Save")
     }
 }

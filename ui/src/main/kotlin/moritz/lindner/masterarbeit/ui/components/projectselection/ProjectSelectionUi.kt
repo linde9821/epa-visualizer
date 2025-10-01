@@ -57,7 +57,7 @@ fun ProjectSelectionUi(
         Icon(
             Icons.logo,
             contentDescription = "App Logo",
-            modifier = Modifier.size(64.dp)
+            modifier = Modifier.size(96.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -91,7 +91,7 @@ fun ProjectSelectionUi(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
                     key = AllIconsKeys.Actions.NewFolder,
@@ -115,7 +115,7 @@ fun ProjectSelectionUi(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
                     key = AllIconsKeys.Actions.ProjectDirectory,

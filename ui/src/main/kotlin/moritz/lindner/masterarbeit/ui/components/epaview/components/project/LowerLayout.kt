@@ -24,7 +24,7 @@ fun LowerLayout(
             title = "Animation",
             down = true,
             onClose = { onClose() },
-            modifier = Modifier.Companion.padding(8.dp),
+            modifier = Modifier.padding(8.dp),
         ) {
             AnimationUi(
                 epaStateManager = epaStateManager,
@@ -37,7 +37,7 @@ fun LowerLayout(
             title = "Statistics",
             down = true,
             onClose = { onClose() },
-            modifier = Modifier.Companion.padding(8.dp),
+            modifier = Modifier.padding(8.dp),
         ) {
             StatisticsComparisonUi(
                 tabStateManager,
