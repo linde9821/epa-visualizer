@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.project
 
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

@@ -38,10 +38,10 @@ class BPI2018ChallengeMapper : EventLogMapper<Long>("Challenge 2018") {
     ): Event<Long> =
         Event(
             activity = Activity(
-                    ((xEvent.attributes["doctype"] as XAttributeLiteralImpl).value.toString()) + " - " +
-                            (xEvent.attributes["subprocess"] as XAttributeLiteralImpl).value.toString() + " - " +
-                            (xEvent.attributes["concept:name"] as XAttributeLiteralImpl).value,
-                ),
+                ((xEvent.attributes["doctype"] as XAttributeLiteralImpl).value.toString()) + " - " +
+                        (xEvent.attributes["subprocess"] as XAttributeLiteralImpl).value.toString() + " - " +
+                        (xEvent.attributes["concept:name"] as XAttributeLiteralImpl).value,
+            ),
             timestamp = (xEvent.attributes["time:timestamp"] as XAttributeTimestampImpl).value.time,
             caseIdentifier = ((xTrace.attributes["concept:name"] as XAttributeLiteralImpl).value.toString()),
         )
