@@ -37,10 +37,14 @@ import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.HorizontalSplitLayout
+import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.IconButton
+import org.jetbrains.jewel.ui.component.InfoText
 import org.jetbrains.jewel.ui.component.SplitLayoutState
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.VerticalSplitLayout
 import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.util.UUID
 
@@ -110,7 +114,9 @@ fun ProjectUi(
                     tabsStateManager,
                     epaStateManager,
                     backgroundDispatcher
-                )
+                ) {
+                    upperState = None
+                }
             },
             second = {
                 LowerLayout(
@@ -163,7 +169,8 @@ private fun UpperLayout(
     projectState: ProjectStateManager,
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
-    backgroundDispatcher: ExecutorCoroutineDispatcher
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
+    onClose: () -> Unit
 ) {
     HorizontalSplitLayout(
         state = horizontalSplitState,
@@ -173,7 +180,8 @@ private fun UpperLayout(
                 projectState = projectState,
                 tabStateManager = tabStateManager,
                 epaStateManager = epaStateManager,
-                backgroundDispatcher = backgroundDispatcher
+                backgroundDispatcher = backgroundDispatcher,
+                onClose = onClose
             )
         },
         second = {
@@ -192,16 +200,27 @@ private fun UpperLayout(
 @Composable
 fun SidePanelMenu(
     title: String,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(2.dp),
     modifier: Modifier = Modifier,
+    onClose: () -> Unit,
     content: @Composable () -> Unit
 ) {
     Column(
-        modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier,
+        verticalArrangement = verticalArrangement
     ) {
-        // Header
-        Text(title, style = JewelTheme.typography.h1TextStyle)
-        // Separator after header
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(title, style = JewelTheme.typography.h1TextStyle)
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Icon(AllIconsKeys.General.ChevronLeft, "Chevron")
+            }
+        }
         Divider(
             orientation = Orientation.Horizontal,
             modifier = Modifier.fillMaxWidth(),
@@ -218,11 +237,22 @@ private fun SidePanelContent(
     projectState: ProjectStateManager,
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
-    backgroundDispatcher: ExecutorCoroutineDispatcher
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
+    onClose: () -> Unit
 ) {
     when (upperState) {
+        EpaViewUpperState.Project -> SidePanelMenu(
+            "Project Settings",
+            modifier = Modifier.padding(8.dp),
+            onClose = {onClose()}
+        ) {
+            ProjectOverviewUi(projectState)
+        }
+
         Filter -> SidePanelMenu(
-            "Filter"
+            "Filter Settings",
+            modifier = Modifier.padding(8.dp),
+            onClose = {onClose()}
         ) {
             FilterUi(
                 tabStateManager = tabStateManager,
@@ -231,17 +261,30 @@ private fun SidePanelContent(
             )
         }
 
-        Layout -> LayoutUi(
-            tabStateManager = tabStateManager,
-        )
-
-        EpaViewUpperState.Project -> ProjectOverviewUi(projectState)
-        Analysis -> {
-            Text("Analysis not implemented")
+        Layout -> SidePanelMenu(
+            title = "Layout Settings",
+            modifier = Modifier.padding(8.dp),
+            onClose = {onClose()}
+        ) {
+            LayoutUi(
+                tabStateManager = tabStateManager,
+            )
         }
 
-        NaturalLanguage -> {
-            Text("Natural language not implemented")
+        Analysis -> SidePanelMenu(
+            title = "Analysis",
+            modifier = Modifier.padding(8.dp),
+            onClose = {onClose()}
+        ) {
+            InfoText("Not implemented")
+        }
+
+        NaturalLanguage -> SidePanelMenu(
+            title = "NLI",
+            modifier = Modifier.padding(8.dp),
+            onClose = {onClose()}
+        ) {
+            InfoText("Not implemented")
         }
 
         None -> { /* Should not happen */
