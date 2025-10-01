@@ -42,14 +42,6 @@ fun AnimationUi(
         modifier = Modifier
             .fillMaxSize(),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text("Animation", style = JewelTheme.typography.h1TextStyle)
-        }
-
         if (epa != null && activeTabId != null) {
             when (state) {
                 AnimationSelectionState.NothingSelected -> {

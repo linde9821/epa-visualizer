@@ -58,17 +58,6 @@ fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: Ep
         Row(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text("Statistics", style = JewelTheme.typography.h1TextStyle)
-        }
-
-        Row(
-            modifier =
-                Modifier
                     .fillMaxSize()
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState()),
