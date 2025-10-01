@@ -114,7 +114,7 @@ fun ToolbarUi(
             ) {
                 Icon(
                     key = AllIconsKeys.General.InspectionsEye,
-                    contentDescription = "Analyse",
+                    contentDescription = "Analysis",
                     tint =
                         if (upperState == Analysis) {
                             JewelTheme.defaultTabStyle.colors.underlineSelected
