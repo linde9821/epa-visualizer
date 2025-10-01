@@ -29,15 +29,17 @@ class LayoutService<T : Comparable<T>> {
         layoutConfig: LayoutConfig
     ): TreeLayout {
         logger.info { "building tree" }
-        val treeVisitor = EpaToTree<Long>()
-        epa.copy().acceptDepthFirst(treeVisitor)
+        if (layoutConfig.render) {
+            val treeVisitor = EpaToTree<Long>()
+            epa.copy().acceptDepthFirst(treeVisitor)
 
-        logger.info { "building tree layout" }
-        val layout = LayoutFactory.create(layoutConfig)
+            logger.info { "building tree layout" }
+            val layout = LayoutFactory.create(layoutConfig)
 
-        layout.build(treeVisitor.root)
+            layout.build(treeVisitor.root)
 
-        return layout
+            return layout
+        } else return LayoutFactory.create(layoutConfig)
     }
 }
 

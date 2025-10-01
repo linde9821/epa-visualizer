@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -42,10 +43,11 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         val syntheticStateByChain = chains.associateWith { chain ->
+            val combinedActivityName = chain.joinToString("-", transform = State.PrefixState::name)
             MarkedState(
                 state = State.PrefixState(
                     from = chain.first().from,
-                    via = chain.fold(Activity("")) { acc, s -> Activity(acc.name + s.via.name) }
+                    via = Activity(combinedActivityName)
                 ),
                 isInvalid = true
             )
@@ -360,9 +362,13 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
     }
 
-    override fun apply(epa: ExtendedPrefixAutomaton<T>): ExtendedPrefixAutomaton<T> {
+    override fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> {
         val mapping = Mapping<T>()
 
+        progressCallback?.onProgress(1, 4, "$name: init")
         val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
         val parentByChild =
             epa.transitions.groupBy { it.end }.mapValues { it.value.map { transition -> transition.start }.first() }
@@ -379,8 +385,10 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             mapping.addIfNotPresent(state)
         }
 
+        progressCallback?.onProgress(2, 4, "$name: detect chains")
         val syntheticStates = mapping.detectChains(epa)
 
+        progressCallback?.onProgress(3, 4, "$name: build new mappings")
         mapping.parentByState = mapping.markParentsIfInvalid(syntheticStates).toMutableMap()
         mapping.childrenByState = mapping.markChildrenIfInvalid(syntheticStates).toMutableMap()
         mapping.addSyntheticStates(syntheticStates)
@@ -388,6 +396,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         mapping.parentByState = mapping.updateParents(syntheticStates).toMutableMap()
         mapping.childrenByState = mapping.updateChildren(syntheticStates).toMutableMap()
 
+        progressCallback?.onProgress(4, 4, "$name: construct filtered epa")
         return mapping.buildNewEpa(epa.copy(), syntheticStates)
     }
 }

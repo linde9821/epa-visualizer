@@ -93,11 +93,11 @@ data class Project(
             val json = Json { ignoreUnknownKeys = true }
             val jsonContent = Files.readString(metadataPath)
             val project = json.decodeFromString<Project>(jsonContent)
-            
+
             if (!Files.exists(project.getXesFilePath())) {
                 throw IllegalArgumentException("Source event log not found: ${project.getXesFilePath()}")
             }
-            
+
             return project
         }
     }
@@ -169,4 +169,6 @@ data class Project(
 
         return mappers[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
     }
+
+    fun withMapper(mapper: EventLogMapper<*>): Project = copy(mapperName = mapper.name)
 }

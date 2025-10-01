@@ -5,10 +5,11 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.gradle.buildconfig.plugin)
+    alias(libs.plugins.composeHotReload)
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.4.0"
+version = "1.5.0"
 
 repositories {
     google()

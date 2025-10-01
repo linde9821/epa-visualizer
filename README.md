@@ -6,7 +6,10 @@
 
 ## 🔍 Overview
 
-**EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from event logs.  
+**EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from event logs.
+
+![Screenshot.png](images/Screenshot.png)
+
 An EPA is a prefix automaton extended with partitions, where each partition represents a distinct *variant* (unique
 execution trace) observed in the event log.
 

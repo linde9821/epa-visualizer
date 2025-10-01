@@ -116,7 +116,7 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
         return this
     }
 
-    fun setProgressCallback(callback: EpaProgressCallback): EpaFromComponentsBuilder<T> {
+    fun setProgressCallback(callback: EpaProgressCallback?): EpaFromComponentsBuilder<T> {
         progressCallback = callback
         return this
     }

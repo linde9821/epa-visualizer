@@ -5,20 +5,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.EpaTreeViewUi
-import moritz.lindner.masterarbeit.ui.components.fileselection.ProjectSelectionUi
-import moritz.lindner.masterarbeit.ui.components.loadingepa.ConstructEpaUi
-import moritz.lindner.masterarbeit.ui.components.project.NewProjectUi
-import moritz.lindner.masterarbeit.ui.logger
+import moritz.lindner.masterarbeit.ui.components.epaview.components.project.ProjectUi
+import moritz.lindner.masterarbeit.ui.components.newproject.NewProjectUi
+import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
 
 @Composable
 fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
     var state: ApplicationState by remember { mutableStateOf(ApplicationState.Start()) }
-    val scope = rememberCoroutineScope()
 
     Column {
         when (val currentState = state) {
@@ -41,24 +37,14 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
             )
 
             is ApplicationState.ProjectSelected -> {
-                ConstructEpaUi(scope, backgroundDispatcher, currentState.project, { epa ->
-                    state = ApplicationState.EpaConstructed(epa)
-                }, {
-                    state = ApplicationState.Start()
-                }) { error, e ->
-                    logger.error(e) { error }
-                    state = ApplicationState.Start(error)
-                }
-            }
-
-            is ApplicationState.EpaConstructed ->
-                EpaTreeViewUi(
-                    currentState.extendedPrefixAutomaton,
+                ProjectUi(
+                    project = currentState.project,
                     backgroundDispatcher,
                     onClose = {
                         state = ApplicationState.Start()
                     },
                 )
+            }
         }
     }
 }

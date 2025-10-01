@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
@@ -15,7 +16,9 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
+class NormalizedPartitionFrequencyVisitor<T : Comparable<T>>(
+    private val progressCallback: EpaProgressCallback? = null
+) : AutomatonVisitor<T> {
     private val relativeFrequencyByPartition = HashMap<Int, Float>()
     private var allEvents = 0
 
@@ -42,6 +45,10 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>> : AutomatonVisitor<
         depth: Int,
     ) {
         allEvents++
+    }
+
+    override fun onProgress(current: Long, total: Long) {
+        progressCallback?.onProgress(current, total, "Compute normalized frequency of events per partition")
     }
 
     fun build(): NormalizedPartitionFrequency {
