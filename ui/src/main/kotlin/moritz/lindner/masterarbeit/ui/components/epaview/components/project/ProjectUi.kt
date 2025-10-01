@@ -30,7 +30,7 @@ fun ProjectUi(
     backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
-    val projectStateManager = remember { ProjectStateManager(project, backgroundDispatcher) }
+    val projectStateManager = remember { ProjectStateManager(project) }
     val tabsStateManager = remember { TabStateManager() }
     val epaStateManager = remember {
         EpaStateManager(

@@ -19,6 +19,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Slider
 import kotlin.math.roundToInt
 
@@ -53,7 +54,7 @@ fun TimelineSliderSingleCaseUi(
     }
 
     if (isLoading) {
-        CircularProgressIndicator()
+        CircularProgressIndicatorBig()
     } else if (animation != null) {
         Slider(
             value = sliderValue,

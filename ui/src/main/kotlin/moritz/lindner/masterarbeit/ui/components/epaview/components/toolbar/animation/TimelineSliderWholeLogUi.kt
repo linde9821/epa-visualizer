@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 
 @Composable
 fun TimelineSliderWholeLogUi(
@@ -90,7 +91,7 @@ fun TimelineSliderWholeLogUi(
     }
 
     if (isLoading) {
-        CircularProgressIndicator()
+        CircularProgressIndicatorBig()
     } else if (eventLogAnimation != null) {
         AnimationControlsUI(
             isPlaying = isPlaying,

@@ -137,11 +137,6 @@ fun TidyTreeUi(
 
             val boundingBox = Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
 
-//                (tabState.layoutConfig as? RadialTreeLayout)?.let {
-//                    // TODO: might be removed
-//                    drawDepthCircles(it)
-//                }
-
             try {
                 drawEPA(
                     treeLayout,

@@ -27,6 +27,7 @@ import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
@@ -116,7 +117,7 @@ fun StateFrequencyFilterUi(
             }
 
         } else {
-            CircularProgressIndicator(
+            CircularProgressIndicatorBig(
                 modifier = Modifier.size(50.dp),
             )
         }

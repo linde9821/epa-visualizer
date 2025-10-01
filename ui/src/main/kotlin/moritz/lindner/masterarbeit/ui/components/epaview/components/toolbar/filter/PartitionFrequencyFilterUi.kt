@@ -29,6 +29,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFr
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
+import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
@@ -136,7 +137,7 @@ fun PartitionFrequencyFilterUi(
 
             }
         } else {
-            CircularProgressIndicator(
+            CircularProgressIndicatorBig(
                 modifier = Modifier.size(50.dp),
             )
         }
