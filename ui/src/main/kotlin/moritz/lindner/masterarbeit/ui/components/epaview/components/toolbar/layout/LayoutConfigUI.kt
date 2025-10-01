@@ -1,6 +1,8 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
 import org.jetbrains.jewel.ui.component.Checkbox
@@ -39,12 +41,15 @@ fun LayoutConfigUI(
 
         when (info) {
             is ParameterInfo.BooleanParameterInfo -> {
-                Text(info.name)
-
-                Checkbox(
-                    checked = currentValue as Boolean,
-                    onCheckedChange = { value -> onConfigChange(config.updateParameter(paramName, value)) }
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("${info.name}:")
+                    Checkbox(
+                        checked = currentValue as Boolean,
+                        onCheckedChange = { value -> onConfigChange(config.updateParameter(paramName, value)) }
+                    )
+                }
             }
 
             is ParameterInfo.FloatParameterInfo -> {

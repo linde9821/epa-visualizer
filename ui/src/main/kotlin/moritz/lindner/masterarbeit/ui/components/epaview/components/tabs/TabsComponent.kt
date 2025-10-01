@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -29,6 +31,7 @@ import org.jetbrains.jewel.ui.component.TabStrip
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
+import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun TabsComponent(
@@ -97,14 +100,24 @@ fun TabsComponent(
             Box(modifier = Modifier.fillMaxSize()) {
                 if ((currentProgress != null && !currentProgress.isComplete)) {
                     Column(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Text(
+                            text = currentProgress.taskName,
+                            style = JewelTheme.typography.h2TextStyle
+                        )
+                        Spacer(modifier = Modifier.padding(4.dp))
+                        Text(
+                            text = "${"%.1f".format(currentProgress.percentage * 100f)}% (${currentProgress.current} / ${currentProgress.total})",
+                            style = JewelTheme.typography.regular,
+                            color = JewelTheme.contentColor.copy(alpha = 0.8f)
+                        )
+                        Spacer(modifier = Modifier.padding(12.dp))
                         HorizontalProgressBar(
                             progress = currentProgress.percentage,
-                            modifier = Modifier.width(200.dp)
+                            modifier = Modifier.width(450.dp)
                         )
-                        Text("${currentProgress.taskName}: ${currentProgress.current} / ${currentProgress.total}")
                     }
                 } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
                     // TODO: does this need to be a column
