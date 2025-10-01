@@ -109,8 +109,6 @@ fun ProjectUi(
             modifier = Modifier.fillMaxWidth(),
             firstPaneMinWidth = 300.dp,
             secondPaneMinWidth = 0.dp,
-            dividerStyle = JewelTheme.dividerStyle
         )
     }
 }
-

@@ -80,6 +80,7 @@ class EpaStateManager(
         _epaByTabId.value = emptyMap()
         _stateLabelsByTabId.value = emptyMap()
         _layoutAndConfigByTabId.value = emptyMap()
+        _statisticsByTabId.value = emptyMap()
     }
 
     init {

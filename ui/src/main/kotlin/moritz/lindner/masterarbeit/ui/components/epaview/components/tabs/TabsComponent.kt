@@ -50,7 +50,7 @@ fun TabsComponent(
 
     val currentProgress = currentTab?.progress
     val currentEpa = activeTabId?.let { epaByTabId[it] }
-    val currentLayout = activeTabId?.let { layoutByTabId[it] }
+    val currentLayoutAndConfig = activeTabId?.let { layoutByTabId[it] }
     val currentStateLabels = activeTabId?.let { stateLabelsByTabId[it] }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -106,16 +106,21 @@ fun TabsComponent(
                         )
                         Text("${currentProgress.taskName}: ${currentProgress.current} / ${currentProgress.total}")
                     }
-                } else if (currentEpa != null && currentLayout != null && currentStateLabels != null) {
+                } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
+                    // TODO: does this need to be a column
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        TidyTreeUi(
-                            treeLayout = currentLayout.first,
-                            stateLabels = currentStateLabels,
-                            animationState = animationState
-                        )
+                        if (currentLayoutAndConfig.first.isBuilt()) {
+                            TidyTreeUi(
+                                treeLayout = currentLayoutAndConfig.first,
+                                stateLabels = currentStateLabels,
+                                animationState = animationState
+                            )
+                        } else {
+                            Text("Rendering is disabled")
+                        }
                     }
                 } else {
                     Box(

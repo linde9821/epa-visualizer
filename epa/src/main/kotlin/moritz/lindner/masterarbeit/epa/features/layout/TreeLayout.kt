@@ -7,6 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 
+// TODO: add ability to rotate coordinates after creation to avoid expensive recalculation
 /**
  * Defines a layout strategy for positioning nodes in a tree structure derived from an EPA.
  *
