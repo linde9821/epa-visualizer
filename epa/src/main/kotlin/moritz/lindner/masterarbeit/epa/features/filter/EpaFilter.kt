@@ -20,5 +20,8 @@ interface EpaFilter<T : Comparable<T>> {
      * @param epa The automaton to transform or filter.
      * @return A new [ExtendedPrefixAutomaton] after applying the filter.
      */
-    fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback? = null): ExtendedPrefixAutomaton<T>
+    fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback? = null
+    ): ExtendedPrefixAutomaton<T>
 }

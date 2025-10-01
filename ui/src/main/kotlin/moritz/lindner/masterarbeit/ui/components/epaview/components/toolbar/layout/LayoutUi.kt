@@ -1,8 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue

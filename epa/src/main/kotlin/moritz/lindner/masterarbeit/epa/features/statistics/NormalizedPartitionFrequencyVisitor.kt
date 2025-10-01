@@ -4,7 +4,6 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
-import org.apache.logging.log4j.core.net.Priority
 
 /**
  * Computes the normalized frequency of events per partition in an [ExtendedPrefixAutomaton].

@@ -88,7 +88,7 @@ class EpaService<T : Comparable<T>> {
         return visitor.build()
     }
 
-    fun filterNames(filters: kotlin.collections.List<EpaFilter<Long>>): String {
+    fun filterNames(filters: List<EpaFilter<Long>>): String {
         return filters.joinToString { it.name }
     }
 }

@@ -16,5 +16,8 @@ class NoOpFilter<T : Comparable<T>> : EpaFilter<T> {
     /**
      * Returns the original [ExtendedPrefixAutomaton] without any modifications.
      */
-    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> = epa
+    override fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> = epa
 }

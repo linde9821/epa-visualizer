@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.animation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +31,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateM
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Text
-import java.awt.Color
 
 @Composable
 fun SingleCaseAnimationUI(

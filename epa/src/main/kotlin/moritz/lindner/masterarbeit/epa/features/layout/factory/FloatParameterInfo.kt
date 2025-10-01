@@ -7,10 +7,10 @@ sealed class ParameterInfo {
         val min: Float,
         val max: Float,
         val step: Float = 0.1f,
-    ): ParameterInfo()
+    ) : ParameterInfo()
 
     data class BooleanParameterInfo(
         val name: String,
-    ): ParameterInfo()
+    ) : ParameterInfo()
 }
 

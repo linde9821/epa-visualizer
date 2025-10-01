@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
@@ -38,7 +37,7 @@ fun LayoutConfigUI(
             }
         }
 
-        when(info){
+        when (info) {
             is ParameterInfo.BooleanParameterInfo -> {
                 Text(info.name)
 
@@ -47,6 +46,7 @@ fun LayoutConfigUI(
                     onCheckedChange = { value -> onConfigChange(config.updateParameter(paramName, value)) }
                 )
             }
+
             is ParameterInfo.FloatParameterInfo -> {
                 Text("${info.name}: ${"%.1f".format(currentValue)}")
 

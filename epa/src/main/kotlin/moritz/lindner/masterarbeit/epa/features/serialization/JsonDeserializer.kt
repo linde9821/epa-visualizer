@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.serialization
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Activity

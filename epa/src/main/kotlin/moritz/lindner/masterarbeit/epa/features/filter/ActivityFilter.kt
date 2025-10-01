@@ -34,7 +34,10 @@ class ActivityFilter<T : Comparable<T>>(
      * @param epa The automaton to filter.
      * @return A new [ExtendedPrefixAutomaton] that includes only allowed activities and valid state chains.
      */
-    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> {
+    override fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> {
         val statesWithAllowedActivities =
             epa.states
                 .filterIndexed { index, state ->

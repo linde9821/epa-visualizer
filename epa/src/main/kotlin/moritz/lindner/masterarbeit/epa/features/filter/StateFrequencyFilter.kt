@@ -29,7 +29,10 @@ class StateFrequencyFilter<T : Comparable<T>>(
      * @param epa The automaton to filter.
      * @return A new [ExtendedPrefixAutomaton] with only high-frequency states and valid transitions.
      */
-    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> {
+    override fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> {
         val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>(progressCallback)
         epa.acceptDepthFirst(normalizedStateFrequencyVisitor)
         val normalizedStateFrequency = normalizedStateFrequencyVisitor.build()

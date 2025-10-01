@@ -362,7 +362,10 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
     }
 
-    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> {
+    override fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> {
         val mapping = Mapping<T>()
 
         progressCallback?.onProgress(1, 4, "$name: init")

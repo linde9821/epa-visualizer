@@ -1,7 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.layout
 
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle

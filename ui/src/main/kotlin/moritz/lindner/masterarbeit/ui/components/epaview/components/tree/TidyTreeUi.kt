@@ -235,7 +235,7 @@ fun DrawScope.drawEPA(
         // draw tokens
         try {
             // TODO: this can results in a nullpointer exception when running while updating the epa
-             drawTokensWithSpreading(animationState, visibleNodes.map { it.node.state }.toSet(), layout, canvas, redFill)
+            drawTokensWithSpreading(animationState, visibleNodes.map { it.node.state }.toSet(), layout, canvas, redFill)
         } catch (e: Exception) {
             logger.error { e }
         }

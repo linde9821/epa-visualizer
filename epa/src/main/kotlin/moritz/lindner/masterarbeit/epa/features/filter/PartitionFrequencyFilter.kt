@@ -30,7 +30,10 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
      * @param epa The automaton to filter.
      * @return A new [ExtendedPrefixAutomaton] with only frequent partitions retained.
      */
-    override fun apply(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): ExtendedPrefixAutomaton<T> {
+    override fun apply(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback?
+    ): ExtendedPrefixAutomaton<T> {
         val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>(progressCallback)
         epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
         val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
