@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +24,7 @@ import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
+import org.jetbrains.jewel.ui.theme.defaultTabStyle
 
 @Composable
 fun ToolbarUi(
@@ -51,17 +52,12 @@ fun ToolbarUi(
                         if (upperState != Project) Project else None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (upperState == None) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    )
             ) {
                 Icon(
-                    key = AllIconsKeys.General.ProjectStructure,
+                    key = AllIconsKeys.Actions.ProjectDirectory,
                     contentDescription = "Project",
                     tint = if (upperState == Project) {
-                        JewelTheme.contentColor
+                        JewelTheme.defaultTabStyle.colors.underlineSelected
                     } else {
                         Color.Unspecified
                     },
@@ -76,17 +72,12 @@ fun ToolbarUi(
                         if (upperState != Filter) Filter else None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (upperState == Filter) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    ),
             ) {
                 Icon(
                     key = AllIconsKeys.General.Filter,
                     contentDescription = "Filter",
                     tint = if (upperState == Filter) {
-                        JewelTheme.contentColor
+                        JewelTheme.defaultTabStyle.colors.underlineSelected
                     } else {
                         Color.Unspecified
                     },
@@ -101,18 +92,13 @@ fun ToolbarUi(
                         if (upperState != Layout) Layout else None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (upperState == Layout) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    ),
             ) {
                 Icon(
                     key = AllIconsKeys.General.Layout,
                     contentDescription = "Map",
                     tint =
                         if (upperState == Layout) {
-                            JewelTheme.contentColor
+                            JewelTheme.defaultTabStyle.colors.underlineSelected
                         } else {
                             Color.Unspecified
                         },
@@ -127,18 +113,13 @@ fun ToolbarUi(
                         if (upperState != Analysis) Analysis else None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (upperState == Analysis) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    ),
             ) {
                 Icon(
                     key = AllIconsKeys.General.InspectionsEye,
                     contentDescription = "Analyse",
                     tint =
-                        if (upperState == Layout) {
-                            JewelTheme.contentColor
+                        if (upperState == Analysis) {
+                            JewelTheme.defaultTabStyle.colors.underlineSelected
                         } else {
                             Color.Unspecified
                         },
@@ -153,18 +134,13 @@ fun ToolbarUi(
                         if (upperState != NaturalLanguage) NaturalLanguage else None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (upperState == NaturalLanguage) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    ),
             ) {
                 Icon(
                     key = AllIconsKeys.FileTypes.Text,
                     contentDescription = "Natural Language Interface",
                     tint =
-                        if (upperState == Layout) {
-                            JewelTheme.contentColor
+                        if (upperState == NaturalLanguage) {
+                            JewelTheme.defaultTabStyle.colors.underlineSelected
                         } else {
                             Color.Unspecified
                         },
@@ -182,18 +158,13 @@ fun ToolbarUi(
                         if (lowerState != EpaViewLowerState.Animation) EpaViewLowerState.Animation else EpaViewLowerState.None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (lowerState == EpaViewLowerState.Animation) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    ),
             ) {
                 Icon(
                     key = AllIconsKeys.Run.Restart,
                     contentDescription = "Animation",
                     tint =
                         if (lowerState == EpaViewLowerState.Animation) {
-                            JewelTheme.contentColor
+                            JewelTheme.defaultTabStyle.colors.underlineSelected
                         } else {
                             Color.Unspecified
                         },
@@ -208,18 +179,13 @@ fun ToolbarUi(
                         if (lowerState != EpaViewLowerState.Statistics) EpaViewLowerState.Statistics else EpaViewLowerState.None,
                     )
                 },
-                modifier =
-                    Modifier.background(
-                        if (lowerState == EpaViewLowerState.Statistics) Color.LightGray else Color.Transparent,
-                        shape = CircleShape,
-                    ),
             ) {
                 Icon(
                     key = AllIconsKeys.Actions.ShowImportStatements,
                     contentDescription = "Statistics",
                     tint =
                         if (lowerState == EpaViewLowerState.Statistics) {
-                            JewelTheme.contentColor
+                            JewelTheme.defaultTabStyle.colors.underlineSelected
                         } else {
                             Color.Unspecified
                         },
@@ -233,6 +199,6 @@ fun ToolbarUi(
         orientation = Orientation.Vertical,
         modifier = Modifier.fillMaxHeight(),
         thickness = 1.dp,
-        color = JewelTheme.contentColor.copy(alpha = 0.2f)
+        color = JewelTheme.defaultTabStyle.colors.underlineSelected.copy(alpha = 0.2f)
     )
 }
