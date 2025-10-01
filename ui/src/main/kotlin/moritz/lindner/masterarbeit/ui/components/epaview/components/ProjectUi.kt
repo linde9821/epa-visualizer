@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateM
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.foundation.theme.JewelTheme.Companion
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.HorizontalSplitLayout
@@ -45,6 +47,7 @@ import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.VerticalSplitLayout
 import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
+import org.jetbrains.jewel.ui.theme.dividerStyle
 import org.jetbrains.jewel.ui.typography
 import java.util.UUID
 
@@ -129,6 +132,7 @@ fun ProjectUi(
             modifier = Modifier.fillMaxWidth(),
             firstPaneMinWidth = 300.dp,
             secondPaneMinWidth = 0.dp,
+            dividerStyle = JewelTheme.dividerStyle
         )
     }
 }

@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,7 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
+import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.GroupHeader
 import org.jetbrains.jewel.ui.component.ListComboBox
 
@@ -60,7 +64,12 @@ fun LayoutUi(
             },
         )
 
-        Spacer(Modifier.height(8.dp))
+        Divider(
+            orientation = Orientation.Horizontal,
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = JewelTheme.contentColor.copy(alpha = 0.2f)
+        )
 
         GroupHeader("Settings for ${currentLayout?.name}:")
         LayoutConfigUI(currentLayout!!) { newConfig ->

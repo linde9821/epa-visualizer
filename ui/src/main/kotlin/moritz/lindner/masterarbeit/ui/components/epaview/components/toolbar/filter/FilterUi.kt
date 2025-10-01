@@ -27,7 +27,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateM
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Divider
@@ -73,101 +72,6 @@ fun FilterUi(
     if (currentTab == null || alreadyAppliedFilters == null || epa == null) {
         CircularProgressIndicatorBig()
     } else {
-        DefaultButton(
-            onClick = {
-                val epaService = EpaService<Long>()
-                val filters = currentTab.filters + newFilters
-                val name = epaService.filterNames(filters)
-                // add new tab and so on
-                val id = UUID.randomUUID().toString()
-                tabStateManager.addTab(
-                    id = id,
-                    title = name,
-                    filters = filters,
-                    layoutConfig = LayoutConfig.RadialWalker()
-                )
-                tabStateManager.setActiveTab(id)
-            },
-            enabled = newFilters.isNotEmpty()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text("Create new EPA with filters", style = JewelTheme.typography.regular)
-                Icon(
-                    key = AllIconsKeys.Actions.Rerun,
-                    contentDescription = "Apply",
-                    tint = JewelTheme.contentColor
-                )
-            }
-        }
-
-        // Filter selection section
-        Text(
-            "Add New Filter",
-            style = JewelTheme.typography.h2TextStyle
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ListComboBox(
-                items = tabNames,
-                selectedIndex = selectedTabIndex,
-                onSelectedItemChange = { index ->
-                    selectedTabIndex = index
-                },
-                modifier = Modifier.width(140.dp)
-            )
-
-            DefaultButton(
-                onClick = {
-                    currentEditingFilter?.let { filter ->
-                        selectedTabIndex = 0
-                        newFilters.add(filter)
-                        currentEditingFilter = null
-                    }
-                },
-                enabled = currentEditingFilter != null
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Add", style = JewelTheme.typography.regular)
-                    Icon(
-                        key = AllIconsKeys.Actions.AddList,
-                        contentDescription = "Add filter",
-                        tint = JewelTheme.contentColor
-                    )
-                }
-            }
-        }
-
-        // Filter configuration section
-        if (selectedTabIndex > 0) {
-            when (selectedTabIndex) {
-                1 -> ActivityFilterTabUi(epa) { currentEditingFilter = it }
-                2 -> StateFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
-                3 -> PartitionFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
-                4 -> ChainPruningFilterUi { currentEditingFilter = it }
-                else -> Text(
-                    "${tabNames[selectedTabIndex]} not implemented",
-                    style = JewelTheme.typography.regular
-                )
-            }
-        }
-
-        // Active filters section
-        Divider(
-            orientation = Orientation.Horizontal,
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = JewelTheme.contentColor.copy(alpha = 0.2f)
-        )
-
         Text(
             "Active Filters (${currentTab.filters.size})",
             style = JewelTheme.typography.h2TextStyle
@@ -225,10 +129,65 @@ fun FilterUi(
                 }
             }
 
+            Divider(
+                orientation = Orientation.Horizontal,
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = JewelTheme.contentColor.copy(alpha = 0.2f)
+            )
+
             Text(
                 "New Filters (${newFilters.size})",
                 style = JewelTheme.typography.h2TextStyle
             )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ListComboBox(
+                    items = tabNames,
+                    selectedIndex = selectedTabIndex,
+                    onSelectedItemChange = { index ->
+                        selectedTabIndex = index
+                    },
+                    modifier = Modifier.width(140.dp)
+                )
+
+                DefaultButton(
+                    onClick = {
+                        currentEditingFilter?.let { filter ->
+                            selectedTabIndex = 0
+                            newFilters.add(filter)
+                            currentEditingFilter = null
+                        }
+                    },
+                    enabled = currentEditingFilter != null
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("Add", style = JewelTheme.typography.regular)
+                        Icon(
+                            key = AllIconsKeys.Actions.AddList,
+                            contentDescription = "Add filter",
+                            tint = JewelTheme.contentColor
+                        )
+                    }
+                }
+            }
+
+            // Filter configuration section
+            if (selectedTabIndex > 0) {
+                when (selectedTabIndex) {
+                    1 -> ActivityFilterTabUi(epa) { currentEditingFilter = it }
+                    2 -> StateFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
+                    3 -> PartitionFrequencyFilterUi(epa, backgroundDispatcher) { currentEditingFilter = it }
+                    4 -> ChainPruningFilterUi { currentEditingFilter = it }
+                    else -> {}
+                }
+            }
 
             newFilters.forEachIndexed { index, filter ->
                 Row(
@@ -291,6 +250,36 @@ fun FilterUi(
                     }
                 }
             }
+            DefaultButton(
+                onClick = {
+                    val epaService = EpaService<Long>()
+                    val filters = currentTab.filters + newFilters
+                    val name = epaService.filterNames(filters)
+                    // add new tab and so on
+                    val id = UUID.randomUUID().toString()
+                    tabStateManager.addTab(
+                        id = id,
+                        title = name,
+                        filters = filters,
+                        layoutConfig = LayoutConfig.RadialWalker()
+                    )
+                    tabStateManager.setActiveTab(id)
+                },
+                enabled = newFilters.isNotEmpty()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("New EPA from all filters", style = JewelTheme.typography.regular)
+                    Icon(
+                        key = AllIconsKeys.Actions.Rerun,
+                        contentDescription = "Apply",
+                        tint = JewelTheme.contentColor
+                    )
+                }
+            }
+
         }
     }
 }
