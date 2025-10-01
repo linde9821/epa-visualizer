@@ -32,8 +32,8 @@ fun ProjectOverviewUi(
     }
 
     Column {
-        Text("Project: ${project.name}")
-        Text("Created on ${project.createdAt}")
+        Text("Name: ${project.name}")
+        Text("Created at: ${project.createdAt}")
 
         ListComboBox(
             items = mappers.map { it.name },

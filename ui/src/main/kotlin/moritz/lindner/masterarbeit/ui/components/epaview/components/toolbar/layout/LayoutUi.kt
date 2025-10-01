@@ -1,8 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,14 +15,11 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.GroupHeader
-import org.jetbrains.jewel.ui.component.InfoText
 import org.jetbrains.jewel.ui.component.ListComboBox
-import org.jetbrains.jewel.ui.component.Text
 
 @Composable
 fun LayoutUi(
     tabStateManager: TabStateManager,
-    modifier: Modifier = Modifier,
 ) {
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
@@ -50,31 +46,28 @@ fun LayoutUi(
             }
         }
 
-        Column(
-//            modifier = modifier.padding(start = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            GroupHeader("Layout algorithm")
-            ListComboBox(
-                items = availableLayouts.map { it.name },
-                selectedIndex = layoutSelectionIndex,
-                onSelectedItemChange = { index ->
-                    layoutSelectionIndex = index
-                    val newConfig = availableLayouts[index]
-                    tabStateManager.updateLayout(
-                        activeTabId!!,
-                        newConfig
-                    )
-                },
-            )
-
-            GroupHeader("Settings for ${currentLayout?.name}:")
-            LayoutConfigUI(currentLayout!!) { newConfig ->
+        GroupHeader("Layout algorithm")
+        ListComboBox(
+            items = availableLayouts.map { it.name },
+            selectedIndex = layoutSelectionIndex,
+            onSelectedItemChange = { index ->
+                layoutSelectionIndex = index
+                val newConfig = availableLayouts[index]
                 tabStateManager.updateLayout(
                     activeTabId!!,
                     newConfig
                 )
-            }
+            },
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        GroupHeader("Settings for ${currentLayout?.name}:")
+        LayoutConfigUI(currentLayout!!) { newConfig ->
+            tabStateManager.updateLayout(
+                activeTabId!!,
+                newConfig
+            )
         }
     }
 }

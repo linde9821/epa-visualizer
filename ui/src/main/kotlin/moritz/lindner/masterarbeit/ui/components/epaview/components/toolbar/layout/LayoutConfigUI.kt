@@ -13,51 +13,49 @@ fun LayoutConfigUI(
     config: LayoutConfig,
     onConfigChange: (LayoutConfig) -> Unit
 ) {
-    Column {
-        config.getParameters().forEach { (paramName, info) ->
-            val currentValue = when (config) {
-                is LayoutConfig.Walker -> when (paramName) {
-                    "distance" -> config.distance
-                    "yDistance" -> config.yDistance
-                    "enabled" -> config.render
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.DirectAngular -> when (paramName) {
-                    "layerSpace" -> config.layerSpace
-                    "rotation" -> config.rotation
-                    "enabled" -> config.render
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.RadialWalker -> when (paramName) {
-                    "layerSpace" -> config.layerSpace
-                    "margin" -> config.margin
-                    "rotation" -> config.rotation
-                    "enabled" -> config.render
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
+    config.getParameters().forEach { (paramName, info) ->
+        val currentValue = when (config) {
+            is LayoutConfig.Walker -> when (paramName) {
+                "distance" -> config.distance
+                "yDistance" -> config.yDistance
+                "enabled" -> config.render
+                else -> throw IllegalArgumentException("Unknown parameter $paramName")
             }
 
-            when(info){
-                is ParameterInfo.BooleanParameterInfo -> {
-                    Text(info.name)
+            is LayoutConfig.DirectAngular -> when (paramName) {
+                "layerSpace" -> config.layerSpace
+                "rotation" -> config.rotation
+                "enabled" -> config.render
+                else -> throw IllegalArgumentException("Unknown parameter $paramName")
+            }
 
-                    Checkbox(
-                        checked = currentValue as Boolean,
-                        onCheckedChange = { value -> onConfigChange(config.updateParameter(paramName, value)) }
-                    )
-                }
-                is ParameterInfo.FloatParameterInfo -> {
-                    Text("${info.max}: ${"%.1f".format(currentValue)}")
+            is LayoutConfig.RadialWalker -> when (paramName) {
+                "layerSpace" -> config.layerSpace
+                "margin" -> config.margin
+                "rotation" -> config.rotation
+                "enabled" -> config.render
+                else -> throw IllegalArgumentException("Unknown parameter $paramName")
+            }
+        }
 
-                    Slider(
-                        value = currentValue as Float,
-                        onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value)) },
-                        valueRange = info.min..info.max,
-                        steps = ((info.max - info.min) / info.step).toInt()
-                    )
-                }
+        when(info){
+            is ParameterInfo.BooleanParameterInfo -> {
+                Text(info.name)
+
+                Checkbox(
+                    checked = currentValue as Boolean,
+                    onCheckedChange = { value -> onConfigChange(config.updateParameter(paramName, value)) }
+                )
+            }
+            is ParameterInfo.FloatParameterInfo -> {
+                Text("${info.name}: ${"%.1f".format(currentValue)}")
+
+                Slider(
+                    value = currentValue as Float,
+                    onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value)) },
+                    valueRange = info.min..info.max,
+                    steps = ((info.max - info.min) / info.step).toInt()
+                )
             }
         }
     }
