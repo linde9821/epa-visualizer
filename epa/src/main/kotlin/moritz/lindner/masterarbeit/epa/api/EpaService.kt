@@ -44,7 +44,7 @@ class EpaService<T : Comparable<T>> {
     fun applyFilters(
         epa: ExtendedPrefixAutomaton<T>,
         filters: List<EpaFilter<T>>,
-        progressCallback: EpaProgressCallback?
+        progressCallback: EpaProgressCallback? = null
     ): ExtendedPrefixAutomaton<T> {
         return filters.fold(epa) { acc, filter ->
             logger.info { "Applying filter ${filter.name}" }
