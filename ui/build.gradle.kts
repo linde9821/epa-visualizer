@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.gradle.buildconfig.plugin)
+    alias(libs.plugins.composeHotReload)
 }
 
 group = "moritz.lindner.masterarbeit"
