@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -20,7 +21,7 @@ import org.jetbrains.jewel.ui.typography
 @Composable
 fun PanelMenu(
     title: String,
-    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(2.dp),
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
     modifier: Modifier = Modifier.Companion,
     down: Boolean = false,
     onClose: () -> Unit,
@@ -32,12 +33,13 @@ fun PanelMenu(
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.Companion.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(title, style = JewelTheme.Companion.typography.h1TextStyle)
+            Text(title, style = JewelTheme.typography.h1TextStyle)
             IconButton(
                 onClick = onClose,
-                modifier = Modifier.Companion.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp)
             ) {
                 if (down) {
                     Icon(AllIconsKeys.General.ChevronDown, "Chevron")
@@ -48,9 +50,9 @@ fun PanelMenu(
         }
         Divider(
             orientation = Orientation.Horizontal,
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             thickness = 1.dp,
-            color = JewelTheme.Companion.contentColor.copy(alpha = 0.2f)
+            color = JewelTheme.contentColor.copy(alpha = 0.2f)
         )
         content()
     }

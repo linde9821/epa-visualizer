@@ -34,7 +34,7 @@ fun SidePanelContent(
 
         EpaViewUpperState.Filter -> PanelMenu(
             "Filter Settings",
-            modifier = Modifier.Companion.padding(8.dp),
+            modifier = Modifier.padding(4.dp),
             onClose = { onClose() }
         ) {
             FilterUi(
@@ -46,7 +46,7 @@ fun SidePanelContent(
 
         EpaViewUpperState.Layout -> PanelMenu(
             title = "Layout Settings",
-            modifier = Modifier.Companion.padding(8.dp),
+            modifier = Modifier.padding(8.dp),
             onClose = { onClose() }
         ) {
             LayoutUi(
