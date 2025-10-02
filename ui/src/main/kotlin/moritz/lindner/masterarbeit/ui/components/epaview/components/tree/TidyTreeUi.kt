@@ -47,14 +47,20 @@ fun TidyTreeUi(
     animationState: AnimationState,
     modifier: Modifier = Modifier,
     onStateHover: (State?) -> Unit,
+    onStateClicked: (State?) -> Unit,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
 
     var hoveredNode by remember { mutableStateOf<NodePlacement?>(null) }
+    var pressedNode by remember { mutableStateOf<NodePlacement?>(null) }
 
     LaunchedEffect(hoveredNode) {
         onStateHover(hoveredNode?.node?.state)
+    }
+
+    LaunchedEffect(pressedNode) {
+        onStateClicked(pressedNode?.node?.state)
     }
 
     val redFill =
@@ -133,7 +139,7 @@ fun TidyTreeUi(
                     while (true) {
                         val event = awaitPointerEvent()
 
-                        if (event.type == PointerEventType.Move || event.type == PointerEventType.Enter) {
+                        if (event.type == PointerEventType.Move || event.type == PointerEventType.Enter || event.type == PointerEventType.Press) {
                             val screenPosition = event.changes.first().position
 
                             // Transform screen coordinates to world coordinates
@@ -148,15 +154,14 @@ fun TidyTreeUi(
                                 )
 
                             // Update hovered node if it changed
-                            hoveredNode =
-                                if (nodeAtPosition.isNotEmpty()) {
-                                    nodeAtPosition.first()
-                                } else {
-                                    null
-                                }
-                        } else if (event.type == PointerEventType.Exit) {
-                            // Clear hover when mouse leaves the canvas
-                            hoveredNode = null
+                            val newNode = nodeAtPosition.firstOrNull()
+
+                            if (newNode != hoveredNode) {
+                                hoveredNode = newNode
+                            }
+                            if (event.type == PointerEventType.Press && pressedNode != newNode) {
+                                pressedNode = hoveredNode
+                            }
                         }
                     }
                 }
@@ -234,9 +239,9 @@ fun DrawScope.drawEPA(
                 val isAnimating =
                     animationState.currentTimeStates.any {
                         it.state == state.from &&
-                            it.nextState == state &&
-                            it.from <= animationState.time &&
-                            animationState.time < (it.to ?: Long.MAX_VALUE)
+                                it.nextState == state &&
+                                it.from <= animationState.time &&
+                                animationState.time < (it.to ?: Long.MAX_VALUE)
                     }
 
                 val edgePaint = if (isAnimating) redStroke else blackStroke
@@ -343,14 +348,14 @@ fun interpolateBezier(
     return Offset(
         x =
             u.pow(3) * start.x +
-                3 * u.pow(2) * t * c1.x +
-                3 * u * t.pow(2) * c2.x +
-                t.pow(3) * end.x,
+                    3 * u.pow(2) * t * c1.x +
+                    3 * u * t.pow(2) * c2.x +
+                    t.pow(3) * end.x,
         y =
             u.pow(3) * start.y +
-                3 * u.pow(2) * t * c1.y +
-                3 * u * t.pow(2) * c2.y +
-                t.pow(3) * end.y,
+                    3 * u.pow(2) * t * c1.y +
+                    3 * u * t.pow(2) * c2.y +
+                    t.pow(3) * end.y,
     )
 }
 

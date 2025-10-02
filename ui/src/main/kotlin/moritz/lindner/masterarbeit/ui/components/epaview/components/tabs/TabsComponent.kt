@@ -134,10 +134,13 @@ fun TabsComponent(
                                 treeLayout = currentLayoutAndConfig.first,
                                 stateLabels = currentStateLabels,
                                 animationState = animationState,
-                            ) {
-                                logger.info { "Hovering above ${it?.name}" }
-                            }
-                        } else {
+                                onStateHover = {
+                                    logger.info { "Hovering above ${it?.name}" }
+                                },
+                                onStateClicked = {
+                                    logger.info { "Clicked ${it?.name}" }
+                                }
+                            )                         } else {
                             Text("Rendering is disabled")
                         }
                     }
