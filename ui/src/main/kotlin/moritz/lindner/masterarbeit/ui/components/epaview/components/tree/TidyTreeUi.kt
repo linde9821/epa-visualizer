@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,7 @@ import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.logger
@@ -44,9 +46,16 @@ fun TidyTreeUi(
     stateLabels: StateLabels,
     animationState: AnimationState,
     modifier: Modifier = Modifier,
+    onStateHover: (State?) -> Unit,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
+
+    var hoveredNode by remember { mutableStateOf<NodePlacement?>(null) }
+
+    LaunchedEffect(hoveredNode) {
+        onStateHover(hoveredNode?.node?.state)
+    }
 
     val redFill =
         remember {
@@ -115,6 +124,39 @@ fun TidyTreeUi(
 
                             val worldPosAfter = worldPosBefore * scale
                             offset = cursorPosition - worldPosAfter
+                        }
+                    }
+                }
+            }.pointerInput(Unit) {
+                // Mouse hover detection
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+
+                        if (event.type == PointerEventType.Move || event.type == PointerEventType.Enter) {
+                            val screenPosition = event.changes.first().position
+
+                            // Transform screen coordinates to world coordinates
+                            val worldPosition = (screenPosition - offset) / scale
+
+                            val nodeAtPosition =
+                                treeLayout.getCoordinatesInRectangle(
+                                    Rectangle(
+                                        topLeft = Coordinate(worldPosition.x - 5, worldPosition.y - 5),
+                                        bottomRight = Coordinate(worldPosition.x + 5, worldPosition.y + 5),
+                                    ),
+                                )
+
+                            // Update hovered node if it changed
+                            hoveredNode =
+                                if (nodeAtPosition.isNotEmpty()) {
+                                    nodeAtPosition.first()
+                                } else {
+                                    null
+                                }
+                        } else if (event.type == PointerEventType.Exit) {
+                            // Clear hover when mouse leaves the canvas
+                            hoveredNode = null
                         }
                     }
                 }
@@ -192,9 +234,9 @@ fun DrawScope.drawEPA(
                 val isAnimating =
                     animationState.currentTimeStates.any {
                         it.state == state.from &&
-                                it.nextState == state &&
-                                it.from <= animationState.time &&
-                                animationState.time < (it.to ?: Long.MAX_VALUE)
+                            it.nextState == state &&
+                            it.from <= animationState.time &&
+                            animationState.time < (it.to ?: Long.MAX_VALUE)
                     }
 
                 val edgePaint = if (isAnimating) redStroke else blackStroke
@@ -301,14 +343,14 @@ fun interpolateBezier(
     return Offset(
         x =
             u.pow(3) * start.x +
-                    3 * u.pow(2) * t * c1.x +
-                    3 * u * t.pow(2) * c2.x +
-                    t.pow(3) * end.x,
+                3 * u.pow(2) * t * c1.x +
+                3 * u * t.pow(2) * c2.x +
+                t.pow(3) * end.x,
         y =
             u.pow(3) * start.y +
-                    3 * u.pow(2) * t * c1.y +
-                    3 * u * t.pow(2) * c2.y +
-                    t.pow(3) * end.y,
+                3 * u.pow(2) * t * c1.y +
+                3 * u * t.pow(2) * c2.y +
+                t.pow(3) * end.y,
     )
 }
 

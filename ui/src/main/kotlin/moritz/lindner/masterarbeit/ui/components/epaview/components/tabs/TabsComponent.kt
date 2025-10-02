@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.HorizontalProgressBar
@@ -38,7 +39,7 @@ fun TabsComponent(
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
     modifier: Modifier = Modifier.Companion,
-    backgroundDispatcher: ExecutorCoroutineDispatcher
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
@@ -47,9 +48,10 @@ fun TabsComponent(
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val animationState by epaStateManager.animationState.collectAsState()
 
-    val currentTab = remember(tabsState, activeTabId) {
-        tabsState.find { it.id == activeTabId }
-    }
+    val currentTab =
+        remember(tabsState, activeTabId) {
+            tabsState.find { it.id == activeTabId }
+        }
 
     val currentProgress = currentTab?.progress
     val currentEpa = activeTabId?.let { epaByTabId[it] }
@@ -94,43 +96,47 @@ fun TabsComponent(
         TabStrip(
             tabs = tabs,
             style = JewelTheme.defaultTabStyle,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
         if (currentTab != null) {
             Box(modifier = Modifier.fillMaxSize()) {
                 if ((currentProgress != null && !currentProgress.isComplete)) {
                     Column(
                         modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = currentProgress.taskName,
-                            style = JewelTheme.typography.h2TextStyle
+                            style = JewelTheme.typography.h2TextStyle,
                         )
                         Spacer(modifier = Modifier.padding(4.dp))
                         Text(
-                            text = "${"%.1f".format(currentProgress.percentage * 100f)}% (${currentProgress.current} / ${currentProgress.total})",
+                            text = "${"%.1f".format(
+                                currentProgress.percentage * 100f,
+                            )}% (${currentProgress.current} / ${currentProgress.total})",
                             style = JewelTheme.typography.regular,
-                            color = JewelTheme.contentColor.copy(alpha = 0.8f)
+                            color = JewelTheme.contentColor.copy(alpha = 0.8f),
                         )
                         Spacer(modifier = Modifier.padding(12.dp))
                         HorizontalProgressBar(
                             progress = currentProgress.percentage,
-                            modifier = Modifier.width(450.dp)
+                            modifier = Modifier.width(450.dp),
                         )
                     }
                 } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
                     // TODO: does this need to be a column
                     Column(
                         modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (currentLayoutAndConfig.first.isBuilt()) {
                             TidyTreeUi(
                                 treeLayout = currentLayoutAndConfig.first,
                                 stateLabels = currentStateLabels,
-                                animationState = animationState
-                            )
+                                animationState = animationState,
+                            ) {
+                                logger.info { "Hovering above ${it?.name}" }
+                            }
                         } else {
                             Text("Rendering is disabled")
                         }
@@ -147,7 +153,7 @@ fun TabsComponent(
         } else {
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text("Nothing to see because no tabs available")
             }
