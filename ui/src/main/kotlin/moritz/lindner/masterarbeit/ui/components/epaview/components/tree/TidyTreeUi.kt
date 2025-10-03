@@ -36,6 +36,7 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
 import kotlin.math.cos
+import kotlin.math.log
 import kotlin.math.pow
 import kotlin.math.sin
 import org.jetbrains.skia.Color as SkiaColor
@@ -52,8 +53,8 @@ fun TidyTreeUi(
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
 
-    var hoveredNode by remember { mutableStateOf<NodePlacement?>(null) }
-    var pressedNode by remember { mutableStateOf<NodePlacement?>(null) }
+    var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
+    var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
 
     LaunchedEffect(hoveredNode) {
         onStateHover(hoveredNode?.node?.state)
@@ -133,7 +134,7 @@ fun TidyTreeUi(
                         }
                     }
                 }
-            }.pointerInput(Unit) {
+            }.pointerInput(treeLayout) {
                 // Mouse hover detection
                 awaitPointerEventScope {
                     while (true) {
@@ -145,13 +146,18 @@ fun TidyTreeUi(
                             // Transform screen coordinates to world coordinates
                             val worldPosition = (screenPosition - offset) / scale
 
+                            logger.info { "World Position: $worldPosition" }
+
+                            val width = 10
                             val nodeAtPosition =
                                 treeLayout.getCoordinatesInRectangle(
                                     Rectangle(
-                                        topLeft = Coordinate(worldPosition.x - 5, worldPosition.y - 5),
-                                        bottomRight = Coordinate(worldPosition.x + 5, worldPosition.y + 5),
+                                        topLeft = Coordinate(worldPosition.x - width, worldPosition.y - width),
+                                        bottomRight = Coordinate(worldPosition.x + width, worldPosition.y + width),
                                     ),
                                 )
+
+                            logger.info { "nodes close by ${nodeAtPosition.joinToString { it.node.state.name }}" }
 
                             // Update hovered node if it changed
                             val newNode = nodeAtPosition.firstOrNull()
