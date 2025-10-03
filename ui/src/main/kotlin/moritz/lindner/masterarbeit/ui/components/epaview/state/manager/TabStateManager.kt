@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
@@ -52,6 +53,18 @@ class TabStateManager {
             currentTabs.map { tab ->
                 if (tab.id == tabId) {
                     tab.copy(layoutConfig = layoutConfig)
+                } else {
+                    tab
+                }
+            }
+        }
+    }
+
+    fun setSelectedStateForCurrentTab(selectedState: State){
+        _tabs.update { currentTabs ->
+            currentTabs.map { tab ->
+                if (tab.id == activeTabId.value) {
+                    tab.copy(selectedState = selectedState)
                 } else {
                     tab
                 }
