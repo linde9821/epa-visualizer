@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
+import moritz.lindner.masterarbeit.ui.common.Formatting.asFormattedLocalDateTime
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import org.jetbrains.jewel.ui.component.Slider
@@ -84,15 +85,4 @@ fun AnimationControlsUI(
             Text("End: ${last.asFormattedLocalDateTime()}")
         }
     }
-}
-
-fun Long.asFormattedLocalDateTime(): String {
-    val localDateTime = LocalDateTime.ofInstant(
-        Instant.ofEpochMilli(this),
-        ZoneId.systemDefault()
-    )
-    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
-    val formattedDate = localDateTime.format(formatter)
-
-    return formattedDate
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -92,73 +93,78 @@ fun TabsComponent(
             }
         }
 
-    Column {
-        TabStrip(
-            tabs = tabs,
-            style = JewelTheme.defaultTabStyle,
-            interactionSource = interactionSource,
-        )
-        if (currentTab != null) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if ((currentProgress != null && !currentProgress.isComplete)) {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = currentProgress.taskName,
-                            style = JewelTheme.typography.h2TextStyle,
-                        )
-                        Spacer(modifier = Modifier.padding(4.dp))
-                        Text(
-                            text = "${"%.1f".format(
-                                currentProgress.percentage * 100f,
-                            )}% (${currentProgress.current} / ${currentProgress.total})",
-                            style = JewelTheme.typography.regular,
-                            color = JewelTheme.contentColor.copy(alpha = 0.8f),
-                        )
-                        Spacer(modifier = Modifier.padding(12.dp))
-                        HorizontalProgressBar(
-                            progress = currentProgress.percentage,
-                            modifier = Modifier.width(450.dp),
-                        )
-                    }
-                } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
-                    // TODO: does this need to be a column
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        if (currentLayoutAndConfig.first.isBuilt()) {
-                            TidyTreeUi(
-                                treeLayout = currentLayoutAndConfig.first,
-                                stateLabels = currentStateLabels,
-                                animationState = animationState,
-                                onStateHover = {
-                                    logger.info { "Hovering above ${it?.name}" }
-                                },
-                                onStateClicked = {
-                                    logger.info { "Clicked ${it?.name}" }
-                                }
-                            )                         } else {
-                            Text("Rendering is disabled")
+    Row {
+        Column {
+            TabStrip(
+                tabs = tabs,
+                style = JewelTheme.defaultTabStyle,
+                interactionSource = interactionSource,
+            )
+            if (currentTab != null) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if ((currentProgress != null && !currentProgress.isComplete)) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = currentProgress.taskName,
+                                style = JewelTheme.typography.h2TextStyle,
+                            )
+                            Spacer(modifier = Modifier.padding(4.dp))
+                            Text(
+                                text = "${
+                                    "%.1f".format(
+                                        currentProgress.percentage * 100f,
+                                    )
+                                }% (${currentProgress.current} / ${currentProgress.total})",
+                                style = JewelTheme.typography.regular,
+                                color = JewelTheme.contentColor.copy(alpha = 0.8f),
+                            )
+                            Spacer(modifier = Modifier.padding(12.dp))
+                            HorizontalProgressBar(
+                                progress = currentProgress.percentage,
+                                modifier = Modifier.width(450.dp),
+                            )
+                        }
+                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
+                        // TODO: does this need to be a column
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            if (currentLayoutAndConfig.first.isBuilt()) {
+                                TidyTreeUi(
+                                    treeLayout = currentLayoutAndConfig.first,
+                                    stateLabels = currentStateLabels,
+                                    animationState = animationState,
+                                    onStateHover = {
+                                        logger.info { "Hovering above ${it?.name}" }
+                                    },
+                                    onStateClicked = {
+                                        if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
+                                    }
+                                )
+                            } else {
+                                Text("Rendering is disabled")
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = modifier.fillMaxSize().background(Color.White),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicatorBig(Modifier.align(Alignment.Center).size(50.dp))
                         }
                     }
-                } else {
-                    Box(
-                        modifier = modifier.fillMaxSize().background(Color.White),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicatorBig(Modifier.align(Alignment.Center).size(50.dp))
-                    }
                 }
-            }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text("Nothing to see because no tabs available")
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("Nothing to see because no tabs available")
+                }
             }
         }
     }
