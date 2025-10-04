@@ -214,6 +214,9 @@ fun StateInfo(
 
         Divider(orientation = Orientation.Horizontal)
 
-//        TimeToReachPlot(sequence = seq)
+        TimeToReachPlot(
+            state = selectedState,
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+        )
     }
 }

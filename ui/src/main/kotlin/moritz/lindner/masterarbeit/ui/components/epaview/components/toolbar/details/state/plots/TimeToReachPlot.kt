@@ -11,7 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.Event
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.ui.common.Formatting.formatDuration
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -28,9 +31,11 @@ import org.jetbrains.letsPlot.themes.theme
 
 @Composable
 fun TimeToReachPlot(
-    sequence: Set<Event<Long>>,
+    state: State,
+    extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     modifier: Modifier = Modifier.Companion
 ) {
+    val sequence = extendedPrefixAutomaton.sequence(state)
     if (sequence.isEmpty()) {
         Text(
             text = "No events to display",
@@ -40,12 +45,14 @@ fun TimeToReachPlot(
         return
     }
 
-    // Calculate time-to-reach for each event (from first event in trace)
-    val sortedEvents = sequence.sortedBy { it.timestamp }
-    val firstEventTime = sortedEvents.first().timestamp
+    val epaService = EpaService<Long>()
+    val traces = epaService.getTracesByState(extendedPrefixAutomaton, state)
 
-    val timeToReachData = sortedEvents.mapIndexed { index, event ->
-        val durationMs = event.timestamp - firstEventTime
+    val timeToReachData = traces.map { trace ->
+        val first = trace.first()
+        val atState = trace.first { event -> event in sequence }
+
+        val durationMs = atState.timestamp - first.timestamp
         val durationMinutes = durationMs / (1000.0 * 60.0)
 
         mapOf(

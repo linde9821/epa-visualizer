@@ -14,6 +14,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
+import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
 
 /**
  * Service for analyzing and manipulating Extended Prefix Automatons.
@@ -128,6 +129,20 @@ class EpaService<T : Comparable<T>> {
         return when (current) {
             is State.PrefixState -> traverseToRoot(acc + current, current.from)
             State.Root -> acc + listOf(current)
+        }
+    }
+
+    fun getTracesByState(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        state: State
+    ): List<List<Event<T>>> {
+        val seq = extendedPrefixAutomaton.sequence(state)
+
+        val traces = TraceAccessIndex<T>()
+        extendedPrefixAutomaton.acceptDepthFirst(traces)
+
+        return seq.map { event ->
+            traces.getTraceByEvent(event)
         }
     }
 }
