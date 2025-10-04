@@ -117,40 +117,40 @@ fun StateInfo(
                 fontWeight = FontWeight.SemiBold
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        alignment = Stroke.Alignment.Inside,
-                        width = 1.dp,
-                        color = JewelTheme.globalColors.borders.normal,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                Column {
-                    Text("Incoming", style = JewelTheme.typography.small)
+            if (incomingTransitions.isNotEmpty()){
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        incomingTransitions.size.toString(),
-                        style = JewelTheme.typography.medium,
-                        fontWeight = FontWeight.Bold
+                        text = "Incoming (${incomingTransitions.size}",
+                        style = JewelTheme.typography.regular,
+                        fontWeight = FontWeight.Medium
                     )
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        incomingTransitions.forEach { transition ->
+                            Chip(onClick = {
+                                onStateSelected(transition.start)
+                            }) {
+                                Tooltip(
+                                    tooltip = {
+                                        Text("via ${transition.activity.name}")
+                                    }
+                                ) {
+                                    Text(transition.start.name, fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    }
                 }
-                Column {
-                    Text("Outgoing", style = JewelTheme.typography.small)
-                    Text(
-                        outgoingTransitions.size.toString(),
-                        style = JewelTheme.typography.medium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+
             }
 
             if (outgoingTransitions.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        text = "Next States",
+                        text = "Outgoing (${outgoingTransitions.size}",
                         style = JewelTheme.typography.regular,
                         fontWeight = FontWeight.Medium
                     )
