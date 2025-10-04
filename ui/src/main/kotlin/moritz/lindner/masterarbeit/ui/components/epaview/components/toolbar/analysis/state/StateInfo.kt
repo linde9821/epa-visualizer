@@ -2,17 +2,18 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.ana
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -117,7 +118,7 @@ fun StateInfo(
                 fontWeight = FontWeight.SemiBold
             )
 
-            if (incomingTransitions.isNotEmpty()){
+            if (incomingTransitions.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
                         text = "Incoming (${incomingTransitions.size}",
@@ -133,13 +134,7 @@ fun StateInfo(
                             Chip(onClick = {
                                 onStateSelected(transition.start)
                             }) {
-                                Tooltip(
-                                    tooltip = {
-                                        Text("via ${transition.activity.name}")
-                                    }
-                                ) {
-                                    Text(transition.start.name, fontSize = 11.sp)
-                                }
+                                Text(transition.start.name, fontSize = 11.sp)
                             }
                         }
                     }
@@ -165,7 +160,7 @@ fun StateInfo(
                             }) {
                                 Tooltip(
                                     tooltip = {
-                                        Text("via ${transition.activity.name}")
+                                        Text("via: ${transition.activity.name}")
                                     }
                                 ) {
                                     Text(transition.end.name, fontSize = 11.sp)
@@ -179,7 +174,6 @@ fun StateInfo(
 
         Divider(orientation = Orientation.Horizontal)
 
-        // Path Section
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -192,24 +186,22 @@ fun StateInfo(
 
             val pathToRoot = epaService.getPathFromRoot(selectedState)
 
-            Box(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 120.dp)
-                    .border(
-                        alignment = Stroke.Alignment.Inside,
-                        width = 1.dp,
-                        color = JewelTheme.globalColors.borders.normal,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-                    .verticalScroll(rememberScrollState())
-                    .padding(8.dp)
+                    .padding(4.dp)
             ) {
-                SelectionContainer {
-                    Text(
-                        text = pathToRoot.joinToString(" → ") { it.name },
-                        style = JewelTheme.typography.regular
-                    )
+                itemsIndexed(pathToRoot) { index, state ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Chip(onClick = {
+                            onStateSelected(state)
+                        }) {
+                            Text(state.name, fontSize = 11.sp)
+                        }
+                    }
                 }
             }
         }
