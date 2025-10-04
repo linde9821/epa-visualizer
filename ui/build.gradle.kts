@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.jna.core)
 
     implementation(libs.bundles.filekit)
+    implementation(libs.bundles.lets.plot)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)

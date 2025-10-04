@@ -21,6 +21,9 @@ jna = "5.18.0"
 composeHotReload = "1.0.0-beta08"
 filekit = "0.11.0"
 kotlinx-serialization = "1.9.0"
+let-plot-compose = "3.0.0"
+let-plot-common = "4.7.3"
+let-plot-kernel = "4.11.2"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -43,11 +46,15 @@ filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "file
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+lets-plot-kotlin-kernel = { module = "org.jetbrains.lets-plot:lets-plot-kotlin-kernel", version.ref = "let-plot-kernel" }
+lets-plot-kotlin-common = { module = "org.jetbrains.lets-plot:lets-plot-kotlin-common", version.ref = "let-plot-common" }
+lets-plot-kotlin-compose = { module = "org.jetbrains.lets-plot:lets-plot-kotlin-compose", version.ref = "let-plot-compose" }
 
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
 filekit = ["filekit-core", "filekit-dialogs-compose"]
 serialization = ["kotlinx-serialization-core", "kotlinx-serialization-json"]
+lets-plot = ["lets-plot-kotlin-kernel", "lets-plot-kotlin-common", "lets-plot-kotlin-compose"]
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
