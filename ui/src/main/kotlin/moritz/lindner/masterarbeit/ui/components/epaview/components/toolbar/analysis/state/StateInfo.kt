@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.analysis.state
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,8 +29,10 @@ import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Chip
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.typography
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StateInfo(
     selectedState: State,
@@ -147,7 +150,7 @@ fun StateInfo(
             if (outgoingTransitions.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        text = "Next Activities and states",
+                        text = "Next States",
                         style = JewelTheme.typography.regular,
                         fontWeight = FontWeight.Medium
                     )
@@ -160,7 +163,13 @@ fun StateInfo(
                             Chip(onClick = {
                                 onStateSelected(transition.end)
                             }) {
-                                Text(transition.activity.name, fontSize = 11.sp)
+                                Tooltip(
+                                    tooltip = {
+                                        Text("via ${transition.activity.name}")
+                                    }
+                                ) {
+                                    Text(transition.end.name, fontSize = 11.sp)
+                                }
                             }
                         }
                     }
