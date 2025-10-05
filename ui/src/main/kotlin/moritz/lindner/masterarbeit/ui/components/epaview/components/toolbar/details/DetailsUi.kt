@@ -30,9 +30,13 @@ fun DetailsUi(
         StateInfo(
             selectedState = currentTab.selectedState,
             extendedPrefixAutomaton = currentEpa,
-        ) {
-            tabStateManager.setSelectedStateForCurrentTab(it)
-        }
+            onStateSelected = {
+                tabStateManager.setSelectedStateForCurrentTab(it)
+            },
+            locate = {
+
+            }
+        )
     }else {
         InfoText("No state selected")
     }

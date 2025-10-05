@@ -146,8 +146,6 @@ fun TidyTreeUi(
                             // Transform screen coordinates to world coordinates
                             val worldPosition = (screenPosition - offset) / scale
 
-                            logger.info { "World Position: $worldPosition" }
-
                             val width = 10
                             val nodeAtPosition =
                                 treeLayout.getCoordinatesInRectangle(
@@ -156,8 +154,6 @@ fun TidyTreeUi(
                                         bottomRight = Coordinate(worldPosition.x + width, worldPosition.y + width),
                                     ),
                                 )
-
-                            logger.info { "nodes close by ${nodeAtPosition.joinToString { it.node.state.name }}" }
 
                             // Update hovered node if it changed
                             val newNode = nodeAtPosition.firstOrNull()

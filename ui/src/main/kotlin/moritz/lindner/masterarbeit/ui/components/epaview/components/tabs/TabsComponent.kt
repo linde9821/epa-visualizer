@@ -139,7 +139,6 @@ fun TabsComponent(
                                     stateLabels = currentStateLabels,
                                     animationState = animationState,
                                     onStateHover = {
-                                        logger.info { "Hovering above ${it?.name}" }
                                     },
                                     onStateClicked = {
                                         if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
