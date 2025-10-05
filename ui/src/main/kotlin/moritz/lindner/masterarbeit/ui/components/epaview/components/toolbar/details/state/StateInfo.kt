@@ -25,6 +25,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CumulativeEventsPlot
+import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CycleTimePlot
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.TimeToReachPlot
 import org.jetbrains.jewel.foundation.Stroke
 import org.jetbrains.jewel.foundation.modifier.border
@@ -32,8 +33,11 @@ import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Chip
 import org.jetbrains.jewel.ui.component.Divider
+import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.Tooltip
+import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -41,7 +45,8 @@ import org.jetbrains.jewel.ui.typography
 fun StateInfo(
     selectedState: State,
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    onStateSelected: (State) -> Unit
+    onStateSelected: (State) -> Unit,
+    locate: (State) -> Unit
 ) {
     val epaService = EpaService<Long>()
 
@@ -82,11 +87,15 @@ fun StateInfo(
                     )
                 }
 
-                if (isLeaf) {
-                    Chip(onClick = {}) {
-                        Text("Leaf", fontSize = 11.sp)
-                    }
+                IconButton(
+                    onClick = {},
+                ) {
+                    Icon(
+                        key = AllIconsKeys.General.Locate,
+                        contentDescription = "Locate",
+                    )
                 }
+
             }
         }
 
@@ -124,7 +133,7 @@ fun StateInfo(
             if (incomingTransitions.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        text = "Incoming (${incomingTransitions.size}",
+                        text = "Incoming (${incomingTransitions.size})",
                         style = JewelTheme.typography.regular,
                         fontWeight = FontWeight.Medium
                     )
@@ -147,7 +156,7 @@ fun StateInfo(
             if (outgoingTransitions.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        text = "Outgoing (${outgoingTransitions.size}",
+                        text = "Outgoing (${outgoingTransitions.size})",
                         style = JewelTheme.typography.regular,
                         fontWeight = FontWeight.Medium
                     )
@@ -215,6 +224,13 @@ fun StateInfo(
         Divider(orientation = Orientation.Horizontal)
 
         TimeToReachPlot(
+            state = selectedState,
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+        )
+
+        Divider(orientation = Orientation.Horizontal)
+
+        CycleTimePlot(
             state = selectedState,
             extendedPrefixAutomaton = extendedPrefixAutomaton,
         )
