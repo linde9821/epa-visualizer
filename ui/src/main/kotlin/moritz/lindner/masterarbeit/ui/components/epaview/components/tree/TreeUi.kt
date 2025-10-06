@@ -65,7 +65,6 @@ fun TreeUi(
 
             val targetNode = treeLayout.getCoordinate(tabState.locateState)
 
-            // 2. compute offset so node is centered
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             offset = screenCenter - targetNode.toOffset() * scale
         }

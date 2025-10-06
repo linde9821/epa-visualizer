@@ -147,6 +147,17 @@ class EpaService<T : Comparable<T>> {
         }
     }
 
+    fun <C> computeCycleTime(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        state: State,
+        minus: (T, T) -> T,
+        addition: (T, T) -> T,
+        average: (List<T>) -> C
+    ): C {
+        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton, state, minus)
+        return average(cycleTimes)
+    }
+
     fun computeCycleTimes(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
