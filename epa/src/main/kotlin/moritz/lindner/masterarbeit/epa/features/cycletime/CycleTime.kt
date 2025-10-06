@@ -11,7 +11,6 @@ class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
     private lateinit var traceByCaseId: Map<String, List<Event<T>>>
     private lateinit var extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>
 
-
     override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         this.extendedPrefixAutomaton = extendedPrefixAutomaton
     }
@@ -22,7 +21,7 @@ class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
             .mapValues { (_, events) -> events.sortedBy(Event<T>::timestamp) }
     }
 
-    // cycle times dont work properly when chain compression is
+    // cycle times dont work properly when chain compression is, last states can have a cycle time
     fun cycleTimesOfState(state: State, minus: (T, T) -> T): List<T> {
         val seq = extendedPrefixAutomaton.sequence(state)
 
@@ -31,13 +30,11 @@ class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
             .mapValues { (_, events) ->
                 // get first Event accept when last event of chain is terminating (cant be filtered in the other pass)
                 val lastEvent = events.maxByOrNull { it.timestamp }!!
-                if (lastEvent.successorIndex == null) null
+                if (traceByCaseId[lastEvent.caseIdentifier]?.last() == lastEvent) null
                 else events.minBy(Event<T>::timestamp)
             }.values.filterNotNull()
 
-        val seqWithoutTerminating = seqWithoutChains.filter { it.successorIndex != null }
-
-        return seqWithoutTerminating.mapNotNull { event ->
+        return seqWithoutChains.mapNotNull { event ->
             cycleTimeOfEventInTrace(event, state, minus)
         }
     }

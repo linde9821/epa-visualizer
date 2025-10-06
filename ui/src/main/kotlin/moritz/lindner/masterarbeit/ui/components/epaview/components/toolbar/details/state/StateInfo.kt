@@ -16,6 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CumulativeEventsPlot
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CycleTimePlot
@@ -56,7 +61,6 @@ fun StateInfo(
     val depth = epaService.getDepth(selectedState)
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
-    val isLeaf = outgoingTransitions.isEmpty()
 
     Column(
         modifier = Modifier
@@ -188,6 +192,7 @@ fun StateInfo(
 
         Divider(orientation = Orientation.Horizontal)
 
+        // Path From Root
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -222,6 +227,33 @@ fun StateInfo(
 
         Divider(orientation = Orientation.Horizontal)
 
+        Divider(orientation = Orientation.Horizontal)
+
+        // Traces
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Traces",
+                style = JewelTheme.typography.h4TextStyle,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 120.dp)
+                    .padding(4.dp)
+            ) {
+                items(traces) { trace ->
+                    TraceDetail(trace, selectedState, extendedPrefixAutomaton)
+                }
+            }
+        }
+
         CumulativeEventsPlot(sequence = seq)
 
         Divider(orientation = Orientation.Horizontal)
@@ -237,5 +269,43 @@ fun StateInfo(
             state = selectedState,
             extendedPrefixAutomaton = extendedPrefixAutomaton,
         )
+    }
+}
+
+@Composable
+fun TraceDetail(trace: List<Event<Long>>, state: State, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>) {
+    var show by remember { mutableStateOf(false) }
+
+    Row {
+        Text("Trace ${trace.first().caseIdentifier}")
+        IconButton(
+            onClick = { show = !show },
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+            if (!show) {
+                Icon(AllIconsKeys.General.ChevronDown, "Chevron")
+            } else {
+                Icon(AllIconsKeys.General.ChevronUp, "Chevron")
+            }
+        }
+    }
+
+    if (show) {
+        val epaService = EpaService<Long>()
+        val stateByEvent: Map<Event<Long>, State> = epaService.getStateByEvent(extendedPrefixAutomaton)
+        Column(modifier = Modifier.padding(4.dp)) {
+            trace.forEachIndexed { index, event ->
+                val stateOfEvent = stateByEvent[event]
+                val weight = if (stateOfEvent == state) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Normal
+                }
+                Text(
+                    "${index + 1}: ${event.activity} at ${event.timestamp} for ${stateOfEvent?.name}",
+                    fontWeight = weight,
+                )
+            }
+        }
     }
 }
