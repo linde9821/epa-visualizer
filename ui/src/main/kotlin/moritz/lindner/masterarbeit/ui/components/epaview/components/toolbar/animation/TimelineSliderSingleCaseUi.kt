@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.AnimationService
+import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.features.animation.EventLogAnimation
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
@@ -21,6 +22,7 @@ import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Slider
+import org.jetbrains.jewel.ui.component.Text
 import kotlin.math.roundToInt
 
 @Composable
@@ -35,6 +37,7 @@ fun TimelineSliderSingleCaseUi(
     var isLoading by remember { mutableStateOf(true) }
     var animation by remember { mutableStateOf<EventLogAnimation<Long>?>(null) }
     var sliderValue by remember { mutableFloatStateOf(0f) }
+    var currentEvent: Event<Long>? by remember { mutableStateOf(null) }
 
     LaunchedEffect(epa) {
         isLoading = true
@@ -63,8 +66,6 @@ fun TimelineSliderSingleCaseUi(
 
                 val index = sliderValue.roundToInt().coerceIn(0, animation!!.totalAmountOfEvents - 1)
                 val state = animation!!.getNthEntry(index)
-
-                logger.info { "Getting state at $index" }
 
                 val animationState =
                     if (state == null) {
