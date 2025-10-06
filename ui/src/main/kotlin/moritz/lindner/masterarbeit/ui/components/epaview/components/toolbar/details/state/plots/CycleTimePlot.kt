@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.det
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -11,13 +10,9 @@ import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.ui.common.BinCalculator
 import moritz.lindner.masterarbeit.ui.logger
-import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.typography
 import org.jetbrains.letsPlot.compose.PlotPanel
 import org.jetbrains.letsPlot.geom.geomHistogram
 import org.jetbrains.letsPlot.intern.Plot
-import org.jetbrains.letsPlot.label.ggtitle
 import org.jetbrains.letsPlot.label.labs
 import org.jetbrains.letsPlot.letsPlot
 
@@ -25,7 +20,6 @@ import org.jetbrains.letsPlot.letsPlot
 fun CycleTimePlot(
     state: State,
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    modifier: Modifier = Modifier.Companion
 ) {
     val epaService = EpaService<Long>()
     val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton, state, Long::minus)
@@ -36,7 +30,7 @@ fun CycleTimePlot(
 
     PlotPanel(
         figure = plot,
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxWidth()
             .height(300.dp),
         computationMessagesHandler = { messages ->
@@ -49,7 +43,6 @@ fun CycleTimePlot(
 
 private fun createCycleTimeHistogram(
     cycleTimes: List<Long>,
-    title: String = "Distribution of Cycle Times",
     xLabel: String = "Cycle Time (seconds)",
     yLabel: String = "Frequency"
 ): Plot {
@@ -64,9 +57,7 @@ private fun createCycleTimeHistogram(
                 alpha = 0.7
             ) {
                 x = "cycleTime"
-            } +
-            ggtitle(title) +
-            labs(x = xLabel, y = yLabel)
+            } + labs(x = xLabel, y = yLabel)
 
     return plot
 }

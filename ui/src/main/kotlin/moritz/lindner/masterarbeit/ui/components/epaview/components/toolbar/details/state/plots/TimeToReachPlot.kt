@@ -36,14 +36,6 @@ fun TimeToReachPlot(
     modifier: Modifier = Modifier.Companion
 ) {
     val sequence = extendedPrefixAutomaton.sequence(state)
-    if (sequence.isEmpty()) {
-        Text(
-            text = "No events to display",
-            style = JewelTheme.typography.regular,
-            modifier = modifier.padding(16.dp)
-        )
-        return
-    }
 
     val epaService = EpaService<Long>()
     val traces = epaService.getTracesByState(extendedPrefixAutomaton, state)
@@ -66,14 +58,6 @@ fun TimeToReachPlot(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Time to Reach State from Root",
-            style = JewelTheme.typography.h4TextStyle,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.Companion.height(16.dp))
-
         // Create plot data
         val data = mapOf(
             "event" to timeToReachData.map { it["event"] as String },

@@ -20,7 +20,7 @@ import java.util.TreeMap
 class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     private val name: String,
 ) : AutomatonVisitor<T> {
-    // TODO: ensure this works for multiple events with same timestamp
+    // TODO: ensure this works for multiple events with same timestamp (otherwise only a transition to the last state will be shown which looks strange
     private val activeStateByCaseIdentifier = mutableMapOf<String, TreeMap<T, State>>()
 
     override fun visit(

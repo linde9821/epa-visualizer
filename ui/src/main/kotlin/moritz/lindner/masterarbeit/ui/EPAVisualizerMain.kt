@@ -27,7 +27,10 @@ import moritz.lindner.masterarbeit.ui.generated.resources.logo
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.jewel.foundation.DisabledAppearanceValues
 import org.jetbrains.jewel.foundation.ExperimentalJewelApi
+import org.jetbrains.jewel.foundation.GlobalColors
+import org.jetbrains.jewel.foundation.GlobalColors.Companion
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.intui.core.theme.IntUiLightTheme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.intui.standalone.theme.createDefaultTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.createEditorTextStyle
@@ -78,15 +81,15 @@ fun main() {
             JewelTheme.lightThemeDefinition(
                 defaultTextStyle = textStyle,
                 editorTextStyle = editorStyle,
-                disabledAppearanceValues = disabledAppearanceValues
+                disabledAppearanceValues = disabledAppearanceValues,
             )
 
         IntUiTheme(
             theme = themeDefinition,
             styling = ComponentStyling.default().decoratedWindow(
-                titleBarStyle = TitleBarStyle.lightWithLightHeader(),
-                windowStyle = DecoratedWindowStyle.light()
+                titleBarStyle = TitleBarStyle.light(),
             ),
+            swingCompatMode = true
         ) {
             DecoratedWindow(
                 onCloseRequest = ::exitApplication,
@@ -98,7 +101,6 @@ fun main() {
                 title = APPLICATION_NAME,
                 icon = painterResource(Res.drawable.logo),
             ) {
-
                 LaunchedEffect(Unit) {
                     if (Desktop.isDesktopSupported()) {
                         val desktop = Desktop.getDesktop()

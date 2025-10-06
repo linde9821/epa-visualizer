@@ -32,16 +32,6 @@ fun CumulativeEventsPlot(
     sequence: Set<Event<Long>>,
     modifier: Modifier = Modifier
 ) {
-    // Early return if no data
-    if (sequence.isEmpty()) {
-        Text(
-            text = "No events to display",
-            style = JewelTheme.typography.regular,
-            modifier = modifier.padding(16.dp)
-        )
-        return
-    }
-
     val sortedEvents = sequence.sortedBy { it.timestamp }
 
     Column(
@@ -49,20 +39,11 @@ fun CumulativeEventsPlot(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Cumulative Events Over Time",
-            style = JewelTheme.typography.h4TextStyle,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Create plot data - use immutable map
         val data = mapOf(
             "timestamp" to sortedEvents.map { it.timestamp },
             "cumulative" to sortedEvents.indices.map { it + 1 }
         )
-
 
         // Create the plot
         val plot = letsPlot(data) {
