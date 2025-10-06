@@ -21,7 +21,7 @@ data class EventLogAnimation<T : Comparable<T>>(
     private val timedStates: List<TimedState<T>>,
     val totalAmountOfEvents: Int,
 ) {
-    private val sortedStates = timedStates.sortedBy { it.from }
+    private val sortedStates = timedStates.sortedBy { it.startTime }
 
     /**
      * Indexes states by their start time to allow efficient range-based access during queries.
@@ -29,7 +29,7 @@ data class EventLogAnimation<T : Comparable<T>>(
     private val statesByInterval: TreeMap<T, MutableList<TimedState<T>>> =
         TreeMap<T, MutableList<TimedState<T>>>().apply {
             timedStates.forEach { timedState ->
-                getOrPut(timedState.from) { mutableListOf() } += timedState
+                getOrPut(timedState.startTime) { mutableListOf() } += timedState
             }
         }
 
@@ -44,7 +44,7 @@ data class EventLogAnimation<T : Comparable<T>>(
      */
     fun getActiveStatesAt(timestamp: T): List<TimedState<T>> {
         val relevantEntries = statesByInterval.headMap(timestamp, true).values.flatten()
-        return relevantEntries.filter { it.to == null || timestamp < it.to!! }
+        return relevantEntries.filter { it.endTime == null || timestamp < it.endTime!! }
     }
 
     /**
@@ -57,7 +57,7 @@ data class EventLogAnimation<T : Comparable<T>>(
         val first =
             sortedStates.firstOrNull()
                 ?: throw IllegalStateException("No states in animation")
-        return first.from to first
+        return first.startTime to first
     }
 
     /**
@@ -70,9 +70,9 @@ data class EventLogAnimation<T : Comparable<T>>(
      */
     fun getLast(): Pair<T, TimedState<T>> {
         val last =
-            sortedStates.maxByOrNull { it.to ?: it.from }
+            sortedStates.maxByOrNull { it.endTime ?: it.startTime }
                 ?: throw IllegalStateException("No states in animation")
-        val endTimestamp = last.to ?: last.from
+        val endTimestamp = last.endTime ?: last.startTime
         return endTimestamp to last
     }
 
@@ -84,5 +84,5 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @param n Zero-based index of the entry.
      * @return A pair of `(from timestamp, TimedState)`, or `null` if the index is out of bounds.
      */
-    fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.from to it }
+    fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.startTime to it }
 }

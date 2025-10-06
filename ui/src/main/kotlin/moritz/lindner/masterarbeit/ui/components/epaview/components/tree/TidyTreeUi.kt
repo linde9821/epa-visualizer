@@ -31,12 +31,12 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
 import kotlin.math.cos
-import kotlin.math.log
 import kotlin.math.pow
 import kotlin.math.sin
 import org.jetbrains.skia.Color as SkiaColor
@@ -49,6 +49,7 @@ fun TidyTreeUi(
     modifier: Modifier = Modifier,
     onStateHover: (State?) -> Unit,
     onStateClicked: (State?) -> Unit,
+    tabState: TabState,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
@@ -79,6 +80,16 @@ fun TidyTreeUi(
                 color = SkiaColor.BLACK
                 mode = PaintMode.FILL
                 isAntiAlias = true
+            }
+        }
+
+    val blueFill =
+        remember {
+            Paint().apply {
+                color = SkiaColor.BLUE
+                mode = PaintMode.STROKE
+                isAntiAlias = true
+                strokeWidth = 5f
             }
         }
 
@@ -192,11 +203,13 @@ fun TidyTreeUi(
                     boundingBox,
                     animationState,
                     stateLabels,
+                    tabState,
                     scale,
                     redFill,
                     redStroke,
                     blackFill,
                     blackStroke,
+                    blueFill
                 )
             } catch (e: Exception) {
                 logger.error(e) { "error while drawing: $e" }
@@ -210,11 +223,13 @@ fun DrawScope.drawEPA(
     boundingBox: Rectangle,
     animationState: AnimationState,
     stateLabels: StateLabels,
+    tabState: TabState,
     scale: Float,
     redFill: Paint,
     redStroke: Paint,
     blackFill: Paint,
     blackStroke: Paint,
+    blueFill: Paint
 ) {
     val visibleNodes = layout.getCoordinatesInRectangle(boundingBox)
 
@@ -242,8 +257,8 @@ fun DrawScope.drawEPA(
                     animationState.currentTimeStates.any {
                         it.state == state.from &&
                                 it.nextState == state &&
-                                it.from <= animationState.time &&
-                                animationState.time < (it.to ?: Long.MAX_VALUE)
+                                it.startTime <= animationState.time &&
+                                animationState.time < (it.endTime ?: Long.MAX_VALUE)
                     }
 
                 val edgePaint = if (isAnimating) redStroke else blackStroke
@@ -263,6 +278,10 @@ fun DrawScope.drawEPA(
             val fillPaint = if (isActive) redFill else blackFill
 
             canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
+
+            if (node.state == tabState.selectedState) {
+                canvas.nativeCanvas.drawCircle(cx, cy, circleRadius + 15f, blueFill)
+            }
 
             val screenRadius = circleRadius * scale
             if (screenRadius >= 10f || isActive) {
@@ -299,11 +318,11 @@ private fun drawTokensWithSpreading(
             visibleNodes.contains(timedState.state)
         }.forEachIndexed { index, timedState ->
             val progress =
-                if (timedState.to == null || timedState.nextState == null) {
+                if (timedState.endTime == null || timedState.nextState == null) {
                     1f
                 } else {
-                    val duration = timedState.to!! - timedState.from
-                    val elapsed = animationState.time - timedState.from
+                    val duration = timedState.endTime!! - timedState.startTime
+                    val elapsed = animationState.time - timedState.startTime
                     (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
                 }
 

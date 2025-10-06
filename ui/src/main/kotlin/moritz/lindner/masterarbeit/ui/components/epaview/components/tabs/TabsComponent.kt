@@ -22,7 +22,6 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
-import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.HorizontalProgressBar
@@ -138,6 +137,7 @@ fun TabsComponent(
                                     treeLayout = currentLayoutAndConfig.first,
                                     stateLabels = currentStateLabels,
                                     animationState = animationState,
+                                    tabState = currentTab,
                                     onStateHover = {
                                     },
                                     onStateClicked = {

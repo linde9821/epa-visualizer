@@ -27,16 +27,6 @@ fun CycleTimePlot(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     modifier: Modifier = Modifier.Companion
 ) {
-    val sequence = extendedPrefixAutomaton.sequence(state)
-    if (sequence.isEmpty()) {
-        Text(
-            text = "No events to display",
-            style = JewelTheme.Companion.typography.regular,
-            modifier = modifier.padding(16.dp)
-        )
-        return
-    }
-
     val epaService = EpaService<Long>()
     val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton, state, Long::minus)
 

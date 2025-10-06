@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -114,6 +114,9 @@ fun StateInfo(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
+            if (selectedState is State.PrefixState) {
+                InfoRow(label = "Activity", value = selectedState.via.name)
+            }
             InfoRow(label = "Partition", value = partition.toString())
             InfoRow(label = "Depth", value = depth.toString())
             InfoRow(label = "Events", value = seq.size.toString())
@@ -203,7 +206,7 @@ fun StateInfo(
                     .heightIn(max = 120.dp)
                     .padding(4.dp)
             ) {
-                itemsIndexed(pathToRoot) { index, state ->
+                items(pathToRoot) { state ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {

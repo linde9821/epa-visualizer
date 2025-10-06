@@ -44,12 +44,12 @@ class SingleCaseAnimationBuilder<T : Comparable<T>>(
             timedStates +=
                 TimedState(
                     state = state,
-                    from = from,
-                    to = to,
+                    startTime = from,
+                    endTime = to,
                     nextState = nextState,
                 )
         }
 
-        return EventLogAnimation(caseIdentifier, timedStates.sortedBy { it.from }, timedStates.size)
+        return EventLogAnimation(caseIdentifier, timedStates.sortedBy { it.startTime }, timedStates.size)
     }
 }
