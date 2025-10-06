@@ -24,6 +24,5 @@ class WholeEventLogAnimationVisitorTest {
         val result = sut.build(1L, Long::plus)
 
         expectSelfie(result.toString()).toMatchDisk()
-        TODO("fix")
     }
 }
