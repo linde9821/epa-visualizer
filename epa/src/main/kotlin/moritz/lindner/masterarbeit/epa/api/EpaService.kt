@@ -160,7 +160,7 @@ class EpaService<T : Comparable<T>> {
 
     fun getStateByEvent(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>): Map<Event<T>, State> {
         val seqByState = extendedPrefixAutomaton.states
-            .map { it to extendedPrefixAutomaton.sequence(it) }
+            .map { state -> state to extendedPrefixAutomaton.sequence(state) }
         return seqByState
             .flatMap { (key, values) ->
                 values.map { value -> value to key }

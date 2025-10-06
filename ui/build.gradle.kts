@@ -76,10 +76,8 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-Xms2g",
                 "-Xmx18g",
-                "-XX:+UseG1GC",
-                "-XX:MaxGCPauseMillis=250",
+                "-XX:MaxGCPauseMillis=500",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "--add-opens",

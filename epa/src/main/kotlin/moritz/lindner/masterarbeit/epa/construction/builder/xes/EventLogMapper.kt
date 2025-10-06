@@ -37,7 +37,7 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
                     logSize = logSize,
                     progressCallback = progressCallback
                 )
-            }
+            }.sortedBy { it.timestamp }
     }
 
     private fun parseTrace(
