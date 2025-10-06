@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -42,7 +44,7 @@ import kotlin.math.sin
 import org.jetbrains.skia.Color as SkiaColor
 
 @Composable
-fun TidyTreeUi(
+fun TreeUi(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     animationState: AnimationState,
@@ -53,9 +55,21 @@ fun TidyTreeUi(
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
 
     var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
     var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
+
+    LaunchedEffect(tabState.locateState) {
+        if (tabState.locateState != null) {
+
+            val targetNode = treeLayout.getCoordinate(tabState.locateState)
+
+            // 2. compute offset so node is centered
+            val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
+            offset = screenCenter - targetNode.toOffset() * scale
+        }
+    }
 
     LaunchedEffect(hoveredNode) {
         onStateHover(hoveredNode?.node?.state)
@@ -116,6 +130,7 @@ fun TidyTreeUi(
     val canvasModifier =
         modifier
             .background(Color.White)
+            .onSizeChanged { canvasSize = it }
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
@@ -216,6 +231,13 @@ fun TidyTreeUi(
             }
         }
     }
+}
+
+private fun Coordinate.toOffset(): Offset {
+    return Offset(
+        x = this.x,
+        y = this.y * -1
+    )
 }
 
 fun DrawScope.drawEPA(

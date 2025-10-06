@@ -12,5 +12,6 @@ data class TabState(
     val progress: TaskProgressState? = null,
     val filters: List<EpaFilter<Long>> = emptyList(),
     val layoutConfig: LayoutConfig,
-    val selectedState: State? = null
+    val selectedState: State? = null,
+    val locateState: State? = null
 )

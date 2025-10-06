@@ -75,7 +75,7 @@ fun StateInfo(
             }
 
             IconButton(
-                onClick = {},
+                onClick = { locate(selectedState) },
             ) {
                 Icon(
                     key = AllIconsKeys.General.Locate,
@@ -143,7 +143,6 @@ fun StateInfo(
                     }
                 }
             }
-
         }
 
         ClosableGroup("Path from Root") {

@@ -24,7 +24,7 @@ fun DetailsUi(
 
     val currentEpa = activeTabId?.let { epaByTabId[it] }
 
-    if (currentTab?.selectedState != null && currentEpa != null) {
+    if (currentTab?.selectedState != null && currentEpa != null && activeTabId != null) {
         StateInfo(
             selectedState = currentTab.selectedState,
             extendedPrefixAutomaton = currentEpa,
@@ -32,7 +32,7 @@ fun DetailsUi(
                 tabStateManager.setSelectedStateForCurrentTab(it)
             },
             locate = {
-
+                tabStateManager.locateState(it, activeTabId!!)
             }
         )
     } else {

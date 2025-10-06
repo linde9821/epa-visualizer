@@ -27,7 +27,7 @@ class TabStateManager {
     ) {
         _tabs.update { currentTabs ->
             if (currentTabs.any { it.id == id }) {
-                currentTabs // Tab already exists
+                currentTabs
             } else {
                 currentTabs + TabState(
                     id = id,
@@ -120,6 +120,18 @@ class TabStateManager {
             currentTabs.map { tab ->
                 if (tab.id == tabId) {
                     tab.copy(progress = null)
+                } else {
+                    tab
+                }
+            }
+        }
+    }
+
+    fun locateState(state: State, tabId: String) {
+        _tabs.update { currentTabs ->
+            currentTabs.map { tab ->
+                if (tab.id == tabId) {
+                    tab.copy(locateState = state)
                 } else {
                     tab
                 }
