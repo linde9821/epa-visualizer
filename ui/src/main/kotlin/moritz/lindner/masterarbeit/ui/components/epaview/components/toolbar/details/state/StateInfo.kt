@@ -135,7 +135,7 @@ fun StateInfo(
                     ) {
                         outgoingTransitions.forEach { transition ->
                             Chip(onClick = {
-                                onStateSelected(transition.start)
+                                onStateSelected(transition.end)
                             }) {
                                 Text(transition.start.name, fontSize = 11.sp)
                             }

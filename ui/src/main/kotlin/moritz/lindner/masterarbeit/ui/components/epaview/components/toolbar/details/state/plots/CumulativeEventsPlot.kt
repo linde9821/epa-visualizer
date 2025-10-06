@@ -78,8 +78,8 @@ fun CumulativeEventsPlot(
             StatItem(
                 label = "Time Span",
                 value = formatTimeSpan(
-                    sortedEvents.first().timestamp,
-                    sortedEvents.last().timestamp
+                    sortedEvents.firstOrNull()?.timestamp ?: 0L,
+                    sortedEvents.lastOrNull()?.timestamp ?: 0L
                 )
             )
         }
