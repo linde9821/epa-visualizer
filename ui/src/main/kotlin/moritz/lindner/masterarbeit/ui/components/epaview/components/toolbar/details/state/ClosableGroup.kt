@@ -42,7 +42,7 @@ fun ClosableGroup(
                     onClick = { show = !show },
                     modifier = Modifier.Companion
                         .height(16.dp)
-                        .width(24.dp) // small fixed width so divider has room
+                        .width(24.dp)
                 ) {
                     Icon(
                         key = if (show) AllIconsKeys.General.ChevronUp else AllIconsKeys.General.ChevronDown,

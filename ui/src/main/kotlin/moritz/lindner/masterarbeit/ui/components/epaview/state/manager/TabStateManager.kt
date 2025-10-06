@@ -10,9 +10,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TaskProgressState
 
-/**
- * Main state class managing all tabs
- */
+/** Main state class managing all tabs */
 class TabStateManager {
     private val _tabs = MutableStateFlow<List<TabState>>(emptyList())
     val tabs: StateFlow<List<TabState>> = _tabs.asStateFlow()
@@ -20,9 +18,7 @@ class TabStateManager {
     private val _activeTabId = MutableStateFlow<String?>(null)
     val activeTabId: StateFlow<String?> = _activeTabId.asStateFlow()
 
-    /**
-     * Add a new tab
-     */
+    /** Add a new tab */
     fun addTab(
         id: String,
         title: String,
@@ -60,7 +56,7 @@ class TabStateManager {
         }
     }
 
-    fun setSelectedStateForCurrentTab(selectedState: State){
+    fun setSelectedStateForCurrentTab(selectedState: State) {
         _tabs.update { currentTabs ->
             currentTabs.map { tab ->
                 if (tab.id == activeTabId.value) {
@@ -72,9 +68,7 @@ class TabStateManager {
         }
     }
 
-    /**
-     * Remove a tab by ID
-     */
+    /** Remove a tab by ID */
     fun removeTab(tabId: String) {
         _tabs.update { currentTabs ->
             currentTabs.filterNot { it.id == tabId }
@@ -86,9 +80,7 @@ class TabStateManager {
         }
     }
 
-    /**
-     * Set the active tab
-     */
+    /** Set the active tab */
     fun setActiveTab(tabId: String) {
         _activeTabId.value = tabId
         _tabs.update { currentTabs ->
@@ -98,9 +90,7 @@ class TabStateManager {
         }
     }
 
-    /**
-     * Update progress for a specific tab
-     */
+    /** Update progress for a specific tab */
     fun updateProgress(
         tabId: String,
         current: Long,
@@ -124,9 +114,7 @@ class TabStateManager {
         }
     }
 
-    /**
-     * Clear progress for a specific tab
-     */
+    /** Clear progress for a specific tab */
     fun clearProgress(tabId: String) {
         _tabs.update { currentTabs ->
             currentTabs.map { tab ->
@@ -139,16 +127,12 @@ class TabStateManager {
         }
     }
 
-    /**
-     * Get a specific tab by ID
-     */
+    /** Get a specific tab by ID */
     fun getTab(tabId: String): TabState? {
         return _tabs.value.find { it.id == tabId }
     }
 
-    /**
-     * Get the currently active tab
-     */
+    /** Get the currently active tab */
     fun getActiveTab(): TabState? {
         return _activeTabId.value?.let { activeId ->
             _tabs.value.find { it.id == activeId }

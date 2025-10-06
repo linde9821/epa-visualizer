@@ -47,7 +47,8 @@ fun FilterUi(
     epaStateManager: EpaStateManager,
     backgroundDispatcher: CoroutineDispatcher,
 ) {
-    val tabNames = listOf("Select new filter", "Activity", "State Frequency", "Partition Frequency", "Chain Compression")
+    val tabNames =
+        listOf("Select new filter", "Activity", "State Frequency", "Partition Frequency", "Chain Compression")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     val tabsState by tabStateManager.tabs.collectAsState()

@@ -11,18 +11,14 @@ import kotlin.math.sqrt
 
 object BinCalculator {
 
-    /**
-     * Sturges' Rule: Good for normal distributions
-     * bins = ceil(log2(n) + 1)
-     */
+    /** Sturges' Rule: Good for normal distributions bins = ceil(log2(n) + 1) */
     fun sturgesRule(n: Int): Int {
         return ceil(log2(n.toDouble()) + 1).toInt()
     }
 
     /**
-     * Scott's Rule: Optimal for normally distributed data
-     * binWidth = 3.5 * σ / n^(1/3)
-     * bins = (max - min) / binWidth
+     * Scott's Rule: Optimal for normally distributed data binWidth = 3.5 * σ /
+     * n^(1/3) bins = (max - min) / binWidth
      */
     fun scottsRule(data: List<Long>): Int {
         if (data.isEmpty()) return 1
@@ -33,14 +29,13 @@ object BinCalculator {
 
         if (range == 0L || stdDev == 0.0) return 1
 
-        val binWidth = 3.5 * stdDev / n.toDouble().pow(1.0/3.0)
+        val binWidth = 3.5 * stdDev / n.toDouble().pow(1.0 / 3.0)
         return max(1, ceil(range / binWidth).toInt())
     }
 
     /**
-     * Freedman-Diaconis Rule: More robust to outliers
-     * binWidth = 2 * IQR / n^(1/3)
-     * bins = (max - min) / binWidth
+     * Freedman-Diaconis Rule: More robust to outliers binWidth = 2 * IQR /
+     * n^(1/3) bins = (max - min) / binWidth
      */
     fun freedmanDiaconisRule(data: List<Long>): Int {
         if (data.isEmpty()) return 1
@@ -54,22 +49,18 @@ object BinCalculator {
 
         if (range == 0L || iqr == 0.0) return 1
 
-        val binWidth = 2.0 * iqr / n.toDouble().pow(1.0/3.0)
+        val binWidth = 2.0 * iqr / n.toDouble().pow(1.0 / 3.0)
         return max(1, ceil(range / binWidth).toInt())
     }
 
-    /**
-     * Square Root Rule: Simple and widely used
-     * bins = ceil(sqrt(n))
-     */
+    /** Square Root Rule: Simple and widely used bins = ceil(sqrt(n)) */
     fun squareRootRule(n: Int): Int {
         return ceil(sqrt(n.toDouble())).toInt()
     }
 
     /**
-     * Doane's Rule: Extension of Sturges' for skewed data
-     * bins = 1 + log2(n) + log2(1 + |g1| / σ_g1)
-     * where g1 is skewness
+     * Doane's Rule: Extension of Sturges' for skewed data bins = 1 + log2(n) +
+     * log2(1 + |g1| / σ_g1) where g1 is skewness
      */
     fun doanesRule(data: List<Long>): Int {
         if (data.isEmpty()) return 1
@@ -81,9 +72,7 @@ object BinCalculator {
         return ceil(1 + log2(n) + log2(1 + skewness / sigmaG1)).toInt()
     }
 
-    /**
-     * Auto-select best rule based on data characteristics
-     */
+    /** Auto-select best rule based on data characteristics */
     fun autoBins(data: List<Long>): Int {
         if (data.size < 10) return min(data.size, 5)
 

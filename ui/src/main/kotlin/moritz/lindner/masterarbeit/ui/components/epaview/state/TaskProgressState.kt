@@ -1,8 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.state
 
-/**
- * Represents the progress of a task within a tab
- */
+/** Represents the progress of a task within a tab */
 data class TaskProgressState(
     val current: Long = 0,
     val total: Long = 0,
