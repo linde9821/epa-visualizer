@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -236,11 +237,10 @@ fun StateInfo(
         ) {
             val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
             Text(
-                text = "Traces (${traces.size}",
+                text = "Traces (${traces.size})",
                 style = JewelTheme.typography.h4TextStyle,
                 fontWeight = FontWeight.SemiBold
             )
-
 
             LazyColumn(
                 modifier = Modifier
@@ -249,7 +249,9 @@ fun StateInfo(
                     .padding(4.dp)
             ) {
                 items(traces) { trace ->
-                    TraceDetail(trace, selectedState, extendedPrefixAutomaton)
+                    TraceDetail(trace, selectedState, extendedPrefixAutomaton) {
+                        onStateSelected(it)
+                    }
                 }
             }
         }
@@ -273,7 +275,7 @@ fun StateInfo(
 }
 
 @Composable
-fun TraceDetail(trace: List<Event<Long>>, state: State, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>) {
+fun TraceDetail(trace: List<Event<Long>>, state: State, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>, onStateSelected: (State) -> Unit) {
     var show by remember { mutableStateOf(false) }
 
     Row {
@@ -304,6 +306,11 @@ fun TraceDetail(trace: List<Event<Long>>, state: State, extendedPrefixAutomaton:
                 Text(
                     "${index + 1}: ${event.activity} at ${event.timestamp} for ${stateOfEvent?.name}",
                     fontWeight = weight,
+                    modifier = Modifier.clickable(
+                        onClick = {
+                            onStateSelected(stateOfEvent!!)
+                        }
+                    )
                 )
             }
         }

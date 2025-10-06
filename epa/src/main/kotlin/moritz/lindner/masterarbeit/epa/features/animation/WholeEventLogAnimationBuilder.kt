@@ -20,16 +20,16 @@ import java.util.TreeMap
 class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     private val name: String,
 ) : AutomatonVisitor<T> {
-    private val statesByCaseIdentifier = mutableMapOf<String, TreeMap<T, State>>()
+    // TODO: ensure this works for multiple events with same timestamp
+    private val activeStateByCaseIdentifier = mutableMapOf<String, TreeMap<T, State>>()
 
     override fun visit(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
-        // TODO: check why seems to create bad from to
         extendedPrefixAutomaton.sequence(state).forEach { event ->
-            statesByCaseIdentifier.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
+            activeStateByCaseIdentifier.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
         }
     }
 
@@ -50,11 +50,10 @@ class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     ): EventLogAnimation<T> {
         val timedStates = mutableListOf<TimedState<T>>()
 
-        statesByCaseIdentifier.values.forEach { stateByTimestamp ->
+        activeStateByCaseIdentifier.values.forEach { stateByTimestamp ->
             val timestampsAndStates = stateByTimestamp.entries.toList()
 
             timestampsAndStates.forEachIndexed { index, (start, state) ->
-                // TODO: maybe add minimum
                 val end = timestampsAndStates.getOrNull(index + 1)?.key ?: increment(start, epsilon)
                 val nextState = timestampsAndStates.getOrNull(index + 1)?.value
 
