@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.DetailsUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.filter.FilterUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.project.ProjectOverviewUi
@@ -55,11 +56,14 @@ fun SidePanelContent(
         }
 
         EpaViewUpperState.Analysis -> PanelMenu(
-            title = "Analysis",
+            title = "Details",
             modifier = Modifier.Companion.padding(8.dp),
             onClose = { onClose() }
         ) {
-            InfoText("Not implemented")
+            DetailsUi(
+                tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager
+            )
         }
 
         EpaViewUpperState.NaturalLanguage -> PanelMenu(
@@ -74,3 +78,4 @@ fun SidePanelContent(
         }
     }
 }
+

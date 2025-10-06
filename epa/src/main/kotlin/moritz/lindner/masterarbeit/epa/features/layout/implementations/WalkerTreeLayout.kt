@@ -284,7 +284,7 @@ class WalkerTreeLayout(
     }
 
     override fun build(tree: EPATreeNode) {
-        logger.info { "Building tree layout" }
+        logger.debug { "Building tree layout" }
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
@@ -300,15 +300,15 @@ class WalkerTreeLayout(
         val r = tree
 
         // FirstWalk(r)
-        logger.info { "first walk" }
+        logger.debug { "first walk" }
         firstWalk(r)
-        logger.info { "second walk" }
+        logger.debug { "second walk" }
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
-        logger.info { "finished layout construction" }
+        logger.debug { "finished layout construction" }
     }
 
     override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate

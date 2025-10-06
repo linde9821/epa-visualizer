@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
+import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
@@ -297,7 +298,7 @@ class RadialWalkerTreeLayout(
     }
 
     override fun build(tree: EPATreeNode) {
-        logger.info { "Building tree layout" }
+        logger.debug { "Building tree layout" }
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
@@ -313,25 +314,25 @@ class RadialWalkerTreeLayout(
         val r = tree
 
         // FirstWalk(r)
-        logger.info { "first walk" }
+        logger.debug { "first walk" }
         firstWalk(r)
-        logger.info { "second walk" }
+        logger.debug { "second walk" }
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
-        logger.info { "assign angles" }
+        logger.debug { "assign angles" }
         convertToAngles()
 
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
-        logger.info { "finished layout construction" }
+        logger.debug { "finished layout construction" }
     }
 
     override fun getMaxDepth(): Int = maxDepth
 
     override fun getCoordinate(state: State): Coordinate =
         nodePlacementByState[state]?.coordinate ?: throw IllegalStateException(
-            "No coodinate for $state present"
+            "No coodinate for $state present",
         )
 
     override fun getCircleRadius(): Float = layerSpace
@@ -349,7 +350,7 @@ class RadialWalkerTreeLayout(
                         rectangle.bottomRight.y,
                     ),
                 ).toList()
-        return search.map { it.value() }
+        return search.map(Entry<NodePlacement, PointFloat>::value)
     }
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()

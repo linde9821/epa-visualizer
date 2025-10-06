@@ -37,7 +37,7 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
                     logSize = logSize,
                     progressCallback = progressCallback
                 )
-            }
+            }.sortedBy { it.timestamp }
     }
 
     private fun parseTrace(
@@ -49,12 +49,7 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
         return trace
             .map { event -> map(event, trace) }
             .sortedBy(Event<T>::timestamp)
-            .mapIndexed { index, event ->
-                event.copy(
-                    predecessorIndex = if (index <= 0) null else (index - 1),
-                    successorIndex = if (index >= trace.size - 1) null else (index + 1),
-                )
-            }.also {
+            .also {
                 progressCallback?.onProgress(
                     current = (index + 1).toLong(),
                     total = logSize,

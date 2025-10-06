@@ -28,7 +28,6 @@ import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.Checkbox
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
@@ -39,7 +38,7 @@ import kotlin.math.max
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChainPruningFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
+fun ChainCompressionFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
 
     var isChecked by remember { mutableStateOf(false) }
 
@@ -49,7 +48,7 @@ fun ChainPruningFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Enable Chain Pruning: ")
+            Text("Enable Chain-Compression: ")
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = {

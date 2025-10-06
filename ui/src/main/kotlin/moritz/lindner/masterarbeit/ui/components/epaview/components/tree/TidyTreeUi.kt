@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,13 +23,17 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
+import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -39,14 +44,40 @@ import kotlin.math.sin
 import org.jetbrains.skia.Color as SkiaColor
 
 @Composable
-fun TidyTreeUi(
+fun TreeUi(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     animationState: AnimationState,
     modifier: Modifier = Modifier,
+    onStateHover: (State?) -> Unit,
+    onStateClicked: (State?) -> Unit,
+    tabState: TabState,
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
+
+    var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
+    var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
+
+    LaunchedEffect(tabState.locateState) {
+        if (tabState.locateState != null) {
+
+            val targetNode = treeLayout.getCoordinate(tabState.locateState)
+
+            // 2. compute offset so node is centered
+            val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
+            offset = screenCenter - targetNode.toOffset() * scale
+        }
+    }
+
+    LaunchedEffect(hoveredNode) {
+        onStateHover(hoveredNode?.node?.state)
+    }
+
+    LaunchedEffect(pressedNode) {
+        onStateClicked(pressedNode?.node?.state)
+    }
 
     val redFill =
         remember {
@@ -63,6 +94,16 @@ fun TidyTreeUi(
                 color = SkiaColor.BLACK
                 mode = PaintMode.FILL
                 isAntiAlias = true
+            }
+        }
+
+    val blueFill =
+        remember {
+            Paint().apply {
+                color = SkiaColor.BLUE
+                mode = PaintMode.STROKE
+                isAntiAlias = true
+                strokeWidth = 5f
             }
         }
 
@@ -89,6 +130,7 @@ fun TidyTreeUi(
     val canvasModifier =
         modifier
             .background(Color.White)
+            .onSizeChanged { canvasSize = it }
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTransformGestures { centroid, pan, zoom, _ ->
@@ -118,6 +160,39 @@ fun TidyTreeUi(
                         }
                     }
                 }
+            }.pointerInput(treeLayout) {
+                // Mouse hover detection
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+
+                        if (event.type == PointerEventType.Move || event.type == PointerEventType.Enter || event.type == PointerEventType.Press) {
+                            val screenPosition = event.changes.first().position
+
+                            // Transform screen coordinates to world coordinates
+                            val worldPosition = (screenPosition - offset) / scale
+
+                            val width = 10
+                            val nodeAtPosition =
+                                treeLayout.getCoordinatesInRectangle(
+                                    Rectangle(
+                                        topLeft = Coordinate(worldPosition.x - width, worldPosition.y - width),
+                                        bottomRight = Coordinate(worldPosition.x + width, worldPosition.y + width),
+                                    ),
+                                )
+
+                            // Update hovered node if it changed
+                            val newNode = nodeAtPosition.firstOrNull()
+
+                            if (newNode != hoveredNode) {
+                                hoveredNode = newNode
+                            }
+                            if (event.type == PointerEventType.Press && pressedNode != newNode) {
+                                pressedNode = hoveredNode
+                            }
+                        }
+                    }
+                }
             }.clipToBounds()
 
     Canvas(modifier = canvasModifier) {
@@ -143,11 +218,13 @@ fun TidyTreeUi(
                     boundingBox,
                     animationState,
                     stateLabels,
+                    tabState,
                     scale,
                     redFill,
                     redStroke,
                     blackFill,
                     blackStroke,
+                    blueFill
                 )
             } catch (e: Exception) {
                 logger.error(e) { "error while drawing: $e" }
@@ -156,16 +233,25 @@ fun TidyTreeUi(
     }
 }
 
+private fun Coordinate.toOffset(): Offset {
+    return Offset(
+        x = this.x,
+        y = this.y * -1
+    )
+}
+
 fun DrawScope.drawEPA(
     layout: TreeLayout,
     boundingBox: Rectangle,
     animationState: AnimationState,
     stateLabels: StateLabels,
+    tabState: TabState,
     scale: Float,
     redFill: Paint,
     redStroke: Paint,
     blackFill: Paint,
     blackStroke: Paint,
+    blueFill: Paint
 ) {
     val visibleNodes = layout.getCoordinatesInRectangle(boundingBox)
 
@@ -193,8 +279,8 @@ fun DrawScope.drawEPA(
                     animationState.currentTimeStates.any {
                         it.state == state.from &&
                                 it.nextState == state &&
-                                it.from <= animationState.time &&
-                                animationState.time < (it.to ?: Long.MAX_VALUE)
+                                it.startTime <= animationState.time &&
+                                animationState.time < (it.endTime ?: Long.MAX_VALUE)
                     }
 
                 val edgePaint = if (isAnimating) redStroke else blackStroke
@@ -214,6 +300,10 @@ fun DrawScope.drawEPA(
             val fillPaint = if (isActive) redFill else blackFill
 
             canvas.nativeCanvas.drawCircle(cx, cy, circleRadius, fillPaint)
+
+            if (node.state == tabState.selectedState) {
+                canvas.nativeCanvas.drawCircle(cx, cy, circleRadius + 15f, blueFill)
+            }
 
             val screenRadius = circleRadius * scale
             if (screenRadius >= 10f || isActive) {
@@ -250,11 +340,11 @@ private fun drawTokensWithSpreading(
             visibleNodes.contains(timedState.state)
         }.forEachIndexed { index, timedState ->
             val progress =
-                if (timedState.to == null || timedState.nextState == null) {
+                if (timedState.endTime == null || timedState.nextState == null) {
                     1f
                 } else {
-                    val duration = timedState.to!! - timedState.from
-                    val elapsed = animationState.time - timedState.from
+                    val duration = timedState.endTime!! - timedState.startTime
+                    val elapsed = animationState.time - timedState.startTime
                     (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
                 }
 

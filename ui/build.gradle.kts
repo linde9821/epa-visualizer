@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.5.1"
+version = "1.6.0"
 
 repositories {
     google()
@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.jna.core)
 
     implementation(libs.bundles.filekit)
+    implementation(libs.bundles.lets.plot)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
@@ -65,22 +66,27 @@ compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
 
-        javaHome = javaToolchains.launcherFor {
-            languageVersion.set(JavaLanguageVersion.of(21))
-            vendor.set(JvmVendorSpec.JETBRAINS)
-        }.get().metadata.installationPath.asFile.absolutePath
+        javaHome =
+            javaToolchains
+                .launcherFor {
+                    languageVersion.set(JavaLanguageVersion.of(21))
+                    vendor.set(JvmVendorSpec.JETBRAINS)
+                }.get()
+                .metadata.installationPath.asFile.absolutePath
 
-        jvmArgs += listOf(
-            "-Xms2g",
-            "-Xmx18g",
-            "-XX:+UseG1GC",
-            "-XX:MaxGCPauseMillis=250",
-            "-XX:+UseStringDeduplication",
-            "-XX:+AlwaysPreTouch",
-            "--add-opens", "java.base/sun.misc=ALL-UNNAMED",
-            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-            "--add-opens", "java.management/java.lang.management=ALL-UNNAMED"
-        )
+        jvmArgs +=
+            listOf(
+                "-Xmx18g",
+                "-XX:MaxGCPauseMillis=500",
+                "-XX:+UseStringDeduplication",
+                "-XX:+AlwaysPreTouch",
+                "--add-opens",
+                "java.base/sun.misc=ALL-UNNAMED",
+                "--add-opens",
+                "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens",
+                "java.management/java.lang.management=ALL-UNNAMED",
+            )
 
         buildTypes.release.proguard {
             isEnabled = false
@@ -117,15 +123,17 @@ compose.desktop {
     }
 }
 
-fun getGitCommitHash(): String {
-    return try {
-        providers.exec {
-            commandLine("git", "rev-parse", "--short", "HEAD")
-        }.standardOutput.asText.get().dropLast(1)
+fun getGitCommitHash(): String =
+    try {
+        providers
+            .exec {
+                commandLine("git", "rev-parse", "--short", "HEAD")
+            }.standardOutput.asText
+            .get()
+            .dropLast(1)
     } catch (_: Exception) {
         "unknown"
     }
-}
 
 buildConfig {
     val gitHash = getGitCommitHash()

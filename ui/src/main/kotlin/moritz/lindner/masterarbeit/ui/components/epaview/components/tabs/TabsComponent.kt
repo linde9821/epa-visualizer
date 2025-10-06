@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TidyTreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -38,7 +39,7 @@ fun TabsComponent(
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
     modifier: Modifier = Modifier.Companion,
-    backgroundDispatcher: ExecutorCoroutineDispatcher
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
@@ -47,9 +48,10 @@ fun TabsComponent(
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val animationState by epaStateManager.animationState.collectAsState()
 
-    val currentTab = remember(tabsState, activeTabId) {
-        tabsState.find { it.id == activeTabId }
-    }
+    val currentTab =
+        remember(tabsState, activeTabId) {
+            tabsState.find { it.id == activeTabId }
+        }
 
     val currentProgress = currentTab?.progress
     val currentEpa = activeTabId?.let { epaByTabId[it] }
@@ -90,66 +92,78 @@ fun TabsComponent(
             }
         }
 
-    Column {
-        TabStrip(
-            tabs = tabs,
-            style = JewelTheme.defaultTabStyle,
-            interactionSource = interactionSource
-        )
-        if (currentTab != null) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if ((currentProgress != null && !currentProgress.isComplete)) {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = currentProgress.taskName,
-                            style = JewelTheme.typography.h2TextStyle
-                        )
-                        Spacer(modifier = Modifier.padding(4.dp))
-                        Text(
-                            text = "${"%.1f".format(currentProgress.percentage * 100f)}% (${currentProgress.current} / ${currentProgress.total})",
-                            style = JewelTheme.typography.regular,
-                            color = JewelTheme.contentColor.copy(alpha = 0.8f)
-                        )
-                        Spacer(modifier = Modifier.padding(12.dp))
-                        HorizontalProgressBar(
-                            progress = currentProgress.percentage,
-                            modifier = Modifier.width(450.dp)
-                        )
-                    }
-                } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
-                    // TODO: does this need to be a column
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (currentLayoutAndConfig.first.isBuilt()) {
-                            TidyTreeUi(
-                                treeLayout = currentLayoutAndConfig.first,
-                                stateLabels = currentStateLabels,
-                                animationState = animationState
+    Row {
+        Column {
+            TabStrip(
+                tabs = tabs,
+                style = JewelTheme.defaultTabStyle,
+                interactionSource = interactionSource,
+            )
+            if (currentTab != null) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if ((currentProgress != null && !currentProgress.isComplete)) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center).padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = currentProgress.taskName,
+                                style = JewelTheme.typography.h2TextStyle,
                             )
-                        } else {
-                            Text("Rendering is disabled")
+                            Spacer(modifier = Modifier.padding(4.dp))
+                            Text(
+                                text = "${
+                                    "%.1f".format(
+                                        currentProgress.percentage * 100f,
+                                    )
+                                }% (${currentProgress.current} / ${currentProgress.total})",
+                                style = JewelTheme.typography.regular,
+                                color = JewelTheme.contentColor.copy(alpha = 0.8f),
+                            )
+                            Spacer(modifier = Modifier.padding(12.dp))
+                            HorizontalProgressBar(
+                                progress = currentProgress.percentage,
+                                modifier = Modifier.width(450.dp),
+                            )
+                        }
+                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
+                        // TODO: does this need to be a column
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            if (currentLayoutAndConfig.first.isBuilt()) {
+                                TreeUi(
+                                    treeLayout = currentLayoutAndConfig.first,
+                                    stateLabels = currentStateLabels,
+                                    animationState = animationState,
+                                    tabState = currentTab,
+                                    onStateHover = {
+                                    },
+                                    onStateClicked = {
+                                        if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
+                                    },
+                                )
+                            } else {
+                                Text("Rendering is disabled")
+                            }
+                        }
+                    } else {
+                        Box(
+                            modifier = modifier.fillMaxSize().background(Color.White),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicatorBig(Modifier.align(Alignment.Center).size(50.dp))
                         }
                     }
-                } else {
-                    Box(
-                        modifier = modifier.fillMaxSize().background(Color.White),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicatorBig(Modifier.align(Alignment.Center).size(50.dp))
-                    }
                 }
-            }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Nothing to see because no tabs available")
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("Nothing to see because no tabs available")
+                }
             }
         }
     }

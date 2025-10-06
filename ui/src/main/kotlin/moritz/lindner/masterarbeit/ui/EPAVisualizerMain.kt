@@ -36,7 +36,6 @@ import org.jetbrains.jewel.intui.standalone.theme.light
 import org.jetbrains.jewel.intui.standalone.theme.lightThemeDefinition
 import org.jetbrains.jewel.intui.window.decoratedWindow
 import org.jetbrains.jewel.intui.window.styling.light
-import org.jetbrains.jewel.intui.window.styling.lightWithLightHeader
 import org.jetbrains.jewel.ui.ComponentStyling
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
@@ -45,7 +44,6 @@ import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.window.DecoratedWindow
 import org.jetbrains.jewel.window.TitleBar
 import org.jetbrains.jewel.window.newFullscreenControls
-import org.jetbrains.jewel.window.styling.DecoratedWindowStyle
 import org.jetbrains.jewel.window.styling.TitleBarStyle
 import org.jetbrains.skiko.SkikoProperties
 import java.awt.Desktop
@@ -78,15 +76,15 @@ fun main() {
             JewelTheme.lightThemeDefinition(
                 defaultTextStyle = textStyle,
                 editorTextStyle = editorStyle,
-                disabledAppearanceValues = disabledAppearanceValues
+                disabledAppearanceValues = disabledAppearanceValues,
             )
 
         IntUiTheme(
             theme = themeDefinition,
             styling = ComponentStyling.default().decoratedWindow(
-                titleBarStyle = TitleBarStyle.lightWithLightHeader(),
-                windowStyle = DecoratedWindowStyle.light()
+                titleBarStyle = TitleBarStyle.light(),
             ),
+            swingCompatMode = true
         ) {
             DecoratedWindow(
                 onCloseRequest = ::exitApplication,
@@ -98,7 +96,6 @@ fun main() {
                 title = APPLICATION_NAME,
                 icon = painterResource(Res.drawable.logo),
             ) {
-
                 LaunchedEffect(Unit) {
                     if (Desktop.isDesktopSupported()) {
                         val desktop = Desktop.getDesktop()

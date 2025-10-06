@@ -10,12 +10,12 @@ import moritz.lindner.masterarbeit.epa.domain.State
  *
  * @param T The timestamp type, which must be comparable (e.g., [Long], [Int], [LocalDateTime]).
  * @property state The [State] that is active during this interval.
- * @property from The timestamp at which the state becomes active.
- * @property to The timestamp at which the state becomes inactive. If `null`, the state is assumed to still be active.
+ * @property startTime The timestamp at which the state becomes active.
+ * @property endTime The timestamp at which the state becomes inactive. If `null`, the state is assumed to still be active.
  */
 data class TimedState<T : Comparable<T>>(
     val state: State,
-    val from: T,
-    var to: T? = null, // null means still active
+    val startTime: T,
+    var endTime: T? = null, // null means still active
     val nextState: State? = null,
 )

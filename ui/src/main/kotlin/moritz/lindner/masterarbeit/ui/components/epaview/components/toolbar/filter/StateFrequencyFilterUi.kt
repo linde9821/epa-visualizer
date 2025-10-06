@@ -26,7 +26,6 @@ import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
 import moritz.lindner.masterarbeit.ui.logger
-import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
