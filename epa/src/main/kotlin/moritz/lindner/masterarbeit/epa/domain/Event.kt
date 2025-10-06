@@ -17,6 +17,4 @@ data class Event<T : Comparable<T>>(
     val activity: Activity,
     val timestamp: T,
     val caseIdentifier: String,
-    val predecessorIndex: Int? = null,
-    val successorIndex: Int? = null
 )
