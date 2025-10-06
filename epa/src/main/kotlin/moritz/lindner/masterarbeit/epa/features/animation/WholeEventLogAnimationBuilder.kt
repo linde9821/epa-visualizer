@@ -20,15 +20,16 @@ import java.util.TreeMap
 class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     private val name: String,
 ) : AutomatonVisitor<T> {
-    private val eventsByCase = mutableMapOf<String, TreeMap<T, State>>()
+    private val statesByCaseIdentifier = mutableMapOf<String, TreeMap<T, State>>()
 
     override fun visit(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         depth: Int,
     ) {
+        // TODO: check why seems to create bad from to
         extendedPrefixAutomaton.sequence(state).forEach { event ->
-            eventsByCase.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
+            statesByCaseIdentifier.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
         }
     }
 
@@ -49,19 +50,19 @@ class WholeEventLogAnimationBuilder<T : Comparable<T>>(
     ): EventLogAnimation<T> {
         val timedStates = mutableListOf<TimedState<T>>()
 
-        eventsByCase.values.forEach { timestampStateMap ->
-            val entries = timestampStateMap.entries.toList()
+        statesByCaseIdentifier.values.forEach { stateByTimestamp ->
+            val timestampsAndStates = stateByTimestamp.entries.toList()
 
-            entries.forEachIndexed { index, (from, state) ->
-                // TODO: maybe add minimum her ()
-                val to = entries.getOrNull(index + 1)?.key ?: increment(from, epsilon)
-                val nextState = entries.getOrNull(index + 1)?.value
+            timestampsAndStates.forEachIndexed { index, (start, state) ->
+                // TODO: maybe add minimum
+                val end = timestampsAndStates.getOrNull(index + 1)?.key ?: increment(start, epsilon)
+                val nextState = timestampsAndStates.getOrNull(index + 1)?.value
 
                 timedStates.add(
                     TimedState(
+                        startTime = start,
+                        endTime = end,
                         state = state,
-                        from = from,
-                        to = to,
                         nextState = nextState,
                     ),
                 )
@@ -70,7 +71,7 @@ class WholeEventLogAnimationBuilder<T : Comparable<T>>(
 
         return EventLogAnimation(
             identifier = name,
-            timedStates = timedStates.sortedBy { timedState -> timedState.from },
+            timedStates = timedStates.sortedBy { timedState -> timedState.startTime },
             totalAmountOfEvents = timedStates.size,
         )
     }

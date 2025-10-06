@@ -16,30 +16,6 @@ class TraceAccessIndex<T> : AutomatonVisitor<T>
         return traceByCaseId
     }
 
-    // can handle compressed
-    fun getCycleTimeOfState(
-        currentEvent: Event<T>,
-        sequence: Set<Event<T>>,
-        state: State
-    ): T? {
-        val trace = traceByCaseId[currentEvent.caseIdentifier]!!
-
-        val traceAtState = trace
-            .dropWhile { event -> !(sequence.contains(event)) }
-            .dropLastWhile { event -> !(sequence.contains(event)) }
-
-        if (traceAtState.last().successorIndex == null) {
-            return null
-        } else {
-            val start = traceAtState.first().timestamp
-            val indexOfNext = traceAtState.last().successorIndex!!
-            val next = trace.find { it.predecessorIndex == traceAtState.last().successorIndex!! - 1 }!!
-            val end = next.timestamp
-//            return end - start
-        }
-        TODO()
-    }
-
     fun getTraceByEvent(event: Event<T>): List<Event<T>> {
         return traceByCaseId[event.caseIdentifier]!!
     }

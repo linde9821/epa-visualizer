@@ -8,18 +8,24 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.reachability.IsReachableVisitor
 
 /**
- * Builder class for constructing an [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] from existing components.
+ * Builder class for constructing an
+ * [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton]
+ * from existing components.
  *
- * This builder allows creating EPA instances from pre-existing components (states, activities, transitions, etc.)
- * rather than parsing from XES files. It's particularly useful for creating modified or filtered versions of
- * existing EPAs, combining multiple EPAs, or constructing EPAs programmatically.
+ * This builder allows creating EPA instances from pre-existing components
+ * (states, activities, transitions, etc.) rather than parsing from XES
+ * files. It's particularly useful for creating modified or filtered
+ * versions of existing EPAs, combining multiple EPAs, or constructing EPAs
+ * programmatically.
  *
- * The builder provides optional cleanup functionality to ensure EPA consistency by pruning unreachable states
- * and their associated data. This helps maintain valid automaton structure when working with filtered or
- * modified component sets.
+ * The builder provides optional cleanup functionality to ensure EPA
+ * consistency by pruning unreachable states and their associated data.
+ * This helps maintain valid automaton structure when working with filtered
+ * or modified component sets.
  *
  * ## Key Features:
- * - Build EPA from individual components (states, transitions, activities, etc.)
+ * - Build EPA from individual components (states, transitions, activities,
+ *   etc.)
  * - Copy and modify existing EPAs via [fromExisting]
  * - Automatic cleanup of unreachable states and orphaned data
  * - Progress callback support for long-running operations
@@ -27,7 +33,7 @@ import moritz.lindner.masterarbeit.epa.features.reachability.IsReachableVisitor
  */
 class EpaFromComponentsBuilder<T : Comparable<T>> {
 
-    private var pruneUnreachableStates: Boolean = true
+    private var pruneUnreachableStatesAndEvents: Boolean = true
     private var progressCallback: EpaProgressCallback? = null
 
     private var eventLogName: String? = null
@@ -98,21 +104,27 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
     }
 
     /**
-     * Configures whether to automatically prune unreachable states and their associated information (transitions,
-     * activities, partitions, sequences) during EPA construction.
+     * Configures whether to automatically prune unreachable states and their
+     * associated information (transitions, activities, partitions, sequences)
+     * during EPA construction.
      *
      * When enabled, the builder performs the following cleanup steps:
-     * 1. Removes all transitions where start or end states are not in the configured state set
-     * 2. Removes all states that are not reachable via the remaining valid transitions
-     * 3. Removes associated data (activities, partitions, sequences) for the pruned states
+     * 1. Removes all transitions where start or end states are not in the
+     *    configured state set
+     * 2. Removes all states that are not reachable via the remaining valid
+     *    transitions
+     * 3. Removes associated data (activities, partitions, sequences) for the
+     *    pruned states
      *
-     * This ensures the resulting EPA contains only connected, valid components.
+     * This ensures the resulting EPA contains only connected, valid
+     * components.
      *
-     * @param value `true` to enable pruning of unreachable states and associated data, `false` to keep all states as-is.
+     * @param value `true` to enable pruning of unreachable states and
+     *    associated data, `false` to keep all states as-is.
      * @return This builder instance for chaining.
      */
     fun pruneStatesUnreachableByTransitions(value: Boolean): EpaFromComponentsBuilder<T> {
-        pruneUnreachableStates = value
+        pruneUnreachableStatesAndEvents = value
         return this
     }
 
@@ -135,7 +147,7 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
         require(states.isNotEmpty()) { "At least one state must be present" }
         require(states.contains(State.Root)) { "Root state must be present" }
 
-        return if (pruneUnreachableStates) {
+        return if (pruneUnreachableStatesAndEvents) {
             progressCallback?.onProgress(0, states.size.toLong(), task = "Build Epa From components with pruning")
 
             val filteredTransitions = transitions
@@ -160,20 +172,41 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
 
             notYetPrunedEpa.acceptDepthFirst(isReachableVisitor)
 
-            val reachableStates = notYetPrunedEpa.states.filter(isReachableVisitor::isReachable).toSet()
-            val partitionsByReachableStates = reachableStates.associateWith(notYetPrunedEpa::partition)
-            val sequencesByReachableStates = reachableStates.associateWith(notYetPrunedEpa::sequence)
-            val reachableActivities = reachableStates.mapNotNull { state ->
-                when (state) {
-                    is State.PrefixState -> state.via
-                    State.Root -> null
+            val reachableStates = notYetPrunedEpa.states
+                .filter(isReachableVisitor::isReachable)
+                .toSet()
+
+            val partitionsByReachableStates = reachableStates
+                .associateWith(notYetPrunedEpa::partition)
+
+            val stateByEvent = reachableStates
+                .associateWith(notYetPrunedEpa::sequence)
+                .flatMap { (key, values) ->
+                    values.map { value -> value to key }
+                }.toMap()
+
+            val sequencesWithReachableEventsByReachableStates = reachableStates
+                .associateWith(notYetPrunedEpa::sequence)
+                .mapValues { (_, sequence) ->
+                    sequence
+                        .filter(stateByEvent::contains)
+                        .toSet()
                 }
-            }.toSet()
-            val reachableTransitions = notYetPrunedEpa.transitions.filter { transitionToCheck ->
-                transitionToCheck.activity in reachableActivities &&
-                        transitionToCheck.start in reachableStates &&
-                        transitionToCheck.end in reachableStates
-            }.toSet()
+
+            val reachableActivities = reachableStates
+                .mapNotNull { state ->
+                    when (state) {
+                        is State.PrefixState -> state.via
+                        State.Root -> null
+                    }
+                }.toSet()
+
+            val reachableTransitions = notYetPrunedEpa.transitions
+                .filter { transitionToCheck ->
+                    transitionToCheck.activity in reachableActivities &&
+                            transitionToCheck.start in reachableStates &&
+                            transitionToCheck.end in reachableStates
+                }.toSet()
 
             progressCallback?.onProgress(states.size.toLong(), states.size.toLong(), task = "Build Epa From components")
 
@@ -183,7 +216,7 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
                 activities = reachableActivities,
                 transitions = reachableTransitions,
                 partitionByState = partitionsByReachableStates,
-                sequenceByState = sequencesByReachableStates,
+                sequenceByState = sequencesWithReachableEventsByReachableStates,
             )
         } else {
             progressCallback?.onProgress(states.size.toLong(), states.size.toLong(), task = "Build Epa From components")
@@ -197,5 +230,4 @@ class EpaFromComponentsBuilder<T : Comparable<T>> {
             )
         }
     }
-
 }
