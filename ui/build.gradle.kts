@@ -11,7 +11,6 @@ plugins {
 group = "moritz.lindner.masterarbeit"
 version = "1.6.0"
 
-
 repositories {
     google()
     mavenCentral()

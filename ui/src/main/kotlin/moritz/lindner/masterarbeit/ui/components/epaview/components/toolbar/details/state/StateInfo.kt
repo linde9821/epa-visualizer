@@ -234,13 +234,13 @@ fun StateInfo(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
             Text(
-                text = "Traces",
+                text = "Traces (${traces.size}",
                 style = JewelTheme.typography.h4TextStyle,
                 fontWeight = FontWeight.SemiBold
             )
 
-            val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
 
             LazyColumn(
                 modifier = Modifier
