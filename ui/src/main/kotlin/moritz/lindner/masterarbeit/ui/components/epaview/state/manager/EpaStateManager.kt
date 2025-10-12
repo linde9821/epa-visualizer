@@ -212,6 +212,15 @@ class EpaStateManager(
 
         logger.info { "building atlas" }
 
+        val progressCallback = EpaProgressCallback { current, total, task ->
+            tabStateManager.updateProgress(
+                tabId = tabState.id,
+                current = current,
+                total = total,
+                task = task
+            )
+        }
+
         val atlas = DrawAtlas.build(
             epa,
             DefaultConfig(
@@ -220,7 +229,10 @@ class EpaStateManager(
                 minTransitionSize = 2f,
                 maxTransitionSize = 25f,
             ),
+            progressCallback = progressCallback
         )
+
+        tabStateManager.clearProgress(tabState.id)
 
         _drawAtlasByTabId.update { currentMap ->
             currentMap + (tabState.id to atlas)
