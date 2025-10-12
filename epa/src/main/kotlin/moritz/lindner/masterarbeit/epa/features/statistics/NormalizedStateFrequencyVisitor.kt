@@ -21,17 +21,20 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
     private val progressCallback: EpaProgressCallback? = null
 ) : AutomatonVisitor<T> {
-    private val eventCountByState = HashMap<State, Int>()
+    private val eventsByState = HashMap<State, Set<Event<T>>>()
     private val relativeFrequencyByState = HashMap<State, Float>()
     private var totalEventCount = 0
+    private val setOfTraceIdentifiers = mutableSetOf<String>()
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val totalEvents = eventCountByState.values.sum().toFloat()
+        val totalTraces = setOfTraceIdentifiers.size
 
-        eventCountByState.forEach { (state, eventsSeen) ->
+        eventsByState.forEach { (state, eventsSeen) ->
+            val tracesSeen = eventsSeen.map { it.caseIdentifier }.toSet().size
+
             when (state) {
                 is State.PrefixState -> {
-                    relativeFrequencyByState[state] = eventsSeen.toFloat() / totalEvents
+                    relativeFrequencyByState[state] = tracesSeen.toFloat() / totalTraces
                 }
 
                 else -> {
@@ -49,8 +52,8 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
         state: State,
         depth: Int,
     ) {
-        eventCountByState.computeIfAbsent(state) {
-            extendedPrefixAutomaton.sequence(state).size
+        eventsByState.computeIfAbsent(state) {
+            extendedPrefixAutomaton.sequence(state)
         }
     }
 
@@ -59,7 +62,7 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
         event: Event<T>,
         depth: Int
     ) {
-        totalEventCount++
+        setOfTraceIdentifiers.add(event.caseIdentifier)
     }
 
     override fun onProgress(current: Long, total: Long) {

@@ -185,7 +185,7 @@ fun StateInfo(
                     .heightIn(max = 120.dp)
                     .padding(4.dp)
             ) {
-                items(traces) { trace ->
+                items(traces.toList()) { trace ->
                     TraceDetail(trace, selectedState, extendedPrefixAutomaton) {
                         onStateSelected(it)
                     }
