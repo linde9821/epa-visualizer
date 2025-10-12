@@ -24,6 +24,8 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.LinearStateAtlasConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
@@ -45,6 +47,9 @@ class EpaStateManager(
 
     private val _stateLabelsByTabId = MutableStateFlow<Map<String, StateLabels>>(emptyMap())
     val stateLabelsByTabId = _stateLabelsByTabId.asStateFlow()
+
+    private val _drawAtlasByTabId = MutableStateFlow<Map<String, DrawAtlas>>(emptyMap())
+    val drawAtlasByTabId = _drawAtlasByTabId.asStateFlow()
 
     private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<TreeLayout, LayoutConfig>>>(emptyMap())
     val layoutAndConfigByTabId = _layoutAndConfigByTabId.asStateFlow()
@@ -74,6 +79,9 @@ class EpaStateManager(
         _statisticsByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
         }
+        _drawAtlasByTabId.update { currentMap ->
+            currentMap.filterNot { it.key == tabId }
+        }
     }
 
     private fun invalidateAllEpas() {
@@ -81,6 +89,7 @@ class EpaStateManager(
         _stateLabelsByTabId.value = emptyMap()
         _layoutAndConfigByTabId.value = emptyMap()
         _statisticsByTabId.value = emptyMap()
+        _drawAtlasByTabId.value = emptyMap()
     }
 
     init {
@@ -107,6 +116,7 @@ class EpaStateManager(
                                 buildEpaForTab(tab)
                                 buildLayoutForTab(tab)
                                 buildStateLabelsForTab(tab)
+                                buildDrawAtlasForTab(tab)
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
@@ -130,6 +140,9 @@ class EpaStateManager(
 
                         // build labels
                         buildStateLabelsForTab(tab)
+
+                        // build draw atlas
+                        buildDrawAtlasForTab(tab)
 
                         // build statistics
                         buildStatisticForTab(tab)
@@ -185,6 +198,31 @@ class EpaStateManager(
 
         _stateLabelsByTabId.update { currentMap ->
             currentMap + (tabState.id to stateLabels)
+        }
+    }
+
+    suspend fun buildDrawAtlasForTab(
+        tabState: TabState
+    ) {
+        val drawAtlas = _drawAtlasByTabId.value[tabState.id]
+        if (drawAtlas != null) return
+
+
+        val epa = _epaByTabId.value[tabState.id]!!
+
+        logger.info { "building atlas" }
+
+        val atlas = DrawAtlas.build(
+            epa,
+            LinearStateAtlasConfig(
+                extendedPrefixAutomaton = epa,
+                sizeMin = 3f,
+                sizeMax = 15f
+            ),
+        )
+
+        _drawAtlasByTabId.update { currentMap ->
+            currentMap + (tabState.id to atlas)
         }
     }
 
