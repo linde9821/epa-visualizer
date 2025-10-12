@@ -43,8 +43,8 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
             }
         }
 
-        val max = relativeFrequencyByState.values.max()
-        relativeFrequencyByState[State.Root] = max
+        val max = relativeFrequencyByState.values.maxOrNull()
+        relativeFrequencyByState[State.Root] = max ?: 0f
     }
 
     override fun visit(

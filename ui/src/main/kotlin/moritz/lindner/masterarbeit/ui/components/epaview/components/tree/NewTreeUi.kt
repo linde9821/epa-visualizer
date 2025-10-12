@@ -213,7 +213,7 @@ fun DrawScope.drawEPANew(
                 val cx = coordinate.x
                 val cy = -coordinate.y
                 val parentCoordinate = layout.getCoordinate(state.from)
-                val paint = drawAtlas.getTransitionByParentState(state.from)
+                val paint = drawAtlas.getTransitionEntryByParentState(state.from)
 
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(cx, cy)
@@ -232,17 +232,15 @@ fun DrawScope.drawEPANew(
         // draw nodes
         visibleNodes.forEach { (coordinate, node) ->
             val state = node.state
-            val entry = drawAtlas.get(state)
+            val entry = drawAtlas.getState(state)
 
             val cx = coordinate.x
             val cy = -coordinate.y
 
             canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
 
-            logger.info { "drawing $state with $entry" }
-
             if (node.state == tabState.selectedState) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, entry.paint)
+                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.selectedStatePaint)
             }
 
             val screenRadius = entry.size * scale

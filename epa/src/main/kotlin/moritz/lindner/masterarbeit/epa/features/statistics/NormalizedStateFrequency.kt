@@ -10,6 +10,10 @@ import moritz.lindner.masterarbeit.epa.domain.State
 class NormalizedStateFrequency(
     private val relativeFrequencyByState: HashMap<State, Float>
 ) {
+    private val min = relativeFrequencyByState.values.min()
+    private val max = relativeFrequencyByState.values.max()
+
+
     /**
      * Returns the normalized frequency for the given [state].
      *
@@ -23,10 +27,10 @@ class NormalizedStateFrequency(
     }
 
     /** Returns the minimum normalized frequency across all states. */
-    fun min(): Float = relativeFrequencyByState.values.min()
+    fun min(): Float = min
 
     /**
      * Returns the maximum normalized frequency across all states.
      */
-    fun max(): Float = relativeFrequencyByState.values.max()
+    fun max(): Float = max
 }
