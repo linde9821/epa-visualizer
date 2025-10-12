@@ -51,6 +51,11 @@ fun StateInfo(
     val freqFormatted = "%.1f".format(freq * 100f,)
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
+    val cycleTime = epaService.computeCycleTimes(extendedPrefixAutomaton).cycleTimesOfState(selectedState, Long::minus).let { times ->
+        if (times.isEmpty()) {
+            0f
+        } else times.average().toFloat()
+    }
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
 
@@ -99,6 +104,10 @@ fun StateInfo(
             InfoRow(
                 label = "(Normalized) Frequency", value = "$freqFormatted%"
             )
+            InfoRow(
+                label = "Cycle Time", value = cycleTime.toString()
+            )
+
         }
 
         // Transitions Section

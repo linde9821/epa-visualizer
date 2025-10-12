@@ -15,6 +15,7 @@ import org.jetbrains.letsPlot.geom.geomHistogram
 import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.label.labs
 import org.jetbrains.letsPlot.letsPlot
+import java.time.Duration
 
 @Composable
 fun CycleTimePlot(
@@ -43,11 +44,11 @@ fun CycleTimePlot(
 
 private fun createCycleTimeHistogram(
     cycleTimes: List<Long>,
-    xLabel: String = "Cycle Time (seconds)",
+    xLabel: String = "Cycle Time (in Hours)",
     yLabel: String = "Frequency"
 ): Plot {
     val bins = BinCalculator.autoBins(cycleTimes)
-    val data = mapOf("cycleTime" to cycleTimes)
+    val data = mapOf("cycleTime" to cycleTimes.map { Duration.ofMillis(it).toHours() })
 
     val plot = letsPlot(data) +
             geomHistogram(
