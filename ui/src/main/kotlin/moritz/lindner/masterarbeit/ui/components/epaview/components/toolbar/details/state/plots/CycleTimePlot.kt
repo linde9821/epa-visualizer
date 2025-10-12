@@ -22,10 +22,10 @@ fun CycleTimePlot(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
 ) {
     val epaService = EpaService<Long>()
-    val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton, state, Long::minus)
+    val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton)
 
     val plot = createCycleTimeHistogram(
-        cycleTimes = cycleTimes,
+        cycleTimes = cycleTimes.cycleTimesOfState(state, Long::minus),
     )
 
     PlotPanel(

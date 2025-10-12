@@ -147,26 +147,36 @@ class EpaService<T : Comparable<T>> {
         }
     }
 
+    fun <C> computeAllCycleTimes(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        minus: (T, T) -> T,
+        average: (List<T>) -> C
+    ): Map<State, C> {
+        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton)
+
+        return extendedPrefixAutomaton.states.associateWith { state ->
+            val ct = cycleTimes.cycleTimesOfState(state, minus)
+            average(ct)
+        }
+    }
+
     fun <C> computeCycleTime(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State,
         minus: (T, T) -> T,
-        addition: (T, T) -> T,
         average: (List<T>) -> C
     ): C {
-        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton, state, minus)
-        return average(cycleTimes)
+        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton)
+        val ct = cycleTimes.cycleTimesOfState(state, minus)
+        return average(ct)
     }
 
     fun computeCycleTimes(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        state: State,
-        minus: (T, T) -> T
-    ): List<T> {
+    ): CycleTime<T> {
         val cycleTime = CycleTime<T>()
         extendedPrefixAutomaton.acceptDepthFirst(cycleTime)
-
-        return cycleTime.cycleTimesOfState(state, minus)
+        return cycleTime
     }
 
     fun getStateByEvent(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>): Map<Event<T>, State> {
