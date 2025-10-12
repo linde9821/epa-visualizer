@@ -1,9 +1,9 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 
 import moritz.lindner.masterarbeit.epa.domain.State
-import org.jetbrains.skia.Paint
+import moritz.lindner.masterarbeit.epa.domain.Transition
 
 interface StateAtlasConfig {
-    fun toPaint(state: State): Paint
-    fun toSize(state: State): Float
+    fun toStateAtlasEntry(state: State): StateAtlasEntry
+    fun toTransitionAtlasEntry(transition: Transition): TransitionAtlasEntry
 }

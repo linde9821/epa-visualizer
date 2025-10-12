@@ -31,6 +31,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.drawDepthCircles
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.getControlPoints
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.toCoordinate
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.DrawAtlas
@@ -200,6 +201,11 @@ fun DrawScope.drawEPANew(
     val visibleNodes = layout.getCoordinatesInRectangle(boundingBox)
 
     drawIntoCanvas { canvas ->
+
+        (layout as? RadialTreeLayout)?.let {
+            drawDepthCircles(layout)
+        }
+
         visibleNodes.forEach { (coordinate, node) ->
             val state = node.state
 
@@ -207,6 +213,8 @@ fun DrawScope.drawEPANew(
                 val cx = coordinate.x
                 val cy = -coordinate.y
                 val parentCoordinate = layout.getCoordinate(state.from)
+                val paint = drawAtlas.getTransitionByParentState(state.from)
+
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(cx, cy)
                 val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
@@ -217,7 +225,7 @@ fun DrawScope.drawEPANew(
                         cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
                     }
 
-                canvas.nativeCanvas.drawPath(path, drawAtlas.baseColor)
+                canvas.nativeCanvas.drawPath(path, paint.paint)
             }
         }
 
@@ -304,5 +312,4 @@ object NewTreeUi {
             x = this.x,
             y = this.y,
         )
-
 }

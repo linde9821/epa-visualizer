@@ -3,13 +3,16 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawin
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.domain.Transition
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
+import org.jetbrains.skia.PaintMode
 
-class LinearSizeByCycleTimeAndLinearColorByFrequencyAtlasConfig(
+class DefaultConfig(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val minSize: Float,
-    private val maxSize: Float,
+    private val stateSize: Float,
+    private val minTransitionSize: Float,
+    private val maxTransitionSize: Float,
 ) : StateAtlasConfig {
 
     private val epaService = EpaService<Long>()
@@ -28,30 +31,36 @@ class LinearSizeByCycleTimeAndLinearColorByFrequencyAtlasConfig(
 
     private val normalizedStateFrequency = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton)
 
-    override fun toPaint(state: State): Paint {
-        return mapToRedGreen(
-            normalizedStateFrequency.frequencyByState(state),
-            normalizedStateFrequency.min(),
-            normalizedStateFrequency.max()
+    override fun toStateAtlasEntry(state: State): StateAtlasEntry {
+        return StateAtlasEntry(
+            size = stateSize,
+            paint = mapToRedGreen(
+                value = cycleTimeByState[state]!!,
+                min = minCycleTime,
+                max = maxCycleTime
+            )
         )
     }
 
-    override fun toSize(state: State): Float {
-        val cycleTime = cycleTimeByState[state]!!
+    override fun toTransitionAtlasEntry(transition: Transition): TransitionAtlasEntry {
+        val freq = normalizedStateFrequency.frequencyByState(transition.start)
 
-        if (minCycleTime == maxCycleTime) {
-            return (minSize + maxSize) / 2
-        }
+        val width = linearProjectClamped(
+            freq,
+            normalizedStateFrequency.min(),
+            normalizedStateFrequency.max(),
+            minTransitionSize,
+            maxTransitionSize
+        )
 
-        return maxSize
-
-//        return linearProjectClamped(
-//            cycleTime,
-//            minCycleTime,
-//            maxCycleTime,
-//            sizeMin,
-//            sizeMax
-//        )
+        return TransitionAtlasEntry(
+            paint = Paint().apply {
+                color = Color.BLACK
+                mode = PaintMode.STROKE
+                strokeWidth = width
+                isAntiAlias = true
+            }
+        )
     }
 
     fun linearProjectClamped(
@@ -72,8 +81,8 @@ class LinearSizeByCycleTimeAndLinearColorByFrequencyAtlasConfig(
     ): Paint {
         val normalized = ((value - min) / (max - min)).coerceIn(0.0f, 1.0f)
 
-        val red = ((1 - normalized) * 255).toInt()
-        val green = (normalized * 255).toInt()
+        val green = ((1 - normalized) * 255).toInt()
+        val red = (normalized * 255).toInt()
 
         val color = Color.makeRGB(red, green, 0)
 
