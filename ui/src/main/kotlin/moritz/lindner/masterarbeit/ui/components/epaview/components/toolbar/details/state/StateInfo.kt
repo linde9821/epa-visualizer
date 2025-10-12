@@ -47,6 +47,8 @@ fun StateInfo(
 
     val stateName = selectedState.name
     val seq = extendedPrefixAutomaton.sequence(selectedState)
+    val freq = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton).frequencyByState(selectedState)
+    val freqFormatted = "%.1f".format(freq * 100f,)
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
@@ -94,6 +96,9 @@ fun StateInfo(
             InfoRow(label = "Partition", value = partition.toString())
             InfoRow(label = "Depth", value = depth.toString())
             InfoRow(label = "Events", value = seq.size.toString())
+            InfoRow(
+                label = "(Normalized) Frequency", value = "$freqFormatted%"
+            )
         }
 
         // Transitions Section
@@ -137,7 +142,7 @@ fun StateInfo(
                             Chip(onClick = {
                                 onStateSelected(transition.end)
                             }) {
-                                Text(transition.start.name, fontSize = 11.sp)
+                                Text(transition.end.name, fontSize = 11.sp)
                             }
                         }
                     }
