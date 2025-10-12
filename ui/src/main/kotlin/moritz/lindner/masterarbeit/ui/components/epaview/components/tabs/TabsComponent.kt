@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -46,6 +46,7 @@ fun TabsComponent(
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
     val layoutByTabId by epaStateManager.layoutAndConfigByTabId.collectAsState()
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
+    val drawAtlasByTabId by epaStateManager.drawAtlasByTabId.collectAsState()
     val animationState by epaStateManager.animationState.collectAsState()
 
     val currentTab =
@@ -57,6 +58,7 @@ fun TabsComponent(
     val currentEpa = activeTabId?.let { epaByTabId[it] }
     val currentLayoutAndConfig = activeTabId?.let { layoutByTabId[it] }
     val currentStateLabels = activeTabId?.let { stateLabelsByTabId[it] }
+    val currentDrawAtlas = activeTabId?.let { drawAtlasByTabId[it] }
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -126,23 +128,34 @@ fun TabsComponent(
                                 modifier = Modifier.width(450.dp),
                             )
                         }
-                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
+                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null && currentDrawAtlas != null) {
                         // TODO: does this need to be a column
                         Column(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             if (currentLayoutAndConfig.first.isBuilt()) {
-                                TreeUi(
+//                                TreeUi(
+//                                    treeLayout = currentLayoutAndConfig.first,
+//                                    stateLabels = currentStateLabels,
+//                                    animationState = animationState,
+//                                    tabState = currentTab,
+//                                    onStateHover = {
+//                                    },
+//                                    onStateClicked = {
+//                                        if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
+//                                    },
+//                                )
+                                NewTreeUi(
                                     treeLayout = currentLayoutAndConfig.first,
                                     stateLabels = currentStateLabels,
-                                    animationState = animationState,
-                                    tabState = currentTab,
+                                    drawAtlas = currentDrawAtlas,
                                     onStateHover = {
                                     },
                                     onStateClicked = {
                                         if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
                                     },
+                                    tabState = currentTab
                                 )
                             } else {
                                 Text("Rendering is disabled")
