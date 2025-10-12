@@ -24,8 +24,8 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.DrawAtlas
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.LinearStateAtlasConfig
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.LinearSizeByCycleTimeAndLinearColorByFrequencyAtlasConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
@@ -214,10 +214,10 @@ class EpaStateManager(
 
         val atlas = DrawAtlas.build(
             epa,
-            LinearStateAtlasConfig(
+            LinearSizeByCycleTimeAndLinearColorByFrequencyAtlasConfig(
                 extendedPrefixAutomaton = epa,
-                sizeMin = 3f,
-                sizeMax = 15f
+                minSize = 3f,
+                maxSize = 15f
             ),
         )
 

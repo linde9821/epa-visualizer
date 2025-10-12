@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
+import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
@@ -20,21 +21,27 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
     private val progressCallback: EpaProgressCallback? = null
 ) : AutomatonVisitor<T> {
-    private val eventsByState = HashMap<State, Int>()
+    private val eventCountByState = HashMap<State, Int>()
     private val relativeFrequencyByState = HashMap<State, Float>()
+    private var totalEventCount = 0
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val totalEvents = eventsByState.values.sum().toFloat()
+        val totalEvents = eventCountByState.values.sum().toFloat()
 
-        eventsByState.forEach { (state, eventsSeen) ->
+        eventCountByState.forEach { (state, eventsSeen) ->
             when (state) {
                 is State.PrefixState -> {
                     relativeFrequencyByState[state] = eventsSeen.toFloat() / totalEvents
                 }
 
-                State.Root -> relativeFrequencyByState[state] = 1f
+                else -> {
+
+                }
             }
         }
+
+        val max = relativeFrequencyByState.values.max()
+        relativeFrequencyByState[State.Root] = max
     }
 
     override fun visit(
@@ -42,9 +49,17 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
         state: State,
         depth: Int,
     ) {
-        eventsByState.computeIfAbsent(state) {
+        eventCountByState.computeIfAbsent(state) {
             extendedPrefixAutomaton.sequence(state).size
         }
+    }
+
+    override fun visit(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        event: Event<T>,
+        depth: Int
+    ) {
+        totalEventCount++
     }
 
     override fun onProgress(current: Long, total: Long) {

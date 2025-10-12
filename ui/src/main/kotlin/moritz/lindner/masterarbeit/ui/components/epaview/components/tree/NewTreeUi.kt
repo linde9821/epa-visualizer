@@ -33,6 +33,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.getControlPoints
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.toCoordinate
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Path

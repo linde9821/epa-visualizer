@@ -101,14 +101,20 @@ class EpaService<T : Comparable<T>> {
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         selectedState: State
     ): Set<Transition> {
-        return extendedPrefixAutomaton.transitions.filter { it.start == selectedState }.toSet()
+        return extendedPrefixAutomaton
+            .transitions
+            .filter { transition -> transition.start == selectedState }
+            .toSet()
     }
 
     fun incomingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         selectedState: State
     ): Set<Transition> {
-        return extendedPrefixAutomaton.transitions.filter { it.end == selectedState }.toSet()
+        return extendedPrefixAutomaton
+            .transitions
+            .filter { it.end == selectedState }
+            .toSet()
     }
 
     fun getPathFromRoot(
