@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawin
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 
-interface StateAtlasConfig {
+interface AtlasConfig {
     fun toStateAtlasEntry(state: State): StateAtlasEntry
     fun toTransitionAtlasEntry(transition: Transition): TransitionAtlasEntry
 }

@@ -13,7 +13,7 @@ class DefaultConfig(
     private val stateSize: Float,
     private val minTransitionSize: Float,
     private val maxTransitionSize: Float,
-) : StateAtlasConfig {
+) : AtlasConfig {
 
     private val epaService = EpaService<Long>()
 

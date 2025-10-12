@@ -1,9 +1,9 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 
@@ -13,53 +13,51 @@ data class TransitionAtlasEntry(
 
 class DrawAtlas(
 ) {
-    val baseColor = Paint().apply {
-        color = Color.BLACK
-        mode = PaintMode.STROKE
-        strokeWidth = 4f
-        isAntiAlias = true
-    }
+    val selectedStatePaint =
+        Paint().apply {
+            color = org.jetbrains.skia.Color.BLUE
+            mode = PaintMode.STROKE
+            isAntiAlias = true
+            strokeWidth = 5f
+        }
 
-    val entryByState = HashMap<State, StateAtlasEntry>()
-    val entryByTransition = HashMap<Transition, TransitionAtlasEntry>()
-
-    val entryByParent = HashMap<State, TransitionAtlasEntry>()
+    val stateEntryByState = HashMap<State, StateAtlasEntry>()
+    val transitionEntryByParentState = HashMap<State, TransitionAtlasEntry>()
 
     fun add(state: State, entry: StateAtlasEntry) {
-        entryByState[state] = entry
+        stateEntryByState[state] = entry
     }
 
     fun add(transition: Transition, entry: TransitionAtlasEntry) {
-        entryByTransition[transition] = entry
-        entryByParent[transition.start] = entry
+        transitionEntryByParentState[transition.start] = entry
     }
 
-    fun get(state: State): StateAtlasEntry {
-        return entryByState[state] ?: throw IllegalStateException("For $state no entry in the draw atlas is present")
+    fun getState(state: State): StateAtlasEntry {
+        return stateEntryByState[state]
+            ?: throw IllegalStateException("For $state no entry in the draw atlas is present")
     }
 
-    fun get(transition: Transition): TransitionAtlasEntry {
-        return entryByTransition[transition] ?: throw IllegalStateException("For $transition no entry in the draw atlas is present")
+    fun getTransitionEntryByParentState(parentState: State): TransitionAtlasEntry {
+        return transitionEntryByParentState[parentState]
+            ?: throw IllegalStateException("For $parentState no entry in the draw atlas is present")
     }
-
-    fun getTransitionByParentState(parentState: State): TransitionAtlasEntry {
-        return entryByParent[parentState] ?: throw IllegalStateException("For $parentState no entry in the draw atlas is present")
-    }
-
 
     companion object Companion {
         fun <T : Comparable<T>> build(
             extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-            stateAtlasConfig: StateAtlasConfig
+            atlasConfig: AtlasConfig,
+            progressCallback: EpaProgressCallback? = null
         ): DrawAtlas {
             val atlas = DrawAtlas()
 
-            extendedPrefixAutomaton.states.forEach { state ->
-                atlas.add(state, stateAtlasConfig.toStateAtlasEntry(state))
+            extendedPrefixAutomaton.states.forEachIndexed { index, state ->
+                progressCallback?.onProgress(index, extendedPrefixAutomaton.states.size, "Building draw atlas for states")
+                atlas.add(state, atlasConfig.toStateAtlasEntry(state))
             }
 
-            extendedPrefixAutomaton.transitions.forEach { transition ->
-                atlas.add(transition, stateAtlasConfig.toTransitionAtlasEntry(transition))
+            extendedPrefixAutomaton.transitions.forEachIndexed { index, transition ->
+                progressCallback?.onProgress(index, extendedPrefixAutomaton.transitions.size, "Building draw atlas for transitions")
+                atlas.add(transition, atlasConfig.toTransitionAtlasEntry(transition))
             }
 
             return atlas
