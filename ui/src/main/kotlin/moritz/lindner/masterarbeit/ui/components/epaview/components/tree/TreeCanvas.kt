@@ -31,9 +31,12 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.drawDepthCircles
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.getControlPoints
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.toCoordinate
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.computeBoundingBox
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawDepthCircles
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.findNodeAt
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.getControlPoints
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.screenToWorld
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
@@ -42,7 +45,7 @@ import org.jetbrains.skia.Path
 import kotlin.math.pow
 
 @Composable
-fun NewTreeUi(
+fun TreeCanvas(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     drawAtlas: DrawAtlas,
@@ -59,20 +62,11 @@ fun NewTreeUi(
 
     LaunchedEffect(tabState.locateState) {
         if (tabState.locateState != null) {
-
             val targetNode = treeLayout.getCoordinate(tabState.locateState)
 
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             offset = screenCenter - targetNode.toOffset() * scale
         }
-    }
-
-    LaunchedEffect(hoveredNode) {
-        onStateHover(hoveredNode?.node?.state)
-    }
-
-    LaunchedEffect(pressedNode) {
-        onStateClicked(pressedNode?.node?.state)
     }
 
     val canvasModifier = Modifier
@@ -88,22 +82,17 @@ fun NewTreeUi(
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
-                    val scrollDelta =
-                        event.changes
-                            .firstOrNull()
-                            ?.scrollDelta
-                            ?.y ?: 0f
+                    val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
 
                     if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
                         val cursorPosition = event.changes.first().position
-                        val worldPosBefore = (cursorPosition - offset) / scale
 
-                        val oldScale = scale
-                        val newScale = (oldScale * if (scrollDelta < 0) 1.1f else 0.9f).coerceIn(0.01f, 14f)
+                        val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
+                        val newScale = (scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val worldPosBefore = screenToWorld(cursorPosition, offset, scale)
+
                         scale = newScale
-
-                        val worldPosAfter = worldPosBefore * scale
-                        offset = cursorPosition - worldPosAfter
+                        offset = cursorPosition - worldPosBefore * scale
                     }
                 }
             }
@@ -116,26 +105,16 @@ fun NewTreeUi(
                     if (event.type == PointerEventType.Move || event.type == PointerEventType.Enter || event.type == PointerEventType.Press) {
                         val screenPosition = event.changes.first().position
 
-                        // Transform screen coordinates to world coordinates
-                        val worldPosition = (screenPosition - offset) / scale
-
-                        val width = 10
-                        val nodeAtPosition =
-                            treeLayout.getCoordinatesInRectangle(
-                                Rectangle(
-                                    topLeft = Coordinate(worldPosition.x - width, worldPosition.y - width),
-                                    bottomRight = Coordinate(worldPosition.x + width, worldPosition.y + width),
-                                ),
-                            )
-
                         // Update hovered node if it changed
-                        val newNode = nodeAtPosition.firstOrNull()
+                        val newNode = findNodeAt(treeLayout, screenToWorld(screenPosition, offset, scale))
 
                         if (newNode != hoveredNode) {
                             hoveredNode = newNode
+                            onStateHover(hoveredNode?.node?.state)
                         }
                         if (event.type == PointerEventType.Press && pressedNode != newNode) {
-                            pressedNode = hoveredNode
+                            pressedNode = newNode
+                            onStateClicked(pressedNode?.node?.state)
                         }
                     }
                 }
@@ -152,14 +131,67 @@ fun NewTreeUi(
             )
         }) {
             try {
-                drawEPANew(
-                    layout = treeLayout,
-                    boundingBox = compouteBoundingBox(offset, scale),
-                    stateLabels = stateLabels,
-                    scale = scale,
-                    drawAtlas = drawAtlas,
-                    tabState = tabState
-                )
+                val visibleNodes = treeLayout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
+                drawIntoCanvas { canvas ->
+                    (treeLayout as? RadialTreeLayout)?.let {
+                        drawDepthCircles(layout = treeLayout)
+                    }
+
+                    val path = Path()
+
+                    // Draw edges
+                    visibleNodes.forEach { (coordinate, node) ->
+                        val state = node.state
+                        if (state is PrefixState) {
+                            val cx = coordinate.x
+                            val cy = -coordinate.y
+                            val parentCoordinate = treeLayout.getCoordinate(state.from)
+                            val entry = drawAtlas.getTransitionEntryByParentState(state)
+
+                            val start = Offset(parentCoordinate.x, -parentCoordinate.y)
+                            val end = Offset(cx, cy)
+                            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+
+                            path.reset()
+                            path.moveTo(start.x, start.y)
+                            path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
+
+                            canvas.nativeCanvas.drawPath(path, entry.paint)
+                        }
+                    }
+
+                    val selectedState = tabState.selectedState
+                    val selectedPaint = drawAtlas.selectedStatePaint
+                    val labelThreshold = drawAtlas.stateSizeUntilLabelIsDrawn
+
+                    // Draw nodes
+                    visibleNodes.forEach { (coordinate, node) ->
+                        val state = node.state
+                        val entry = drawAtlas.getState(state)
+                        val cx = coordinate.x
+                        val cy = -coordinate.y
+
+                        canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
+
+                        if (entry.size * scale >= labelThreshold) {
+                            val label = stateLabels.getLabelForState(state)
+                            canvas.nativeCanvas.drawImage(
+                                label,
+                                cx + entry.size + 5f,
+                                cy - label.height / 2f,
+                            )
+                        }
+                    }
+
+                    selectedState?.let {
+                        val coordinate = treeLayout.getCoordinate(selectedState)
+                        val cx = coordinate.x
+                        val cy = -coordinate.y
+                        val entry = drawAtlas.getState(selectedState)
+                        canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
+                    }
+
+                }
             } catch (e: Exception) {
                 logger.error(e) { "error while drawing: $e" }
             }
@@ -167,99 +199,20 @@ fun NewTreeUi(
     }
 }
 
-private fun DrawScope.compouteBoundingBox(
-    offset: Offset,
-    scale: Float
-): Rectangle {
-    val center = (center - offset) / scale
-    val topLeft = Offset(
-        x = center.x - ((size.width / scale) / 2f),
-        y = center.y - ((size.height / scale) / 2f)
-    )
-    val bottomRight = Offset(
-        x = center.x + ((size.width / scale) / 2f),
-        y = center.y + ((size.height / scale) / 2f)
-    )
+object TreeCanvas {
 
-    return Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
-}
+    fun screenToWorld(screenPosition: Offset, offset: Offset, scale: Float): Offset =
+        (screenPosition - offset) / scale
 
-private fun Coordinate.toOffset(): Offset {
-    return Offset(
-        x = this.x,
-        y = this.y * -1
-    )
-}
-
-fun DrawScope.drawEPANew(
-    layout: TreeLayout,
-    boundingBox: Rectangle,
-    stateLabels: StateLabels,
-    scale: Float,
-    drawAtlas: DrawAtlas,
-    tabState: TabState
-) {
-    val visibleNodes = layout.getCoordinatesInRectangle(boundingBox)
-
-    drawIntoCanvas { canvas ->
-        (layout as? RadialTreeLayout)?.let {
-            drawDepthCircles(layout)
-        }
-
-        val path = Path()
-
-        // Draw edges
-        visibleNodes.forEach { (coordinate, node) ->
-            val state = node.state
-            if (state is PrefixState) {
-                val cx = coordinate.x
-                val cy = -coordinate.y
-                val parentCoordinate = layout.getCoordinate(state.from)
-                val entry = drawAtlas.getTransitionEntryByParentState(state)
-
-                val start = Offset(parentCoordinate.x, -parentCoordinate.y)
-                val end = Offset(cx, cy)
-                val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-
-                path.reset()
-                path.moveTo(start.x, start.y)
-                path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
-
-                canvas.nativeCanvas.drawPath(path, entry.paint)
-            }
-        }
-
-        // Cache invariants
-        val selectedState = tabState.selectedState
-        val selectedPaint = drawAtlas.selectedStatePaint
-        val labelThreshold = drawAtlas.stateSizeUntilLabelIsDrawn
-
-        // Draw nodes
-        visibleNodes.forEach { (coordinate, node) ->
-            val state = node.state
-            val entry = drawAtlas.getState(state)
-            val cx = coordinate.x
-            val cy = -coordinate.y
-
-            canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
-
-            if (state == selectedState) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
-            }
-
-            if (entry.size * scale >= labelThreshold) {
-                val label = stateLabels.getLabelForState(state)
-                canvas.nativeCanvas.drawImage(
-                    label,
-                    cx + entry.size + 5f,
-                    cy - label.height / 2f,
-                )
-            }
-        }
+    fun findNodeAt(layout: TreeLayout, worldPos: Offset): NodePlacement? {
+        val searchWidth = 10f
+        return layout.getCoordinatesInRectangle(
+            Rectangle(
+                topLeft = Coordinate(worldPos.x - searchWidth, worldPos.y - searchWidth),
+                bottomRight = Coordinate(worldPos.x + searchWidth, worldPos.y + searchWidth),
+            )
+        ).firstOrNull()
     }
-}
-
-object NewTreeUi {
 
     fun interpolateBezier(
         start: Offset,
@@ -312,4 +265,28 @@ object NewTreeUi {
             x = this.x,
             y = this.y,
         )
+
+    fun DrawScope.computeBoundingBox(
+        offset: Offset,
+        scale: Float
+    ): Rectangle {
+        val center = (center - offset) / scale
+        val topLeft = Offset(
+            x = center.x - ((size.width / scale) / 2f),
+            y = center.y - ((size.height / scale) / 2f)
+        )
+        val bottomRight = Offset(
+            x = center.x + ((size.width / scale) / 2f),
+            y = center.y + ((size.height / scale) / 2f)
+        )
+
+        return Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
+    }
+
+    fun Coordinate.toOffset(): Offset {
+        return Offset(
+            x = this.x,
+            y = this.y * -1
+        )
+    }
 }

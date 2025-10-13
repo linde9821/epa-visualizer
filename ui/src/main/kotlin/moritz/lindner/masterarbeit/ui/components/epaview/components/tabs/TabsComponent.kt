@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -146,7 +146,7 @@ fun TabsComponent(
 //                                        if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
 //                                    },
 //                                )
-                                NewTreeUi(
+                                TreeCanvas(
                                     treeLayout = currentLayoutAndConfig.first,
                                     stateLabels = currentStateLabels,
                                     drawAtlas = currentDrawAtlas,
