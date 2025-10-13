@@ -116,6 +116,7 @@ class EpaStateManager(
                                 buildLayoutForTab(tab)
                                 buildStateLabelsForTab(tab)
                                 buildDrawAtlasForTab(tab)
+                                buildStatisticForTab(tab)
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
@@ -133,16 +134,12 @@ class EpaStateManager(
                     tabs.forEach { tab ->
                         // build epa
                         buildEpaForTab(tab)
-
                         // build layout
                         buildLayoutForTab(tab)
-
                         // build labels
                         buildStateLabelsForTab(tab)
-
                         // build draw atlas
                         buildDrawAtlasForTab(tab)
-
                         // build statistics
                         buildStatisticForTab(tab)
                     }
@@ -197,7 +194,7 @@ class EpaStateManager(
         }
     }
 
-    suspend fun buildDrawAtlasForTab(
+    fun buildDrawAtlasForTab(
         tabState: TabState
     ) {
         val drawAtlas = _drawAtlasByTabId.value[tabState.id]

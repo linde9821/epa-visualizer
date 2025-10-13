@@ -76,16 +76,9 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-Xmx18g",
-                "-XX:MaxGCPauseMillis=500",
+                "-Xmx25g",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
-                "--add-opens",
-                "java.base/sun.misc=ALL-UNNAMED",
-                "--add-opens",
-                "java.base/java.lang=ALL-UNNAMED",
-                "--add-opens",
-                "java.management/java.lang.management=ALL-UNNAMED",
             )
 
         buildTypes.release.proguard {
