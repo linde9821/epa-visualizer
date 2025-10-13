@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
+package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas
 
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition

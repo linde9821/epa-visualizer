@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components.tree
+package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels
 
 import moritz.lindner.masterarbeit.epa.domain.State
 import org.jetbrains.skia.Color
@@ -8,9 +8,13 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Surface
 import org.jetbrains.skia.TextLine
+import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.absoluteValue
 
+/**
+ * Can handle Multithreaded access
+ */
 class StateLabels(
     private val backgroundColor: Int,
     private val baseFontSize: Float,
@@ -29,19 +33,19 @@ class StateLabels(
         Font()
             .apply { size = baseFontSize }
 
-    fun getLabelForState(state: State): Image? = labelByState[trimStateName(state)]
+    fun getLabelForState(state: State): Image = labelByState[trimStateName(state)] ?: throw IllegalStateException("Couldn't find label for state $state")
 
     fun generateLabelForState(state: State) {
         val label = trimStateName(state)
         if (!labelByState.containsKey(label)) {
             val textLine =
-                TextLine
+                TextLine.Companion
                     .make(label, skFont)
 
             val width = (textLine.width + 10f).toInt()
             val height = (textLine.ascent.absoluteValue + textLine.descent + 4f).toInt()
 
-            val surface = Surface.makeRasterN32Premul(width, height)
+            val surface = Surface.Companion.makeRasterN32Premul(width, height)
             val canvas = surface.canvas
 
             canvas.clear(backgroundColor)

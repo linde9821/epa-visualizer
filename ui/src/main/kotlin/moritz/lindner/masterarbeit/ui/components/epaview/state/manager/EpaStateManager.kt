@@ -23,9 +23,9 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.DefaultConfig
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger

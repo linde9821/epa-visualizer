@@ -1,21 +1,19 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
+package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 
-data class TransitionAtlasEntry(
-    val paint: Paint,
-)
-
 class DrawAtlas(
+    val stateSizeUntilLabelIsDrawn: Float
 ) {
     val selectedStatePaint =
         Paint().apply {
-            color = org.jetbrains.skia.Color.BLUE
+            color = Color.BLUE
             mode = PaintMode.STROKE
             isAntiAlias = true
             strokeWidth = 5f
@@ -48,7 +46,7 @@ class DrawAtlas(
             atlasConfig: AtlasConfig,
             progressCallback: EpaProgressCallback? = null
         ): DrawAtlas {
-            val atlas = DrawAtlas()
+            val atlas = DrawAtlas(13f)
 
             extendedPrefixAutomaton.states.forEachIndexed { index, state ->
                 progressCallback?.onProgress(
