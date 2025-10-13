@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawin
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import org.jetbrains.skia.Color
@@ -30,7 +31,7 @@ class DefaultConfig(
     private val minCycleTime = cycleTimeByState.values.min()
     private val maxCycleTime = cycleTimeByState.values.max()
 
-    private val normalizedStateFrequency = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton)
+    private val normalizedStateFrequency = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton, progressCallback)
 
     override fun toStateAtlasEntry(state: State): StateAtlasEntry {
         return StateAtlasEntry(
@@ -44,7 +45,7 @@ class DefaultConfig(
     }
 
     override fun toTransitionAtlasEntry(transition: Transition): TransitionAtlasEntry {
-        val freq = normalizedStateFrequency.frequencyByState(transition.start)
+        val freq = normalizedStateFrequency.frequencyByState(transition.end)
 
         val width = linearProjectClamped(
             freq,

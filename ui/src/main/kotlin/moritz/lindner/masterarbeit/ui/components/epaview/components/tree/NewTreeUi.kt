@@ -213,7 +213,7 @@ fun DrawScope.drawEPANew(
                 val cx = coordinate.x
                 val cy = -coordinate.y
                 val parentCoordinate = layout.getCoordinate(state.from)
-                val paint = drawAtlas.getTransitionEntryByParentState(state.from)
+                val paint = drawAtlas.getTransitionEntryByParentState(state)
 
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(cx, cy)

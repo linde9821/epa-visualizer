@@ -29,7 +29,7 @@ class DrawAtlas(
     }
 
     fun add(transition: Transition, entry: TransitionAtlasEntry) {
-        transitionEntryByParentState[transition.start] = entry
+        transitionEntryByParentState[transition.end] = entry
     }
 
     fun getState(state: State): StateAtlasEntry {
