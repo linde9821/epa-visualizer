@@ -36,7 +36,7 @@ fun TraceDetail(
         Text("Trace ${trace.first().caseIdentifier}")
         IconButton(
             onClick = { show = !show },
-            modifier = Modifier.Companion.padding(start = 8.dp)
+            modifier = Modifier.padding(start = 8.dp)
         ) {
             if (!show) {
                 Icon(AllIconsKeys.General.ChevronDown, "Chevron")
@@ -52,20 +52,20 @@ fun TraceDetail(
                 trace.forEachIndexed { index, event ->
                     val stateOfEvent = stateByEvent[event]
                     val weight = if (stateOfEvent == state) {
-                        FontWeight.Companion.Bold
+                        FontWeight.Bold
                     } else {
-                        FontWeight.Companion.Normal
+                        FontWeight.Normal
                     }
                     Text(
                         "${index + 1}: ${event.activity} at ${event.timestamp} for ${stateOfEvent?.name}",
                         fontWeight = weight,
-                        modifier = Modifier.Companion.clickable(
+                        modifier = Modifier.clickable(
                             onClick = {
                                 onStateSelected(stateOfEvent!!)
                             }
                         )
                     )
-                    Spacer(Modifier.Companion.height(1.dp))
+                    Spacer(Modifier.height(1.dp))
                 }
             }
         }

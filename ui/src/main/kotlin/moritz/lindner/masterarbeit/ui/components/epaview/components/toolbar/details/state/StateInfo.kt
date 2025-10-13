@@ -58,6 +58,7 @@ fun StateInfo(
     }
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
+    val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
 
     Column(
         modifier = Modifier
@@ -101,6 +102,7 @@ fun StateInfo(
             InfoRow(label = "Partition", value = partition.toString())
             InfoRow(label = "Depth", value = depth.toString())
             InfoRow(label = "Events", value = seq.size.toString())
+            InfoRow(label = "Traces", value = traces.size.toString())
             InfoRow(
                 label = "(Normalized) Frequency", value = "$freqFormatted%"
             )
@@ -186,8 +188,6 @@ fun StateInfo(
         ClosableGroup(
             "Traces"
         ) {
-            val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()

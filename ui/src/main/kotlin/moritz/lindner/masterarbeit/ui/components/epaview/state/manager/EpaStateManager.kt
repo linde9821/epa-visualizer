@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.api.LayoutService
@@ -151,7 +150,6 @@ class EpaStateManager(
                     // TODO: move try catch into functions and set error for tab
                     logger.error(e) { "Error while building state" }
                 }
-
             }
         }
     }
@@ -188,12 +186,10 @@ class EpaStateManager(
         val states = epa.states
         val chunkSize = 100
 
-        withContext(backgroundDispatcher) {
-            states.chunked(chunkSize).forEachIndexed { chunkIndex, chunk ->
-                chunk.map { state ->
-                    scope.async { stateLabels.generateLabelForState(state) }
-                }.awaitAll()
-            }
+        states.chunked(chunkSize).forEachIndexed { chunkIndex, chunk ->
+            chunk.map { state ->
+                scope.async { stateLabels.generateLabelForState(state) }
+            }.awaitAll()
         }
 
         _stateLabelsByTabId.update { currentMap ->
@@ -206,7 +202,6 @@ class EpaStateManager(
     ) {
         val drawAtlas = _drawAtlasByTabId.value[tabState.id]
         if (drawAtlas != null) return
-
 
         val epa = _epaByTabId.value[tabState.id]!!
 
@@ -225,15 +220,14 @@ class EpaStateManager(
             epa,
             DefaultConfig(
                 extendedPrefixAutomaton = epa,
-                stateSize = 15f,
+                stateSize = 25f,
                 minTransitionSize = 2f,
                 maxTransitionSize = 25f,
+                progressCallback = progressCallback
             ),
             progressCallback = progressCallback
         )
-
         tabStateManager.clearProgress(tabState.id)
-
         _drawAtlasByTabId.update { currentMap ->
             currentMap + (tabState.id to atlas)
         }
