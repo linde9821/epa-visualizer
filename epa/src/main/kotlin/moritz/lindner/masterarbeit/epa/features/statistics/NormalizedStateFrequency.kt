@@ -13,7 +13,6 @@ class NormalizedStateFrequency(
     private val min = relativeFrequencyByState.values.min()
     private val max = relativeFrequencyByState.values.max()
 
-
     /**
      * Returns the normalized frequency for the given [state].
      *

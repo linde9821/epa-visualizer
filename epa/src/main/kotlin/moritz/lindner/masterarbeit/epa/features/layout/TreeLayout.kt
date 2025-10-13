@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.layout
 
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
@@ -21,7 +22,7 @@ interface TreeLayout : Iterable<NodePlacement> {
      *
      * @param tree The root node of the tree to layout.
      */
-    fun build(tree: EPATreeNode)
+    fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback? = null)
 
     /**
      * Returns the 2D coordinate for the given [State] in the tree.

@@ -247,11 +247,21 @@ class EpaStateManager(
             return
         }
 
+        val progressCallback = EpaProgressCallback { current, total, task ->
+            tabStateManager.updateProgress(
+                tabId = tabState.id,
+                current = current,
+                total = total,
+                task = task
+            )
+        }
+
         val epa = _epaByTabId.value[tabState.id]!!
-        val layout = layoutService.buildLayout(epa, tabState.layoutConfig)
+        val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }
+        tabStateManager.clearProgress(tabState.id)
     }
 
     fun buildEpaForTab(

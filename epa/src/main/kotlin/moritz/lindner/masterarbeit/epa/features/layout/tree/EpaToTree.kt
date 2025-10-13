@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout.tree
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
@@ -14,7 +15,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class EpaToTree<T : Comparable<T>> : AutomatonVisitor<T> {
+class EpaToTree<T : Comparable<T>>(private val progressCallback: EpaProgressCallback? = null) : AutomatonVisitor<T> {
     /**
      * The root node of the constructed tree. Will represent [State.Root].
      * Populated after [onStart] is invoked by the traversal.
@@ -24,6 +25,10 @@ class EpaToTree<T : Comparable<T>> : AutomatonVisitor<T> {
 
     private val stateToNode = HashMap<State, EPATreeNode>()
     private var currentState: State? = null
+
+    override fun onProgress(current: Long, total: Long) {
+        progressCallback?.onProgress(current, total, "Build Tree representation of epa")
+    }
 
     override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         val rootNode = EPATreeNode(State.Root, null, 0)

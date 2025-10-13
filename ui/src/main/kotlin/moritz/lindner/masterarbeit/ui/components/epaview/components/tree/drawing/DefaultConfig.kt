@@ -13,10 +13,10 @@ class DefaultConfig(
     private val stateSize: Float,
     private val minTransitionSize: Float,
     private val maxTransitionSize: Float,
+    private val progressCallback: EpaProgressCallback? = null
 ) : AtlasConfig {
 
     private val epaService = EpaService<Long>()
-
     private val cycleTimeByState = epaService.computeAllCycleTimes(
         extendedPrefixAutomaton = extendedPrefixAutomaton,
         minus = Long::minus,
@@ -24,7 +24,8 @@ class DefaultConfig(
             if (cycleTimes.isEmpty()) {
                 0f
             } else cycleTimes.average().toFloat()
-        }
+        },
+        progressCallback = progressCallback
     )
     private val minCycleTime = cycleTimeByState.values.min()
     private val maxCycleTime = cycleTimeByState.values.max()

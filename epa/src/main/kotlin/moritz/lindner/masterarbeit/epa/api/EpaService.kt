@@ -75,8 +75,8 @@ class EpaService<T : Comparable<T>> {
      * @param epa The Extended Prefix Automaton to analyze.
      * @return Normalized state frequency data.
      */
-    fun getNormalizedStateFrequency(epa: ExtendedPrefixAutomaton<T>): NormalizedStateFrequency {
-        val visitor = NormalizedStateFrequencyVisitor<T>()
+    fun getNormalizedStateFrequency(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback? = null): NormalizedStateFrequency {
+        val visitor = NormalizedStateFrequencyVisitor<T>(progressCallback)
         epa.acceptDepthFirst(visitor)
         return visitor.build()
     }
@@ -157,11 +157,17 @@ class EpaService<T : Comparable<T>> {
     fun <C> computeAllCycleTimes(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         minus: (T, T) -> T,
-        average: (List<T>) -> C
+        average: (List<T>) -> C,
+        progressCallback: EpaProgressCallback? = null
     ): Map<State, C> {
         val cycleTimes = computeCycleTimes(extendedPrefixAutomaton)
 
+        val total = extendedPrefixAutomaton.states.size
+        var current = 0
+
         return extendedPrefixAutomaton.states.associateWith { state ->
+            progressCallback?.onProgress(current, total, "Compute cycle times")
+            current++
             val ct = cycleTimes.cycleTimesOfState(state, minus)
             average(ct)
         }
