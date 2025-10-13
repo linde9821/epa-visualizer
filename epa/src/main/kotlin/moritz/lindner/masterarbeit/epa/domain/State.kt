@@ -54,6 +54,15 @@ sealed class State(
          */
         override fun toString(): String = "[${from.name}] -> $via"
 
+        // use caching to not recompute hash code so often which is dependent on chain of all prefixed states
+        private val cachedHashCode: Int by lazy {
+            var result = from.hashCode()
+            result = 31 * result + via.hashCode()
+            result
+        }
+
+        override fun hashCode(): Int = cachedHashCode
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -64,13 +73,6 @@ sealed class State(
             if (via != other.via) return false
 
             return true
-        }
-
-        // TODO: hashing is kind of hard because of deep recursion
-        override fun hashCode(): Int {
-            var result = from.hashCode()
-            result = 31 * result + via.hashCode()
-            return result
         }
     }
 }
