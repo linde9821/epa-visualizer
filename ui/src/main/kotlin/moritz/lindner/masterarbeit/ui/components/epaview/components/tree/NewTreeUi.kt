@@ -34,7 +34,8 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.drawDepthCircles
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.getControlPoints
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.NewTreeUi.toCoordinate
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Path
@@ -201,57 +202,58 @@ fun DrawScope.drawEPANew(
     val visibleNodes = layout.getCoordinatesInRectangle(boundingBox)
 
     drawIntoCanvas { canvas ->
-
         (layout as? RadialTreeLayout)?.let {
             drawDepthCircles(layout)
         }
 
+        val path = Path()
+
+        // Draw edges
         visibleNodes.forEach { (coordinate, node) ->
             val state = node.state
-
             if (state is PrefixState) {
                 val cx = coordinate.x
                 val cy = -coordinate.y
                 val parentCoordinate = layout.getCoordinate(state.from)
-                val paint = drawAtlas.getTransitionEntryByParentState(state)
+                val entry = drawAtlas.getTransitionEntryByParentState(state)
 
                 val start = Offset(parentCoordinate.x, -parentCoordinate.y)
                 val end = Offset(cx, cy)
                 val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
 
-                val path = Path()
-                    .apply {
-                        moveTo(start.x, start.y)
-                        cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
-                    }
+                path.reset()
+                path.moveTo(start.x, start.y)
+                path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
 
-                canvas.nativeCanvas.drawPath(path, paint.paint)
+                canvas.nativeCanvas.drawPath(path, entry.paint)
             }
         }
 
-        // draw nodes
+        // Cache invariants
+        val selectedState = tabState.selectedState
+        val selectedPaint = drawAtlas.selectedStatePaint
+        val labelThreshold = drawAtlas.stateSizeUntilLabelIsDrawn
+
+        // Draw nodes
         visibleNodes.forEach { (coordinate, node) ->
             val state = node.state
             val entry = drawAtlas.getState(state)
-
             val cx = coordinate.x
             val cy = -coordinate.y
 
             canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
 
-            if (node.state == tabState.selectedState) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.selectedStatePaint)
+            if (state == selectedState) {
+                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
             }
 
-            val screenRadius = entry.size * scale
-            if (screenRadius >= 10f) {
-                stateLabels.getLabelForState(state)?.let { labelImage ->
-                    canvas.nativeCanvas.drawImage(
-                        labelImage,
-                        cx + entry.size + 5f,
-                        cy - labelImage.height / 2f, // vertically center
-                    )
-                }
+            if (entry.size * scale >= labelThreshold) {
+                val label = stateLabels.getLabelForState(state)
+                canvas.nativeCanvas.drawImage(
+                    label,
+                    cx + entry.size + 5f,
+                    cy - label.height / 2f,
+                )
             }
         }
     }
