@@ -22,8 +22,10 @@ import java.time.LocalDateTime
  * @param name The display name of the project
  * @param projectFolder Optional description of the project
  * @param createdAt When the project was created
- * @param xesFilePath Path to the XES file (can be anywhere on the filesystem)
- * @param unfilteredEpaPath Path to the unfiltered EPA json file (relative to project root)
+ * @param xesFilePath Path to the XES file (can be anywhere on the
+ *    filesystem)
+ * @param unfilteredEpaPath Path to the unfiltered EPA json file (relative
+ *    to project root)
  */
 @Serializable
 data class Project(
@@ -40,7 +42,8 @@ data class Project(
         const val SOURCE_DIR = "source"
 
         /**
-         * Creates a new project with current timestamp, copies the XES file, and saves metadata
+         * Creates a new project with current timestamp, copies the XES file, and
+         * saves metadata
          */
         fun create(
             name: String,
@@ -81,9 +84,7 @@ data class Project(
             return project
         }
 
-        /**
-         * Loads a project from its folder by reading project.json
-         */
+        /** Loads a project from its folder by reading project.json */
         fun loadFromFolder(projectRoot: Path): Project {
             val metadataPath = projectRoot.resolve(PROJECT_METADATA_FILE)
             if (!Files.exists(metadataPath)) {
@@ -102,9 +103,7 @@ data class Project(
         }
     }
 
-    /**
-     * Saves only the project metadata (project.json) to the specified folder
-     */
+    /** Saves only the project metadata (project.json) to the specified folder */
     fun saveMetadata() {
         val projectRoot = getProjectRoot()
         Files.createDirectories(projectRoot)
@@ -114,14 +113,10 @@ data class Project(
         Files.writeString(getMetadataPath(projectRoot), jsonContent)
     }
 
-    /**
-     * Returns the creation date as LocalDateTime
-     */
+    /** Returns the creation date as LocalDateTime */
     fun getCreatedAt(): LocalDateTime = LocalDateTime.parse(createdAt)
 
-    /**
-     * Gets the XES file path (absolute)
-     */
+    /** Gets the XES file path (absolute) */
     fun getXesFilePath(): Path {
         val xesPath = Path.of(xesFilePath)
         return if (xesPath.isAbsolute) {
@@ -131,34 +126,22 @@ data class Project(
         }
     }
 
-    /**
-     * Gets the project root as a Path
-     */
+    /** Gets the project root as a Path */
     fun getProjectRoot(): Path = Path.of(projectFolder)
 
-    /**
-     * Gets the full path to the unfiltered EPA file within the project
-     */
+    /** Gets the full path to the unfiltered EPA file within the project */
     fun getUnfilteredEpaPath(): Path = getProjectRoot().resolve(unfilteredEpaPath)
 
-    /**
-     * Gets the full path to the project metadata file
-     */
+    /** Gets the full path to the project metadata file */
     fun getMetadataPath(projectRoot: Path): Path = projectRoot.resolve(PROJECT_METADATA_FILE)
 
-    /**
-     * Creates a copy of this project with updated name
-     */
+    /** Creates a copy of this project with updated name */
     fun withName(newName: String): Project = copy(name = newName)
 
-    /**
-     * Creates a copy of this project with updated XES file path
-     */
+    /** Creates a copy of this project with updated XES file path */
     fun withXesFilePath(newXesFilePath: String): Project = copy(xesFilePath = newXesFilePath)
 
-    /**
-     * Gets the mapper name for this project
-     */
+    /** Gets the mapper name for this project */
     fun getMapper(): EventLogMapper<*> {
         val mappers = listOf(
             BPI2017ChallengeEventMapper(),

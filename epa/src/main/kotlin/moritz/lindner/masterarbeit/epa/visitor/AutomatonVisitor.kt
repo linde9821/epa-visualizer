@@ -6,15 +6,17 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 
 /**
- * A visitor interface for traversing an [ExtendedPrefixAutomaton] and its components.
+ * A visitor interface for traversing an [ExtendedPrefixAutomaton] and its
+ * components.
  *
  * The traversal follows a consistent pattern:
  * 1. Visit the [State]
  * 2. Visit all [Event]s associated with that state
  * 3. Visit all outgoing [Transition]s from that state
  *
- * Implementations can choose to traverse the automaton in either depth-first or breadth-first order,
- * and override whichever methods they need.
+ * Implementations can choose to traverse the automaton in either
+ * depth-first or breadth-first order, and override whichever methods they
+ * need.
  *
  * @param T The type of timestamp used in the automaton's events.
  */

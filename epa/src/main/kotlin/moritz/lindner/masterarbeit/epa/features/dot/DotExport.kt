@@ -6,8 +6,8 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A visitor that exports an [ExtendedPrefixAutomaton] to the DOT graph description language,
- * which can be rendered using tools like Graphviz.
+ * A visitor that exports an [ExtendedPrefixAutomaton] to the DOT graph
+ * description language, which can be rendered using tools like Graphviz.
  *
  * The graph includes:
  * - Nodes labeled by event sequences per state
@@ -22,8 +22,8 @@ class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
 
     /**
-     * The final DOT string representation of the automaton.
-     * This is initialized when [onEnd] is called after traversal.
+     * The final DOT string representation of the automaton. This is
+     * initialized when [onEnd] is called after traversal.
      */
     lateinit var dot: String
         private set

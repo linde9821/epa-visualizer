@@ -6,15 +6,17 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
 
 /**
- * Filters an [ExtendedPrefixAutomaton] by removing all states and transitions
- * that belong to partitions with a normalized frequency below a given [threshold].
+ * Filters an [ExtendedPrefixAutomaton] by removing all states and
+ * transitions that belong to partitions with a normalized frequency below
+ * a given [threshold].
  *
  * Partitions are evaluated using a [NormalizedPartitionFrequencyVisitor],
- * and only those with frequency >= [threshold] (or partition 0, which is always retained)
- * are kept.
+ * and only those with frequency >= [threshold] (or
+ * partition 0, which is always retained) are kept.
  *
  * @param T The timestamp type used in the automaton's events.
- * @property threshold The minimum normalized frequency a partition must have to be included.
+ * @property threshold The minimum normalized frequency a partition must
+ *    have to be included.
  */
 class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
@@ -25,10 +27,12 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         get() = "Partition Frequency Filter"
 
     /**
-     * Applies the frequency-based partition filtering logic to the given automaton.
+     * Applies the frequency-based partition filtering logic to the given
+     * automaton.
      *
      * @param epa The automaton to filter.
-     * @return A new [ExtendedPrefixAutomaton] with only frequent partitions retained.
+     * @return A new [ExtendedPrefixAutomaton] with only frequent partitions
+     *    retained.
      */
     override fun apply(
         epa: ExtendedPrefixAutomaton<T>,

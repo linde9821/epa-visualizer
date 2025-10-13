@@ -364,7 +364,8 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
 
             // Step 3: Build partition mappings
             progressCallback?.onProgress(60, 100, "Building new EPA: building partition mappings")
-            val newPartitionByState = buildPartitionMapping(epa, syntheticStates, oldToNewStateMapping, progressCallback)
+            val newPartitionByState =
+                buildPartitionMapping(epa, syntheticStates, oldToNewStateMapping, progressCallback)
 
             // Step 4: Build sequence mappings
             progressCallback?.onProgress(80, 100, "Building new EPA: building sequence mappings")
@@ -406,7 +407,11 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
                 }
             }
 
-            progressCallback?.onProgress(nonChainStates.size, totalItems, "Building partition mappings: processing synthetic states")
+            progressCallback?.onProgress(
+                nonChainStates.size,
+                totalItems,
+                "Building partition mappings: processing synthetic states"
+            )
             // Add partitions for synthetic states
             syntheticStates.partitionByChain.entries.forEachIndexed { index, (chain, partition) ->
                 val syntheticState = oldToNewStateMapping[syntheticStates.syntheticStateByChain[chain]!!.state]
@@ -445,7 +450,11 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
                 }
             }
 
-            progressCallback?.onProgress(nonChainStates.size, totalItems, "Building sequence mappings: processing synthetic states")
+            progressCallback?.onProgress(
+                nonChainStates.size,
+                totalItems,
+                "Building sequence mappings: processing synthetic states"
+            )
             // Add sequences for synthetic states
             syntheticStates.seqByChain.entries.forEachIndexed { index, (chain, sequence) ->
                 val syntheticState = oldToNewStateMapping[syntheticStates.syntheticStateByChain[chain]!!.state]

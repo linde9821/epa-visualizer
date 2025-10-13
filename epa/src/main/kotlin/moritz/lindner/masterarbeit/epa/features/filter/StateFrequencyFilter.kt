@@ -7,14 +7,16 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 
 /**
- * Filters an [ExtendedPrefixAutomaton] by removing all states whose normalized visit frequency
- * is below a given [threshold].
+ * Filters an [ExtendedPrefixAutomaton] by removing all states whose
+ * normalized visit frequency is below a given [threshold].
  *
- * The frequency is determined using a [NormalizedStateFrequencyVisitor], and only states meeting the threshold
- * (or the [State.Root]) are retained. Orphaned states with missing predecessors are also removed.
+ * The frequency is determined using a [NormalizedStateFrequencyVisitor],
+ * and only states meeting the threshold (or the [State.Root]) are
+ * retained. Orphaned states with missing predecessors are also removed.
  *
  * @param T The timestamp type used in the automaton's events.
- * @property threshold The minimum normalized frequency a state must have to be retained.
+ * @property threshold The minimum normalized frequency a state must have
+ *    to be retained.
  */
 class StateFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
@@ -27,7 +29,8 @@ class StateFrequencyFilter<T : Comparable<T>>(
      * Applies the state frequency filter to the automaton.
      *
      * @param epa The automaton to filter.
-     * @return A new [ExtendedPrefixAutomaton] with only high-frequency states and valid transitions.
+     * @return A new [ExtendedPrefixAutomaton] with only high-frequency states
+     *    and valid transitions.
      */
     override fun apply(
         epa: ExtendedPrefixAutomaton<T>,

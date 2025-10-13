@@ -18,10 +18,12 @@ class LayoutService<T : Comparable<T>> {
     private val logger = KotlinLogging.logger {}
 
     /**
-     * Builds a tree layout from an EPA using the specified layout configuration.
+     * Builds a tree layout from an EPA using the specified layout
+     * configuration.
      *
      * @param epa The Extended Prefix Automaton to layout.
-     * @param layoutConfig Configuration specifying the layout algorithm and parameters.
+     * @param layoutConfig Configuration specifying the layout algorithm and
+     *    parameters.
      * @return A TreeLayout with positioned nodes for visualization.
      */
     // TODO: maybe add caching

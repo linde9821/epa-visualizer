@@ -48,14 +48,15 @@ fun StateInfo(
     val stateName = selectedState.name
     val seq = extendedPrefixAutomaton.sequence(selectedState)
     val freq = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton).frequencyByState(selectedState)
-    val freqFormatted = "%.1f".format(freq * 100f,)
+    val freqFormatted = "%.1f".format(freq * 100f)
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
-    val cycleTime = epaService.computeCycleTimes(extendedPrefixAutomaton).cycleTimesOfState(selectedState, Long::minus).let { times ->
-        if (times.isEmpty()) {
-            0f
-        } else times.average().toFloat()
-    }
+    val cycleTime = epaService.computeCycleTimes(extendedPrefixAutomaton).cycleTimesOfState(selectedState, Long::minus)
+        .let { times ->
+            if (times.isEmpty()) {
+                0f
+            } else times.average().toFloat()
+        }
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
     val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)

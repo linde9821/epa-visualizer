@@ -51,12 +51,20 @@ class DrawAtlas(
             val atlas = DrawAtlas()
 
             extendedPrefixAutomaton.states.forEachIndexed { index, state ->
-                progressCallback?.onProgress(index, extendedPrefixAutomaton.states.size, "Building draw atlas for states")
+                progressCallback?.onProgress(
+                    index,
+                    extendedPrefixAutomaton.states.size,
+                    "Building draw atlas for states"
+                )
                 atlas.add(state, atlasConfig.toStateAtlasEntry(state))
             }
 
             extendedPrefixAutomaton.transitions.forEachIndexed { index, transition ->
-                progressCallback?.onProgress(index, extendedPrefixAutomaton.transitions.size, "Building draw atlas for transitions")
+                progressCallback?.onProgress(
+                    index,
+                    extendedPrefixAutomaton.transitions.size,
+                    "Building draw atlas for transitions"
+                )
                 atlas.add(transition, atlasConfig.toTransitionAtlasEntry(transition))
             }
 

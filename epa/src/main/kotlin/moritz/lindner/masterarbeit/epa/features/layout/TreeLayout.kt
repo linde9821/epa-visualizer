@@ -9,10 +9,12 @@ import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 
 // TODO: add ability to rotate coordinates after creation to avoid expensive recalculation
 /**
- * Defines a layout strategy for positioning nodes in a tree structure derived from an EPA.
+ * Defines a layout strategy for positioning nodes in a tree structure
+ * derived from an EPA.
  *
- * Implementations of this interface compute and provide access to spatial information
- * (e.g., coordinates) for visualizing or analyzing an [EPATreeNode]-based structure.
+ * Implementations of this interface compute and provide access to spatial
+ * information (e.g., coordinates) for visualizing or analyzing an
+ * [EPATreeNode]-based structure.
  */
 interface TreeLayout : Iterable<NodePlacement> {
     /**
@@ -33,7 +35,8 @@ interface TreeLayout : Iterable<NodePlacement> {
     fun getCoordinate(state: State): Coordinate
 
     /**
-     * Returns all node placements (with their coordinates) that lie within the specified [rectangle].
+     * Returns all node placements (with their coordinates) that lie within the
+     * specified [rectangle].
      *
      * Useful for viewport queries or region-based selection.
      *
@@ -43,7 +46,8 @@ interface TreeLayout : Iterable<NodePlacement> {
     fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement>
 
     /**
-     * Returns the maximum depth (i.e., longest path from root) of the laid-out tree.
+     * Returns the maximum depth (i.e., longest path from root) of the laid-out
+     * tree.
      *
      * @return The maximum depth as an integer.
      */

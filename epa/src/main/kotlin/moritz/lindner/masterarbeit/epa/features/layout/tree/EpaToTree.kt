@@ -7,11 +7,13 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A visitor that constructs a tree representation of an [ExtendedPrefixAutomaton],
- * mapping each [State] to an [EPATreeNode] with parent/child relationships.
+ * A visitor that constructs a tree representation of an
+ * [ExtendedPrefixAutomaton], mapping each [State] to an [EPATreeNode] with
+ * parent/child relationships.
  *
- * The tree is rooted at [State.Root] and mirrors the traversal order.
- * Must be used with [ExtendedPrefixAutomaton.acceptDepthFirst] to ensure a valid parent-before-child visit order.
+ * The tree is rooted at [State.Root] and mirrors the traversal order. Must
+ * be used with [ExtendedPrefixAutomaton.acceptDepthFirst] to ensure a
+ * valid parent-before-child visit order.
  *
  * @param T The timestamp type used in the automaton's events.
  */

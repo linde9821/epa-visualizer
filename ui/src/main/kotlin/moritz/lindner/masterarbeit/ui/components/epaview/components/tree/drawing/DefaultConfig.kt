@@ -31,7 +31,8 @@ class DefaultConfig(
     private val minCycleTime = cycleTimeByState.values.min()
     private val maxCycleTime = cycleTimeByState.values.max()
 
-    private val normalizedStateFrequency = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton, progressCallback)
+    private val normalizedStateFrequency =
+        epaService.getNormalizedStateFrequency(extendedPrefixAutomaton, progressCallback)
 
     override fun toStateAtlasEntry(state: State): StateAtlasEntry {
         return StateAtlasEntry(

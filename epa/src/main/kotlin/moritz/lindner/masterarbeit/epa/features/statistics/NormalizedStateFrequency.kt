@@ -3,9 +3,11 @@ package moritz.lindner.masterarbeit.epa.features.statistics
 import moritz.lindner.masterarbeit.epa.domain.State
 
 /**
- * Contains normalized frequency statistics for states in an Extended Prefix Automaton.
+ * Contains normalized frequency statistics for states in an Extended
+ * Prefix Automaton.
  *
- * @param relativeFrequencyByState Map of states to their normalized frequencies.
+ * @param relativeFrequencyByState Map of states to their normalized
+ *    frequencies.
  */
 class NormalizedStateFrequency(
     private val relativeFrequencyByState: HashMap<State, Float>
@@ -28,8 +30,6 @@ class NormalizedStateFrequency(
     /** Returns the minimum normalized frequency across all states. */
     fun min(): Float = min
 
-    /**
-     * Returns the maximum normalized frequency across all states.
-     */
+    /** Returns the maximum normalized frequency across all states. */
     fun max(): Float = max
 }
