@@ -53,6 +53,7 @@ fun StateInfo(
     val depth = epaService.getDepth(selectedState)
     val cycleTime = epaService.computeCycleTimes(extendedPrefixAutomaton).cycleTimesOfState(selectedState, Long::minus)
         .let { times ->
+            TODO("Seems off")
             if (times.isEmpty()) {
                 0f
             } else times.average().toFloat()

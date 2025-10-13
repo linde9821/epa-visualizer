@@ -20,16 +20,19 @@ import moritz.lindner.masterarbeit.epa.api.LayoutService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
+import kotlin.collections.map
 import kotlin.coroutines.cancellation.CancellationException
 
 class EpaStateManager(
@@ -46,6 +49,9 @@ class EpaStateManager(
 
     private val _stateLabelsByTabId = MutableStateFlow<Map<String, StateLabels>>(emptyMap())
     val stateLabelsByTabId = _stateLabelsByTabId.asStateFlow()
+
+    private val _highlightingByTabId = MutableStateFlow<Map<String, HighlightingAtlas>>(emptyMap())
+    val highlightingByTabId = _highlightingByTabId.asStateFlow()
 
     private val _drawAtlasByTabId = MutableStateFlow<Map<String, DrawAtlas>>(emptyMap())
     val drawAtlasByTabId = _drawAtlasByTabId.asStateFlow()
@@ -117,6 +123,7 @@ class EpaStateManager(
                                 buildStateLabelsForTab(tab)
                                 buildDrawAtlasForTab(tab)
                                 buildStatisticForTab(tab)
+                                buildHighlightingForTab(tab)
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
@@ -142,6 +149,8 @@ class EpaStateManager(
                         buildDrawAtlasForTab(tab)
                         // build statistics
                         buildStatisticForTab(tab)
+                        // build highlighting
+                        buildHighlightingForTab(tab)
                     }
                 } catch (e: Exception) {
                     // TODO: move try catch into functions and set error for tab
@@ -151,9 +160,43 @@ class EpaStateManager(
         }
     }
 
-    fun buildStatisticForTab(
-        tabState: TabState
-    ) {
+    fun addStatesToHighlight(tabId: String, states: Set<State>) {
+        val highlight = _highlightingByTabId.value[tabId]!!
+        val newHighlight = highlight.withHighlightedState(states)
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabId to newHighlight)
+        }
+    }
+
+    fun removeStatesToHighlight(tabId: String, states: Set<State>) {
+        val highlight = _highlightingByTabId.value[tabId]!!
+        val newHighlight = highlight.withoutHighlightedState(states)
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabId to newHighlight)
+        }
+    }
+
+    fun setSelectedState(tabId: String, selectedState: State) {
+        val highlight = _highlightingByTabId.value[tabId]!!
+        val newHighlight = highlight.selectedState(selectedState)
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabId to newHighlight)
+        }
+    }
+
+    fun buildHighlightingForTab(tabState: TabState) {
+        if (_highlightingByTabId.value.containsKey(tabState.id)) {
+            return
+        }
+
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabState.id to HighlightingAtlas(
+                selectedState = tabState.selectedState
+            ))
+        }
+    }
+
+    fun buildStatisticForTab(tabState: TabState) {
         if (_statisticsByTabId.value.containsKey(tabState.id)) {
             return
         }
@@ -183,7 +226,7 @@ class EpaStateManager(
         val states = epa.states
         val chunkSize = 100
 
-        states.chunked(chunkSize).forEachIndexed { chunkIndex, chunk ->
+        states.chunked(chunkSize).forEach { chunk ->
             chunk.map { state ->
                 scope.async { stateLabels.generateLabelForState(state) }
             }.awaitAll()
