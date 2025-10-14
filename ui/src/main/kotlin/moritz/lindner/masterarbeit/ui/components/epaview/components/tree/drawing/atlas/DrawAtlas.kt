@@ -19,6 +19,13 @@ class DrawAtlas(
             strokeWidth = 5f
         }
 
+    val highlightedPaint = Paint().apply {
+        color = Color.CYAN
+        mode = PaintMode.STROKE
+        isAntiAlias = true
+        strokeWidth = 5f
+    }
+
     val stateEntryByState = HashMap<State, StateAtlasEntry>()
     val transitionEntryByParentState = HashMap<State, TransitionAtlasEntry>()
 
