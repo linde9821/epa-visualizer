@@ -160,17 +160,10 @@ class EpaStateManager(
         }
     }
 
-    fun addStatesToHighlight(tabId: String, states: Set<State>) {
+    fun highlightPathFromRootForState(tabId: String, state: State) {
         val highlight = _highlightingByTabId.value[tabId]!!
-        val newHighlight = highlight.withHighlightedState(states)
-        _highlightingByTabId.update { currentMap ->
-            currentMap + (tabId to newHighlight)
-        }
-    }
-
-    fun removeStatesToHighlight(tabId: String, states: Set<State>) {
-        val highlight = _highlightingByTabId.value[tabId]!!
-        val newHighlight = highlight.withoutHighlightedState(states)
+        val pathFromRoot = epaService.getPathFromRoot(state)
+        val newHighlight = highlight.withHighlightedState(pathFromRoot.toSet())
         _highlightingByTabId.update { currentMap ->
             currentMap + (tabId to newHighlight)
         }
