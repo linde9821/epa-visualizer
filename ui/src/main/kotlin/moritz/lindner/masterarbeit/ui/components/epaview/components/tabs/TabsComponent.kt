@@ -104,31 +104,11 @@ fun TabsComponent(
             if (currentTab != null) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     if ((currentProgress != null && !currentProgress.isComplete)) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(
-                                text = currentProgress.taskName,
-                                style = JewelTheme.typography.h2TextStyle,
-                            )
-                            Spacer(modifier = Modifier.padding(4.dp))
-                            Text(
-                                text = "${
-                                    "%.1f".format(
-                                        currentProgress.percentage * 100f,
-                                    )
-                                }% (${currentProgress.current} / ${currentProgress.total})",
-                                style = JewelTheme.typography.regular,
-                                color = JewelTheme.contentColor.copy(alpha = 0.8f),
-                            )
-                            Spacer(modifier = Modifier.padding(12.dp))
-                            HorizontalProgressBar(
-                                progress = currentProgress.percentage,
-                                modifier = Modifier.width(450.dp),
-                            )
-                        }
-                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null && currentDrawAtlas != null) {
+                        EpaProgress(
+                            currentProgress,
+                            Modifier.align(Alignment.Center)
+                        )
+                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null && currentDrawAtlas != null && currentHighlightingAtlas != null) {
                         // TODO: does this need to be a column
                         Column(
                             modifier = Modifier.align(Alignment.Center),
