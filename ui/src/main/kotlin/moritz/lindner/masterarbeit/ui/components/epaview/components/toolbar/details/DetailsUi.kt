@@ -28,11 +28,12 @@ fun DetailsUi(
         StateInfo(
             selectedState = currentTab.selectedState,
             extendedPrefixAutomaton = currentEpa,
-            onStateSelected = {
-                tabStateManager.setSelectedStateForCurrentTab(it)
+            onStateSelected = { state ->
+                tabStateManager.setSelectedStateForCurrentTab(state)
+                epaStateManager.highlightPathFromRootForState(currentTab.id, state)
             },
-            locate = {
-                tabStateManager.locateState(it, activeTabId!!)
+            locate = { state ->
+                tabStateManager.locateState(state, activeTabId!!)
             }
         )
     } else {

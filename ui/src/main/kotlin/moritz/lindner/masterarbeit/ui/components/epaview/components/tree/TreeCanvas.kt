@@ -38,6 +38,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCan
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.screenToWorld
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
@@ -52,6 +53,7 @@ fun TreeCanvas(
     onStateHover: (State?) -> Unit,
     onStateClicked: (State?) -> Unit,
     tabState: TabState,
+    highlightingAtlas: HighlightingAtlas
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
@@ -138,6 +140,7 @@ fun TreeCanvas(
                     }
 
                     val path = Path()
+                    val highlightedPaint = drawAtlas.highlightedPaint
 
                     // Draw edges
                     visibleNodes.forEach { (coordinate, node) ->
@@ -156,6 +159,14 @@ fun TreeCanvas(
                             path.moveTo(start.x, start.y)
                             path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
 
+                            if (highlightingAtlas.highlightedStates.contains(state)) {
+                                val strokePaint = highlightedPaint.apply { 
+                                    mode = org.jetbrains.skia.PaintMode.STROKE
+                                    strokeWidth = entry.paint.strokeWidth + 5f
+                                }
+                                canvas.nativeCanvas.drawPath(path, strokePaint)
+                            }
+                            
                             canvas.nativeCanvas.drawPath(path, entry.paint)
                         }
                     }
@@ -170,6 +181,10 @@ fun TreeCanvas(
                         val entry = drawAtlas.getState(state)
                         val cx = coordinate.x
                         val cy = -coordinate.y
+
+                        if (highlightingAtlas.highlightedStates.contains(state)) {
+                            canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, highlightedPaint)
+                        }
 
                         canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
 
