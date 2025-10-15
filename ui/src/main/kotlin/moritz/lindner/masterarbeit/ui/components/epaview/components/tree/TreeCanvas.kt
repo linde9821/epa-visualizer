@@ -37,7 +37,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCan
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawTokensWithSpreading
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.findNodeAt
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.getControlPoints
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.interpolateBezier
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.screenToWorld
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
@@ -169,13 +168,13 @@ fun TreeCanvas(
                             path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
 
                             if (highlightingAtlas.highlightedStates.contains(state)) {
-                                val strokePaint = highlightedPaint.apply { 
+                                val strokePaint = highlightedPaint.apply {
                                     mode = PaintMode.STROKE
                                     strokeWidth = entry.paint.strokeWidth + 5f
                                 }
                                 canvas.nativeCanvas.drawPath(path, strokePaint)
                             }
-                            
+
                             canvas.nativeCanvas.drawPath(path, entry.paint)
                         }
                     }

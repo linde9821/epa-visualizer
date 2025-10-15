@@ -8,13 +8,10 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Surface
 import org.jetbrains.skia.TextLine
-import java.lang.IllegalStateException
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.absoluteValue
 
-/**
- * Can handle Multithreaded access
- */
+/** Can handle Multithreaded access */
 class StateLabels(
     private val backgroundColor: Int,
     private val baseFontSize: Float,
@@ -33,7 +30,8 @@ class StateLabels(
         Font()
             .apply { size = baseFontSize }
 
-    fun getLabelForState(state: State): Image = labelByState[trimStateName(state)] ?: throw IllegalStateException("Couldn't find label for state $state")
+    fun getLabelForState(state: State): Image =
+        labelByState[trimStateName(state)] ?: throw IllegalStateException("Couldn't find label for state $state")
 
     fun generateLabelForState(state: State) {
         val label = trimStateName(state)
