@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -181,17 +183,22 @@ fun StateInfo(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 120.dp)
-                    .padding(4.dp)
+                    .padding(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(pathToRoot) { state ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Chip(onClick = {
-                            onStateSelected(state)
-                        }) {
-                            Text(state.name, fontSize = 11.sp)
-                        }
+                itemsIndexed(pathToRoot) { index, state ->
+                    Chip(onClick = {
+                        onStateSelected(state)
+                    }) {
+                        Text(state.name, fontSize = 11.sp)
+                    }
+
+                    if (index < pathToRoot.lastIndex) {
+                        Text(
+                            text = "↓",
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 1.dp)
+                        )
                     }
                 }
             }
