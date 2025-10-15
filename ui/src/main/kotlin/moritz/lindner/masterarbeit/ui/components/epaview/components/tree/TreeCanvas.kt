@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -33,17 +34,24 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawDepthCircles
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawTokensWithSpreading
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.findNodeAt
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.getControlPoints
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.interpolateBezier
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.screenToWorld
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
+import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 
 @Composable
 fun TreeCanvas(
@@ -53,7 +61,8 @@ fun TreeCanvas(
     onStateHover: (State?) -> Unit,
     onStateClicked: (State?) -> Unit,
     tabState: TabState,
-    highlightingAtlas: HighlightingAtlas
+    highlightingAtlas: HighlightingAtlas,
+    animationState: AnimationState
 ) {
     var offset by remember { mutableStateOf(Offset.Zero) }
     var scale by remember { mutableFloatStateOf(1f) }
@@ -161,7 +170,7 @@ fun TreeCanvas(
 
                             if (highlightingAtlas.highlightedStates.contains(state)) {
                                 val strokePaint = highlightedPaint.apply { 
-                                    mode = org.jetbrains.skia.PaintMode.STROKE
+                                    mode = PaintMode.STROKE
                                     strokeWidth = entry.paint.strokeWidth + 5f
                                 }
                                 canvas.nativeCanvas.drawPath(path, strokePaint)
@@ -198,6 +207,19 @@ fun TreeCanvas(
                         }
                     }
 
+                    // draw tokens
+                    try {
+                        drawTokensWithSpreading(
+                            animationState = animationState,
+                            visibleStates = visibleNodes.map { it.node.state }.toSet(),
+                            treeLayout = treeLayout,
+                            canvas = canvas,
+                            tokenPaint = drawAtlas.tokenPaint
+                        )
+                    } catch (e: Exception) {
+                        logger.error { e }
+                    }
+
                     selectedState?.let {
                         val coordinate = treeLayout.getCoordinate(selectedState)
                         val cx = coordinate.x
@@ -205,7 +227,6 @@ fun TreeCanvas(
                         val entry = drawAtlas.getState(selectedState)
                         canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
                     }
-
                 }
             } catch (e: Exception) {
                 logger.error(e) { "error while drawing: $e" }
@@ -215,6 +236,59 @@ fun TreeCanvas(
 }
 
 object TreeCanvas {
+
+    fun drawTokensWithSpreading(
+        animationState: AnimationState,
+        visibleStates: Set<State>,
+        treeLayout: TreeLayout,
+        canvas: Canvas,
+        tokenPaint: Paint,
+    ) {
+        animationState
+            .currentTimeStates
+            .filter { timedState ->
+                visibleStates.contains(timedState.state)
+            }.forEachIndexed { index, timedState ->
+                val progress =
+                    if (timedState.endTime == null || timedState.nextState == null) {
+                        1f
+                    } else {
+                        val duration = timedState.endTime!! - timedState.startTime
+                        val elapsed = animationState.time - timedState.startTime
+                        (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
+                    }
+
+                val fromCoord = treeLayout.getCoordinate(timedState.state)
+                val toCoord = timedState.nextState?.let { treeLayout.getCoordinate(it) }
+
+                val tokenPosition = if (toCoord != null) {
+                    val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
+                    interpolateBezier(
+                        start = Offset(fromCoord.x, -fromCoord.y),
+                        c1 = Offset(c1.x, -c1.y),
+                        c2 = Offset(c2.x, -c2.y),
+                        end = Offset(toCoord.x, -toCoord.y),
+                        t = progress,
+                    )
+                } else {
+                    Offset(fromCoord.x, -fromCoord.y)
+                }
+
+                // Spread tokens slightly if overlapping
+                val angle = (index * (360f / animationState.currentTimeStates.size)) * (Math.PI / 180.0)
+                val spread = 9f
+                val dx = (spread * cos(angle)).toFloat()
+                val dy = (spread * sin(angle)).toFloat()
+
+                canvas.nativeCanvas.drawCircle(
+                    tokenPosition.x + dx,
+                    tokenPosition.y + dy,
+                    6f,
+                    tokenPaint,
+                )
+            }
+    }
+
 
     fun screenToWorld(screenPosition: Offset, offset: Offset, scale: Float): Offset =
         (screenPosition - offset) / scale

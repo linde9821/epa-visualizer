@@ -26,6 +26,13 @@ class DrawAtlas(
         strokeWidth = 5f
     }
 
+    val tokenPaint = Paint().apply {
+        color = Color.MAGENTA
+        mode = PaintMode.FILL
+        isAntiAlias = true
+        strokeWidth = 5f
+    }
+
     val stateEntryByState = HashMap<State, StateAtlasEntry>()
     val transitionEntryByParentState = HashMap<State, TransitionAtlasEntry>()
 

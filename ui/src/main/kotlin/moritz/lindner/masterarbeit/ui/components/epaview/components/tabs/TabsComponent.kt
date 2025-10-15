@@ -123,7 +123,8 @@ fun TabsComponent(
                                         }
                                     },
                                     tabState = currentTab,
-                                    highlightingAtlas = currentHighlightingAtlas
+                                    highlightingAtlas = currentHighlightingAtlas,
+                                    animationState = animationState
                                 )
                             } else {
                                 Text("Rendering is disabled")

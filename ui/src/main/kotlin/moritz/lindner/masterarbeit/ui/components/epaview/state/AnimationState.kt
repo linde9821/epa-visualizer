@@ -9,7 +9,6 @@ data class AnimationState(
 ) {
     private val currentStates = currentTimeStates.map { it.state }.toSet()
 
-    // O(1)
     fun contains(state: State): Boolean = currentStates.contains(state)
 
     companion object {
