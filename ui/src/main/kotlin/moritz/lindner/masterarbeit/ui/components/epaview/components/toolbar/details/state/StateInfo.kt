@@ -33,6 +33,7 @@ import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
+import java.time.Duration
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,8 +48,9 @@ fun StateInfo(
 
     val stateName = selectedState.name
     val seq = extendedPrefixAutomaton.sequence(selectedState)
-    val freq = epaService.getNormalizedStateFrequency(extendedPrefixAutomaton).frequencyByState(selectedState)
-    val freqFormatted = "%.1f".format(freq * 100f)
+    val normalizedFrequency =
+        epaService.getNormalizedStateFrequency(extendedPrefixAutomaton).frequencyByState(selectedState)
+    val freqFormatted = "%.1f".format(normalizedFrequency * 100f)
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
     val cycleTime = epaService.computeCycleTimes(extendedPrefixAutomaton).cycleTimesOfState(selectedState, Long::minus)
@@ -102,15 +104,25 @@ fun StateInfo(
             }
             InfoRow(label = "Partition", value = partition.toString())
             InfoRow(label = "Depth", value = depth.toString())
-            InfoRow(label = "Events", value = seq.size.toString())
-            InfoRow(label = "Traces", value = traces.size.toString())
             InfoRow(
-                label = "(Normalized) Frequency", value = "$freqFormatted%"
+                label = "Events",
+                value = seq.size.toString()
             )
             InfoRow(
-                label = "Cycle Time", value = cycleTime.toString()
+                label = "Traces",
+                value = traces.size.toString(),
             )
-
+            InfoRow(
+                label = "(Normalized) Frequency",
+                value = "$freqFormatted%",
+                hintText = """The percentage of traces seen by ${selectedState.name}, 
+                    |compared to the total amount of traces in the whole EPA.""".trimMargin()
+            )
+            InfoRow(
+                label = "Cycle Time",
+                value = cycleTime.toString(),
+                hintText = "Average time it takes traces to get from this state to a next"
+            )
         }
 
         // Transitions Section
