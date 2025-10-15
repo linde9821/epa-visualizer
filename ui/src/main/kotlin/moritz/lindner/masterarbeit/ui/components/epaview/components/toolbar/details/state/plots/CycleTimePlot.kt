@@ -1,13 +1,17 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTimes
 import moritz.lindner.masterarbeit.ui.common.BinCalculator
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.letsPlot.compose.PlotPanel
@@ -20,26 +24,43 @@ import java.time.Duration
 @Composable
 fun CycleTimePlot(
     state: State,
-    extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+    cycleTimes: CycleTimes<Long>,
+    modifier: Modifier = Modifier.Companion
 ) {
-    val epaService = EpaService<Long>()
-    val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton)
+    val cycleTimeOfState = cycleTimes.cycleTimesOfState(state, Long::minus)
 
     val plot = createCycleTimeHistogram(
-        cycleTimes = cycleTimes.cycleTimesOfState(state, Long::minus),
+        cycleTimes = cycleTimeOfState,
     )
 
-    PlotPanel(
-        figure = plot,
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxWidth()
-            .height(300.dp),
-        computationMessagesHandler = { messages ->
-            messages.forEach { message ->
-                logger.debug { "Plot computation message: $message" }
+            .padding(16.dp)
+    ) {
+        PlotPanel(
+            figure = plot,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            computationMessagesHandler = { messages ->
+                messages.forEach { message ->
+                    logger.debug { "Plot computation message: $message" }
+                }
             }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            StatItem(label = "Min", value = Duration.ofMillis(cycleTimeOfState.minOrNull() ?: 0).toString())
+            StatItem(label = "Average", value = Duration.ofMillis(cycleTimeOfState.average().toLong()).toString())
+            StatItem(label = "Max", value = Duration.ofMillis(cycleTimeOfState.maxOrNull() ?: 0).toString())
         }
-    )
+    }
 }
 
 private fun createCycleTimeHistogram(

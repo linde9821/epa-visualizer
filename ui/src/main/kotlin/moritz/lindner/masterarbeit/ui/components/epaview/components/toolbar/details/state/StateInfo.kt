@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -55,10 +54,11 @@ fun StateInfo(
     val freqFormatted = "%.1f".format(normalizedFrequency * 100f)
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
-    val cycleTime = epaService.computeCycleTimes(extendedPrefixAutomaton).cycleTimesOfState(selectedState, Long::minus)
+    val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton)
+    val cycleTime = cycleTimes.cycleTimesOfState(selectedState, Long::minus)
         .let { times ->
             if (times.isEmpty()) {
-                0f
+                Duration.ZERO
             } else Duration.ofMillis(times.average().toLong())
         }
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
@@ -242,7 +242,7 @@ fun StateInfo(
         ) {
             CycleTimePlot(
                 state = selectedState,
-                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                cycleTimes = cycleTimes
             )
         }
     }

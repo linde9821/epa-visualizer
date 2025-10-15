@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
-import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTime
+import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTimes
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
@@ -175,10 +175,10 @@ class EpaService<T : Comparable<T>> {
 
     fun computeCycleTimes(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-    ): CycleTime<T> {
-        val cycleTime = CycleTime<T>()
-        extendedPrefixAutomaton.acceptDepthFirst(cycleTime)
-        return cycleTime
+    ): CycleTimes<T> {
+        val cycleTimes = CycleTimes<T>()
+        extendedPrefixAutomaton.acceptDepthFirst(cycleTimes)
+        return cycleTimes
     }
 
     fun getStateByEvent(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>): Map<Event<T>, State> {

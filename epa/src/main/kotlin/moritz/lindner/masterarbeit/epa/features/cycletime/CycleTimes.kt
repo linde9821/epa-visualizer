@@ -5,7 +5,7 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
-class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
+class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
     private val allEvents = mutableListOf<Event<T>>()
 
     private lateinit var traceByCaseId: Map<String, List<Event<T>>>
