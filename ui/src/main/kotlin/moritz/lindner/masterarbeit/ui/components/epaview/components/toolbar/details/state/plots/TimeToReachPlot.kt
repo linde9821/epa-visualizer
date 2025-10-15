@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.ui.common.Formatting.formatDuration
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.letsPlot.compose.PlotPanel
 import org.jetbrains.letsPlot.geom.geomBoxplot
@@ -23,6 +22,7 @@ import org.jetbrains.letsPlot.label.ylab
 import org.jetbrains.letsPlot.letsPlot
 import org.jetbrains.letsPlot.themes.elementText
 import org.jetbrains.letsPlot.themes.theme
+import java.time.Duration
 
 @Composable
 fun TimeToReachPlot(
@@ -87,17 +87,17 @@ fun TimeToReachPlot(
         Spacer(modifier = Modifier.height(8.dp))
 
         val durations = timeToReachData.map { it["duration"] as Double }
-        val minDuration = durations.minOrNull() ?: 0.0
-        val maxDuration = durations.maxOrNull() ?: 0.0
-        val avgDuration = durations.average()
+        val minDuration = Duration.ofMillis(durations.minOrNull()?.toLong() ?: 0L)
+        val maxDuration = Duration.ofMillis(durations.maxOrNull()?.toLong() ?: 0L)
+        val avgDuration = Duration.ofMillis(durations.average().toLong())
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem(label = "Min", value = formatDuration(minDuration))
-            StatItem(label = "Average", value = formatDuration(avgDuration))
-            StatItem(label = "Max", value = formatDuration(maxDuration))
+            StatItem(label = "Min", value = minDuration.toString())
+            StatItem(label = "Average", value = avgDuration.toString())
+            StatItem(label = "Max", value = maxDuration.toString())
         }
     }
 }

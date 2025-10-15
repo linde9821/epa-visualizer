@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.Event
-import moritz.lindner.masterarbeit.ui.common.Formatting.formatTimeSpan
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.letsPlot.compose.PlotPanel
 import org.jetbrains.letsPlot.geom.geomLine
@@ -22,6 +21,7 @@ import org.jetbrains.letsPlot.letsPlot
 import org.jetbrains.letsPlot.scale.scaleXDateTime
 import org.jetbrains.letsPlot.themes.elementText
 import org.jetbrains.letsPlot.themes.theme
+import java.time.Duration
 
 @Composable
 fun CumulativeEventsPlot(
@@ -77,10 +77,9 @@ fun CumulativeEventsPlot(
             StatItem(label = "Total Events", value = sortedEvents.size.toString())
             StatItem(
                 label = "Time Span",
-                value = formatTimeSpan(
-                    sortedEvents.firstOrNull()?.timestamp ?: 0L,
-                    sortedEvents.lastOrNull()?.timestamp ?: 0L
-                )
+                value = Duration.ofMillis(
+                    (sortedEvents.lastOrNull()?.timestamp ?: 0L) - (sortedEvents.firstOrNull()?.timestamp ?: 0L)
+                ).toString()
             )
         }
     }
