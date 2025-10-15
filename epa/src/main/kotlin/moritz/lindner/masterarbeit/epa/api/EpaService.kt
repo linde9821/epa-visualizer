@@ -151,10 +151,7 @@ class EpaService<T : Comparable<T>> {
         val traces = TraceAccessIndex<T>()
         extendedPrefixAutomaton.acceptDepthFirst(traces)
 
-        return seq
-            .map { event ->
-                traces.getTraceByEvent(event)
-            }.toSet()
+        return seq.map { event -> traces.getTraceByEvent(event) }.toSet()
     }
 
     fun <C> computeAllCycleTimes(

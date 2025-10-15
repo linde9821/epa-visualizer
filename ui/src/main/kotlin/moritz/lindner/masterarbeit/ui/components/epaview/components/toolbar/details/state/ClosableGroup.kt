@@ -53,7 +53,7 @@ fun ClosableGroup(
         )
 
         if (show) {
-            Spacer(Modifier.Companion.height(4.dp))
+            Spacer(Modifier.height(4.dp))
             content()
         }
     }

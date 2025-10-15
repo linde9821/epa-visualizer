@@ -7,11 +7,11 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * Computes the normalized frequency of events per [State] in an
+ * Computes the normalized frequency of traces per [State] in an
  * [ExtendedPrefixAutomaton].
  *
- * The frequency is calculated as the number of events associated with a
- * state, divided by the total number of events across all states. The
+ * The frequency is calculated as the number of traces associated with a
+ * state, divided by the total number of traces across the whole EPA. The
  * result is a value in [0.0, 1.0].
  *
  * The root state ([State.Root]) is always assigned
@@ -26,28 +26,21 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
 ) : AutomatonVisitor<T> {
     private val eventsByState = HashMap<State, Set<Event<T>>>()
     private val relativeFrequencyByState = HashMap<State, Float>()
-    private var totalEventCount = 0
-    private val setOfTraceIdentifiers = mutableSetOf<String>()
+    private val traceIdentifiers = HashSet<String>()
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val totalTraces = setOfTraceIdentifiers.size
+        val totalTraces = traceIdentifiers.size
 
         eventsByState.forEach { (state, eventsSeen) ->
-            val tracesSeen = eventsSeen.map { it.caseIdentifier }.toSet().size
+            val tracesSeen = eventsSeen.map { event -> event.caseIdentifier }.toSet().size
 
             when (state) {
                 is State.PrefixState -> {
                     relativeFrequencyByState[state] = tracesSeen.toFloat() / totalTraces
                 }
-
-                else -> {
-
-                }
+                is State.Root -> relativeFrequencyByState[state] = 1f
             }
         }
-
-        val max = relativeFrequencyByState.values.maxOrNull()
-        relativeFrequencyByState[State.Root] = max ?: 0f
     }
 
     override fun visit(
@@ -65,7 +58,7 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
         event: Event<T>,
         depth: Int
     ) {
-        setOfTraceIdentifiers.add(event.caseIdentifier)
+        traceIdentifiers.add(event.caseIdentifier)
     }
 
     override fun onProgress(current: Long, total: Long) {
