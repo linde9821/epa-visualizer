@@ -16,7 +16,8 @@ class AnimationService<T : Comparable<T>> {
      * Creates an animation for the entire event log.
      *
      * @param epa The Extended Prefix Automaton to animate.
-     * @param epsilon The value added to the last timestamp to close open-ended intervals.
+     * @param epsilon The value added to the last timestamp to close open-ended
+     *    intervals.
      * @param increment Function to increment timestamps.
      * @return An EventLogAnimation for the complete log.
      */

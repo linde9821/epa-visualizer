@@ -11,12 +11,16 @@ import org.deckfour.xes.`in`.XesXmlParser
 import java.io.File
 
 /**
- * Builder class for constructing an [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] from an XES event log file.
+ * Builder class for constructing an
+ * [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton]
+ * from an XES event log file.
  *
- * This builder takes care of parsing the XES file, mapping it to domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using a provided
- * [EventLogMapper], and building the extended prefix automaton.
+ * This builder takes care of parsing the XES file, mapping it to
+ * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using a
+ * provided [EventLogMapper], and building the extended prefix automaton.
  *
- * @param T The timestamp type used in the event log, which must be [Comparable].
+ * @param T The timestamp type used in the event log, which must be
+ *    [Comparable].
  */
 class EpaFromXesBuilder<T : Comparable<T>> {
     private var eventLogMapper: EventLogMapper<T>? = null
@@ -27,7 +31,8 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     private var nextPartition = 1
 
     /**
-     * Sets the [EventLogMapper] used to convert XES [XEvent]s into domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s.
+     * Sets the [EventLogMapper] used to convert XES [XEvent]s into
+     * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s.
      *
      * @param mapper The implementation of [EventLogMapper] to be used.
      * @return This builder instance for chaining.
@@ -43,7 +48,8 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     }
 
     /**
-     * Sets the input XES log file to be parsed and used for building the automaton.
+     * Sets the input XES log file to be parsed and used for building the
+     * automaton.
      *
      * @param f The input file in XES format.
      * @return This builder instance for chaining.
@@ -54,15 +60,18 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     }
 
     /**
-     * Builds the [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] using the configured file and mapper.
+     * Builds the [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton]
+     * using the configured file and mapper.
      *
      * This method performs several steps:
      * - Parses the XES file
      * - Maps each event using the configured [EventLogMapper]
      * - constructs extended prefix automaton
      *
-     * @throws IllegalArgumentException if required configuration is missing or the file cannot be parsed.
-     * @return A fully constructed [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] instance.
+     * @return A fully constructed
+     *    [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton] instance.
+     * @throws IllegalArgumentException if required configuration is missing or
+     *    the file cannot be parsed.
      */
     fun build(): ExtendedPrefixAutomaton<T> {
         require(eventLogMapper != null) { "plainEventLog cannot be null" }

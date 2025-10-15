@@ -68,7 +68,7 @@ class TabStateManager {
         }
     }
 
-    /** Remove a tab by ID */
+    /** Remove a tab by tabId */
     fun removeTab(tabId: String) {
         _tabs.update { currentTabs ->
             currentTabs.filterNot { it.id == tabId }

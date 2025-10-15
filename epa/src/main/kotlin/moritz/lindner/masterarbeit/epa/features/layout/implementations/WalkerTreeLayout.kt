@@ -4,6 +4,7 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
@@ -14,15 +15,18 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * A layout implementation based on the Walker algorithm for tidy tree visualization.
+ * A layout implementation based on the Walker algorithm for tidy tree
+ * visualization.
  *
- * This algorithm assigns x/y coordinates to each node in a tree such that siblings are spaced
- * appropriately, subtrees do not overlap, and the visual structure is clear and compact.
+ * This algorithm assigns x/y coordinates to each node in a tree such that
+ * siblings are spaced appropriately, subtrees do not overlap, and the
+ * visual structure is clear and compact.
  *
  * Runs with O(n) time complexity
  *
  * @param distance The minimum horizontal space between sibling nodes.
- * @param yDistance The vertical distance between nodes of different depth levels.
+ * @param yDistance The vertical distance between nodes of different depth
+ *    levels.
  * @param expectedCapacity An optimization hint for internal map sizing.
  */
 class WalkerTreeLayout(
@@ -283,9 +287,10 @@ class WalkerTreeLayout(
         }
     }
 
-    override fun build(tree: EPATreeNode) {
+    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
         logger.debug { "Building tree layout" }
         // for all nodes v of T
+        progressCallback?.onProgress(0, 4, "Build Layout: Init")
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
             modifiers[v] = 0.0f
@@ -300,15 +305,19 @@ class WalkerTreeLayout(
         val r = tree
 
         // FirstWalk(r)
+        progressCallback?.onProgress(1, 4, "Build Layout: first walk")
         logger.debug { "first walk" }
         firstWalk(r)
         logger.debug { "second walk" }
+        progressCallback?.onProgress(2, 4, "Build Layout: Second walk")
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
 
+        progressCallback?.onProgress(3, 4, "Build Layout: Build RTree")
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
         logger.debug { "finished layout construction" }
+        progressCallback?.onProgress(4, 4, "Build Layout")
     }
 
     override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate

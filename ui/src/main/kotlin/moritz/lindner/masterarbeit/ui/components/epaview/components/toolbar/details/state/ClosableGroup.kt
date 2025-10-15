@@ -34,13 +34,13 @@ fun ClosableGroup(
     ) {
         GroupHeader(
             text = title,
-            style = GroupHeaderStyle.Companion.dark(),
-            modifier = Modifier.Companion
+            style = GroupHeaderStyle.dark(),
+            modifier = Modifier
                 .fillMaxWidth(),
             endComponent = {
                 IconButton(
                     onClick = { show = !show },
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .height(16.dp)
                         .width(24.dp)
                 ) {
@@ -53,7 +53,7 @@ fun ClosableGroup(
         )
 
         if (show) {
-            Spacer(Modifier.Companion.height(4.dp))
+            Spacer(Modifier.height(4.dp))
             content()
         }
     }

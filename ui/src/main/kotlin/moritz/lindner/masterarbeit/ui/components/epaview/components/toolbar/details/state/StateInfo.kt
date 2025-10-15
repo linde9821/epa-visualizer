@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -33,6 +34,7 @@ import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
+import java.time.Duration
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,10 +49,21 @@ fun StateInfo(
 
     val stateName = selectedState.name
     val seq = extendedPrefixAutomaton.sequence(selectedState)
+    val normalizedFrequency =
+        epaService.getNormalizedStateFrequency(extendedPrefixAutomaton).frequencyByState(selectedState)
+    val freqFormatted = "%.1f".format(normalizedFrequency * 100f)
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
+    val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton)
+    val cycleTime = cycleTimes.cycleTimesOfState(selectedState, Long::minus)
+        .let { times ->
+            if (times.isEmpty()) {
+                Duration.ZERO
+            } else Duration.ofMillis(times.average().toLong())
+        }
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
+    val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
 
     Column(
         modifier = Modifier
@@ -93,7 +106,25 @@ fun StateInfo(
             }
             InfoRow(label = "Partition", value = partition.toString())
             InfoRow(label = "Depth", value = depth.toString())
-            InfoRow(label = "Events", value = seq.size.toString())
+            InfoRow(
+                label = "Events",
+                value = seq.size.toString()
+            )
+            InfoRow(
+                label = "Traces",
+                value = traces.size.toString(),
+            )
+            InfoRow(
+                label = "(Normalized) Frequency",
+                value = "$freqFormatted%",
+                hintText = """The percentage of traces seen by ${selectedState.name}, 
+                    |compared to the total amount of traces in the whole EPA.""".trimMargin()
+            )
+            InfoRow(
+                label = "Cycle Time",
+                value = cycleTime.toString(),
+                hintText = "Average time it takes traces to get from this state to a next"
+            )
         }
 
         // Transitions Section
@@ -137,7 +168,7 @@ fun StateInfo(
                             Chip(onClick = {
                                 onStateSelected(transition.end)
                             }) {
-                                Text(transition.start.name, fontSize = 11.sp)
+                                Text(transition.end.name, fontSize = 11.sp)
                             }
                         }
                     }
@@ -152,17 +183,22 @@ fun StateInfo(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 120.dp)
-                    .padding(4.dp)
+                    .padding(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(pathToRoot) { state ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Chip(onClick = {
-                            onStateSelected(state)
-                        }) {
-                            Text(state.name, fontSize = 11.sp)
-                        }
+                itemsIndexed(pathToRoot) { index, state ->
+                    Chip(onClick = {
+                        onStateSelected(state)
+                    }) {
+                        Text(state.name, fontSize = 11.sp)
+                    }
+
+                    if (index < pathToRoot.lastIndex) {
+                        Text(
+                            text = "↓",
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 1.dp)
+                        )
                     }
                 }
             }
@@ -172,15 +208,13 @@ fun StateInfo(
         ClosableGroup(
             "Traces"
         ) {
-            val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 120.dp)
                     .padding(4.dp)
             ) {
-                items(traces) { trace ->
+                items(traces.toList()) { trace ->
                     TraceDetail(trace, selectedState, extendedPrefixAutomaton) {
                         onStateSelected(it)
                     }
@@ -208,7 +242,7 @@ fun StateInfo(
         ) {
             CycleTimePlot(
                 state = selectedState,
-                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                cycleTimes = cycleTimes
             )
         }
     }

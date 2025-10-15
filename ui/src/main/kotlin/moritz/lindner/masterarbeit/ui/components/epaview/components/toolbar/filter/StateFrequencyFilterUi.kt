@@ -71,7 +71,7 @@ fun StateFrequencyFilterUi(
             Column {
                 Text("min=$minFreq")
                 Text("max=$maxFreq")
-                Text("threshold=${"%.4f".format(threshold)}")
+                Text("threshold=${"%.4f".format(threshold * 100)}%")
             }
 
             Slider(
@@ -108,7 +108,7 @@ fun StateFrequencyFilterUi(
                             Text("${state.name.take(15)}:")
                             Spacer(modifier = Modifier.weight(1f))
 
-                            Text("${"%.4f".format(frequency)}%")
+                            Text("${"%.4f".format(frequency * 100)}%")
                         }
                     }
                 }

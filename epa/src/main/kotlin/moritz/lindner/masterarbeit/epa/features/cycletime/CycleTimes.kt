@@ -5,11 +5,17 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
-class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
+class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
     private val allEvents = mutableListOf<Event<T>>()
 
     private lateinit var traceByCaseId: Map<String, List<Event<T>>>
     private lateinit var extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>
+
+    private val eventIndexInTrace: Map<Event<T>, Int> by lazy {
+        traceByCaseId.values.flatMap { trace ->
+            trace.mapIndexed { index, event -> event to index }
+        }.toMap()
+    }
 
     override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         this.extendedPrefixAutomaton = extendedPrefixAutomaton
@@ -21,7 +27,6 @@ class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
             .mapValues { (_, events) -> events.sortedBy(Event<T>::timestamp) }
     }
 
-    // cycle times dont work properly when chain compression is, last states can have a cycle time
     fun cycleTimesOfState(state: State, minus: (T, T) -> T): List<T> {
         val seq = extendedPrefixAutomaton.sequence(state)
 
@@ -46,8 +51,10 @@ class CycleTime<T : Comparable<T>> : AutomatonVisitor<T> {
 
     tailrec fun getNextEventInTraceAtDifferentState(start: Event<T>, state: State): Event<T>? {
         val trace = traceByCaseId[start.caseIdentifier]!!
-        val index = trace.indexOf(start)
+        val index = eventIndexInTrace[start]!!
+
         if (index + 1 >= trace.size) return null
+
         val next = trace[index + 1]
         return if (next in extendedPrefixAutomaton.sequence(state)) {
             getNextEventInTraceAtDifferentState(next, state)

@@ -27,13 +27,13 @@ sealed class LayoutConfig(val name: String) {
     }
 
     data class RadialWalker(
-        val layerSpace: Float = 50.0f,
+        val layerSpace: Float = 120.0f,
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         override val render: Boolean = true,
     ) : LayoutConfig("Radial Walker") {
         override fun getParameters() = mapOf(
-            "layerSpace" to ParameterInfo.FloatParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
+            "layerSpace" to ParameterInfo.FloatParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
             "margin" to ParameterInfo.FloatParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.FloatParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")

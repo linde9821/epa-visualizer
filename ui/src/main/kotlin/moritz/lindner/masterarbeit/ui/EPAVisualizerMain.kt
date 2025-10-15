@@ -91,7 +91,7 @@ fun main() {
                 state = WindowState(
                     placement = WindowPlacement.Floating,
                     isMinimized = false,
-                    size = DpSize(1200.dp, 800.dp)
+                    size = DpSize(1400.dp, 900.dp)
                 ),
                 title = APPLICATION_NAME,
                 icon = painterResource(Res.drawable.logo),

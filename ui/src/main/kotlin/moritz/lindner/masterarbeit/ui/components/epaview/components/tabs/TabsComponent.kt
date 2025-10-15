@@ -5,11 +5,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,12 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeUi
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
-import org.jetbrains.jewel.ui.component.HorizontalProgressBar
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.SimpleTabContent
 import org.jetbrains.jewel.ui.component.TabData
@@ -32,7 +28,6 @@ import org.jetbrains.jewel.ui.component.TabStrip
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
-import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun TabsComponent(
@@ -46,17 +41,20 @@ fun TabsComponent(
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
     val layoutByTabId by epaStateManager.layoutAndConfigByTabId.collectAsState()
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
+    val drawAtlasByTabId by epaStateManager.drawAtlasByTabId.collectAsState()
+    val highlightingByTabId by epaStateManager.highlightingByTabId.collectAsState()
     val animationState by epaStateManager.animationState.collectAsState()
 
-    val currentTab =
-        remember(tabsState, activeTabId) {
-            tabsState.find { it.id == activeTabId }
-        }
+    val currentTab = remember(tabsState, activeTabId) {
+        tabsState.find { it.id == activeTabId }
+    }
 
     val currentProgress = currentTab?.progress
     val currentEpa = activeTabId?.let { epaByTabId[it] }
     val currentLayoutAndConfig = activeTabId?.let { layoutByTabId[it] }
     val currentStateLabels = activeTabId?.let { stateLabelsByTabId[it] }
+    val currentDrawAtlas = activeTabId?.let { drawAtlasByTabId[it] }
+    val currentHighlightingAtlas = activeTabId?.let { highlightingByTabId[it] }
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -102,47 +100,31 @@ fun TabsComponent(
             if (currentTab != null) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     if ((currentProgress != null && !currentProgress.isComplete)) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center).padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(
-                                text = currentProgress.taskName,
-                                style = JewelTheme.typography.h2TextStyle,
-                            )
-                            Spacer(modifier = Modifier.padding(4.dp))
-                            Text(
-                                text = "${
-                                    "%.1f".format(
-                                        currentProgress.percentage * 100f,
-                                    )
-                                }% (${currentProgress.current} / ${currentProgress.total})",
-                                style = JewelTheme.typography.regular,
-                                color = JewelTheme.contentColor.copy(alpha = 0.8f),
-                            )
-                            Spacer(modifier = Modifier.padding(12.dp))
-                            HorizontalProgressBar(
-                                progress = currentProgress.percentage,
-                                modifier = Modifier.width(450.dp),
-                            )
-                        }
-                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null) {
+                        EpaProgress(
+                            currentProgress,
+                            Modifier.align(Alignment.Center)
+                        )
+                    } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null && currentDrawAtlas != null && currentHighlightingAtlas != null) {
                         // TODO: does this need to be a column
                         Column(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             if (currentLayoutAndConfig.first.isBuilt()) {
-                                TreeUi(
+                                TreeCanvas(
                                     treeLayout = currentLayoutAndConfig.first,
                                     stateLabels = currentStateLabels,
-                                    animationState = animationState,
+                                    drawAtlas = currentDrawAtlas,
+                                    onStateHover = {},
+                                    onStateClicked = { state ->
+                                        if (state != null) {
+                                            tabStateManager.setSelectedStateForCurrentTab(state)
+                                            epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                                        }
+                                    },
                                     tabState = currentTab,
-                                    onStateHover = {
-                                    },
-                                    onStateClicked = {
-                                        if (it != null) tabStateManager.setSelectedStateForCurrentTab(it)
-                                    },
+                                    highlightingAtlas = currentHighlightingAtlas,
+                                    animationState = animationState
                                 )
                             } else {
                                 Text("Rendering is disabled")
@@ -168,3 +150,4 @@ fun TabsComponent(
         }
     }
 }
+

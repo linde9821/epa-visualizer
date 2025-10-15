@@ -2,19 +2,13 @@ package moritz.lindner.masterarbeit.epa.features.traces
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
-import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
-class TraceAccessIndex<T> : AutomatonVisitor<T>
-        where T : Comparable<T> {
+class TraceAccessIndex<T> : AutomatonVisitor<T> where T : Comparable<T> {
 
     private val allEvents = mutableListOf<Event<T>>()
 
     private lateinit var traceByCaseId: Map<String, List<Event<T>>>
-
-    fun getEventsByCase(): Map<String, List<Event<T>>> {
-        return traceByCaseId
-    }
 
     fun getTraceByEvent(event: Event<T>): List<Event<T>> {
         return traceByCaseId[event.caseIdentifier]!!

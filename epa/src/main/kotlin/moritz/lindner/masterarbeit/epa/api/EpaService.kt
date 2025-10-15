@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
-import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTime
+import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTimes
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
@@ -75,8 +75,11 @@ class EpaService<T : Comparable<T>> {
      * @param epa The Extended Prefix Automaton to analyze.
      * @return Normalized state frequency data.
      */
-    fun getNormalizedStateFrequency(epa: ExtendedPrefixAutomaton<T>): NormalizedStateFrequency {
-        val visitor = NormalizedStateFrequencyVisitor<T>()
+    fun getNormalizedStateFrequency(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback? = null
+    ): NormalizedStateFrequency {
+        val visitor = NormalizedStateFrequencyVisitor<T>(progressCallback)
         epa.acceptDepthFirst(visitor)
         return visitor.build()
     }
@@ -101,14 +104,20 @@ class EpaService<T : Comparable<T>> {
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         selectedState: State
     ): Set<Transition> {
-        return extendedPrefixAutomaton.transitions.filter { it.start == selectedState }.toSet()
+        return extendedPrefixAutomaton
+            .transitions
+            .filter { transition -> transition.start == selectedState }
+            .toSet()
     }
 
     fun incomingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         selectedState: State
     ): Set<Transition> {
-        return extendedPrefixAutomaton.transitions.filter { it.end == selectedState }.toSet()
+        return extendedPrefixAutomaton
+            .transitions
+            .filter { it.end == selectedState }
+            .toSet()
     }
 
     fun getPathFromRoot(
@@ -136,26 +145,40 @@ class EpaService<T : Comparable<T>> {
     fun getTracesByState(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State
-    ): List<List<Event<T>>> {
+    ): Set<List<Event<T>>> {
         val seq = extendedPrefixAutomaton.sequence(state)
 
         val traces = TraceAccessIndex<T>()
         extendedPrefixAutomaton.acceptDepthFirst(traces)
 
-        return seq.map { event ->
-            traces.getTraceByEvent(event)
+        return seq.map { event -> traces.getTraceByEvent(event) }.toSet()
+    }
+
+    fun <C> computeAllCycleTimes(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        minus: (T, T) -> T,
+        average: (List<T>) -> C,
+        progressCallback: EpaProgressCallback? = null
+    ): Map<State, C> {
+        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton)
+
+        val total = extendedPrefixAutomaton.states.size
+        var current = 0
+
+        return extendedPrefixAutomaton.states.associateWith { state ->
+            progressCallback?.onProgress(current, total, "Compute cycle times")
+            current++
+            val ct = cycleTimes.cycleTimesOfState(state, minus)
+            average(ct)
         }
     }
 
     fun computeCycleTimes(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        state: State,
-        minus: (T, T) -> T
-    ): List<T> {
-        val cycleTime = CycleTime<T>()
-        extendedPrefixAutomaton.acceptDepthFirst(cycleTime)
-
-        return cycleTime.cycleTimesOfState(state, minus)
+    ): CycleTimes<T> {
+        val cycleTimes = CycleTimes<T>()
+        extendedPrefixAutomaton.acceptDepthFirst(cycleTimes)
+        return cycleTimes
     }
 
     fun getStateByEvent(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>): Map<Event<T>, State> {

@@ -7,22 +7,27 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * A non-mutable, non-thread-safe data structure representing an Extended Prefix Automaton (EPA).
+ * A non-mutable, non-thread-safe data structure representing an Extended
+ * Prefix Automaton (EPA).
  *
- * The automaton is built from a set of [State]s, [Activity] labels, and [Transition] edges,
- * along with mappings that associate states with partitions and sequences of events.
+ * The automaton is built from a set of [State]s, [Activity] labels, and
+ * [Transition] edges, along with mappings that associate states with
+ * partitions and sequences of events.
  *
- * It supports both depth-first and breadth-first traversal via a [AutomatonVisitor], and maintains
- * efficient access to outgoing transitions for fast traversal.
+ * It supports both depth-first and breadth-first traversal via a
+ * [AutomatonVisitor], and maintains efficient access to outgoing
+ * transitions for fast traversal.
  *
- * **Note:** This class is not thread-safe for concurrent visiting or mutation. When multiple threads might
- * access the ExtendedPrefixAutomaton create a new instance of the EPA with the `copy` function and let it
+ * **Note:** This class is not thread-safe for concurrent visiting or
+ * mutation. When multiple threads might access the ExtendedPrefixAutomaton
+ * create a new instance of the EPA with the `copy` function and let it
  * accept the visitor.
  *
  * @param T The timestamp type used in the associated events.
  * @property states All states in the automaton, including the root.
  * @property activities All distinct activities appearing in transitions.
- * @property transitions All transitions between states, each labeled with an activity.
+ * @property transitions All transitions between states, each labeled with
+ *    an activity.
  */
 class ExtendedPrefixAutomaton<T : Comparable<T>>(
     val eventLogName: String,
@@ -53,13 +58,12 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
 
     private var visitedStates = 0L
 
-    /**
-     * Returns a list of all unique partition indices present in the automaton.
-     */
+    /** Returns a list of all unique partition indices present in the automaton. */
     fun getAllPartitions(): List<Int> = partitionByState.values.distinct().toList()
 
     /**
-     * Traverses the automaton in depth-first order using the provided [AutomatonVisitor].
+     * Traverses the automaton in depth-first order using the provided
+     * [AutomatonVisitor].
      *
      * The visitor will be invoked in the following order for each state:
      * 1. [State]
@@ -76,7 +80,8 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
     }
 
     /**
-     * Traverses the automaton in breadth-first order using the provided [AutomatonVisitor].
+     * Traverses the automaton in breadth-first order using the provided
+     * [AutomatonVisitor].
      *
      * The visitor will be invoked in the following order for each state:
      * 1. [State]
@@ -164,9 +169,7 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
             }.joinToString(","))
         }
 
-    /**
-     * Returns a deep copy of this automaton.
-     */
+    /** Returns a deep copy of this automaton. */
     fun copy(): ExtendedPrefixAutomaton<T> =
         ExtendedPrefixAutomaton(
             eventLogName = eventLogName,

@@ -5,6 +5,7 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
@@ -20,13 +21,18 @@ import kotlin.math.sin
 /**
  * A radial variant of the Walker tree layout algorithm.
  *
- * This layout arranges nodes in concentric circles around the root node, where each tree depth
- * level forms a ring (layer), and sibling nodes are spaced proportionally along the angle of the ring.
- * It first computes a traditional Walker layout in Cartesian coordinates and then transforms it into polar coordinates.
+ * This layout arranges nodes in concentric circles around the root node,
+ * where each tree depth level forms a ring (layer), and sibling nodes are
+ * spaced proportionally along the angle of the ring. It first computes a
+ * traditional Walker layout in Cartesian coordinates and then transforms
+ * it into polar coordinates.
  *
- * @property layerSpace The distance between concentric layers (depth levels).
- * @property expectedCapacity The expected number of nodes, used for internal data structure optimization.
- * @property margin The angular margin (in radians) subtracted from the full circle to avoid overlap or crowding.
+ * @property layerSpace The distance between concentric layers (depth
+ *    levels).
+ * @property expectedCapacity The expected number of nodes, used for
+ *    internal data structure optimization.
+ * @property margin The angular margin (in radians) subtracted from the
+ *    full circle to avoid overlap or crowding.
  */
 class RadialWalkerTreeLayout(
     val layerSpace: Float,
@@ -297,8 +303,9 @@ class RadialWalkerTreeLayout(
         }
     }
 
-    override fun build(tree: EPATreeNode) {
+    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
         logger.debug { "Building tree layout" }
+        progressCallback?.onProgress(0, 5, "Build Layout: Init")
         // for all nodes v of T
         tree.forEach { v ->
             // let mod(v) = thread(v) = 0
@@ -315,17 +322,22 @@ class RadialWalkerTreeLayout(
 
         // FirstWalk(r)
         logger.debug { "first walk" }
+        progressCallback?.onProgress(1, 5, "Build Layout: First Walk")
         firstWalk(r)
         logger.debug { "second walk" }
         // SecondWalk(r, −prelim(r))
+        progressCallback?.onProgress(2, 5, "Build Layout: Second Walk")
         secondWalk(r, -prelim[r]!!)
 
         logger.debug { "assign angles" }
+        progressCallback?.onProgress(3, 5, "Build Layout: Assign angles")
         convertToAngles()
 
+        progressCallback?.onProgress(4, 5, "Build Layout: Build RTree")
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
         isBuilt = true
         logger.debug { "finished layout construction" }
+        progressCallback?.onProgress(5, 5, "Build Layout")
     }
 
     override fun getMaxDepth(): Int = maxDepth

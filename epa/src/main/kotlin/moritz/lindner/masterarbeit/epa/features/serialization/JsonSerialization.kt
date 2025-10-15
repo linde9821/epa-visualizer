@@ -5,8 +5,8 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 
 /**
- * A simple visitor that serializes an ExtendedPrefixAutomaton to JSON format,
- * preserving only the core data structure.
+ * A simple visitor that serializes an ExtendedPrefixAutomaton to JSON
+ * format, preserving only the core data structure.
  */
 class JsonSerialization<T : Comparable<T>>(
     private val epa: ExtendedPrefixAutomaton<T>,
@@ -19,8 +19,8 @@ class JsonSerialization<T : Comparable<T>>(
     }
 
     /**
-     * Returns the JSON representation of the automaton.
-     * Must be called after the visitor has completed traversal.
+     * Returns the JSON representation of the automaton. Must be called after
+     * the visitor has completed traversal.
      */
     fun toJson(): String {
         // Pre-compute all state keys once

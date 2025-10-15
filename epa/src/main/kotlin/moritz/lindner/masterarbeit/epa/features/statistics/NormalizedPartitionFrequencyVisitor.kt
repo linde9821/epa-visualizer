@@ -6,13 +6,16 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * Computes the normalized frequency of events per partition in an [ExtendedPrefixAutomaton].
+ * Computes the normalized frequency of events per partition in an
+ * [ExtendedPrefixAutomaton].
  *
- * The frequency is calculated as the number of events observed in each partition
- * divided by the total number of events across all partitions. The result is a value in [0.0, 1.0].
+ * The frequency is calculated as the number of events observed in each
+ * partition divided by the total number of events across all partitions.
+ * The result is a value in [0.0, 1.0].
  *
- * This visitor must be run using [ExtendedPrefixAutomaton.acceptDepthFirst] or [acceptBreadthFirst]
- * before querying the frequencies.
+ * This visitor must be run using
+ * [ExtendedPrefixAutomaton.acceptDepthFirst] or
+ * [acceptBreadthFirst] before querying the frequencies.
  *
  * @param T The timestamp type used in the automaton's events.
  */

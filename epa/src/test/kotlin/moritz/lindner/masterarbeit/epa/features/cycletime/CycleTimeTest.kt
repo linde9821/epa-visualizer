@@ -17,7 +17,7 @@ class CycleTimeTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val sut = CycleTime<Long>()
+        val sut = CycleTimes<Long>()
 
         epa.acceptDepthFirst(sut)
 
@@ -42,7 +42,7 @@ class CycleTimeTest {
         val filter = CompressionFilter<Long>()
         val epa = filter.apply(epa1)
 
-        val sut = CycleTime<Long>()
+        val sut = CycleTimes<Long>()
 
         epa.acceptDepthFirst(sut)
 
@@ -64,7 +64,7 @@ class CycleTimeTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val sut = CycleTime<Long>()
+        val sut = CycleTimes<Long>()
 
         epa.acceptDepthFirst(sut)
 

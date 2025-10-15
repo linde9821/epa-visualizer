@@ -11,7 +11,8 @@ import moritz.lindner.masterarbeit.epa.domain.Transition
  * Deserializes an ExtendedPrefixAutomaton from JSON format.
  *
  * @param T The timestamp type used in the automaton's events.
- * @param timestampParser Function to parse timestamp strings back to type T
+ * @param timestampParser Function to parse timestamp strings back to type
+ *    T
  */
 class JsonDeserializer<T : Comparable<T>>(
     private val timestampParser: (String) -> T
@@ -21,9 +22,7 @@ class JsonDeserializer<T : Comparable<T>>(
         ignoreUnknownKeys = true
     }
 
-    /**
-     * Deserializes JSON string to ExtendedPrefixAutomaton
-     */
+    /** Deserializes JSON string to ExtendedPrefixAutomaton */
     fun fromJson(jsonString: String): ExtendedPrefixAutomaton<T> {
         val jsonAutomaton = json.decodeFromString<JsonAutomaton>(jsonString)
 
@@ -114,9 +113,7 @@ class JsonDeserializer<T : Comparable<T>>(
         )
     }
 
-    /**
-     * Generate the same key format used in serialization
-     */
+    /** Generate the same key format used in serialization */
     private fun stateKey(jsonState: JsonState): String = when (jsonState.type) {
         "root" -> "root"
         "prefix" -> "${jsonState.from}->${jsonState.via}"

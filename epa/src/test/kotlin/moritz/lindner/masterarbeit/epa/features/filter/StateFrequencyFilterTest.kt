@@ -15,7 +15,7 @@ class StateFrequencyFilterTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val sut = StateFrequencyFilter<Long>(0.3f)
+        val sut = StateFrequencyFilter<Long>(0.6f)
 
         val result = sut.apply(epa)
 

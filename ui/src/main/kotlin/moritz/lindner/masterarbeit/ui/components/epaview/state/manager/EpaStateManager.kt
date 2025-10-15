@@ -14,17 +14,20 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.api.LayoutService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.StateLabels
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
@@ -45,6 +48,12 @@ class EpaStateManager(
 
     private val _stateLabelsByTabId = MutableStateFlow<Map<String, StateLabels>>(emptyMap())
     val stateLabelsByTabId = _stateLabelsByTabId.asStateFlow()
+
+    private val _highlightingByTabId = MutableStateFlow<Map<String, HighlightingAtlas>>(emptyMap())
+    val highlightingByTabId = _highlightingByTabId.asStateFlow()
+
+    private val _drawAtlasByTabId = MutableStateFlow<Map<String, DrawAtlas>>(emptyMap())
+    val drawAtlasByTabId = _drawAtlasByTabId.asStateFlow()
 
     private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<TreeLayout, LayoutConfig>>>(emptyMap())
     val layoutAndConfigByTabId = _layoutAndConfigByTabId.asStateFlow()
@@ -74,6 +83,9 @@ class EpaStateManager(
         _statisticsByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
         }
+        _drawAtlasByTabId.update { currentMap ->
+            currentMap.filterNot { it.key == tabId }
+        }
     }
 
     private fun invalidateAllEpas() {
@@ -81,6 +93,7 @@ class EpaStateManager(
         _stateLabelsByTabId.value = emptyMap()
         _layoutAndConfigByTabId.value = emptyMap()
         _statisticsByTabId.value = emptyMap()
+        _drawAtlasByTabId.value = emptyMap()
     }
 
     init {
@@ -107,6 +120,9 @@ class EpaStateManager(
                                 buildEpaForTab(tab)
                                 buildLayoutForTab(tab)
                                 buildStateLabelsForTab(tab)
+                                buildDrawAtlasForTab(tab)
+                                buildStatisticForTab(tab)
+                                buildHighlightingForTab(tab)
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
@@ -124,28 +140,55 @@ class EpaStateManager(
                     tabs.forEach { tab ->
                         // build epa
                         buildEpaForTab(tab)
-
                         // build layout
                         buildLayoutForTab(tab)
-
                         // build labels
                         buildStateLabelsForTab(tab)
-
+                        // build draw atlas
+                        buildDrawAtlasForTab(tab)
                         // build statistics
                         buildStatisticForTab(tab)
+                        // build highlighting
+                        buildHighlightingForTab(tab)
                     }
                 } catch (e: Exception) {
                     // TODO: move try catch into functions and set error for tab
                     logger.error(e) { "Error while building state" }
                 }
-
             }
         }
     }
 
-    fun buildStatisticForTab(
-        tabState: TabState
-    ) {
+    fun highlightPathFromRootForState(tabId: String, state: State) {
+        val highlight = _highlightingByTabId.value[tabId]!!
+        val pathFromRoot = epaService.getPathFromRoot(state)
+        val newHighlight = highlight.withHighlightedState(pathFromRoot.toSet())
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabId to newHighlight)
+        }
+    }
+
+    fun setSelectedState(tabId: String, selectedState: State) {
+        val highlight = _highlightingByTabId.value[tabId]!!
+        val newHighlight = highlight.selectedState(selectedState)
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabId to newHighlight)
+        }
+    }
+
+    fun buildHighlightingForTab(tabState: TabState) {
+        if (_highlightingByTabId.value.containsKey(tabState.id)) {
+            return
+        }
+
+        _highlightingByTabId.update { currentMap ->
+            currentMap + (tabState.id to HighlightingAtlas(
+                selectedState = tabState.selectedState
+            ))
+        }
+    }
+
+    fun buildStatisticForTab(tabState: TabState) {
         if (_statisticsByTabId.value.containsKey(tabState.id)) {
             return
         }
@@ -175,16 +218,50 @@ class EpaStateManager(
         val states = epa.states
         val chunkSize = 100
 
-        withContext(backgroundDispatcher) {
-            states.chunked(chunkSize).forEachIndexed { chunkIndex, chunk ->
-                chunk.map { state ->
-                    scope.async { stateLabels.generateLabelForState(state) }
-                }.awaitAll()
-            }
+        states.chunked(chunkSize).forEach { chunk ->
+            chunk.map { state ->
+                scope.async { stateLabels.generateLabelForState(state) }
+            }.awaitAll()
         }
 
         _stateLabelsByTabId.update { currentMap ->
             currentMap + (tabState.id to stateLabels)
+        }
+    }
+
+    fun buildDrawAtlasForTab(
+        tabState: TabState
+    ) {
+        val drawAtlas = _drawAtlasByTabId.value[tabState.id]
+        if (drawAtlas != null) return
+
+        val epa = _epaByTabId.value[tabState.id]!!
+
+        logger.info { "building atlas" }
+
+        val progressCallback = EpaProgressCallback { current, total, task ->
+            tabStateManager.updateProgress(
+                tabId = tabState.id,
+                current = current,
+                total = total,
+                task = task
+            )
+        }
+
+        val atlas = DrawAtlas.build(
+            epa,
+            DefaultConfig(
+                extendedPrefixAutomaton = epa,
+                stateSize = 25f,
+                minTransitionSize = 2f,
+                maxTransitionSize = 25f,
+                progressCallback = progressCallback
+            ),
+            progressCallback = progressCallback
+        )
+        tabStateManager.clearProgress(tabState.id)
+        _drawAtlasByTabId.update { currentMap ->
+            currentMap + (tabState.id to atlas)
         }
     }
 
@@ -196,11 +273,21 @@ class EpaStateManager(
             return
         }
 
+        val progressCallback = EpaProgressCallback { current, total, task ->
+            tabStateManager.updateProgress(
+                tabId = tabState.id,
+                current = current,
+                total = total,
+                task = task
+            )
+        }
+
         val epa = _epaByTabId.value[tabState.id]!!
-        val layout = layoutService.buildLayout(epa, tabState.layoutConfig)
+        val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }
+        tabStateManager.clearProgress(tabState.id)
     }
 
     fun buildEpaForTab(

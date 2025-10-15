@@ -6,7 +6,8 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 /**
  * Interface for filtering or transforming an [ExtendedPrefixAutomaton].
  *
- * An [EpaFilter] represents a reusable and composable transformation applied to an EPA.
+ * An [EpaFilter] represents a reusable and composable transformation
+ * applied to an EPA.
  *
  * @param T The timestamp type used in the automaton's events.
  */
