@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.ui.common.Formatting.asFormattedLocalDateTime
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
@@ -25,7 +24,7 @@ fun ControlUI(
     onForward: () -> Unit,
     onBackward: () -> Unit,
 ) {
-    Column (
+    Column(
         modifier =
             Modifier
                 .fillMaxWidth()
