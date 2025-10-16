@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
+import java.text.DecimalFormat
 import java.time.Duration
 
 
@@ -46,7 +48,7 @@ fun StateInfo(
     locate: (State) -> Unit
 ) {
     val epaService = EpaService<Long>()
-
+    val formatter = DecimalFormat("#,###")
     val stateName = selectedState.name
     val seq = extendedPrefixAutomaton.sequence(selectedState)
     val normalizedFrequency =
@@ -104,15 +106,15 @@ fun StateInfo(
             if (selectedState is State.PrefixState) {
                 InfoRow(label = "Activity", value = selectedState.via.name)
             }
-            InfoRow(label = "Partition", value = partition.toString())
-            InfoRow(label = "Depth", value = depth.toString())
+            InfoRow(label = "Partition", value = formatter.format(partition))
+            InfoRow(label = "Depth", value = formatter.format(depth))
             InfoRow(
                 label = "Events",
-                value = seq.size.toString()
+                value = formatter.format(seq.size)
             )
             InfoRow(
                 label = "Traces",
-                value = traces.size.toString(),
+                value = formatter.format(traces.size),
             )
             InfoRow(
                 label = "(Normalized) Frequency",
@@ -178,7 +180,6 @@ fun StateInfo(
 
         ClosableGroup("Path from Root") {
             val pathToRoot = epaService.getPathFromRoot(selectedState)
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -187,13 +188,27 @@ fun StateInfo(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 itemsIndexed(pathToRoot) { index, state ->
-                    Chip(onClick = {
-                        onStateSelected(state)
-                    }) {
-                        Text(state.name, fontSize = 11.sp)
+                    val count = if (index + 1 >= pathToRoot.size) {
+                        0
+                    } else {
+                        val nextStates = pathToRoot[index + 1]
+                        extendedPrefixAutomaton.sequence(nextStates).count()
                     }
 
+                    Chip(
+                        onClick = {
+                            onStateSelected(state)
+                        },
+                        selected = state == selectedState
+                    ) {
+                        Text(state.name, fontSize = 11.sp)
+                    }
                     if (index < pathToRoot.lastIndex) {
+                        Text(
+                            text = formatter.format(count),
+                            fontSize = 9.sp,
+                            modifier = Modifier.padding(vertical = 1.dp)
+                        )
                         Text(
                             text = "↓",
                             fontSize = 14.sp,
