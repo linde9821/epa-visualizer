@@ -22,7 +22,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     private val visitedTransitions = mutableSetOf<Transition>()
     private var eventCount = 0
     private var partitionsCount = 0
-    private val cases = mutableSetOf<String>()
+    private val traces = mutableSetOf<String>()
     private val activityFrequency = mutableMapOf<Activity, Int>()
     private val prefixLengths = mutableListOf<Int>()
     private var first: T? = null
@@ -81,7 +81,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
                 }
             }
 
-        cases.add(event.caseIdentifier)
+        traces.add(event.caseIdentifier)
         eventCount++
     }
 
@@ -90,14 +90,22 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
         val totalStates = visitedStates.size
         val totalEvents = eventCount
 
+        val minPrefix = prefixLengths.minOrNull() ?: 0
+        val maxPrefix = prefixLengths.maxOrNull() ?: 0
+        val avgPrefix = prefixLengths.average().takeIf { prefixLengths.isNotEmpty() } ?: 0.0
+
         return Statistics(
             eventCount = totalEvents,
-            caseCount = cases.size,
+            caseCount = traces.size,
             activityCount = activityFrequency.values.size,
             stateCount = totalStates,
             partitionsCount = partitionsCount,
             activityFrequency = activityFrequency,
             interval = first to last,
+            transitions = visitedTransitions.size,
+            minPrefix = minPrefix,
+            maxPrefix = maxPrefix,
+            avgPrefix = avgPrefix,
         )
     }
 
@@ -114,7 +122,7 @@ class StatisticsVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
         return buildString {
             appendLine("\nAutomaton Statistics:")
             appendLine("  Events:       $totalEvents")
-            appendLine("  Cases:        ${cases.size}")
+            appendLine("  Cases:        ${traces.size}")
             appendLine("  Activities:   ${activityFrequency.values.size}")
             appendLine("  Partitions:   $partitionsCount")
             appendLine("  States:       $totalStates")

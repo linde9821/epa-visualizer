@@ -27,4 +27,8 @@ data class Statistics<T : Comparable<T>>(
     val partitionsCount: Int,
     val activityFrequency: Map<Activity, Int>,
     val interval: Pair<T?, T?>,
+    val transitions: Int,
+    val minPrefix: Int,
+    val maxPrefix: Int,
+    val avgPrefix: Double
 )

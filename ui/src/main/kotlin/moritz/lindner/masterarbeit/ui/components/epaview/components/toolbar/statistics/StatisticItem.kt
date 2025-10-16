@@ -1,27 +1,45 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.statistics
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
+import org.jetbrains.skia.paragraph.Alignment
+import java.text.DecimalFormat
 
 @Composable
 fun StatisticItem(
     label: String,
-    value: Any,
+    value: Number,
+) {
+    val formatter = DecimalFormat("#,###")
+    StatisticItem(
+        label = label,
+        value = formatter.format(value)
+    )
+}
+
+@Composable
+fun StatisticItem(
+    label: String,
+    value: String,
 ) {
     SelectionContainer {
         Row(
-            modifier = Modifier
-                .padding(vertical = 2.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("$label: ", style = JewelTheme.typography.regular)
-            Text(value.toString(), style = JewelTheme.typography.regular)
+            val formattedLabel = label.take(19)
+            Text("$formattedLabel: ", style = JewelTheme.typography.regular)
+            Text(value, style = JewelTheme.typography.regular)
         }
     }
 }
