@@ -30,7 +30,6 @@ class ActivityFilter<T : Comparable<T>>(
 
     val allowedActivities = allowedActivities.map { it.name }.toSet()
 
-
     /**
      * Applies the activity-based filtering logic to the given automaton.
      *

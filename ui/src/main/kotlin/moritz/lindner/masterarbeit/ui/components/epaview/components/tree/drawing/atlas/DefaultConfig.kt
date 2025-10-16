@@ -109,11 +109,9 @@ class DefaultConfig(
 
         for (i in 0 until colorPositions.size - 1) {
             if (clampedValue >= colorPositions[i] && clampedValue <= colorPositions[i + 1]) {
-                // Calculate interpolation factor between the two colors
                 val range = colorPositions[i + 1] - colorPositions[i]
                 val factor = (clampedValue - colorPositions[i]) / range
 
-                // Interpolate between the two colors
                 val color = interpolateColor(heatmapColors[i], heatmapColors[i + 1], factor)
                 return Paint().apply {
                     this.color = color
@@ -127,9 +125,7 @@ class DefaultConfig(
         }
     }
 
-    /**
-     * Linearly interpolates between two colors
-     */
+    /** Linearly interpolates between two colors */
     private fun interpolateColor(color1: Int, color2: Int, factor: Float): Int {
         val r1 = Color.getR(color1)
         val g1 = Color.getG(color1)
