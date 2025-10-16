@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.animation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import moritz.lindner.masterarbeit.ui.common.Formatting.asFormattedLocalDateTime
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
@@ -22,17 +24,19 @@ fun ControlUI(
     onButton: (Boolean) -> Unit,
     onForward: () -> Unit,
     onBackward: () -> Unit,
-    onClose: () -> Unit,
 ) {
-    Row(
+    Column (
         modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             IconButton(onClick = onBackward) {
                 Icon(
                     key = AllIconsKeys.Actions.Play_back,
@@ -60,11 +64,6 @@ fun ControlUI(
 
         Text(
             text = "$stepSize x $multiplier = ${(stepSize * multiplier).toLong()}",
-            modifier = Modifier.padding(horizontal = 16.dp),
         )
-
-        IconButton(onClick = onClose) {
-            Icon(key = AllIconsKeys.Actions.Close, contentDescription = "Close", tint = JewelTheme.contentColor)
-        }
     }
 }

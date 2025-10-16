@@ -75,7 +75,7 @@ fun AnimationUi(
                 }
 
                 AnimationSelectionState.WholeLog ->
-                    TimelineSliderWholeLogUi(epa, epaStateManager, activeTabId!!, backgroundDispatcher) {
+                    TimelineSliderWholeLogUi(epa, epaStateManager,  backgroundDispatcher) {
                         state = AnimationSelectionState.NothingSelected
                     }
             }
