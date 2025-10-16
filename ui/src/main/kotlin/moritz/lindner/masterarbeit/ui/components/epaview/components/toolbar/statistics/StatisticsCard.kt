@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import moritz.lindner.masterarbeit.ui.common.Formatting.asFormattedLocalDateTime
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
@@ -35,21 +36,24 @@ fun StatisticsElement(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                     Column(
-                        modifier = Modifier.padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
-                        StatisticItem("Partitions", statistics.partitionsCount)
-                        StatisticItem("States", statistics.stateCount)
                         StatisticItem("Events", statistics.eventCount)
-                        StatisticItem("Cases", statistics.caseCount)
+                        StatisticItem("States", statistics.stateCount)
+                        StatisticItem("Traces", statistics.caseCount)
+                        StatisticItem("Partitions", statistics.partitionsCount)
                         StatisticItem("Activities", statistics.activityCount)
+                        StatisticItem("Transitions", statistics.transitions)
                     }
 
                     Column(
-                        modifier = Modifier.padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        modifier = Modifier.weight(1f)
                     ) {
                         Text(
                             "Top 4 Activities:",
@@ -72,12 +76,18 @@ fun StatisticsElement(
                         verticalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
                         Text(
-                            "Time",
+                            "Eventlog:",
                             style = JewelTheme.typography.regular,
                             modifier = Modifier.padding(bottom = 4.dp),
                         )
-                        StatisticItem("First Event", statistics.interval.first ?: "not present")
-                        StatisticItem("Last Event", statistics.interval.second ?: "not present")
+                        StatisticItem(
+                            "First Event",
+                            statistics.interval.first?.asFormattedLocalDateTime() ?: "not present"
+                        )
+                        StatisticItem(
+                            "Last Event",
+                            statistics.interval.second?.asFormattedLocalDateTime() ?: "not present"
+                        )
                     }
 
                 }

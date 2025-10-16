@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,13 +24,13 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 @Composable
 fun ClosableGroup(
     title: String,
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     var show by remember { mutableStateOf(false) }
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(2.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         GroupHeader(

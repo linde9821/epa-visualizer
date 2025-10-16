@@ -22,7 +22,6 @@ import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 fun TimelineSliderWholeLogUi(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     epaStateManager: EpaStateManager,
-    tabId: String,
     dispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
