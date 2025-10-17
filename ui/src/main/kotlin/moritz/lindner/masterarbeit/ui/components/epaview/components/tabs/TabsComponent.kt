@@ -19,6 +19,7 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import moritz.lindner.masterarbeit.ui.generated.resources.Res
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
@@ -116,10 +117,21 @@ fun TabsComponent(
                                     stateLabels = currentStateLabels,
                                     drawAtlas = currentDrawAtlas,
                                     onStateHover = {},
-                                    onStateClicked = { state ->
+                                    onRightClick = { state ->
                                         if (state != null) {
                                             tabStateManager.setSelectedStateForCurrentTab(state)
                                             epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                                        }
+                                    },
+                                    onLeftClick = { state ->
+                                        val currentSelected = tabStateManager.getSelectedTabForCurrentTab()
+                                        if (state != null && currentSelected != null) {
+                                            epaStateManager.openStateComparisonWindow(
+                                                currentEpa,
+                                                drawAtlasByTabId[currentTab.id]!!,
+                                                currentSelected,
+                                                state
+                                            )
                                         }
                                     },
                                     tabState = currentTab,

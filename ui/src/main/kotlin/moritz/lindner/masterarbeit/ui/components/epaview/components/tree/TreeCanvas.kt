@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -53,12 +55,78 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 @Composable
+fun DetailComparison(
+    treeLayout: TreeLayout,
+    drawAtlas: DrawAtlas,
+) {
+    var offset by remember { mutableStateOf(Offset.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val canvasModifier = Modifier
+        .background(Color.White)
+        .onSizeChanged { canvasSize = it }
+        .fillMaxSize()
+        .pointerInput(Unit) {
+            detectTransformGestures { centroid, pan, zoom, _ ->
+                scale *= zoom
+                offset += (centroid - offset) * (1f - zoom) + pan
+            }
+        }.pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+
+                    if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
+                        val cursorPosition = event.changes.first().position
+
+                        val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
+                        val newScale = (scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val worldPosBefore = screenToWorld(cursorPosition, offset, scale)
+
+                        scale = newScale
+                        offset = cursorPosition - worldPosBefore * scale
+                    }
+                }
+            }
+        }.clipToBounds()
+
+    Canvas(modifier = canvasModifier) {
+        withTransform({
+            translate(offset.x, offset.y)
+            scale(
+                scaleX = scale,
+                scaleY = scale,
+                pivot = Offset.Zero,
+            )
+        }) {
+            drawIntoCanvas { canvas ->
+                val visibleNodes = treeLayout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
+
+                visibleNodes.forEach { (coordinate, node) ->
+                    val state = node.state
+                    val entry = drawAtlas.getState(state)
+                    val cx = coordinate.x
+                    val cy = -coordinate.y
+
+                    canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
+                }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
 fun TreeCanvas(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     drawAtlas: DrawAtlas,
     onStateHover: (State?) -> Unit,
-    onStateClicked: (State?) -> Unit,
+    onRightClick: (State?) -> Unit,
+    onLeftClick: (State?) -> Unit,
     tabState: TabState,
     highlightingAtlas: HighlightingAtlas,
     animationState: AnimationState
@@ -122,10 +190,23 @@ fun TreeCanvas(
                             hoveredNode = newNode
                             onStateHover(hoveredNode?.node?.state)
                         }
-                        if (event.type == PointerEventType.Press && pressedNode != newNode) {
+                        if (
+                            event.type == PointerEventType.Press &&
+                            event.button == PointerButton.Primary &&
+                            pressedNode != newNode
+                        ) {
                             pressedNode = newNode
-                            onStateClicked(pressedNode?.node?.state)
+                            onRightClick(pressedNode?.node?.state)
                         }
+                        if (
+                            event.type == PointerEventType.Press &&
+                            event.button == PointerButton.Secondary &&
+                            pressedNode != newNode
+                        ) {
+                            pressedNode = newNode
+                            onLeftClick(pressedNode?.node?.state)
+                        }
+
                     }
                 }
             }

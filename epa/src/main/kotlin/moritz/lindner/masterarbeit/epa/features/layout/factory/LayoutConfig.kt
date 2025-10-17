@@ -8,8 +8,8 @@ sealed class LayoutConfig(val name: String) {
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
 
     data class Walker(
-        val distance: Float = 20.0f,
-        val yDistance: Float = 50.0f,
+        val distance: Float = 100.0f,
+        val yDistance: Float = 150.0f,
         override val render: Boolean = true,
     ) : LayoutConfig("Walker") {
         override fun getParameters() = mapOf(

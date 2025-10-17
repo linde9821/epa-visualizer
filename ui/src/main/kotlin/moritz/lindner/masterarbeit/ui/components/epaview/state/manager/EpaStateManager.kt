@@ -1,5 +1,10 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.state.manager
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -23,7 +28,9 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.DetailComparison
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
@@ -31,8 +38,53 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.skia.Color
+import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
+
+data class ManagedWindow(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String,
+    val windowState: WindowState = WindowState(),
+    val content: @Composable (ManagedWindow) -> Unit
+)
+
+class WindowManager {
+    private val _windows = MutableStateFlow<List<ManagedWindow>>(emptyList())
+    val windows = _windows.asStateFlow()
+
+    fun openWindow(
+        title: String,
+        windowState: WindowState = WindowState(),
+        content: @Composable (ManagedWindow) -> Unit
+    ): String {
+        val window = ManagedWindow(
+            title = title,
+            windowState = windowState,
+            content = content
+        )
+        _windows.update { it + window }
+        return window.id
+    }
+
+    fun closeWindow(windowId: String) {
+        _windows.update { it.filterNot { window -> window.id == windowId } }
+    }
+
+    fun closeWindow(window: ManagedWindow) {
+        closeWindow(window.id)
+    }
+
+    fun updateWindowTitle(windowId: String, newTitle: String) {
+        _windows.update { windows ->
+            windows.map { window ->
+                if (window.id == windowId) window.copy(title = newTitle)
+                else window
+            }
+        }
+    }
+}
 
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
@@ -66,8 +118,32 @@ class EpaStateManager(
     private val _animationState = MutableStateFlow(AnimationState.Empty)
     val animationState = _animationState.asStateFlow()
 
+    val windowManager = WindowManager()
+
     fun updateAnimation(animationState: AnimationState) {
         _animationState.value = animationState
+    }
+
+    fun openStateComparisonWindow(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        drawAtlas: DrawAtlas,
+        primaryState: State,
+        secondaryState: State,
+    ) {
+        windowManager.openWindow(
+            title = "State Comparison ${primaryState.name} -> ${secondaryState.name}",
+            windowState = WindowState(
+                width = 800.dp,
+                height = 600.dp,
+                position = WindowPosition(Alignment.Center)
+            )
+        ) { window ->
+            val subEpa = epaService.buildSubEpa(extendedPrefixAutomaton, listOf(primaryState, secondaryState))
+
+            val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
+
+            DetailComparison(tree, drawAtlas)
+        }
     }
 
     fun removeAllForTab(tabId: String) {

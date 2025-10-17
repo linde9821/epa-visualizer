@@ -68,6 +68,10 @@ class TabStateManager {
         }
     }
 
+    fun getSelectedTabForCurrentTab(): State? {
+        return _tabs.value.find { it.id == activeTabId.value }?.selectedState
+    }
+
     /** Remove a tab by tabId */
     fun removeTab(tabId: String) {
         _tabs.update { currentTabs ->

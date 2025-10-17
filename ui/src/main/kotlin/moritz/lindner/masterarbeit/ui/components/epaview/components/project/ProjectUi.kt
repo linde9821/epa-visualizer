@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,8 +21,10 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.VerticalSplitLayout
 import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
+import org.jetbrains.jewel.window.DecoratedWindow
 import java.util.UUID
 
 @Composable
@@ -38,6 +41,18 @@ fun ProjectUi(
             projectStateManager = projectStateManager,
             backgroundDispatcher = backgroundDispatcher,
         )
+    }
+
+    val windows by epaStateManager.windowManager.windows.collectAsState()
+
+    windows.forEach { windowState ->
+        DecoratedWindow(
+            onCloseRequest = { epaStateManager.windowManager.closeWindow(windowState) },
+            state = windowState.windowState,
+            title = windowState.title,
+        ) {
+            windowState.content(windowState)
+        }
     }
 
     LaunchedEffect(Unit) {
