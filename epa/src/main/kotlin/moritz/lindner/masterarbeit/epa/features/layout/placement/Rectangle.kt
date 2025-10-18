@@ -13,4 +13,14 @@ package moritz.lindner.masterarbeit.epa.features.layout.placement
 data class Rectangle(
     val topLeft: Coordinate,
     val bottomRight: Coordinate,
-)
+) {
+    // TODO Test this
+    fun contains(coord: Coordinate): Boolean {
+        val minX = minOf(topLeft.x, bottomRight.x)
+        val maxX = maxOf(topLeft.x, bottomRight.x)
+        val minY = minOf(topLeft.y, bottomRight.y)
+        val maxY = maxOf(topLeft.y, bottomRight.y)
+
+        return coord.x in minX..maxX && coord.y in minY..maxY
+    }
+}
