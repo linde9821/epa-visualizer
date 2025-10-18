@@ -119,7 +119,7 @@ fun DetailComparison(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TreeCanvas(
+fun LayoutCanvasRenderer(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     drawAtlas: DrawAtlas,

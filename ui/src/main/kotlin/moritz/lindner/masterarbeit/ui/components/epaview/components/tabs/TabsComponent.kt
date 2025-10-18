@@ -16,10 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.LayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
-import moritz.lindner.masterarbeit.ui.generated.resources.Res
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
@@ -112,7 +111,7 @@ fun TabsComponent(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             if (currentLayoutAndConfig.first.isBuilt()) {
-                                TreeCanvas(
+                                LayoutCanvasRenderer(
                                     treeLayout = currentLayoutAndConfig.first,
                                     stateLabels = currentStateLabels,
                                     drawAtlas = currentDrawAtlas,
