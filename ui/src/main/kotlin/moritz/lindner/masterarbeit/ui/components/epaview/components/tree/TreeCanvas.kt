@@ -188,7 +188,7 @@ fun TreeCanvas(
 
                         if (newNode != hoveredNode) {
                             hoveredNode = newNode
-                            onStateHover(hoveredNode?.node?.state)
+                            onStateHover(hoveredNode?.state?.state)
                         }
                         if (
                             event.type == PointerEventType.Press &&
@@ -196,7 +196,7 @@ fun TreeCanvas(
                             pressedNode != newNode
                         ) {
                             pressedNode = newNode
-                            onRightClick(pressedNode?.node?.state)
+                            onRightClick(pressedNode?.state?.state)
                         }
                         if (
                             event.type == PointerEventType.Press &&
@@ -204,7 +204,7 @@ fun TreeCanvas(
                             pressedNode != newNode
                         ) {
                             pressedNode = newNode
-                            onLeftClick(pressedNode?.node?.state)
+                            onLeftClick(pressedNode?.state?.state)
                         }
 
                     }
@@ -291,7 +291,7 @@ fun TreeCanvas(
                     try {
                         drawTokensWithSpreading(
                             animationState = animationState,
-                            visibleStates = visibleNodes.map { it.node.state }.toSet(),
+                            visibleStates = visibleNodes.map { it.state.state }.toSet(),
                             treeLayout = treeLayout,
                             canvas = canvas,
                             tokenPaint = drawAtlas.tokenPaint

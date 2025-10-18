@@ -49,31 +49,31 @@ class DirectAngularPlacementTreeLayout(
     }
 
     private fun assignAngles(
-        tree: EPATreeNode,
+        treeNode: EPATreeNode,
         start: Float,
         end: Float,
     ) {
-        maxDepth = max(maxDepth, tree.depth)
+        maxDepth = max(maxDepth, treeNode.depth)
 
-        if (tree.parent == null) {
-            nodePlacementByState[tree.state] = NodePlacement(Coordinate(0f, 0f), tree)
+        if (treeNode.parent == null) {
+            nodePlacementByState[treeNode.state] = NodePlacement(Coordinate(0f, 0f), treeNode.state)
         } else {
-            val radius = layerSpace * tree.depth
+            val radius = layerSpace * treeNode.depth
             val theta = ((start + end) / 2f) + rotation
 
-            nodePlacementByState[tree.state] =
+            nodePlacementByState[treeNode.state] =
                 NodePlacement(
                     Coordinate(
                         x = radius * cos(theta),
                         y = radius * sin(theta),
                     ),
-                    tree,
+                    treeNode.state,
                 )
         }
 
-        val anglePerChild = (end - start) / (tree.children().size.toFloat())
+        val anglePerChild = (end - start) / (treeNode.children().size.toFloat())
 
-        tree.children().forEach { child ->
+        treeNode.children().forEach { child ->
             val childStart = start + child.number() * anglePerChild
             val childEnd = childStart + anglePerChild
             assignAngles(child, childStart, childEnd)

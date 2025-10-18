@@ -50,6 +50,7 @@ class RadialWalkerTreeLayout(
     private val prelim = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val shifts = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val changes = HashMap<EPATreeNode, Float>(expectedCapacity)
+    private val coordinateAndTreeNodeByState = HashMap<State, Pair<Coordinate, EPATreeNode>>(expectedCapacity)
     private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
     private var maxDepth = Int.MIN_VALUE
     protected var xMin = Float.MAX_VALUE
@@ -275,7 +276,7 @@ class RadialWalkerTreeLayout(
         xMin = min(x, xMin)
         maxDepth = max(maxDepth, v.depth)
 
-        nodePlacementByState[v.state] = NodePlacement(Coordinate(x, y), v)
+        coordinateAndTreeNodeByState[v.state] = Coordinate(x, y) to v
 
         // for all children w of v
         v.children().forEach { w ->
@@ -285,20 +286,20 @@ class RadialWalkerTreeLayout(
     }
 
     private fun convertToAngles() {
-        nodePlacementByState.replaceAll { _, nodePlacementInformation ->
-            val (cartesianCoordinate, node) = nodePlacementInformation
+        coordinateAndTreeNodeByState.forEach { state, (cartesianCoordinate, node) ->
             val (x, _) = cartesianCoordinate
 
             val normalizedX = (x - xMin) / (xMax - xMin)
             val radius = node.depth * layerSpace
             val theta = (normalizedX * usableAngle) + rotation
 
-            nodePlacementInformation.copy(
-                coordinate =
-                    Coordinate(
-                        x = radius * cos(theta),
-                        y = radius * sin(theta),
-                    ),
+
+            nodePlacementByState[state] = NodePlacement(
+                coordinate = Coordinate(
+                    x = radius * cos(theta),
+                    y = radius * sin(theta),
+                ),
+                state = state
             )
         }
     }
