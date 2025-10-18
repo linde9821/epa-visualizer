@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.layout.placement
 
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.Vector2D
 import kotlin.math.pow
 import kotlin.math.sqrt
 

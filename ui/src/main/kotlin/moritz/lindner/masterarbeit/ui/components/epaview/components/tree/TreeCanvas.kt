@@ -104,8 +104,7 @@ fun DetailComparison(
             drawIntoCanvas { canvas ->
                 val visibleNodes = treeLayout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
 
-                visibleNodes.forEach { (coordinate, node) ->
-                    val state = node.state
+                visibleNodes.forEach { (coordinate, state) ->
                     val entry = drawAtlas.getState(state)
                     val cx = coordinate.x
                     val cy = -coordinate.y
@@ -188,7 +187,7 @@ fun TreeCanvas(
 
                         if (newNode != hoveredNode) {
                             hoveredNode = newNode
-                            onStateHover(hoveredNode?.state?.state)
+                            onStateHover(hoveredNode?.state)
                         }
                         if (
                             event.type == PointerEventType.Press &&
@@ -196,7 +195,7 @@ fun TreeCanvas(
                             pressedNode != newNode
                         ) {
                             pressedNode = newNode
-                            onRightClick(pressedNode?.state?.state)
+                            onRightClick(pressedNode?.state)
                         }
                         if (
                             event.type == PointerEventType.Press &&
@@ -204,7 +203,7 @@ fun TreeCanvas(
                             pressedNode != newNode
                         ) {
                             pressedNode = newNode
-                            onLeftClick(pressedNode?.state?.state)
+                            onLeftClick(pressedNode?.state)
                         }
 
                     }
@@ -232,8 +231,7 @@ fun TreeCanvas(
                     val highlightedPaint = drawAtlas.highlightedPaint
 
                     // Draw edges
-                    visibleNodes.forEach { (coordinate, node) ->
-                        val state = node.state
+                    visibleNodes.forEach { (coordinate, state) ->
                         if (state is PrefixState) {
                             val cx = coordinate.x
                             val cy = -coordinate.y
@@ -265,8 +263,7 @@ fun TreeCanvas(
                     val labelThreshold = drawAtlas.stateSizeUntilLabelIsDrawn
 
                     // Draw nodes
-                    visibleNodes.forEach { (coordinate, node) ->
-                        val state = node.state
+                    visibleNodes.forEach { (coordinate, state) ->
                         val entry = drawAtlas.getState(state)
                         val cx = coordinate.x
                         val cy = -coordinate.y
@@ -291,7 +288,7 @@ fun TreeCanvas(
                     try {
                         drawTokensWithSpreading(
                             animationState = animationState,
-                            visibleStates = visibleNodes.map { it.state.state }.toSet(),
+                            visibleStates = visibleNodes.map(NodePlacement::state).toSet(),
                             treeLayout = treeLayout,
                             canvas = canvas,
                             tokenPaint = drawAtlas.tokenPaint
