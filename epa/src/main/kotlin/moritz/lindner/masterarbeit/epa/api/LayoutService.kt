@@ -32,7 +32,6 @@ class LayoutService<T : Comparable<T>> {
         layoutConfig: LayoutConfig,
         progressCallback: EpaProgressCallback? = null
     ): TreeLayout {
-        logger.info { "building tree" }
         if (layoutConfig.render) {
             val treeVisitor = EpaToTree<Long>(progressCallback)
             epa.acceptDepthFirst(treeVisitor)
