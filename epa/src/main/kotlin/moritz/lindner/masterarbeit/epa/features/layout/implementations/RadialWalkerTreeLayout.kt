@@ -270,13 +270,12 @@ class RadialWalkerTreeLayout(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the level of v
-        val y = v.depth.toFloat()
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)
         maxDepth = max(maxDepth, v.depth)
 
-        coordinateAndTreeNodeByState[v.state] = Coordinate(x, y) to v
+        coordinateAndTreeNodeByState[v.state] = Coordinate(x, 0f) to v
 
         // for all children w of v
         v.children().forEach { w ->
@@ -292,7 +291,6 @@ class RadialWalkerTreeLayout(
             val normalizedX = (x - xMin) / (xMax - xMin)
             val radius = node.depth * layerSpace
             val theta = (normalizedX * usableAngle) + rotation
-
 
             nodePlacementByState[state] = NodePlacement(
                 coordinate = Coordinate(
