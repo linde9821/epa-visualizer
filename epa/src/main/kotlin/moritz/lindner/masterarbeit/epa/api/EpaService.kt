@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
  * Service for analyzing and manipulating Extended Prefix Automatons.

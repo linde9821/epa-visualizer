@@ -20,15 +20,23 @@ class StateFeatureEmbedder(
                     0f
                 } else cycleTimes.average().toFloat()
             },
+            progressCallback = progressCallback
         )
 
+        val counter = TransitionCounter<Long>(progressCallback)
+        epa.acceptDepthFirst(counter)
+
+        var c = 0
+        val total = epa.states.size
+
         return epa.states.associateWith { state ->
+            progressCallback?.onProgress(c++, total, "feature embedding")
             val features = mutableListOf<Double>()
 
             // Structural features
             features.add(epaService.getDepth(state).toDouble())
-            features.add(epaService.incomingTransitions(epa, state).size.toDouble())
-            features.add(epaService.outgoingTransitions(epa, state).size.toDouble())
+            features.add(counter.incommingByState[state]?.toDouble() ?: 0.0)
+            features.add(counter.outcommingByState[state]?.toDouble() ?: 0.0)
 
             // EPA-specific features
             features.add(epa.partition(state).toDouble())

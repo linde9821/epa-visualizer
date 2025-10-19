@@ -33,17 +33,30 @@ class LayoutService<T : Comparable<T>> {
         layoutConfig: LayoutConfig,
         progressCallback: EpaProgressCallback? = null
     ): Layout {
+        val treeVisitor = EpaToTree<Long>(progressCallback)
         if (layoutConfig.render) {
-            val treeVisitor = EpaToTree<Long>(progressCallback)
             epa.acceptDepthFirst(treeVisitor)
 
             logger.info { "building tree layout" }
-            val layout = LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
+            val layout = createLayout(layoutConfig, epa, treeVisitor)
 
             layout.build(progressCallback)
 
             return layout
-        } else return LayoutFactory.createLayout(layoutConfig, epa)
+        } else return createLayout(layoutConfig, epa, treeVisitor)
+    }
+
+    private fun createLayout(
+        layoutConfig: LayoutConfig,
+        epa: ExtendedPrefixAutomaton<Long>,
+        treeVisitor: EpaToTree<Long>
+    ): Layout {
+        return when (layoutConfig) {
+            is LayoutConfig.Semantic -> LayoutFactory.createLayout(layoutConfig, epa)
+            else -> {
+                LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
+            }
+        }
     }
 }
 
