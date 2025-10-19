@@ -21,8 +21,6 @@ class SemanticLayout(
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
     private val nodeClusters = mutableMapOf<State, Int>()
     private val clusterBounds = mutableMapOf<Int, BoundingBox>()
-    private var maxDepth = 0
-
 
     override fun build(
         progressCallback: EpaProgressCallback?
@@ -203,12 +201,10 @@ class SemanticLayout(
         println("resolve conflicts")
         var result = coordinates
 
-        return result
 
         if (config.enableForceDirected) {
             result = applyForceDirectedLayout(result, clusters)
         }
-        println("resolve conflicts finished")
 
         return resolveOverlaps(result)
     }
@@ -221,6 +217,7 @@ class SemanticLayout(
         val states = positions.keys.toList()
 
         repeat(config.iterations) {
+            println("iteration $it")
             val forces = mutableMapOf<State, Vector2D>()
 
             // Calculate repulsion forces
@@ -281,6 +278,7 @@ class SemanticLayout(
         var iterations = 0
 
         while (hasOverlap && iterations < 20) {
+            println("iteration $iterations")
             hasOverlap = false
 
             states.forEach { s1 ->
