@@ -39,7 +39,7 @@ fun LayoutConfigUI(
             }
 
             is LayoutConfig.TimeRadialWalker ->  when (paramName) {
-                "layerBaseUnit" -> config.layerBaseUnit
+                "layerBaseUnit" -> config.multiplayer
                 "margin" -> config.margin
                 "rotation" -> config.rotation
                 "enabled" -> config.render

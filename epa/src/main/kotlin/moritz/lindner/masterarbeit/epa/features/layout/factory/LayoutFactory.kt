@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
@@ -32,7 +31,7 @@ object LayoutFactory {
         )
 
         is LayoutConfig.TimeRadialWalker -> TimeRadialWalkerTreeLayout(
-            layerBaseUnit = config.layerBaseUnit,
+            multiplyer = config.multiplayer,
             margin = config.margin.degreesToRadians(),
             rotation = config.rotation.degreesToRadians(),
             minCycleTimeDifference = config.minCycleTimeDifference,

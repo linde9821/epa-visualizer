@@ -10,13 +10,13 @@ sealed class LayoutConfig(val name: String) {
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
 
     data class Walker(
-        val distance: Float = 100.0f,
-        val yDistance: Float = 150.0f,
+        val distance: Float = 200.0f,
+        val yDistance: Float = 200.0f,
         override val render: Boolean = true,
     ) : LayoutConfig("Walker") {
         override fun getParameters() = mapOf(
-            "distance" to ParameterInfo.FloatParameterInfo("Distance", 0.1f, 100.0f),
-            "yDistance" to ParameterInfo.FloatParameterInfo("Y Distance", 10.0f, 200.0f, 5.0f),
+            "distance" to ParameterInfo.FloatParameterInfo("Distance", 1f, 500.0f, 5.0f),
+            "yDistance" to ParameterInfo.FloatParameterInfo("Y Distance", 1.0f, 500.0f, 5.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
         )
 
@@ -29,23 +29,23 @@ sealed class LayoutConfig(val name: String) {
     }
 
     data class TimeRadialWalker(
-        val layerBaseUnit: Float = 500.0f,
+        val multiplayer: Float = 1.0f,
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
-        val minCycleTimeDifference: Float = 90.0f,
+        val minCycleTimeDifference: Float = 0.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val render: Boolean = true,
     ) : LayoutConfig("Radial Walker Time") {
         override fun getParameters() = mapOf(
-            "layerBaseUnit" to ParameterInfo.FloatParameterInfo("layerBaseUnit", 100.0f, 2_000.0f, 50.0f),
+            "layerBaseUnit" to ParameterInfo.FloatParameterInfo("layerBaseUnit", 1.0f, 1000.0f, .5f),
             "margin" to ParameterInfo.FloatParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.FloatParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
-            "minCycleTimeDifference" to ParameterInfo.FloatParameterInfo("Min Cycletime change", 0.0f, 2_000.0f, 5.0f),
+            "minCycleTimeDifference" to ParameterInfo.FloatParameterInfo("Min Cycletime change", 0.0f, 1.0f, .1f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
-            "layerBaseUnit" -> copy(layerBaseUnit = value as Float)
+            "layerBaseUnit" -> copy(multiplayer = value as Float)
             "margin" -> copy(margin = value as Float)
             "rotation" -> copy(rotation = value as Float)
             "minCycleTimeDifference" -> copy(minCycleTimeDifference = value as Float)
@@ -53,7 +53,6 @@ sealed class LayoutConfig(val name: String) {
             else -> this
         }
     }
-
 
     data class RadialWalker(
         val layerSpace: Float = 120.0f,

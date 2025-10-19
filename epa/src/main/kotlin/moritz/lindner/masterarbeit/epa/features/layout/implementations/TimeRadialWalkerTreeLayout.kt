@@ -29,7 +29,7 @@ import kotlin.math.sin
  * traditional Walker layout in Cartesian coordinates and then transforms
  * it into polar coordinates.
  *
- * @property layerBaseUnit The distance between concentric layers (depth
+ * @property multiplyer The distance between concentric layers (depth
  *    levels).
  * @property expectedCapacity The expected number of nodes, used for
  *    internal data structure optimization.
@@ -37,7 +37,7 @@ import kotlin.math.sin
  *    full circle to avoid overlap or crowding.
  */
 class TimeRadialWalkerTreeLayout(
-    val layerBaseUnit: Float = 1.0f,
+    val multiplyer: Float = 1.0f,
     val margin: Float,
     val rotation: Float,
     val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -312,12 +312,16 @@ class TimeRadialWalkerTreeLayout(
 
     private fun accumulatedCycleTimeFromRoot(v: EPATreeNode): Float {
         return when(v.state){
-            is State.PrefixState -> (epaService.getPathFromRoot(v.state).dropLast(1).fold(0f) { acc, state ->
-                acc + normalizedCycleTimes[state]!!
-            } * layerBaseUnit) + minCycleTimeDifference
+            is State.PrefixState -> {
+                (sum(v.state) + minCycleTimeDifference) * multiplyer
+            }
 
             State.Root -> 0f
         }
+    }
+
+    private fun sum(state: State.PrefixState): Float = epaService.getPathFromRoot(state).fold(0f) { acc, state ->
+        acc + normalizedCycleTimes[state]!!
     }
 
     private fun convertToAngles() {
@@ -381,7 +385,7 @@ class TimeRadialWalkerTreeLayout(
             "No coodinate for $state present",
         )
 
-    override fun getCircleRadius(): Float = layerBaseUnit
+    override fun getCircleRadius(): Float = multiplyer
 
     override fun isBuilt(): Boolean = isBuilt
 
