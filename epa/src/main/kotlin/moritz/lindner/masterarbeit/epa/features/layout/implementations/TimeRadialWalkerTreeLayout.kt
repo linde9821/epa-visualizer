@@ -43,7 +43,7 @@ class TimeRadialWalkerTreeLayout(
     private val rotation: Float,
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val minCycleTimeDifference: Float,
-    ) : RadialTreeLayout {
+) : RadialTreeLayout {
     private val expectedCapacity = extendedPrefixAutomaton.states.size
 
     private val logger = KotlinLogging.logger {}
@@ -312,7 +312,7 @@ class TimeRadialWalkerTreeLayout(
     }
 
     private fun accumulatedCycleTimeFromRoot(v: EPATreeNode): Float {
-        return when(v.state){
+        return when (v.state) {
             is State.PrefixState -> {
                 (sum(v.state) + minCycleTimeDifference) * multiplyer
             }

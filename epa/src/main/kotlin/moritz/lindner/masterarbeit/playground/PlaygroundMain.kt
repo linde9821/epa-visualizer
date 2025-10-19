@@ -8,7 +8,6 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018Challenge
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.SemanticLayout
-import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import java.io.File
 
 fun main() {

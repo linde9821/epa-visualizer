@@ -38,7 +38,7 @@ fun LayoutConfigUI(
                 else -> throw IllegalArgumentException("Unknown parameter $paramName")
             }
 
-            is LayoutConfig.TimeRadialWalker ->  when (paramName) {
+            is LayoutConfig.TimeRadialWalker -> when (paramName) {
                 "layerBaseUnit" -> config.multiplayer
                 "margin" -> config.margin
                 "rotation" -> config.rotation

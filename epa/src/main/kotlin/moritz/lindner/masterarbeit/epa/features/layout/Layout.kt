@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 
 // TODO: add ability to rotate coordinates after creation to avoid expensive recalculation
-interface Layout: Iterable<NodePlacement>  {
+interface Layout : Iterable<NodePlacement> {
 
     /**
      * Computes and assigns layout coordinates to each node in the tree.
@@ -24,7 +24,8 @@ interface Layout: Iterable<NodePlacement>  {
     fun isBuilt(): Boolean
 
     /**
-     * Returns the 2D coordinate for the given [moritz.lindner.masterarbeit.epa.domain.State] in the tree.
+     * Returns the 2D coordinate for the given
+     * [moritz.lindner.masterarbeit.epa.domain.State] in the tree.
      *
      * @throws IllegalStateException if the layout has not been built yet.
      * @throws NoSuchElementException if the state is not part of the layout.

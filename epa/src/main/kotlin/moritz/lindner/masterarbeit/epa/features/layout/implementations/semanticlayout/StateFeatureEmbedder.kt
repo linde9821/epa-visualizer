@@ -14,9 +14,9 @@ class StateFeatureEmbedder(
 ) {
     private val epaService = EpaService<Long>()
 
-    class TransitionCounter<T: Comparable<T>>(
+    class TransitionCounter<T : Comparable<T>>(
         private val progressCallback: EpaProgressCallback? = null
-    ): AutomatonVisitor<T> {
+    ) : AutomatonVisitor<T> {
 
         val incommingByState = mutableMapOf<State, Int>()
         val outcommingByState = mutableMapOf<State, Int>()

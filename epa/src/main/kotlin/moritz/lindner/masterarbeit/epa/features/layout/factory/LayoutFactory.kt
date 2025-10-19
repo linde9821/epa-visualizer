@@ -29,6 +29,7 @@ object LayoutFactory {
                 tree = root
             )
         }
+
         is LayoutConfig.RadialWalker -> {
             RadialWalkerTreeLayout(
                 tree = root,
@@ -57,7 +58,9 @@ object LayoutFactory {
             )
         }
 
-        else -> {TODO()}
+        else -> {
+            TODO()
+        }
     }
 
     /** Converts degrees to radians. */
