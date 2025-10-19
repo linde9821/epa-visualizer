@@ -1,0 +1,59 @@
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout
+
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.domain.Transition
+import org.deeplearning4j.graph.Graph
+import org.deeplearning4j.graph.api.Edge
+import org.deeplearning4j.graph.api.Vertex
+import org.deeplearning4j.graph.models.deepwalk.DeepWalk
+
+class GraphEmbedder<T : Comparable<T>>(
+    private val epa: ExtendedPrefixAutomaton<T>,
+    private val config: SemanticLayoutConfig
+) {
+    fun computeEmbeddings(): Map<State, DoubleArray> {
+        val (graph, stateToVertex) = buildGraph()
+
+        val deepWalk = DeepWalk.Builder<State, Edge<Transition>>()
+            .windowSize(config.windowSize)
+            .vectorSize(config.graphEmbeddingDims)
+            .learningRate(0.025)
+            .seed(12345)
+            .build()
+
+        // Initialize with balanced degrees to avoid Huffman tree issues
+        val degrees = IntArray(epa.states.size) { 1 }
+        deepWalk.initialize(degrees)
+        deepWalk.fit(graph, config.walkLength)
+
+        return epa.states.associateWith { state ->
+            val vertex = stateToVertex[state]!!
+            val vector = deepWalk.getVertexVector(vertex)
+            DoubleArray(config.graphEmbeddingDims) { i -> vector.getDouble(i) }
+        }
+    }
+
+    private fun buildGraph(): Pair<Graph<State, Edge<Transition>>, Map<State, Vertex<State>>> {
+        val states = epa.states.toList()
+        val vertices = mutableListOf<Vertex<State>>()
+        val stateToVertex = mutableMapOf<State, Vertex<State>>()
+
+        states.forEachIndexed { index, state ->
+            val vertex = Vertex(index, state)
+            vertices.add(vertex)
+            stateToVertex[state] = vertex
+        }
+
+        val edges = mutableListOf<Edge<Transition>>()
+        epa.transitions.forEach { transition ->
+            val fromVertex = stateToVertex[transition.start]
+            val toVertex = stateToVertex[transition.end]
+            if (fromVertex != null && toVertex != null) {
+                edges.add(Edge<Transition>(fromVertex.vertexID(), toVertex.vertexID(), transition, true))
+            }
+        }
+
+        return Pair(Graph<State, Edge<Transition>>(vertices, true), stateToVertex)
+    }
+}

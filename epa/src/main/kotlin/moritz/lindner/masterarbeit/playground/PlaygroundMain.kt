@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChal
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.SemanticLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.SemanticLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
 import java.io.File
 
