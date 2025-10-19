@@ -9,6 +9,19 @@ sealed class LayoutConfig(val name: String) {
     abstract fun getParameters(): Map<String, ParameterInfo>
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
 
+    data class Semantic(override val render: Boolean) : LayoutConfig("Semantic") {
+        override fun getParameters(): Map<String, ParameterInfo> {
+            return emptyMap()
+        }
+
+        override fun updateParameter(
+            name: String,
+            value: Any
+        ): LayoutConfig {
+            return this
+        }
+    }
+
     data class Walker(
         val distance: Float = 200.0f,
         val yDistance: Float = 200.0f,

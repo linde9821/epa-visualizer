@@ -114,10 +114,9 @@ fun LayoutCanvasRenderer(
         }) {
             try {
                 drawIntoCanvas { canvas ->
-                    val visibleNodes = layout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
                     when (layout) {
                         is SemanticLayout -> {
-                            visibleNodes.forEach { (coordinate, state) ->
+                            layout.forEach { (coordinate, state) ->
                                 val entry = drawAtlas.getState(state)
                                 val cx = coordinate.x
                                 val cy = -coordinate.y

@@ -2,13 +2,38 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.semantic
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 class StateFeatureEmbedder(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: SemanticLayoutConfig
+    private val config: SemanticLayoutConfig,
+    private val progressCallback: EpaProgressCallback?
 ) {
     private val epaService = EpaService<Long>()
+
+    class TransitionCounter<T: Comparable<T>>(
+        private val progressCallback: EpaProgressCallback? = null
+    ): AutomatonVisitor<T> {
+
+        val incommingByState = mutableMapOf<State, Int>()
+        val outcommingByState = mutableMapOf<State, Int>()
+
+        override fun visit(
+            extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+            transition: Transition,
+            depth: Int
+        ) {
+            outcommingByState[transition.start] = outcommingByState.getOrDefault(transition.start, 0) + 1
+            incommingByState[transition.start] = incommingByState.getOrDefault(transition.end, 0) + 1
+        }
+
+        override fun onProgress(current: Long, total: Long) {
+            progressCallback?.onProgress(current.toInt(), total.toInt(), "transition counting")
+        }
+    }
 
     fun computeEmbeddings(): Map<State, DoubleArray> {
         val allActivities = epa.activities.toList()

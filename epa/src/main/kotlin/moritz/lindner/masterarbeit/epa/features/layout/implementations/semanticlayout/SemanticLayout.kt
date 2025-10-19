@@ -4,12 +4,10 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
-import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
-import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import smile.clustering.DBSCAN
 import smile.manifold.umap
 import kotlin.math.sqrt
@@ -32,16 +30,15 @@ class SemanticLayout(
         progressCallback?.onProgress(0, 7, "Starting semantic layout...")
 
         progressCallback?.onProgress(1, 7, "Creating graph embeddings...")
-        val graphEmbeddings = createGraphEmbeddings()
+//        val graphEmbeddings = createGraphEmbeddings()
 
-        progressCallback?.onProgress(2, 7, "Creating feature embeddings...")
-        val featureEmbeddings = createFeatureEmbeddings()
+        val featureEmbeddings = createFeatureEmbeddings(progressCallback)
 
         progressCallback?.onProgress(3, 7, "Combining embeddings...")
-        val combinedEmbeddings = combineEmbeddings(graphEmbeddings, featureEmbeddings)
+//        val combinedEmbeddings = combineEmbeddings(graphEmbeddings, featureEmbeddings)
 
         progressCallback?.onProgress(4, 7, "Reducing dimensions...")
-        val coordinates2D = reduceDimensions(combinedEmbeddings)
+        val coordinates2D = reduceDimensions(featureEmbeddings)
 
         val clusters: Map<State, Int> = if (config.enableClustering) {
             //performClustering(combinedEmbeddings)
@@ -90,8 +87,8 @@ class SemanticLayout(
         return embedder.computeEmbeddings()
     }
 
-    private fun createFeatureEmbeddings(): Map<State, DoubleArray> {
-        val embedder = StateFeatureEmbedder(epa, config)
+    private fun createFeatureEmbeddings(progressCallback: EpaProgressCallback?): Map<State, DoubleArray> {
+        val embedder = StateFeatureEmbedder(epa, config, progressCallback)
         return embedder.computeEmbeddings()
     }
 

@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.SemanticLayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -48,7 +49,8 @@ fun LayoutUi(
                 LayoutConfig.TimeRadialWalker(
                     extendedPrefixAutomaton = currentEpa
                 )
-            }
+            },
+            LayoutConfig.Semantic(true)
         )
 
         var layoutSelectionIndex by remember(currentLayout) {

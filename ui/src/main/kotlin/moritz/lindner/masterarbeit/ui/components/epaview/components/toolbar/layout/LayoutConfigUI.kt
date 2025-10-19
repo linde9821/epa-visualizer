@@ -46,6 +46,8 @@ fun LayoutConfigUI(
                 "minCycleTimeDifference" -> config.minCycleTimeDifference
                 else -> throw IllegalArgumentException("Unknown parameter $paramName")
             }
+
+            is LayoutConfig.Semantic -> config.render
         }
 
         when (info) {
