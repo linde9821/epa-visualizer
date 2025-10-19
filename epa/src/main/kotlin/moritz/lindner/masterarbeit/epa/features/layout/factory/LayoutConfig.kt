@@ -1,5 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+
 sealed class LayoutConfig(val name: String) {
 
     abstract val render: Boolean
@@ -25,6 +27,33 @@ sealed class LayoutConfig(val name: String) {
             else -> this
         }
     }
+
+    data class TimeRadialWalker(
+        val layerBaseUnit: Float = 500.0f,
+        val margin: Float = 5.0f,
+        val rotation: Float = 90.0f,
+        val minCycleTimeDifference: Float = 90.0f,
+        val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        override val render: Boolean = true,
+    ) : LayoutConfig("Radial Walker Time") {
+        override fun getParameters() = mapOf(
+            "layerBaseUnit" to ParameterInfo.FloatParameterInfo("layerBaseUnit", 100.0f, 2_000.0f, 50.0f),
+            "margin" to ParameterInfo.FloatParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
+            "rotation" to ParameterInfo.FloatParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
+            "minCycleTimeDifference" to ParameterInfo.FloatParameterInfo("Min Cycletime change", 0.0f, 2_000.0f, 5.0f),
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+        )
+
+        override fun updateParameter(name: String, value: Any) = when (name) {
+            "layerBaseUnit" -> copy(layerBaseUnit = value as Float)
+            "margin" -> copy(margin = value as Float)
+            "rotation" -> copy(rotation = value as Float)
+            "minCycleTimeDifference" -> copy(minCycleTimeDifference = value as Float)
+            "enabled" -> copy(render = value as Boolean)
+            else -> this
+        }
+    }
+
 
     data class RadialWalker(
         val layerSpace: Float = 120.0f,

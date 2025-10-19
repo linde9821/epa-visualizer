@@ -1,8 +1,10 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import kotlin.math.PI
 
@@ -27,6 +29,14 @@ object LayoutFactory {
         is LayoutConfig.DirectAngular -> DirectAngularPlacementTreeLayout(
             config.layerSpace,
             config.rotation.degreesToRadians()
+        )
+
+        is LayoutConfig.TimeRadialWalker -> TimeRadialWalkerTreeLayout(
+            layerBaseUnit = config.layerBaseUnit,
+            margin = config.margin.degreesToRadians(),
+            rotation = config.rotation.degreesToRadians(),
+            minCycleTimeDifference = config.minCycleTimeDifference,
+            extendedPrefixAutomaton = config.extendedPrefixAutomaton,
         )
     }
 

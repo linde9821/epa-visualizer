@@ -37,6 +37,15 @@ fun LayoutConfigUI(
                 "enabled" -> config.render
                 else -> throw IllegalArgumentException("Unknown parameter $paramName")
             }
+
+            is LayoutConfig.TimeRadialWalker ->  when (paramName) {
+                "layerBaseUnit" -> config.layerBaseUnit
+                "margin" -> config.margin
+                "rotation" -> config.rotation
+                "enabled" -> config.render
+                "minCycleTimeDifference" -> config.minCycleTimeDifference
+                else -> throw IllegalArgumentException("Unknown parameter $paramName")
+            }
         }
 
         when (info) {
