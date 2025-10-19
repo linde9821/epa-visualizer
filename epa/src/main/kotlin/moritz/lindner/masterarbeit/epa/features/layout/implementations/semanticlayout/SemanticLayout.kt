@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.semantic
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
@@ -16,7 +17,7 @@ import kotlin.math.sqrt
 class SemanticLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
     private val config: SemanticLayoutConfig = SemanticLayoutConfig()
-) : TreeLayout {
+) : Layout {
 
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
@@ -26,7 +27,6 @@ class SemanticLayout(
 
 
     override fun build(
-        tree: EPATreeNode,
         progressCallback: EpaProgressCallback?
     ) {
         progressCallback?.onProgress(0, 7, "Starting semantic layout...")
@@ -73,8 +73,6 @@ class SemanticLayout(
                 NodePlacement(coordinate, state)
             }
     }
-
-    override fun getMaxDepth(): Int = maxDepth
 
     override fun isBuilt(): Boolean = isBuiltFlag
 

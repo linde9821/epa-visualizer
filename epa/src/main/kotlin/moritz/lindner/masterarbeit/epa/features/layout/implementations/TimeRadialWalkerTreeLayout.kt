@@ -37,11 +37,12 @@ import kotlin.math.sin
  *    full circle to avoid overlap or crowding.
  */
 class TimeRadialWalkerTreeLayout(
-    val multiplyer: Float = 1.0f,
-    val margin: Float,
-    val rotation: Float,
-    val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    val minCycleTimeDifference: Float,
+    private val tree: EPATreeNode,
+    private val multiplyer: Float = 1.0f,
+    private val margin: Float,
+    private val rotation: Float,
+    private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+    private val minCycleTimeDifference: Float,
     ) : RadialTreeLayout {
     private val expectedCapacity = extendedPrefixAutomaton.states.size
 
@@ -341,7 +342,7 @@ class TimeRadialWalkerTreeLayout(
         }
     }
 
-    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
+    override fun build(progressCallback: EpaProgressCallback?) {
         logger.debug { "Building tree layout" }
         progressCallback?.onProgress(0, 5, "Build Layout: Init")
         // for all nodes v of T

@@ -26,6 +26,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
@@ -105,7 +106,7 @@ class EpaStateManager(
     private val _drawAtlasByTabId = MutableStateFlow<Map<String, DrawAtlas>>(emptyMap())
     val drawAtlasByTabId = _drawAtlasByTabId.asStateFlow()
 
-    private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<TreeLayout, LayoutConfig>>>(emptyMap())
+    private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<Layout, LayoutConfig>>>(emptyMap())
     val layoutAndConfigByTabId = _layoutAndConfigByTabId.asStateFlow()
 
     private val _statisticsByTabId = MutableStateFlow<Map<String, Statistics<Long>>>(emptyMap())
@@ -140,7 +141,7 @@ class EpaStateManager(
 
             val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
 
-            DetailComparison(tree, drawAtlas)
+//            DetailComparison(tree, drawAtlas)
         }
     }
 

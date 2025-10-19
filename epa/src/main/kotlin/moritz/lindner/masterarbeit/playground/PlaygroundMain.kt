@@ -53,8 +53,6 @@ fun main() {
         epa
     )
 
-    val treeVisitor = EpaToTree<Long>(callback)
-    epa.acceptDepthFirst(treeVisitor)
 
-    val layout = semanticLayout.build(treeVisitor.root)
+    val layout = semanticLayout.build()
 }

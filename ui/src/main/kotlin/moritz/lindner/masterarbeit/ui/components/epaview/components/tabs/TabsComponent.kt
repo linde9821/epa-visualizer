@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.LayoutCanvasRenderer
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -111,32 +113,42 @@ fun TabsComponent(
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             if (currentLayoutAndConfig.first.isBuilt()) {
-                                LayoutCanvasRenderer(
-                                    treeLayout = currentLayoutAndConfig.first,
-                                    stateLabels = currentStateLabels,
-                                    drawAtlas = currentDrawAtlas,
-                                    onStateHover = {},
-                                    onRightClick = { state ->
-                                        if (state != null) {
-                                            tabStateManager.setSelectedStateForCurrentTab(state)
-                                            epaStateManager.highlightPathFromRootForState(currentTab.id, state)
-                                        }
-                                    },
-                                    onLeftClick = { state ->
-                                        val currentSelected = tabStateManager.getSelectedTabForCurrentTab()
-                                        if (state != null && currentSelected != null) {
-                                            epaStateManager.openStateComparisonWindow(
-                                                currentEpa,
-                                                drawAtlasByTabId[currentTab.id]!!,
-                                                currentSelected,
-                                                state
-                                            )
-                                        }
-                                    },
-                                    tabState = currentTab,
-                                    highlightingAtlas = currentHighlightingAtlas,
-                                    animationState = animationState
-                                )
+                                val layout = currentLayoutAndConfig.first
+
+                                if (layout is TreeLayout) {
+                                    TreeLayoutCanvasRenderer(
+                                        treeLayout = layout,
+                                        stateLabels = currentStateLabels,
+                                        drawAtlas = currentDrawAtlas,
+                                        onStateHover = {},
+                                        onRightClick = { state ->
+                                            if (state != null) {
+                                                tabStateManager.setSelectedStateForCurrentTab(state)
+                                                epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                                            }
+                                        },
+                                        onLeftClick = { state ->
+                                            val currentSelected = tabStateManager.getSelectedTabForCurrentTab()
+                                            if (state != null && currentSelected != null) {
+                                                epaStateManager.openStateComparisonWindow(
+                                                    currentEpa,
+                                                    drawAtlasByTabId[currentTab.id]!!,
+                                                    currentSelected,
+                                                    state
+                                                )
+                                            }
+                                        },
+                                        tabState = currentTab,
+                                        highlightingAtlas = currentHighlightingAtlas,
+                                        animationState = animationState
+                                    )
+                                } else {
+                                    LayoutCanvasRenderer(
+                                        layout = layout,
+                                        stateLabels = currentStateLabels,
+                                        drawAtlas = currentDrawAtlas,
+                                    )
+                                }
                             } else {
                                 Text("Rendering is disabled")
                             }

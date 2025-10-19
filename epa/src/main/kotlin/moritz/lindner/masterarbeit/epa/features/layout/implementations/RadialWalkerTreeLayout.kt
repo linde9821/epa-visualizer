@@ -35,9 +35,10 @@ import kotlin.math.sin
  *    full circle to avoid overlap or crowding.
  */
 class RadialWalkerTreeLayout(
-    val layerSpace: Float,
-    val margin: Float,
-    val rotation: Float,
+    private val tree: EPATreeNode,
+    private val layerSpace: Float,
+    private val margin: Float,
+    private val rotation: Float,
     expectedCapacity: Int = 10000,
 ) : RadialTreeLayout {
     private val logger = KotlinLogging.logger {}
@@ -302,7 +303,7 @@ class RadialWalkerTreeLayout(
         }
     }
 
-    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
+    override fun build(progressCallback: EpaProgressCallback?) {
         logger.debug { "Building tree layout" }
         progressCallback?.onProgress(0, 5, "Build Layout: Init")
         // for all nodes v of T

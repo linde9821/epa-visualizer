@@ -32,6 +32,7 @@ import kotlin.math.min
 class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,
+    private val tree: EPATreeNode,
     expectedCapacity: Int = 10000,
 ) : TreeLayout {
     private val logger = KotlinLogging.logger {}
@@ -288,7 +289,7 @@ class WalkerTreeLayout(
         }
     }
 
-    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
+    override fun build(progressCallback: EpaProgressCallback?) {
         logger.debug { "Building tree layout" }
         // for all nodes v of T
         progressCallback?.onProgress(0, 4, "Build Layout: Init")

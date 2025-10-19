@@ -29,6 +29,7 @@ import kotlin.math.sin
  *    internal maps.
  */
 class DirectAngularPlacementTreeLayout(
+    private val tree: EPATreeNode,
     private val layerSpace: Float,
     private val rotation: Float,
     expectedCapacity: Int = 10000,
@@ -39,7 +40,7 @@ class DirectAngularPlacementTreeLayout(
     private var isBuilt = false
     private var maxDepth = 0
 
-    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
+    override fun build(progressCallback: EpaProgressCallback?) {
         progressCallback?.onProgress(0, 1, "Build Layout")
         assignAngles(tree, 0f, 2f * PI.toFloat())
 

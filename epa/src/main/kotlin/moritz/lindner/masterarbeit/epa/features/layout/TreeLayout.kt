@@ -7,24 +7,21 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 
-// TODO: add ability to rotate coordinates after creation to avoid expensive recalculation
-/**
- * Defines a layout strategy for positioning nodes in a tree structure
- * derived from an EPA.
- *
- * Implementations of this interface compute and provide access to spatial
- * information (e.g., coordinates) for visualizing or analyzing an
- * [EPATreeNode]-based structure.
- */
-interface TreeLayout : Iterable<NodePlacement> {
+interface Layout: Iterable<NodePlacement>  {
+
     /**
      * Computes and assigns layout coordinates to each node in the tree.
      *
      * Must be called before querying layout-related data.
-     *
-     * @param tree The root node of the tree to layout.
      */
-    fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback? = null)
+    fun build(progressCallback: EpaProgressCallback? = null)
+
+    /**
+     * Indicates whether [build] has been successfully called.
+     *
+     * @return true if layout has been computed, false otherwise.
+     */
+    fun isBuilt(): Boolean
 
     /**
      * Returns the 2D coordinate for the given [State] in the tree.
@@ -44,7 +41,18 @@ interface TreeLayout : Iterable<NodePlacement> {
      * @return A list of [NodePlacement] for matching nodes.
      */
     fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement>
+}
 
+// TODO: add ability to rotate coordinates after creation to avoid expensive recalculation
+/**
+ * Defines a layout strategy for positioning nodes in a tree structure
+ * derived from an EPA.
+ *
+ * Implementations of this interface compute and provide access to spatial
+ * information (e.g., coordinates) for visualizing or analyzing an
+ * [EPATreeNode]-based structure.
+ */
+interface TreeLayout : Layout {
     /**
      * Returns the maximum depth (i.e., longest path from root) of the laid-out
      * tree.
@@ -52,11 +60,4 @@ interface TreeLayout : Iterable<NodePlacement> {
      * @return The maximum depth as an integer.
      */
     fun getMaxDepth(): Int
-
-    /**
-     * Indicates whether [build] has been successfully called.
-     *
-     * @return true if layout has been computed, false otherwise.
-     */
-    fun isBuilt(): Boolean
 }

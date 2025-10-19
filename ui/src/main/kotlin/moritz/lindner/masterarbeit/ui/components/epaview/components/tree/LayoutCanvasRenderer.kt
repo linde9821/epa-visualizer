@@ -29,17 +29,20 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.SemanticLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawDepthCircles
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawNodes
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.drawTokensWithSpreading
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.findNodeAt
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.getControlPoints
@@ -59,9 +62,91 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LayoutCanvasRenderer(
+    layout: Layout,
+    stateLabels: StateLabels,
+    drawAtlas: DrawAtlas,
+) {
+    var offset by remember() { mutableStateOf(Offset.Zero) }
+    var scale by remember() { mutableFloatStateOf(1f) }
+    var canvasSize by remember() { mutableStateOf(IntSize.Zero) }
+
+    val canvasModifier = Modifier
+        .background(Color.White)
+        .onSizeChanged { canvasSize = it }
+        .fillMaxSize()
+        .pointerInput(Unit) {
+            detectTransformGestures { centroid, pan, zoom, _ ->
+                scale *= zoom
+                offset += (centroid - offset) * (1f - zoom) + pan
+            }
+        }.pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+
+                    if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
+                        val cursorPosition = event.changes.first().position
+
+                        val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
+                        val newScale = (scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val worldPosBefore = screenToWorld(cursorPosition, offset, scale)
+
+                        scale = newScale
+                        offset = cursorPosition - worldPosBefore * scale
+                    }
+                }
+            }
+        }.clipToBounds()
+
+    Canvas(modifier = canvasModifier) {
+        withTransform({
+            translate(offset.x, offset.y)
+            scale(
+                scaleX = scale,
+                scaleY = scale,
+                pivot = Offset.Zero,
+            )
+        }) {
+            try {
+                drawIntoCanvas { canvas ->
+                    val visibleNodes = layout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
+                    when (layout) {
+                        is SemanticLayout -> {
+                            visibleNodes.forEach { (coordinate, state) ->
+                                val entry = drawAtlas.getState(state)
+                                val cx = coordinate.x
+                                val cy = -coordinate.y
+
+                                canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
+
+//                                if (entry.size * scale >= labelThreshold) {
+//                                    val label = stateLabels.getLabelForState(state)
+//                                    canvas.nativeCanvas.drawImage(
+//                                        label,
+//                                        cx + entry.size + 5f,
+//                                        cy - label.height / 2f,
+//                                    )
+//                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                logger.error(e) { "error while drawing: $e" }
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun TreeLayoutCanvasRenderer(
     treeLayout: TreeLayout,
     stateLabels: StateLabels,
     drawAtlas: DrawAtlas,
@@ -164,7 +249,7 @@ fun LayoutCanvasRenderer(
         }) {
             try {
                 val visibleNodes = treeLayout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
-                when(treeLayout) {
+                when (treeLayout) {
                     is RadialWalkerTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
                         drawTreeWithNodesAndEdges(
@@ -178,6 +263,7 @@ fun LayoutCanvasRenderer(
                             animationState
                         )
                     }
+
                     is DirectAngularPlacementTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
                         drawTreeWithNodesAndEdges(
@@ -191,6 +277,7 @@ fun LayoutCanvasRenderer(
                             animationState
                         )
                     }
+
                     is TimeRadialWalkerTreeLayout -> {
                         treeLayout.forEach { node ->
                             val radius = sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2))
@@ -214,6 +301,7 @@ fun LayoutCanvasRenderer(
                             animationState
                         )
                     }
+
                     is WalkerTreeLayout -> {
                         drawTreeWithNodesAndEdges(
                             drawAtlas,
@@ -282,26 +370,16 @@ private fun DrawScope.drawTreeWithNodesAndEdges(
         val labelThreshold = drawAtlas.stateSizeUntilLabelIsDrawn
 
         // Draw nodes
-        visibleNodes.forEach { (coordinate, state) ->
-            val entry = drawAtlas.getState(state)
-            val cx = coordinate.x
-            val cy = -coordinate.y
-
-            if (highlightingAtlas.highlightedStates.contains(state)) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, highlightedPaint)
-            }
-
-            canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
-
-            if (entry.size * scale >= labelThreshold) {
-                val label = stateLabels.getLabelForState(state)
-                canvas.nativeCanvas.drawImage(
-                    label,
-                    cx + entry.size + 5f,
-                    cy - label.height / 2f,
-                )
-            }
-        }
+        drawNodes(
+            visibleNodes,
+            drawAtlas,
+            highlightingAtlas,
+            canvas,
+            highlightedPaint,
+            scale,
+            labelThreshold,
+            stateLabels
+        )
 
         // draw tokens
         try {
@@ -326,7 +404,41 @@ private fun DrawScope.drawTreeWithNodesAndEdges(
     }
 }
 
+
 object TreeCanvas {
+
+    fun drawNodes(
+        visibleNodes: List<NodePlacement>,
+        drawAtlas: DrawAtlas,
+        highlightingAtlas: HighlightingAtlas,
+        canvas: Canvas,
+        highlightedPaint: Paint,
+        scale: Float,
+        labelThreshold: Float,
+        stateLabels: StateLabels
+    ) {
+        visibleNodes.forEach { (coordinate, state) ->
+            val entry = drawAtlas.getState(state)
+            val cx = coordinate.x
+            val cy = -coordinate.y
+
+            if (highlightingAtlas.highlightedStates.contains(state)) {
+                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, highlightedPaint)
+            }
+
+            canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
+
+            if (entry.size * scale >= labelThreshold) {
+                val label = stateLabels.getLabelForState(state)
+                canvas.nativeCanvas.drawImage(
+                    label,
+                    cx + entry.size + 5f,
+                    cy - label.height / 2f,
+                )
+            }
+        }
+    }
+
 
     fun drawTokensWithSpreading(
         animationState: AnimationState,
