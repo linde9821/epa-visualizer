@@ -28,15 +28,15 @@ class SemanticLayout(
         progressCallback?.onProgress(0, 7, "Starting semantic layout...")
 
         progressCallback?.onProgress(1, 7, "Creating graph embeddings...")
-//        val graphEmbeddings = createGraphEmbeddings()
+        val graphEmbeddings = createGraphEmbeddings()
 
         val featureEmbeddings = createFeatureEmbeddings(progressCallback)
 
         progressCallback?.onProgress(3, 7, "Combining embeddings...")
-//        val combinedEmbeddings = combineEmbeddings(graphEmbeddings, featureEmbeddings)
+        val combinedEmbeddings = combineEmbeddings(graphEmbeddings, featureEmbeddings)
 
         progressCallback?.onProgress(4, 7, "Reducing dimensions...")
-        val coordinates2D = reduceDimensions(featureEmbeddings)
+        val coordinates2D = reduceDimensions(combinedEmbeddings)
 
         val clusters: Map<State, Int> = if (config.enableClustering) {
             //performClustering(combinedEmbeddings)

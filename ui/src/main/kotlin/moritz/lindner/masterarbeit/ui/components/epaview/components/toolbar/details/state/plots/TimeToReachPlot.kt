@@ -35,6 +35,7 @@ fun TimeToReachPlot(
     val epaService = EpaService<Long>()
     val traces = epaService.getTracesByState(extendedPrefixAutomaton, state)
 
+    TODO("fix this")
     val timeToReachData = traces.map { trace ->
         val first = trace.first()
         val atState = trace.first { event -> event in sequence }
