@@ -52,6 +52,7 @@ fun SidePanelContent(
         ) {
             LayoutUi(
                 tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager
             )
         }
 
