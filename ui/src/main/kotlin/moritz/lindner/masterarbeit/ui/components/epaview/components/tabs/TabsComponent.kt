@@ -19,6 +19,7 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.LayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeLayoutCanvasRenderer
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -59,6 +60,7 @@ fun TabsComponent(
     val currentHighlightingAtlas = activeTabId?.let { highlightingByTabId[it] }
 
     val interactionSource = remember { MutableInteractionSource() }
+    val canvasState = rememberCanvasState()
 
     val tabs =
         remember(tabsState, activeTabId) {
@@ -140,13 +142,14 @@ fun TabsComponent(
                                         },
                                         tabState = currentTab,
                                         highlightingAtlas = currentHighlightingAtlas,
-                                        animationState = animationState
+                                        animationState = animationState,
+                                        canvasState = canvasState,
                                     )
                                 } else {
                                     LayoutCanvasRenderer(
                                         layout = layout,
-                                        stateLabels = currentStateLabels,
                                         drawAtlas = currentDrawAtlas,
+                                        canvasState = canvasState
                                     )
                                 }
                             } else {

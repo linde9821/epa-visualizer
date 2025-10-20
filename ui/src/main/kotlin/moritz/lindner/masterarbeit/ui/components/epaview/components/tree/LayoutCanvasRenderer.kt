@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,26 +63,29 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+@Stable
+class CanvasState {
+    var offset by mutableStateOf(Offset.Zero)
+    var scale by mutableFloatStateOf(1f)
+}
+
+@Composable
+fun rememberCanvasState() = remember { CanvasState() }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LayoutCanvasRenderer(
     layout: Layout,
-    stateLabels: StateLabels,
-    drawAtlas: DrawAtlas,
+    canvasState: CanvasState,
+    drawAtlas: DrawAtlas
 ) {
-    var offset by remember() { mutableStateOf(Offset.Zero) }
-    var scale by remember() { mutableFloatStateOf(1f) }
-    var canvasSize by remember() { mutableStateOf(IntSize.Zero) }
-
     val canvasModifier = Modifier
         .background(Color.White)
-        .onSizeChanged { canvasSize = it }
         .fillMaxSize()
         .pointerInput(Unit) {
             detectTransformGestures { centroid, pan, zoom, _ ->
-                scale *= zoom
-                offset += (centroid - offset) * (1f - zoom) + pan
+                canvasState.scale *= zoom
+                canvasState.offset += (centroid - canvasState.offset) * (1f - zoom) + pan
             }
         }.pointerInput(Unit) {
             awaitPointerEventScope {
@@ -93,11 +97,11 @@ fun LayoutCanvasRenderer(
                         val cursorPosition = event.changes.first().position
 
                         val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
-                        val newScale = (scale * zoomFactor).coerceIn(0.01f, 14f)
-                        val worldPosBefore = screenToWorld(cursorPosition, offset, scale)
+                        val newScale = (canvasState.scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val worldPosBefore = screenToWorld(cursorPosition, canvasState.offset, canvasState.scale)
 
-                        scale = newScale
-                        offset = cursorPosition - worldPosBefore * scale
+                        canvasState.scale = newScale
+                        canvasState.offset = cursorPosition - worldPosBefore * canvasState.scale
                     }
                 }
             }
@@ -105,10 +109,10 @@ fun LayoutCanvasRenderer(
 
     Canvas(modifier = canvasModifier) {
         withTransform({
-            translate(offset.x, offset.y)
+            translate(canvasState.offset.x, canvasState.offset.y)
             scale(
-                scaleX = scale,
-                scaleY = scale,
+                scaleX = canvasState.scale,
+                scaleY = canvasState.scale,
                 pivot = Offset.Zero,
             )
         }) {
@@ -122,15 +126,6 @@ fun LayoutCanvasRenderer(
                                 val cy = -coordinate.y
 
                                 canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
-
-//                                if (entry.size * scale >= labelThreshold) {
-//                                    val label = stateLabels.getLabelForState(state)
-//                                    canvas.nativeCanvas.drawImage(
-//                                        label,
-//                                        cx + entry.size + 5f,
-//                                        cy - label.height / 2f,
-//                                    )
-//                                }
                             }
                         }
                     }
@@ -154,11 +149,10 @@ fun TreeLayoutCanvasRenderer(
     onLeftClick: (State?) -> Unit,
     tabState: TabState,
     highlightingAtlas: HighlightingAtlas,
-    animationState: AnimationState
+    animationState: AnimationState,
+    canvasState: CanvasState,
 ) {
-    var offset by remember() { mutableStateOf(Offset.Zero) }
-    var scale by remember() { mutableFloatStateOf(1f) }
-    var canvasSize by remember() { mutableStateOf(IntSize.Zero) }
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
 
     var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
     var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
@@ -168,7 +162,7 @@ fun TreeLayoutCanvasRenderer(
             val targetNode = treeLayout.getCoordinate(tabState.locateState)
 
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
-            offset = screenCenter - targetNode.toOffset() * scale
+            canvasState.offset = screenCenter - targetNode.toOffset() * canvasState.scale
         }
     }
 
@@ -178,8 +172,8 @@ fun TreeLayoutCanvasRenderer(
         .fillMaxSize()
         .pointerInput(Unit) {
             detectTransformGestures { centroid, pan, zoom, _ ->
-                scale *= zoom
-                offset += (centroid - offset) * (1f - zoom) + pan
+                canvasState.scale *= zoom
+                canvasState.offset += (centroid - canvasState.offset) * (1f - zoom) + pan
             }
         }.pointerInput(Unit) {
             awaitPointerEventScope {
@@ -191,11 +185,11 @@ fun TreeLayoutCanvasRenderer(
                         val cursorPosition = event.changes.first().position
 
                         val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
-                        val newScale = (scale * zoomFactor).coerceIn(0.01f, 14f)
-                        val worldPosBefore = screenToWorld(cursorPosition, offset, scale)
+                        val newScale = (canvasState.scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val worldPosBefore = screenToWorld(cursorPosition, canvasState.offset, canvasState.scale)
 
-                        scale = newScale
-                        offset = cursorPosition - worldPosBefore * scale
+                        canvasState.scale = newScale
+                        canvasState.offset = cursorPosition - worldPosBefore * canvasState.scale
                     }
                 }
             }
@@ -209,7 +203,7 @@ fun TreeLayoutCanvasRenderer(
                         val screenPosition = event.changes.first().position
 
                         // Update hovered node if it changed
-                        val newNode = findNodeAt(treeLayout, screenToWorld(screenPosition, offset, scale))
+                        val newNode = findNodeAt(treeLayout, screenToWorld(screenPosition, canvasState.offset, canvasState.scale))
 
                         if (newNode != hoveredNode) {
                             hoveredNode = newNode
@@ -239,15 +233,15 @@ fun TreeLayoutCanvasRenderer(
 
     Canvas(modifier = canvasModifier) {
         withTransform({
-            translate(offset.x, offset.y)
+            translate(canvasState.offset.x, canvasState.offset.y)
             scale(
-                scaleX = scale,
-                scaleY = scale,
+                scaleX = canvasState.scale,
+                scaleY = canvasState.scale,
                 pivot = Offset.Zero,
             )
         }) {
             try {
-                val visibleNodes = treeLayout.getCoordinatesInRectangle(rectangle = computeBoundingBox(offset, scale))
+                val visibleNodes = treeLayout.getCoordinatesInRectangle(rectangle = computeBoundingBox(canvasState.offset, canvasState.scale))
                 when (treeLayout) {
                     is RadialWalkerTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
@@ -257,7 +251,7 @@ fun TreeLayoutCanvasRenderer(
                             treeLayout,
                             highlightingAtlas,
                             tabState,
-                            scale,
+                            canvasState.scale,
                             stateLabels,
                             animationState
                         )
@@ -271,7 +265,7 @@ fun TreeLayoutCanvasRenderer(
                             treeLayout,
                             highlightingAtlas,
                             tabState,
-                            scale,
+                            canvasState.scale,
                             stateLabels,
                             animationState
                         )
@@ -295,7 +289,7 @@ fun TreeLayoutCanvasRenderer(
                             treeLayout,
                             highlightingAtlas,
                             tabState,
-                            scale,
+                            canvasState.scale,
                             stateLabels,
                             animationState
                         )
@@ -308,7 +302,7 @@ fun TreeLayoutCanvasRenderer(
                             treeLayout,
                             highlightingAtlas,
                             tabState,
-                            scale,
+                            canvasState.scale,
                             stateLabels,
                             animationState
                         )
