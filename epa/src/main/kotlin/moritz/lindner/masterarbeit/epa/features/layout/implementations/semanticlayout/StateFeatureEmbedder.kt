@@ -14,11 +14,10 @@ class StateFeatureEmbedder(
 ) {
     private val epaService = EpaService<Long>()
 
-    class TransitionCounter<T : Comparable<T>>(
+    class OutgoingTransitionCounter<T : Comparable<T>>(
         private val progressCallback: EpaProgressCallback? = null
     ) : AutomatonVisitor<T> {
 
-        val incommingByState = mutableMapOf<State, Int>()
         val outcommingByState = mutableMapOf<State, Int>()
 
         override fun visit(
@@ -27,7 +26,6 @@ class StateFeatureEmbedder(
             depth: Int
         ) {
             outcommingByState[transition.start] = outcommingByState.getOrDefault(transition.start, 0) + 1
-            incommingByState[transition.start] = incommingByState.getOrDefault(transition.end, 0) + 1
         }
 
         override fun onProgress(current: Long, total: Long) {
@@ -48,7 +46,7 @@ class StateFeatureEmbedder(
             progressCallback = progressCallback
         )
 
-        val counter = TransitionCounter<Long>(progressCallback)
+        val counter = OutgoingTransitionCounter<Long>(progressCallback)
         epa.acceptDepthFirst(counter)
 
         var c = 0
@@ -58,29 +56,30 @@ class StateFeatureEmbedder(
             progressCallback?.onProgress(c++, total, "feature embedding")
             val features = mutableListOf<Double>()
 
-            // Structural features
-            features.add(epaService.getDepth(state).toDouble())
-            features.add(counter.incommingByState[state]?.toDouble() ?: 0.0)
-            features.add(counter.outcommingByState[state]?.toDouble() ?: 0.0)
-
-            // EPA-specific features
-            features.add(epa.partition(state).toDouble())
-            features.add(epa.sequence(state).size.toDouble())
-            features.add(cycleTimeByState[state]!!.toDouble())
-
-            // Path features
-            val path = epaService.getPathFromRoot(state)
-            features.add(path.size.toDouble())
-
-            // Activity encoding (simplified one-hot)
-            val lastActivity = when (state) {
-                is State.PrefixState -> state.via
-                State.Root -> null
-            }
-
-            // might be larger than embedding size
-            allActivities.forEach { activity ->
-                features.add(if (activity == lastActivity) 1.0 else 0.0)
+            with(config) {
+                // Structural features
+                if (useDepthFeature) features.add(epaService.getDepth(state).toDouble())
+                if (useOutgoingTransitions) features.add(counter.outcommingByState[state]?.toDouble() ?: 0.0)
+                // EPA-specific features
+                if (usePartitionValue) features.add(epa.partition(state).toDouble())
+                if (useSequenceLength) features.add(epa.sequence(state).size.toDouble())
+                if (useCycleTime) features.add(cycleTimeByState[state]!!.toDouble())
+                // Path features
+                if (usePathLength) {
+                    val path = epaService.getPathFromRoot(state)
+                    features.add(path.size.toDouble())
+                }
+                if (useActivity) {
+                    // Activity encoding (simplified one-hot)
+                    val statesActivity = when (state) {
+                        is State.PrefixState -> state.via
+                        State.Root -> null
+                    }
+                    // might be larger than embedding size
+                    allActivities.forEach { activity ->
+                        features.add(if (activity == statesActivity) 1.0 else 0.0)
+                    }
+                }
             }
 
             // Pad or truncate to desired size

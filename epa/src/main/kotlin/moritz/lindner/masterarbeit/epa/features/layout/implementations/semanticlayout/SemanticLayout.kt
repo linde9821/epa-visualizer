@@ -8,7 +8,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
-import smile.clustering.DBSCAN
 import smile.manifold.umap
 import kotlin.math.sqrt
 
@@ -19,8 +18,6 @@ class SemanticLayout(
 
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
-    private val nodeClusters = mutableMapOf<State, Int>()
-    private val clusterBounds = mutableMapOf<Int, BoundingBox>()
 
     override fun build(
         progressCallback: EpaProgressCallback?
@@ -38,18 +35,11 @@ class SemanticLayout(
         progressCallback?.onProgress(4, 7, "Reducing dimensions...")
         val coordinates2D = reduceDimensions(combinedEmbeddings)
 
-        val clusters: Map<State, Int> = if (config.enableClustering) {
-            //performClustering(combinedEmbeddings)
-            emptyMap()
-        } else {
-            emptyMap()
-        }
-
         progressCallback?.onProgress(6, 7, "Resolving conflicts...")
-        val finalCoordinates = resolveConflicts(coordinates2D, clusters)
+        val finalCoordinates = resolveConflicts(coordinates2D)
 
         progressCallback?.onProgress(7, 7, "Finalizing layout...")
-        finalizeLayout(finalCoordinates, clusters)
+        finalizeLayout(finalCoordinates)
 
         isBuiltFlag = true
     }
@@ -81,13 +71,17 @@ class SemanticLayout(
     }
 
     private fun createGraphEmbeddings(): Map<State, DoubleArray> {
-        val embedder = GraphEmbedder(epa, config)
-        return embedder.computeEmbeddings()
+        return if (config.useGraphEmbedding) {
+            val embedder = GraphEmbedder(epa, config)
+            embedder.computeEmbeddings()
+        } else emptyMap()
     }
 
     private fun createFeatureEmbeddings(progressCallback: EpaProgressCallback?): Map<State, DoubleArray> {
-        val embedder = StateFeatureEmbedder(epa, config, progressCallback)
-        return embedder.computeEmbeddings()
+        return if (config.useFeatureEmedding) {
+            val embedder = StateFeatureEmbedder(epa, config, progressCallback)
+            embedder.computeEmbeddings()
+        } else emptyMap()
     }
 
     private fun combineEmbeddings(
@@ -101,7 +95,13 @@ class SemanticLayout(
             val normalizedGraph = normalize(graphEmb)
             val normalizedFeature = normalize(featureEmb)
 
-            normalizedGraph + normalizedFeature
+            if (config.useGraphEmbedding && config.useFeatureEmedding) {
+                normalizedGraph + normalizedFeature
+            } else if (config.useFeatureEmedding) {
+                normalizedFeature
+            } else {
+                normalizedGraph
+            }
         }
     }
 
@@ -124,10 +124,10 @@ class SemanticLayout(
 //            return handleSmallDataset(states, matrix)
         }
 
+        // TODO: add others
         val coordinates2D = when (config.reductionMethod) {
             ReductionMethod.UMAP -> computeUMAP(matrix)
         }
-
 
         return scaleToCanvas(states, coordinates2D)
     }
@@ -145,7 +145,6 @@ class SemanticLayout(
         states: List<State>,
         coords: Array<DoubleArray>
     ): Map<State, Coordinate> {
-        println("scale to canvas")
         // Find bounds
         val minX = coords.minOf { it[0] }.toFloat()
         val maxX = coords.maxOf { it[0] }.toFloat()
@@ -177,33 +176,13 @@ class SemanticLayout(
         }
     }
 
-    private fun performClustering(
-        embeddings: Map<State, DoubleArray>
-    ): Map<State, Int> {
-        val states = embeddings.keys.toList()
-        val matrix = states.map { embeddings[it]!! }.toTypedArray()
-
-        val dbscan = DBSCAN.fit(
-            matrix,
-            config.dbscanMinPts,
-            config.dbscanEpsilon
-        )
-
-        TODO()
-//        return states.zip(dbscan.y.toList()).toMap()
-    }
-
-
     private fun resolveConflicts(
         coordinates: Map<State, Coordinate>,
-        clusters: Map<State, Int>
     ): Map<State, Coordinate> {
-        println("resolve conflicts")
         var result = coordinates
 
-
         if (config.enableForceDirected) {
-            result = applyForceDirectedLayout(result, clusters)
+            result = applyForceDirectedLayout(result)
         }
 
         return resolveOverlaps(result)
@@ -211,13 +190,11 @@ class SemanticLayout(
 
     private fun applyForceDirectedLayout(
         coordinates: Map<State, Coordinate>,
-        clusters: Map<State, Int>
     ): Map<State, Coordinate> {
         val positions = coordinates.toMutableMap()
         val states = positions.keys.toList()
 
         repeat(config.iterations) {
-            println("iteration $it")
             val forces = mutableMapOf<State, Vector2D>()
 
             // Calculate repulsion forces
@@ -238,11 +215,12 @@ class SemanticLayout(
                             )
 
                             // Stronger repulsion between different clusters
-                            val clusterMultiplier = if (clusters[s1] != clusters[s2]) {
-                                2.0f
-                            } else {
-                                1.0f
-                            }
+                            val clusterMultiplier = 1.0f
+//                            val clusterMultiplier = if (clusters[s1] != clusters[s2]) {
+//                                2.0f
+//                            } else {
+//                                1.0f
+//                            }
 
                             force = force.add(repulsion.multiply(clusterMultiplier))
                         }
@@ -307,48 +285,19 @@ class SemanticLayout(
 
     private fun finalizeLayout(
         coordinates: Map<State, Coordinate>,
-        clusters: Map<State, Int>
+//        clusters: Map<State, Int>
     ) {
         // Store coordinates
         nodeCoordinates.clear()
         nodeCoordinates.putAll(coordinates)
 
         // Store clusters
-        nodeClusters.clear()
-        nodeClusters.putAll(clusters)
+//        nodeClusters.clear()
+//        nodeClusters.putAll(clusters)
 
         // Calculate cluster bounding boxes
-        if (clusters.isNotEmpty()) {
-            calculateClusterBounds(coordinates, clusters)
-        }
-    }
-
-    private fun calculateClusterBounds(
-        coordinates: Map<State, Coordinate>,
-        clusters: Map<State, Int>
-    ) {
-        clusterBounds.clear()
-
-        clusters.values.distinct().forEach { clusterId ->
-            val clusterStates = clusters.filter { it.value == clusterId }.keys
-
-            if (clusterStates.isNotEmpty()) {
-                val coords = clusterStates.mapNotNull { coordinates[it] }
-
-                if (coords.isNotEmpty()) {
-                    val minX = coords.minOf { it.x } - config.clusterPadding
-                    val maxX = coords.maxOf { it.x } + config.clusterPadding
-                    val minY = coords.minOf { it.y } - config.clusterPadding
-                    val maxY = coords.maxOf { it.y } + config.clusterPadding
-
-                    clusterBounds[clusterId] = BoundingBox(
-                        x = minX,
-                        y = minY,
-                        width = maxX - minX,
-                        height = maxY - minY
-                    )
-                }
-            }
-        }
+//        if (clusters.isNotEmpty()) {
+//            calculateClusterBounds(coordinates, clusters)
+//        }
     }
 }
