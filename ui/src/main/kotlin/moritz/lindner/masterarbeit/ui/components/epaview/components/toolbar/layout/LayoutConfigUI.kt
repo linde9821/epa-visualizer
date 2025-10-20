@@ -100,11 +100,19 @@ fun LayoutConfigUI(
                             Text("${info.name} (Int): $currentValue")
                             Slider(
                                 value = (currentValue as Int).toFloat(),
-                                onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value.toInt())) },
+                                onValueChange = { value ->
+                                    onConfigChange(
+                                        config.updateParameter(
+                                            paramName,
+                                            value.toInt()
+                                        )
+                                    )
+                                },
                                 valueRange = (info.min as Int).toFloat()..(info.max as Int).toFloat(),
                                 steps = info.step as Int
                             )
                         }
+
                         is Float -> {
                             Text("${info.name} (Float): ${"%.1f".format(currentValue)}")
                             Slider(

@@ -18,7 +18,7 @@ class ClusteringLayout(
     private val config: LayoutConfig.ClusteringLayoutConfig = LayoutConfig.ClusteringLayoutConfig()
 ) : Layout {
 
-    private val logger = KotlinLogging.logger {  }
+    private val logger = KotlinLogging.logger { }
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
 
@@ -188,7 +188,7 @@ class ClusteringLayout(
             result = applyForceDirectedLayout(result, progressCallback)
         }
 
-        if (config.useResolveOverlap){
+        if (config.useResolveOverlap) {
             result = resolveOverlaps(result, progressCallback)
         }
 

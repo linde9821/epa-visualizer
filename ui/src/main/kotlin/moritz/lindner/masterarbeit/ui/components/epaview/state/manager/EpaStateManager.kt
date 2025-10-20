@@ -233,8 +233,8 @@ class EpaStateManager(
                         buildHighlightingForTab(tab)
                         ensureActive()
                     }
-                } catch (e: CancellationException){
-                  logger.info { "canceling current tabs building" }
+                } catch (e: CancellationException) {
+                    logger.info { "canceling current tabs building" }
                 } catch (e: Exception) {
                     // TODO: move try catch into functions and set error for tabs accordingly
                     logger.error(e) { "Error while building state" }

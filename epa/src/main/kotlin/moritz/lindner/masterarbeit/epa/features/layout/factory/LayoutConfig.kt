@@ -173,7 +173,12 @@ sealed class LayoutConfig(val name: String) {
             // Force-directed parameters
             "useForceDirected" to ParameterInfo.BooleanParameterInfo("Use Force Directed"),
             "repulsionStrength" to ParameterInfo.NumberParameterInfo("Repulsion Strength", 10.0f, 500.0f, 10.0f),
-            "forceDirectedLayoutIterations" to ParameterInfo.NumberParameterInfo("Force Directed Iterations", 5, 100, 5),
+            "forceDirectedLayoutIterations" to ParameterInfo.NumberParameterInfo(
+                "Force Directed Iterations",
+                5,
+                100,
+                5
+            ),
 
             "useResolveOverlap" to ParameterInfo.BooleanParameterInfo("Use Resolve Overlap"),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")

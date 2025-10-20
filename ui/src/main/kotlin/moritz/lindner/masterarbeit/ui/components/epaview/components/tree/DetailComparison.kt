@@ -22,7 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvas.computeBoundingBox
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 
 @Composable
@@ -54,7 +54,7 @@ fun DetailComparison(
 
                         val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
                         val newScale = (scale * zoomFactor).coerceIn(0.01f, 14f)
-                        val worldPosBefore = TreeCanvas.screenToWorld(cursorPosition, offset, scale)
+                        val worldPosBefore = TreeCanvasRenderingHelper.screenToWorld(cursorPosition, offset, scale)
 
                         scale = newScale
                         offset = cursorPosition - worldPosBefore * scale

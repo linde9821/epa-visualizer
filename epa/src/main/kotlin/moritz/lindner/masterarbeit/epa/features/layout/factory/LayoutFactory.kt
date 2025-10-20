@@ -67,11 +67,12 @@ object LayoutFactory {
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
     fun createLayout(layoutConfig: LayoutConfig, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Layout {
-        return when(layoutConfig){
+        return when (layoutConfig) {
             is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
                 extendedPrefixAutomaton,
                 config = layoutConfig
             )
+
             else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }
     }
