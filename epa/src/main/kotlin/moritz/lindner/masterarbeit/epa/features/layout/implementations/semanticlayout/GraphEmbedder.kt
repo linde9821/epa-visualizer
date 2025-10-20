@@ -12,7 +12,7 @@ import org.deeplearning4j.graph.models.deepwalk.DeepWalk
 
 class GraphEmbedder(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.SemanticLayoutConfig,
+    private val config: LayoutConfig.ClusteringLayoutConfig,
     private val progressCallback: EpaProgressCallback?
 ) {
     fun computeEmbeddings(): Map<State, DoubleArray> {

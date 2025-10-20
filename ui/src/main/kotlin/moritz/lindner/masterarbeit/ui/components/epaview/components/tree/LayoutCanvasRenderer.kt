@@ -36,7 +36,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAng
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.SemanticLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.ClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -115,7 +115,7 @@ fun LayoutCanvasRenderer(
             try {
                 drawIntoCanvas { canvas ->
                     when (layout) {
-                        is SemanticLayout -> {
+                        is ClusteringLayout -> {
                             layout.forEach { (coordinate, state) ->
                                 val entry = drawAtlas.getState(state)
                                 val cx = coordinate.x

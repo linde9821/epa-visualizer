@@ -96,7 +96,7 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class SemanticLayoutConfig(
+    data class ClusteringLayoutConfig(
         // Graph embedding parameters
         val useGraphEmbedding: Boolean = false,
         val graphEmbeddingDims: Int = 16,
@@ -136,7 +136,7 @@ sealed class LayoutConfig(val name: String) {
         val useResolveOverlap: Boolean = true,
 
         override val render: Boolean = true,
-    ) : LayoutConfig("Semantic") {
+    ) : LayoutConfig("Clustering Layout") {
 
         override fun getParameters() = mapOf(
             // Graph embedding

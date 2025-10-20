@@ -10,7 +10,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 class StateFeatureEmbedder(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.SemanticLayoutConfig,
+    private val config: LayoutConfig.ClusteringLayoutConfig,
     private val progressCallback: EpaProgressCallback?
 ) {
     private val epaService = EpaService<Long>()

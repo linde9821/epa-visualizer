@@ -50,7 +50,7 @@ class LayoutService<T : Comparable<T>> {
         treeVisitor: EpaToTree<Long>
     ): Layout {
         return when (layoutConfig) {
-            is LayoutConfig.SemanticLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
+            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
             else -> {
                 LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
             }

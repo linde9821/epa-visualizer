@@ -13,9 +13,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import smile.manifold.umap
 import kotlin.math.sqrt
 
-class SemanticLayout(
+class ClusteringLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.SemanticLayoutConfig = LayoutConfig.SemanticLayoutConfig()
+    private val config: LayoutConfig.ClusteringLayoutConfig = LayoutConfig.ClusteringLayoutConfig()
 ) : Layout {
 
     private val logger = KotlinLogging.logger {  }

@@ -49,7 +49,7 @@ fun LayoutUi(
                     extendedPrefixAutomaton = currentEpa
                 )
             },
-            LayoutConfig.SemanticLayoutConfig()
+            LayoutConfig.ClusteringLayoutConfig()
         )
 
         var layoutSelectionIndex by remember(currentLayout) {

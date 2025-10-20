@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAng
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.SemanticLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.ClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
 
@@ -59,7 +59,7 @@ object LayoutFactory {
         }
 
         else -> {
-            TODO()
+            throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }
     }
 
@@ -68,11 +68,11 @@ object LayoutFactory {
 
     fun createLayout(layoutConfig: LayoutConfig, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Layout {
         return when(layoutConfig){
-            is LayoutConfig.SemanticLayoutConfig -> SemanticLayout(
+            is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
                 extendedPrefixAutomaton,
                 config = layoutConfig
             )
-            else -> TODO()
+            else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }
     }
 }

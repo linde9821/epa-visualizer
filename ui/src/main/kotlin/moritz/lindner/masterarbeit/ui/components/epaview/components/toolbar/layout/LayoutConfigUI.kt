@@ -50,7 +50,7 @@ fun LayoutConfigUI(
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.SemanticLayoutConfig -> when (paramName) {
+                is LayoutConfig.ClusteringLayoutConfig -> when (paramName) {
                     "useGraphEmbedding" -> config.useGraphEmbedding
                     "graphEmbeddingDims" -> config.graphEmbeddingDims
                     "walkLength" -> config.walkLength
