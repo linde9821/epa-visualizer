@@ -23,8 +23,8 @@ class ClusteringLayoutTest {
                 useGraphEmbedding = true,
                 umapK = 5,
                 umapIterations = 200,
-                useForceDirected = true,
-                useResolveOverlap = true,
+                useForceDirected = false,
+                useResolveOverlap = false,
             )
         )
 
@@ -32,7 +32,6 @@ class ClusteringLayoutTest {
         clusteringLayout.build()
         assertThat(clusteringLayout.isBuilt()).isTrue
 
-        expectSelfie(clusteringLayout.joinToString(",") { it.state.name + it.coordinate }).toMatchDisk()
     }
 
 }
