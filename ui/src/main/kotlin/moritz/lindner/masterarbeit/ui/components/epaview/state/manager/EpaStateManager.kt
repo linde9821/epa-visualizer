@@ -14,11 +14,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.api.LayoutService
@@ -171,6 +173,7 @@ class EpaStateManager(
 
     init {
         var rebuildJob: Job? = null
+        var reconstructLayoutJob: Job? = null
 
         scope.launch {
             projectFlow
@@ -208,24 +211,32 @@ class EpaStateManager(
         }
 
         scope.launch {
-            tabStateManager.tabs.collect { tabs ->
+            tabStateManager.tabs.collectLatest { tabs ->
                 try {
                     tabs.forEach { tab ->
                         // build epa
                         buildEpaForTab(tab)
+                        ensureActive()
                         // build layout
                         buildLayoutForTab(tab)
+                        ensureActive()
                         // build labels
                         buildStateLabelsForTab(tab)
+                        ensureActive()
                         // build draw atlas
                         buildDrawAtlasForTab(tab)
+                        ensureActive()
                         // build statistics
                         buildStatisticForTab(tab)
+                        ensureActive()
                         // build highlighting
                         buildHighlightingForTab(tab)
+                        ensureActive()
                     }
+                } catch (e: CancellationException){
+                  logger.info { "canceling current tabs building" }
                 } catch (e: Exception) {
-                    // TODO: move try catch into functions and set error for tab
+                    // TODO: move try catch into functions and set error for tabs accordingly
                     logger.error(e) { "Error while building state" }
                 }
             }
@@ -338,7 +349,7 @@ class EpaStateManager(
         }
     }
 
-    fun buildLayoutForTab(
+    suspend fun buildLayoutForTab(
         tabState: TabState
     ) {
         val layoutAndConfig = _layoutAndConfigByTabId.value[tabState.id]
@@ -357,6 +368,7 @@ class EpaStateManager(
 
         val epa = _epaByTabId.value[tabState.id]!!
         val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
+        yield()
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }

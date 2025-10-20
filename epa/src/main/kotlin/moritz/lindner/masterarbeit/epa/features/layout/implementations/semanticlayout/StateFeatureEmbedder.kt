@@ -5,11 +5,12 @@ import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 class StateFeatureEmbedder(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: SemanticLayoutConfig,
+    private val config: LayoutConfig.SemanticLayoutConfig,
     private val progressCallback: EpaProgressCallback?
 ) {
     private val epaService = EpaService<Long>()

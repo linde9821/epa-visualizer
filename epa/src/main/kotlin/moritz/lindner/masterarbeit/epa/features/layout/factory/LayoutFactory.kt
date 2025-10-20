@@ -65,10 +65,14 @@ object LayoutFactory {
 
     /** Converts degrees to radians. */
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
+
     fun createLayout(layoutConfig: LayoutConfig, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Layout {
-        val semanticLayout = SemanticLayout(
-            extendedPrefixAutomaton
-        )
-        return semanticLayout
+        return when(layoutConfig){
+            is LayoutConfig.SemanticLayoutConfig -> SemanticLayout(
+                extendedPrefixAutomaton,
+                config = layoutConfig
+            )
+            else -> TODO()
+        }
     }
 }

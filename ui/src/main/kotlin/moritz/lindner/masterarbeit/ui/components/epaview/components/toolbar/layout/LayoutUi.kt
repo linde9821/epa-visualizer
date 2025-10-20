@@ -49,7 +49,7 @@ fun LayoutUi(
                     extendedPrefixAutomaton = currentEpa
                 )
             },
-            LayoutConfig.Semantic(true)
+            LayoutConfig.SemanticLayoutConfig()
         )
 
         var layoutSelectionIndex by remember(currentLayout) {
@@ -65,7 +65,6 @@ fun LayoutUi(
             items = availableLayouts.map { it.name },
             selectedIndex = layoutSelectionIndex,
             onSelectedItemChange = { index ->
-                layoutSelectionIndex = index
                 val newConfig = availableLayouts[index]
                 tabStateManager.updateLayout(
                     activeTabId!!,
@@ -83,10 +82,12 @@ fun LayoutUi(
 
         GroupHeader("Settings for ${currentLayout?.name}:")
         LayoutConfigUI(currentLayout!!) { newConfig ->
-            tabStateManager.updateLayout(
-                activeTabId!!,
-                newConfig
-            )
+            if (newConfig != currentTab?.layoutConfig) {
+                tabStateManager.updateLayout(
+                    activeTabId!!,
+                    newConfig
+                )
+            }
         }
     }
 }

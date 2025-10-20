@@ -1,9 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -13,15 +15,17 @@ import kotlin.math.sqrt
 
 class SemanticLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: SemanticLayoutConfig = SemanticLayoutConfig()
+    private val config: LayoutConfig.SemanticLayoutConfig = LayoutConfig.SemanticLayoutConfig()
 ) : Layout {
 
+    private val logger = KotlinLogging.logger {  }
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
 
     override fun build(
         progressCallback: EpaProgressCallback?
     ) {
+        logger.info { "building $config" }
         progressCallback?.onProgress(0, 7, "Starting semantic layout...")
 
         progressCallback?.onProgress(1, 7, "Creating graph embeddings...")
@@ -78,7 +82,7 @@ class SemanticLayout(
     }
 
     private fun createFeatureEmbeddings(progressCallback: EpaProgressCallback?): Map<State, DoubleArray> {
-        return if (config.useFeatureEmedding) {
+        return if (config.useFeatureEmbedding) {
             val embedder = StateFeatureEmbedder(epa, config, progressCallback)
             embedder.computeEmbeddings()
         } else emptyMap()
@@ -95,9 +99,9 @@ class SemanticLayout(
             val normalizedGraph = normalize(graphEmb)
             val normalizedFeature = normalize(featureEmb)
 
-            if (config.useGraphEmbedding && config.useFeatureEmedding) {
+            if (config.useGraphEmbedding && config.useFeatureEmbedding) {
                 normalizedGraph + normalizedFeature
-            } else if (config.useFeatureEmedding) {
+            } else if (config.useFeatureEmbedding) {
                 normalizedFeature
             } else {
                 normalizedGraph
@@ -136,8 +140,8 @@ class SemanticLayout(
         return umap(
             data = matrix,
             d = 2,
-            k = 5, // todo: add to config
-            epochs = 200, // todo: add to config
+            k = config.umapK,
+            epochs = config.umapIterations,
         )
     }
 
@@ -171,8 +175,6 @@ class SemanticLayout(
             }
 
             state to Coordinate(x, y)
-        }.also {
-            println("scale to canvas finished")
         }
     }
 
@@ -182,11 +184,15 @@ class SemanticLayout(
     ): Map<State, Coordinate> {
         var result = coordinates
 
-        if (config.enableForceDirected) {
+        if (config.useForceDirected) {
             result = applyForceDirectedLayout(result, progressCallback)
         }
 
-        return resolveOverlaps(result, progressCallback)
+        if (config.useResolveOverlap){
+            result = resolveOverlaps(result, progressCallback)
+        }
+
+        return result
     }
 
     private fun applyForceDirectedLayout(

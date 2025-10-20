@@ -4,6 +4,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import org.deeplearning4j.graph.Graph
 import org.deeplearning4j.graph.api.Edge
 import org.deeplearning4j.graph.api.Vertex
@@ -11,7 +12,7 @@ import org.deeplearning4j.graph.models.deepwalk.DeepWalk
 
 class GraphEmbedder(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: SemanticLayoutConfig,
+    private val config: LayoutConfig.SemanticLayoutConfig,
     private val progressCallback: EpaProgressCallback?
 ) {
     fun computeEmbeddings(): Map<State, DoubleArray> {

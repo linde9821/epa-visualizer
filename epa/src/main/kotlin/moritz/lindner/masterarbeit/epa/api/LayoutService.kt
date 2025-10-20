@@ -35,7 +35,6 @@ class LayoutService<T : Comparable<T>> {
         val treeVisitor = EpaToTree<Long>(progressCallback)
         if (layoutConfig.render) {
             epa.acceptDepthFirst(treeVisitor)
-
             logger.info { "building tree layout" }
             val layout = createLayout(layoutConfig, epa, treeVisitor)
 
@@ -51,7 +50,7 @@ class LayoutService<T : Comparable<T>> {
         treeVisitor: EpaToTree<Long>
     ): Layout {
         return when (layoutConfig) {
-            is LayoutConfig.Semantic -> LayoutFactory.createLayout(layoutConfig, epa)
+            is LayoutConfig.SemanticLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
             else -> {
                 LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
             }
