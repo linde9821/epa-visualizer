@@ -44,7 +44,7 @@ fun ProjectUi(
 
     val windows by epaStateManager.windowManager.windows.collectAsState()
 
-    // TODO: incomplete feature. Continue in State Comparison 
+    // TODO: incomplete feature. Continue in State Comparison
     windows.forEach { windowState ->
         DecoratedWindow(
             onCloseRequest = { epaStateManager.windowManager.closeWindow(windowState) },
