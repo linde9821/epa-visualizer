@@ -19,7 +19,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.ClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawNodes
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawTokensWithSpreading

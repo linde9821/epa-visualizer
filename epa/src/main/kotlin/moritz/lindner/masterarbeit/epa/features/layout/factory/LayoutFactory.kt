@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAng
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.ClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
 

@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout.ReductionMethod
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ReductionMethod
 
 sealed class LayoutConfig(val name: String) {
 
