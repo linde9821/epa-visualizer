@@ -14,7 +14,6 @@ data class Rectangle(
     val topLeft: Coordinate,
     val bottomRight: Coordinate,
 ) {
-    // TODO Test this
     fun contains(coord: Coordinate): Boolean {
         val minX = minOf(topLeft.x, bottomRight.x)
         val maxX = maxOf(topLeft.x, bottomRight.x)
