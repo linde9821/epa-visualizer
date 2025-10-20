@@ -68,7 +68,7 @@ class TabStateManager {
         }
     }
 
-    fun getSelectedTabForCurrentTab(): State? {
+    fun getSelectedStateForCurrentTab(): State? {
         return _tabs.value.find { it.id == activeTabId.value }?.selectedState
     }
 

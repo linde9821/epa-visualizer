@@ -130,7 +130,7 @@ fun TabsComponent(
                                             }
                                         },
                                         onLeftClick = { state ->
-                                            val currentSelected = tabStateManager.getSelectedTabForCurrentTab()
+                                            val currentSelected = tabStateManager.getSelectedStateForCurrentTab()
                                             if (state != null && currentSelected != null) {
                                                 epaStateManager.openStateComparisonWindow(
                                                     currentEpa,

@@ -30,7 +30,7 @@ sealed class LayoutConfig(val name: String) {
     }
 
     data class TimeRadialWalker(
-        val multiplayer: Float = 1.0f,
+        val multiplayer: Float = 500.0f,
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         val minCycleTimeDifference: Float = 0.0f,
@@ -38,7 +38,7 @@ sealed class LayoutConfig(val name: String) {
         override val render: Boolean = true,
     ) : LayoutConfig("Radial Walker Time") {
         override fun getParameters() = mapOf(
-            "layerBaseUnit" to ParameterInfo.NumberParameterInfo("layerBaseUnit", 1.0f, 1000.0f, .5f),
+            "layerBaseUnit" to ParameterInfo.NumberParameterInfo("layerBaseUnit", 1.0f, 2000.0f, 10f),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "minCycleTimeDifference" to ParameterInfo.NumberParameterInfo("Min Cycletime change", 0.0f, 1.0f, .1f),
@@ -119,8 +119,8 @@ sealed class LayoutConfig(val name: String) {
 
         // Reduction parameters
         val reductionMethod: ReductionMethod = ReductionMethod.UMAP,
-        val umapK: Int = 5,
-        val umapIterations: Int = 200,
+        val umapK: Int = 10,
+        val umapIterations: Int = 250,
 
         // Layout parameters
         val canvasWidth: Float = 2000.0f,
@@ -129,11 +129,11 @@ sealed class LayoutConfig(val name: String) {
         val padding: Float = 50.0f,
 
         // Force-directed parameters
-        val useForceDirected: Boolean = true,
+        val useForceDirected: Boolean = false,
         val repulsionStrength: Float = 100.0f,
         val forceDirectedLayoutIterations: Int = 10,
 
-        val useResolveOverlap: Boolean = true,
+        val useResolveOverlap: Boolean = false,
 
         override val render: Boolean = true,
     ) : LayoutConfig("Clustering Layout") {
