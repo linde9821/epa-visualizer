@@ -20,7 +20,11 @@ class ClusteringLayoutTest {
         val clusteringLayout = ClusteringLayout(
             epa,
             config = LayoutConfig.ClusteringLayoutConfig(
-                useGraphEmbedding = true
+                useGraphEmbedding = true,
+                umapK = 5,
+                umapIterations = 200,
+                useForceDirected = true,
+                useResolveOverlap = true,
             )
         )
 
