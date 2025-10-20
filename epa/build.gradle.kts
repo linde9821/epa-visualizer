@@ -19,6 +19,17 @@ dependencies {
     implementation(libs.csv)
     implementation(libs.bundles.serialization)
 
+    implementation(libs.bundles.dl4j)
+    implementation(libs.bundles.smile)
+
+    val osName = System.getProperty("os.name").lowercase()
+    val osArch = System.getProperty("os.arch").lowercase()
+
+    if (osName.contains("mac") && osArch.contains("aarch64")) {
+        implementation("org.nd4j:nd4j-native:1.0.0-M2.1:macosx-arm64")
+        implementation("org.bytedeco:openblas:0.3.30-1.5.12:macosx-arm64")
+    }
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)

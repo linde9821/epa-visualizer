@@ -5,6 +5,8 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
+import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -27,24 +29,46 @@ import kotlin.math.sin
  * traditional Walker layout in Cartesian coordinates and then transforms
  * it into polar coordinates.
  *
- * @property layerSpace The distance between concentric layers (depth
+ * @property multiplyer The distance between concentric layers (depth
  *    levels).
  * @property expectedCapacity The expected number of nodes, used for
  *    internal data structure optimization.
  * @property margin The angular margin (in radians) subtracted from the
  *    full circle to avoid overlap or crowding.
  */
-class RadialWalkerTreeLayout(
+class TimeRadialWalkerTreeLayout(
     private val tree: EPATreeNode,
-    private val layerSpace: Float,
+    private val multiplyer: Float = 1.0f,
     private val margin: Float,
     private val rotation: Float,
-    expectedCapacity: Int = 10000,
+    private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+    private val minCycleTimeDifference: Float,
 ) : RadialTreeLayout {
+    private val expectedCapacity = extendedPrefixAutomaton.states.size
+
     private val logger = KotlinLogging.logger {}
 
     private val distance = 1.0f
+    val epaService = EpaService<Long>()
 
+    val normalizedCycleTimes = buildMap {
+        val cycleTimes = epaService.computeAllCycleTimes(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            minus = Long::minus,
+            average = { cycleTimes ->
+                if (cycleTimes.isEmpty()) {
+                    0f
+                } else cycleTimes.average().toFloat()
+            },
+        )
+
+        val max = cycleTimes.values.max()
+        val min = cycleTimes.values.min()
+
+        cycleTimes.forEach { (state, value) ->
+            put(state, (value - min) / (max - min))
+        }
+    }
     private val threads = HashMap<EPATreeNode, EPATreeNode?>(expectedCapacity)
     private val modifiers = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val ancestor = HashMap<EPATreeNode, EPATreeNode>(expectedCapacity)
@@ -270,13 +294,15 @@ class RadialWalkerTreeLayout(
     ) {
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
-        // let y(v) be the level of v
+        // let y(v) be the accumulated average cycle time of the path from v to root
+        val y = accumulatedCycleTimeFromRoot(v)
+
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)
-        maxDepth = max(maxDepth, v.depth)
+        maxDepth = max(maxDepth, y.toInt())
 
-        coordinateAndTreeNodeByState[v.state] = Coordinate(x, 0f) to v
+        coordinateAndTreeNodeByState[v.state] = Coordinate(x, y) to v
 
         // for all children w of v
         v.children().forEach { w ->
@@ -285,12 +311,25 @@ class RadialWalkerTreeLayout(
         }
     }
 
+    private fun accumulatedCycleTimeFromRoot(v: EPATreeNode): Float {
+        return when (v.state) {
+            is State.PrefixState -> {
+                (sum(v.state) + minCycleTimeDifference) * multiplyer
+            }
+
+            State.Root -> 0f
+        }
+    }
+
+    private fun sum(state: State.PrefixState): Float = epaService.getPathFromRoot(state).fold(0f) { acc, state ->
+        acc + normalizedCycleTimes[state]!!
+    }
+
     private fun convertToAngles() {
         coordinateAndTreeNodeByState.forEach { state, (cartesianCoordinate, node) ->
-            val (x, _) = cartesianCoordinate
+            val (x, radius) = cartesianCoordinate  // ← now use the stored radius
 
             val normalizedX = (x - xMin) / (xMax - xMin)
-            val radius = node.depth * layerSpace
             val theta = (normalizedX * usableAngle) + rotation
 
             nodePlacementByState[state] = NodePlacement(
@@ -347,7 +386,7 @@ class RadialWalkerTreeLayout(
             "No coodinate for $state present",
         )
 
-    override fun getCircleRadius(): Float = layerSpace
+    override fun getCircleRadius(): Float = multiplyer
 
     override fun isBuilt(): Boolean = isBuilt
 

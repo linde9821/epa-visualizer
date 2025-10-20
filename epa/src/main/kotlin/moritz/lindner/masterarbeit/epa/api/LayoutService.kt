@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.api
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
-import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
@@ -31,19 +31,30 @@ class LayoutService<T : Comparable<T>> {
         epa: ExtendedPrefixAutomaton<Long>,
         layoutConfig: LayoutConfig,
         progressCallback: EpaProgressCallback? = null
-    ): TreeLayout {
-        logger.info { "building tree" }
+    ): Layout {
+        val treeVisitor = EpaToTree<Long>(progressCallback)
         if (layoutConfig.render) {
-            val treeVisitor = EpaToTree<Long>(progressCallback)
             epa.acceptDepthFirst(treeVisitor)
-
             logger.info { "building tree layout" }
-            val layout = LayoutFactory.create(layoutConfig)
+            val layout = createLayout(layoutConfig, epa, treeVisitor)
 
-            layout.build(treeVisitor.root, progressCallback)
+            layout.build(progressCallback)
 
             return layout
-        } else return LayoutFactory.create(layoutConfig)
+        } else return createLayout(layoutConfig, epa, treeVisitor)
+    }
+
+    private fun createLayout(
+        layoutConfig: LayoutConfig,
+        epa: ExtendedPrefixAutomaton<Long>,
+        treeVisitor: EpaToTree<Long>
+    ): Layout {
+        return when (layoutConfig) {
+            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
+            else -> {
+                LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
+            }
+        }
     }
 }
 

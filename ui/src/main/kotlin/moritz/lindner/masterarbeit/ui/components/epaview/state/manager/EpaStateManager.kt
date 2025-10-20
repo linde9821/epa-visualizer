@@ -1,5 +1,10 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.state.manager
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -9,11 +14,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.api.LayoutService
@@ -21,7 +28,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
@@ -32,7 +39,51 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
+import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
+
+data class ManagedWindow(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String,
+    val windowState: WindowState = WindowState(),
+    val content: @Composable (ManagedWindow) -> Unit
+)
+
+class WindowManager {
+    private val _windows = MutableStateFlow<List<ManagedWindow>>(emptyList())
+    val windows = _windows.asStateFlow()
+
+    fun openWindow(
+        title: String,
+        windowState: WindowState = WindowState(),
+        content: @Composable (ManagedWindow) -> Unit
+    ): String {
+        val window = ManagedWindow(
+            title = title,
+            windowState = windowState,
+            content = content
+        )
+        _windows.update { it + window }
+        return window.id
+    }
+
+    fun closeWindow(windowId: String) {
+        _windows.update { it.filterNot { window -> window.id == windowId } }
+    }
+
+    fun closeWindow(window: ManagedWindow) {
+        closeWindow(window.id)
+    }
+
+    fun updateWindowTitle(windowId: String, newTitle: String) {
+        _windows.update { windows ->
+            windows.map { window ->
+                if (window.id == windowId) window.copy(title = newTitle)
+                else window
+            }
+        }
+    }
+}
 
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
@@ -55,7 +106,7 @@ class EpaStateManager(
     private val _drawAtlasByTabId = MutableStateFlow<Map<String, DrawAtlas>>(emptyMap())
     val drawAtlasByTabId = _drawAtlasByTabId.asStateFlow()
 
-    private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<TreeLayout, LayoutConfig>>>(emptyMap())
+    private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<Layout, LayoutConfig>>>(emptyMap())
     val layoutAndConfigByTabId = _layoutAndConfigByTabId.asStateFlow()
 
     private val _statisticsByTabId = MutableStateFlow<Map<String, Statistics<Long>>>(emptyMap())
@@ -66,8 +117,32 @@ class EpaStateManager(
     private val _animationState = MutableStateFlow(AnimationState.Empty)
     val animationState = _animationState.asStateFlow()
 
+    val windowManager = WindowManager()
+
     fun updateAnimation(animationState: AnimationState) {
         _animationState.value = animationState
+    }
+
+    fun openStateComparisonWindow(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        drawAtlas: DrawAtlas,
+        primaryState: State,
+        secondaryState: State,
+    ) {
+        windowManager.openWindow(
+            title = "State Comparison ${primaryState.name} -> ${secondaryState.name}",
+            windowState = WindowState(
+                width = 800.dp,
+                height = 600.dp,
+                position = WindowPosition(Alignment.Center)
+            )
+        ) { window ->
+            val subEpa = epaService.buildSubEpa(extendedPrefixAutomaton, listOf(primaryState, secondaryState))
+
+            val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
+
+//            DetailComparison(tree, drawAtlas)
+        }
     }
 
     fun removeAllForTab(tabId: String) {
@@ -98,6 +173,7 @@ class EpaStateManager(
 
     init {
         var rebuildJob: Job? = null
+        var reconstructLayoutJob: Job? = null
 
         scope.launch {
             projectFlow
@@ -135,24 +211,32 @@ class EpaStateManager(
         }
 
         scope.launch {
-            tabStateManager.tabs.collect { tabs ->
+            tabStateManager.tabs.collectLatest { tabs ->
                 try {
                     tabs.forEach { tab ->
                         // build epa
                         buildEpaForTab(tab)
+                        ensureActive()
                         // build layout
                         buildLayoutForTab(tab)
+                        ensureActive()
                         // build labels
                         buildStateLabelsForTab(tab)
+                        ensureActive()
                         // build draw atlas
                         buildDrawAtlasForTab(tab)
+                        ensureActive()
                         // build statistics
                         buildStatisticForTab(tab)
+                        ensureActive()
                         // build highlighting
                         buildHighlightingForTab(tab)
+                        ensureActive()
                     }
+                } catch (e: CancellationException) {
+                    logger.info { "canceling current tabs building" }
                 } catch (e: Exception) {
-                    // TODO: move try catch into functions and set error for tab
+                    // TODO: move try catch into functions and set error for tabs accordingly
                     logger.error(e) { "Error while building state" }
                 }
             }
@@ -265,7 +349,7 @@ class EpaStateManager(
         }
     }
 
-    fun buildLayoutForTab(
+    suspend fun buildLayoutForTab(
         tabState: TabState
     ) {
         val layoutAndConfig = _layoutAndConfigByTabId.value[tabState.id]
@@ -284,6 +368,7 @@ class EpaStateManager(
 
         val epa = _epaByTabId.value[tabState.id]!!
         val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
+        yield()
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }

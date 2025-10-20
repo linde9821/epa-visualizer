@@ -245,10 +245,11 @@ fun StateInfo(
         ClosableGroup(
             "Time to reach state from root"
         ) {
-            TimeToReachPlot(
-                state = selectedState,
-                extendedPrefixAutomaton = extendedPrefixAutomaton,
-            )
+            Text("Currently disabled")
+//            TimeToReachPlot(
+//                state = selectedState,
+//                extendedPrefixAutomaton = extendedPrefixAutomaton,
+//            )
         }
 
         ClosableGroup(

@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.epa.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -188,5 +189,19 @@ class EpaService<T : Comparable<T>> {
             .flatMap { (key, values) ->
                 values.map { value -> value to key }
             }.toMap()
+    }
+
+    fun buildSubEpa(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        states: List<State>
+    ): ExtendedPrefixAutomaton<T> {
+        val remainingStates = states.flatMap { state ->
+            getPathFromRoot(state)
+        }.toSet()
+
+        return EpaFromComponentsBuilder<T>()
+            .fromExisting(extendedPrefixAutomaton)
+            .setStates(remainingStates)
+            .build()
     }
 }

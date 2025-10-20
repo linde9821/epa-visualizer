@@ -32,6 +32,7 @@ import kotlin.math.min
 class WalkerTreeLayout(
     private val distance: Float,
     private val yDistance: Float,
+    private val tree: EPATreeNode,
     expectedCapacity: Int = 10000,
 ) : TreeLayout {
     private val logger = KotlinLogging.logger {}
@@ -42,6 +43,7 @@ class WalkerTreeLayout(
     private val prelim = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val shifts = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val changes = HashMap<EPATreeNode, Float>(expectedCapacity)
+    private val coordinateAndTreeNodeByState = HashMap<State, Pair<Coordinate, EPATreeNode>>(expectedCapacity)
     private val nodePlacementByState = HashMap<State, NodePlacement>(expectedCapacity)
     private var maxDepth = Int.MIN_VALUE
 
@@ -278,7 +280,7 @@ class WalkerTreeLayout(
         xMin = min(x, xMin)
         maxDepth = max(maxDepth, v.depth)
 
-        nodePlacementByState[v.state] = NodePlacement(Coordinate(x, y), v)
+        coordinateAndTreeNodeByState[v.state] = Coordinate(x, y) to v
 
         // for all children w of v
         v.children().forEach { w ->
@@ -287,7 +289,7 @@ class WalkerTreeLayout(
         }
     }
 
-    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
+    override fun build(progressCallback: EpaProgressCallback?) {
         logger.debug { "Building tree layout" }
         // for all nodes v of T
         progressCallback?.onProgress(0, 4, "Build Layout: Init")
@@ -312,6 +314,11 @@ class WalkerTreeLayout(
         progressCallback?.onProgress(2, 4, "Build Layout: Second walk")
         // SecondWalk(r, −prelim(r))
         secondWalk(r, -prelim[r]!!)
+
+        // move collection
+        coordinateAndTreeNodeByState.forEach { (state, pair) ->
+            nodePlacementByState[state] = NodePlacement(pair.first, pair.second.state)
+        }
 
         progressCallback?.onProgress(3, 4, "Build Layout: Build RTree")
         rTree = RTreeBuilder.build(nodePlacementByState.values.toList())

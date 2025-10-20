@@ -2,11 +2,11 @@ package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 sealed class ParameterInfo {
 
-    data class FloatParameterInfo(
+    data class NumberParameterInfo<T : Number>(
         val name: String,
-        val min: Float,
-        val max: Float,
-        val step: Float = 0.1f,
+        val min: T,
+        val max: T,
+        val step: T,
     ) : ParameterInfo()
 
     data class BooleanParameterInfo(

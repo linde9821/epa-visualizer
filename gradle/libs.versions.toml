@@ -24,6 +24,11 @@ kotlinx-serialization = "1.9.0"
 let-plot-compose = "3.0.0"
 let-plot-common = "4.7.3"
 let-plot-kernel = "4.11.2"
+deeplearning4j = "1.0.0-M2.1"
+smile = "4.4.2"
+javacpp = "1.5.12"
+openblas = "0.3.30-1.5.12"
+arpack = "3.9.1-1.5.12"
 
 [libraries]
 logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
@@ -49,12 +54,29 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 lets-plot-kotlin-kernel = { module = "org.jetbrains.lets-plot:lets-plot-kotlin-kernel", version.ref = "let-plot-kernel" }
 lets-plot-kotlin-common = { module = "org.jetbrains.lets-plot:lets-plot-common", version.ref = "let-plot-common" }
 lets-plot-kotlin-compose = { module = "org.jetbrains.lets-plot:lets-plot-compose", version.ref = "let-plot-compose" }
+deeplearning4j-core = { module = "org.deeplearning4j:deeplearning4j-core", version.ref = "deeplearning4j" }
+deeplearning4j-graph = { module = "org.deeplearning4j:deeplearning4j-graph", version.ref = "deeplearning4j" }
+nd4j-native-platform = { module = "org.nd4j:nd4j-native-platform", version.ref = "deeplearning4j" }
+smile-core = { module = "com.github.haifengl:smile-core", version.ref = "smile" }
+smile-kotlin = { module = "com.github.haifengl:smile-kotlin", version.ref = "smile" }
+javacpp-platform = { module = "org.bytedeco:javacpp-platform", version.ref = "javacpp" }
+openblas-platform = { module = "org.bytedeco:openblas-platform", version.ref = "openblas" }
+arpack-ng-platform = { module = "org.bytedeco:arpack-ng-platform", version.ref = "arpack" }
 
 [bundles]
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
 filekit = ["filekit-core", "filekit-dialogs-compose"]
 serialization = ["kotlinx-serialization-core", "kotlinx-serialization-json"]
 lets-plot = ["lets-plot-kotlin-kernel", "lets-plot-kotlin-common", "lets-plot-kotlin-compose"]
+dl4j = [
+    "deeplearning4j-core",
+    "nd4j-native-platform",
+    "deeplearning4j-graph",
+    "javacpp-platform",
+    "openblas-platform",
+    "arpack-ng-platform"
+]
+smile = ["smile-core", "smile-kotlin"]
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

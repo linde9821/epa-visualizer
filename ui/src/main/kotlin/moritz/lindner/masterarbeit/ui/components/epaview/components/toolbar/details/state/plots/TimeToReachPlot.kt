@@ -30,16 +30,17 @@ fun TimeToReachPlot(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     modifier: Modifier = Modifier.Companion
 ) {
+    TODO("fix")
     val sequence = extendedPrefixAutomaton.sequence(state)
 
     val epaService = EpaService<Long>()
     val traces = epaService.getTracesByState(extendedPrefixAutomaton, state)
 
     val timeToReachData = traces.map { trace ->
-        val first = trace.first()
-        val atState = trace.first { event -> event in sequence }
+        val firstEvent = trace.first()
+        val eventAtState = trace.first { event -> event in sequence }
 
-        val durationMs = atState.timestamp - first.timestamp
+        val durationMs = eventAtState.timestamp - firstEvent.timestamp
         val durationMinutes = durationMs / (1000.0 * 60.0)
 
         mapOf(

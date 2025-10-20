@@ -29,6 +29,7 @@ import kotlin.math.sin
  *    internal maps.
  */
 class DirectAngularPlacementTreeLayout(
+    private val tree: EPATreeNode,
     private val layerSpace: Float,
     private val rotation: Float,
     expectedCapacity: Int = 10000,
@@ -39,7 +40,7 @@ class DirectAngularPlacementTreeLayout(
     private var isBuilt = false
     private var maxDepth = 0
 
-    override fun build(tree: EPATreeNode, progressCallback: EpaProgressCallback?) {
+    override fun build(progressCallback: EpaProgressCallback?) {
         progressCallback?.onProgress(0, 1, "Build Layout")
         assignAngles(tree, 0f, 2f * PI.toFloat())
 
@@ -49,31 +50,31 @@ class DirectAngularPlacementTreeLayout(
     }
 
     private fun assignAngles(
-        tree: EPATreeNode,
+        treeNode: EPATreeNode,
         start: Float,
         end: Float,
     ) {
-        maxDepth = max(maxDepth, tree.depth)
+        maxDepth = max(maxDepth, treeNode.depth)
 
-        if (tree.parent == null) {
-            nodePlacementByState[tree.state] = NodePlacement(Coordinate(0f, 0f), tree)
+        if (treeNode.parent == null) {
+            nodePlacementByState[treeNode.state] = NodePlacement(Coordinate(0f, 0f), treeNode.state)
         } else {
-            val radius = layerSpace * tree.depth
+            val radius = layerSpace * treeNode.depth
             val theta = ((start + end) / 2f) + rotation
 
-            nodePlacementByState[tree.state] =
+            nodePlacementByState[treeNode.state] =
                 NodePlacement(
                     Coordinate(
                         x = radius * cos(theta),
                         y = radius * sin(theta),
                     ),
-                    tree,
+                    treeNode.state,
                 )
         }
 
-        val anglePerChild = (end - start) / (tree.children().size.toFloat())
+        val anglePerChild = (end - start) / (treeNode.children().size.toFloat())
 
-        tree.children().forEach { child ->
+        treeNode.children().forEach { child ->
             val childStart = start + child.number() * anglePerChild
             val childEnd = childStart + anglePerChild
             assignAngles(child, childStart, childEnd)

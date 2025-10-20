@@ -52,6 +52,7 @@ fun SidePanelContent(
         ) {
             LayoutUi(
                 tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager
             )
         }
 
@@ -74,7 +75,8 @@ fun SidePanelContent(
             InfoText("Not implemented")
         }
 
-        EpaViewUpperState.None -> { /* Should not happen */
+        EpaViewUpperState.None -> {
+            /* Should not happen */
         }
     }
 }
