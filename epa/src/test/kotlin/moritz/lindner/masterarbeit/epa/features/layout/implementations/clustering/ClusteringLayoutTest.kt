@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.clusteri
 import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -16,13 +17,18 @@ class ClusteringLayoutTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val clusteringLayout = ClusteringLayout(epa)
+        val clusteringLayout = ClusteringLayout(
+            epa,
+            config = LayoutConfig.ClusteringLayoutConfig(
+                useGraphEmbedding = true
+            )
+        )
 
         assertThat(clusteringLayout.isBuilt()).isFalse
         clusteringLayout.build()
         assertThat(clusteringLayout.isBuilt()).isTrue
 
-        expectSelfie(clusteringLayout.joinToString { "," }).toMatchDisk()
+        expectSelfie(clusteringLayout.joinToString(",") { it.state.name + it.coordinate }).toMatchDisk()
     }
 
 }
