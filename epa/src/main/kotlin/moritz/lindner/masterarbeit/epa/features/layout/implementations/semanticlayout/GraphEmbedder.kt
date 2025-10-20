@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.semanticlayout
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import org.deeplearning4j.graph.Graph
@@ -8,9 +9,10 @@ import org.deeplearning4j.graph.api.Edge
 import org.deeplearning4j.graph.api.Vertex
 import org.deeplearning4j.graph.models.deepwalk.DeepWalk
 
-class GraphEmbedder<T : Comparable<T>>(
-    private val epa: ExtendedPrefixAutomaton<T>,
-    private val config: SemanticLayoutConfig
+class GraphEmbedder(
+    private val epa: ExtendedPrefixAutomaton<Long>,
+    private val config: SemanticLayoutConfig,
+    private val progressCallback: EpaProgressCallback?
 ) {
     fun computeEmbeddings(): Map<State, DoubleArray> {
         val (graph, stateToVertex) = buildGraph()
@@ -27,7 +29,10 @@ class GraphEmbedder<T : Comparable<T>>(
         deepWalk.initialize(degrees)
         deepWalk.fit(graph, config.walkLength)
 
+        var c = 0
+        val total = epa.states.size
         return epa.states.associateWith { state ->
+            progressCallback?.onProgress(c, total, "Save graph embedding")
             val vertex = stateToVertex[state]!!
             val vector = deepWalk.getVertexVector(vertex)
             DoubleArray(config.graphEmbeddingDims) { i -> vector.getDouble(i) }

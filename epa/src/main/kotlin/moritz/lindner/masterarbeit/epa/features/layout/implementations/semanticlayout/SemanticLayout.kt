@@ -25,7 +25,7 @@ class SemanticLayout(
         progressCallback?.onProgress(0, 7, "Starting semantic layout...")
 
         progressCallback?.onProgress(1, 7, "Creating graph embeddings...")
-        val graphEmbeddings = createGraphEmbeddings()
+        val graphEmbeddings = createGraphEmbeddings(progressCallback)
 
         val featureEmbeddings = createFeatureEmbeddings(progressCallback)
 
@@ -36,7 +36,7 @@ class SemanticLayout(
         val coordinates2D = reduceDimensions(combinedEmbeddings)
 
         progressCallback?.onProgress(6, 7, "Resolving conflicts...")
-        val finalCoordinates = resolveConflicts(coordinates2D)
+        val finalCoordinates = resolveConflicts(coordinates2D, progressCallback)
 
         progressCallback?.onProgress(7, 7, "Finalizing layout...")
         finalizeLayout(finalCoordinates)
@@ -70,9 +70,9 @@ class SemanticLayout(
             .iterator()
     }
 
-    private fun createGraphEmbeddings(): Map<State, DoubleArray> {
+    private fun createGraphEmbeddings(progressCallback: EpaProgressCallback?): Map<State, DoubleArray> {
         return if (config.useGraphEmbedding) {
-            val embedder = GraphEmbedder(epa, config)
+            val embedder = GraphEmbedder(epa, config, progressCallback)
             embedder.computeEmbeddings()
         } else emptyMap()
     }
@@ -136,8 +136,8 @@ class SemanticLayout(
         return umap(
             data = matrix,
             d = 2,
-            k = 5,
-            epochs = 200,
+            k = 5, // todo: add to config
+            epochs = 200, // todo: add to config
         )
     }
 
@@ -178,23 +178,26 @@ class SemanticLayout(
 
     private fun resolveConflicts(
         coordinates: Map<State, Coordinate>,
+        progressCallback: EpaProgressCallback?,
     ): Map<State, Coordinate> {
         var result = coordinates
 
         if (config.enableForceDirected) {
-            result = applyForceDirectedLayout(result)
+            result = applyForceDirectedLayout(result, progressCallback)
         }
 
-        return resolveOverlaps(result)
+        return resolveOverlaps(result, progressCallback)
     }
 
     private fun applyForceDirectedLayout(
         coordinates: Map<State, Coordinate>,
+        progressCallback: EpaProgressCallback?,
     ): Map<State, Coordinate> {
         val positions = coordinates.toMutableMap()
         val states = positions.keys.toList()
 
-        repeat(config.iterations) {
+        repeat(config.forceDirectedLayoutIterations) {
+            progressCallback?.onProgress(it, config.forceDirectedLayoutIterations, "apply force directed layout")
             val forces = mutableMapOf<State, Vector2D>()
 
             // Calculate repulsion forces
@@ -245,7 +248,8 @@ class SemanticLayout(
     }
 
     private fun resolveOverlaps(
-        coordinates: Map<State, Coordinate>
+        coordinates: Map<State, Coordinate>,
+        progressCallback: EpaProgressCallback?
     ): Map<State, Coordinate> {
         val positions = coordinates.toMutableMap()
         val states = positions.keys.toList()
@@ -255,8 +259,9 @@ class SemanticLayout(
         var hasOverlap = true
         var iterations = 0
 
-        while (hasOverlap && iterations < 20) {
-            println("iteration $iterations")
+        val totalIterations = 20
+        while (hasOverlap && iterations < totalIterations) {
+            progressCallback?.onProgress(iterations, totalIterations, "Resolve overlap")
             hasOverlap = false
 
             states.forEach { s1 ->

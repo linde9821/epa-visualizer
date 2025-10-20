@@ -31,5 +31,5 @@ data class SemanticLayoutConfig(
     // Force-directed parameters
     val enableForceDirected: Boolean = true,
     val repulsionStrength: Float = 100.0f,
-    val iterations: Int = 10
+    val forceDirectedLayoutIterations: Int = 10
 )
