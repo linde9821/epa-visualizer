@@ -373,7 +373,7 @@ class TimeRadialWalkerTreeLayout(
         convertToAngles()
 
         progressCallback?.onProgress(4, 5, "Build Layout: Build RTree")
-        rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
+        rTree = RTreeBuilder.build(nodePlacementByState.values.toList(), progressCallback)
         isBuilt = true
         logger.debug { "finished layout construction" }
         progressCallback?.onProgress(5, 5, "Build Layout")
