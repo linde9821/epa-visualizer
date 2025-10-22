@@ -16,6 +16,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
+import moritz.lindner.masterarbeit.epa.features.subtree.SubtreeSizeVisitor
 import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
 
 /**
@@ -204,4 +205,11 @@ class EpaService<T : Comparable<T>> {
             .setStates(remainingStates)
             .build()
     }
+
+    fun subtreeSizeByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
+        val subtreeSizeVisitor = SubtreeSizeVisitor()
+        extendedPrefixAutomaton.acceptDepthFirst(subtreeSizeVisitor)
+        return subtreeSizeVisitor.sizeByState
+    }
 }
+

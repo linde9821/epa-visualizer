@@ -51,6 +51,7 @@ class LayoutService<T : Comparable<T>> {
     ): Layout {
         return when (layoutConfig) {
             is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
+            is LayoutConfig.PRTLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
             else -> {
                 LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
             }

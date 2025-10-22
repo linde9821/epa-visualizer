@@ -79,6 +79,11 @@ fun LayoutConfigUI(
                     "enabled" -> config.render
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
+
+                is LayoutConfig.PRTLayoutConfig -> when(paramName){
+                    "enabled" -> config.render
+                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
+                }
             }
 
             when (info) {

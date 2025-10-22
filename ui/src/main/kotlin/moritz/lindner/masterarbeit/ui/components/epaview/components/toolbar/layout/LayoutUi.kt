@@ -49,7 +49,8 @@ fun LayoutUi(
                     extendedPrefixAutomaton = currentEpa
                 )
             },
-            LayoutConfig.ClusteringLayoutConfig()
+            LayoutConfig.ClusteringLayoutConfig(),
+            LayoutConfig.PRTLayoutConfig()
         )
 
         var layoutSelectionIndex by remember(currentLayout) {

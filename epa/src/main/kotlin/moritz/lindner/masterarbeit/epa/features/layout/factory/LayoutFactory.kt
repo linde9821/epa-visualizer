@@ -4,6 +4,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
@@ -71,6 +72,10 @@ object LayoutFactory {
             is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
                 extendedPrefixAutomaton,
                 config = layoutConfig
+            )
+
+            is LayoutConfig.PRTLayoutConfig -> PRTLayout(
+                extendedPrefixAutomaton = extendedPrefixAutomaton
             )
 
             else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")

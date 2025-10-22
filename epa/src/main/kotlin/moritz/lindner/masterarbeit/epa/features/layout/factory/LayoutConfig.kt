@@ -220,4 +220,22 @@ sealed class LayoutConfig(val name: String) {
             else -> this
         }
     }
+
+    data class PRTLayoutConfig(
+        override val render: Boolean = true,
+    ) : LayoutConfig("PRT") {
+        override fun getParameters(): Map<String, ParameterInfo> {
+            return mapOf(
+                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            )
+        }
+
+        override fun updateParameter(
+            name: String,
+            value: Any
+        ) = when (name) {
+            "enabled" -> copy(render = value as Boolean)
+            else -> this
+        }
+    }
 }
