@@ -5,6 +5,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.SemanticRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
@@ -67,13 +68,19 @@ object LayoutFactory {
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
     fun createLayout(layoutConfig: LayoutConfig, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Layout {
-        return when (layoutConfig) {
-            is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
-                extendedPrefixAutomaton,
-                config = layoutConfig
-            )
-
-            else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
-        }
+        return SemanticRadialLayout(
+            epa = extendedPrefixAutomaton,
+            margin = 0.0f,
+            layerSpace = 100f,
+            rotation = 0f
+        )
+//        return when (layoutConfig) {
+//            is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
+//                extendedPrefixAutomaton,
+//                config = layoutConfig
+//            )
+//
+//            else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
+//        }
     }
 }
