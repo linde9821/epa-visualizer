@@ -71,20 +71,31 @@ class PRTLayout(
             }
         }
 
-        edgeLengthInitialization(
+        compactInitialization(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
-            desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
-        ).forEach { state, coordinate ->
+            hopsFromRootByState = epaService.hopsFromRootByState(extendedPrefixAutomaton)
+        ).forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
                 state = state,
             )
         }
 
-        coordinateByState.forEach {
-            logger.info { "State: ${it.key} Coordinate: ${it.value}" }
+        require(coordinateByState.size == extendedPrefixAutomaton.states.size) {
+            logger.info { "Expected Size: ${extendedPrefixAutomaton.states.size} but actual was ${coordinateByState.size}" }
         }
+
+//        edgeLengthInitialization(
+//            extendedPrefixAutomaton = extendedPrefixAutomaton,
+//            subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
+//            desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
+//        ).forEach { state, coordinate ->
+//            coordinateByState[state] = NodePlacement(
+//                coordinate = coordinate,
+//                state = state,
+//            )
+//        }
 
         rTree = RTreeBuilder.build(coordinateByState.values.toList())
 
@@ -224,5 +235,68 @@ class PRTLayout(
         }
 
         return ranges
+    }
+
+    private fun compactInitialization(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        subtreeSizeByState: Map<State, Int>,
+        hopsFromRootByState: Map<State, Int>
+    ): Map<State, Coordinate> {
+        val coordinateByState = HashMap<State, Coordinate>()
+        val wedgeByState = HashMap<State, Wedge>()
+
+        val rootCoordinate = Coordinate(0f, 0f)
+        coordinateByState[State.Root] = rootCoordinate
+        wedgeByState[State.Root] = Wedge(
+            center = rootCoordinate,
+            radius = 1f,
+            angleRange = 0.0f to (2f * PI).toFloat()
+        )
+
+        extendedPrefixAutomaton.acceptBreadthFirst(object : AutomatonVisitor<Long> {
+            override fun visit(
+                extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+                state: State,
+                depth: Int
+            ) {
+                val parent = state
+                val children = extendedPrefixAutomaton.outgoingTransitionsByState[state]?.map { it.end } ?: return
+
+                if (children.isEmpty()) return
+
+                val centralizedChildren = centralize(children)
+
+                val subtreeSizes = centralizedChildren.map { child ->
+                    subtreeSizeByState[child] ?: 1
+                }
+
+                val parentWedge = wedgeByState[parent] ?: return
+
+                val angleRanges = partitionAngleRange(
+                    parentWedge.angleRange,
+                    subtreeSizes
+                )
+
+                centralizedChildren.zip(angleRanges).forEach { (child, angleRange) ->
+                    val wedge = Wedge(
+                        center = rootCoordinate,
+                        radius = hopsFromRootByState[child]!!.toFloat() * 200,
+                        angleRange = angleRange
+                    )
+                    wedgeByState[child] = wedge
+                    coordinateByState[child] = wedge.arcMidpoint()
+                }
+            }
+
+            private fun centralize(children: List<State>): List<State> {
+                val sorted = children.sortedBy { subtreeSizeByState[it]!! }
+                val first = sorted.filterIndexed { index, _ -> index % 2 == 0 }
+                val second = sorted.filterIndexed { index, _ -> index % 2 == 1 }
+
+                return first.reversed() + second
+            }
+        })
+
+        return coordinateByState
     }
 }

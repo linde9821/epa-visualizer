@@ -211,5 +211,11 @@ class EpaService<T : Comparable<T>> {
         extendedPrefixAutomaton.acceptDepthFirst(subtreeSizeVisitor)
         return subtreeSizeVisitor.sizeByState
     }
+
+    fun hopsFromRootByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
+        return extendedPrefixAutomaton.states.associateWith { state ->
+            getDepth(state)
+        }
+    }
 }
 
