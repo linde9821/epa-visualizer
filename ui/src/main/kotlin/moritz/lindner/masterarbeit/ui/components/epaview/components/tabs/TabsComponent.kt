@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.LayoutCanvasRenderer
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeLayoutCanvasRenderer
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
@@ -118,18 +118,18 @@ fun TabsComponent(
                                 val layout = currentLayoutAndConfig.first
 
                                 if (layout is TreeLayout) {
-                                    TreeLayoutCanvasRenderer(
+                                    EpaLayoutCanvasRenderer(
                                         treeLayout = layout,
                                         stateLabels = currentStateLabels,
                                         drawAtlas = currentDrawAtlas,
                                         onStateHover = {},
-                                        onRightClick = { state ->
+                                        onRightClickState = { state ->
                                             if (state != null) {
                                                 tabStateManager.setSelectedStateForCurrentTab(state)
                                                 epaStateManager.highlightPathFromRootForState(currentTab.id, state)
                                             }
                                         },
-                                        onLeftClick = { state ->
+                                        onLeftClickState = { state ->
                                             val currentSelected = tabStateManager.getSelectedStateForCurrentTab()
                                             if (state != null && currentSelected != null) {
                                                 epaStateManager.openStateComparisonWindow(

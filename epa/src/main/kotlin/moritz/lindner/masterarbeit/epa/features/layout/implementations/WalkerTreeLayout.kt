@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
+import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
@@ -330,17 +331,15 @@ class WalkerTreeLayout(
     override fun getCoordinate(state: State): Coordinate = nodePlacementByState[state]!!.coordinate
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
-        val search =
-            rTree
-                .search(
-                    Geometries.rectangle(
-                        rectangle.topLeft.x,
-                        rectangle.topLeft.y,
-                        rectangle.bottomRight.x,
-                        rectangle.bottomRight.y,
-                    ),
-                ).toList()
-        return search.map { it.value() }
+        return rTree
+            .search(
+                Geometries.rectangle(
+                    rectangle.topLeft.x,
+                    rectangle.topLeft.y,
+                    rectangle.bottomRight.x,
+                    rectangle.bottomRight.y,
+                ),
+            ).map { it.value() }
     }
 
     override fun getMaxDepth(): Int = maxDepth

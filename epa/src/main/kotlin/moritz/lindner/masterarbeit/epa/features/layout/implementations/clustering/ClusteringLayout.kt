@@ -1,11 +1,16 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering
 
+import com.github.davidmoten.rtree2.Entry
+import com.github.davidmoten.rtree2.RTree
+import com.github.davidmoten.rtree2.geometry.Geometries
+import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -21,6 +26,8 @@ class ClusteringLayout(
     private val logger = KotlinLogging.logger { }
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
+
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     override fun build(
         progressCallback: EpaProgressCallback?
@@ -45,6 +52,12 @@ class ClusteringLayout(
         progressCallback?.onProgress(7, 7, "Finalizing layout...")
         finalizeLayout(finalCoordinates)
 
+        rTree = RTreeBuilder.build(nodeCoordinates.map {
+            NodePlacement(
+                coordinate = it.value,
+                state = it.key
+            )
+        })
         isBuiltFlag = true
     }
 
@@ -56,11 +69,15 @@ class ClusteringLayout(
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         check(isBuiltFlag) { "Layout not built yet" }
-        return nodeCoordinates.entries
-            .filter { rectangle.contains(it.value) }
-            .map { (state, coordinate) ->
-                NodePlacement(coordinate, state)
-            }
+        return rTree
+            .search(
+                Geometries.rectangle(
+                    rectangle.topLeft.x,
+                    rectangle.topLeft.y,
+                    rectangle.bottomRight.x,
+                    rectangle.bottomRight.y,
+                ),
+            ).map(Entry<NodePlacement, PointFloat>::value)
     }
 
     override fun isBuilt(): Boolean = isBuiltFlag

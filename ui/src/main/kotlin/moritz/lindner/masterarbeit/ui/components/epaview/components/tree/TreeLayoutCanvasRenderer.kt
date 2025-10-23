@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
@@ -52,19 +53,20 @@ import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TreeLayoutCanvasRenderer(
-    treeLayout: TreeLayout,
+fun EpaLayoutCanvasRenderer(
+    treeLayout: Layout,
     stateLabels: StateLabels,
-    drawAtlas: DrawAtlas,
-    onStateHover: (State?) -> Unit,
-    onRightClick: (State?) -> Unit,
-    onLeftClick: (State?) -> Unit,
-    tabState: TabState,
     highlightingAtlas: HighlightingAtlas,
     animationState: AnimationState,
+    drawAtlas: DrawAtlas,
     canvasState: CanvasState,
+    tabState: TabState,
+    onStateHover: (State?) -> Unit,
+    onRightClickState: (State?) -> Unit,
+    onLeftClickState: (State?) -> Unit,
+//    onMultiSelect: (List<State>) -> Unit
 ) {
-    var canvasSize by remember { mutableStateOf(IntSize.Companion.Zero) }
+    var canvasSize by remember { mutableStateOf(IntSize.Zero) }
 
     var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
     var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
@@ -78,8 +80,8 @@ fun TreeLayoutCanvasRenderer(
         }
     }
 
-    val canvasModifier = Modifier.Companion
-        .background(Color.Companion.White)
+    val canvasModifier = Modifier
+        .background(Color.White)
         .onSizeChanged { canvasSize = it }
         .fillMaxSize()
         .pointerInput(Unit) {
@@ -93,7 +95,7 @@ fun TreeLayoutCanvasRenderer(
                     val event = awaitPointerEvent()
                     val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
 
-                    if (event.type == PointerEventType.Companion.Scroll && scrollDelta != 0f) {
+                    if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
                         val cursorPosition = event.changes.first().position
 
                         val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
@@ -116,7 +118,7 @@ fun TreeLayoutCanvasRenderer(
                 while (true) {
                     val event = awaitPointerEvent()
 
-                    if (event.type == PointerEventType.Companion.Move || event.type == PointerEventType.Companion.Enter || event.type == PointerEventType.Companion.Press) {
+                    if (event.type == PointerEventType.Move || event.type == PointerEventType.Enter || event.type == PointerEventType.Press) {
                         val screenPosition = event.changes.first().position
 
                         // Update hovered node if it changed
@@ -134,20 +136,20 @@ fun TreeLayoutCanvasRenderer(
                             onStateHover(hoveredNode?.state)
                         }
                         if (
-                            event.type == PointerEventType.Companion.Press &&
-                            event.button == PointerButton.Companion.Primary &&
+                            event.type == PointerEventType.Press &&
+                            event.button == PointerButton.Primary &&
                             pressedNode != newNode
                         ) {
                             pressedNode = newNode
-                            onRightClick(pressedNode?.state)
+                            onRightClickState(pressedNode?.state)
                         }
                         if (
-                            event.type == PointerEventType.Companion.Press &&
-                            event.button == PointerButton.Companion.Secondary &&
+                            event.type == PointerEventType.Press &&
+                            event.button == PointerButton.Secondary &&
                             pressedNode != newNode
                         ) {
                             pressedNode = newNode
-                            onLeftClick(pressedNode?.state)
+                            onLeftClickState(pressedNode?.state)
                         }
 
                     }
@@ -161,7 +163,7 @@ fun TreeLayoutCanvasRenderer(
             scale(
                 scaleX = canvasState.scale,
                 scaleY = canvasState.scale,
-                pivot = Offset.Companion.Zero,
+                pivot = Offset.Zero,
             )
         }) {
             try {
@@ -204,9 +206,9 @@ fun TreeLayoutCanvasRenderer(
                         treeLayout.forEach { node ->
                             val radius = sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2))
                             drawCircle(
-                                color = Color.Companion.Gray,
+                                color = Color.Gray,
                                 radius = radius,
-                                center = Offset.Companion.Zero,
+                                center = Offset.Zero,
                                 style = Stroke(width = 2f),
                                 alpha = 0.1f
                             )
@@ -313,7 +315,7 @@ fun DrawScope.drawTreeWithNodesAndEdges(
                 tokenPaint = drawAtlas.tokenPaint
             )
         } catch (e: Exception) {
-            logger.error { e }
+            logger.error(e) { "Error drawing tokens" }
         }
 
         selectedState?.let {

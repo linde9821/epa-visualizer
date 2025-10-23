@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
+import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
@@ -90,17 +91,15 @@ class DirectAngularPlacementTreeLayout(
     override fun isBuilt(): Boolean = isBuilt
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
-        val search =
-            rTree
-                .search(
-                    Geometries.rectangle(
-                        rectangle.topLeft.x,
-                        rectangle.topLeft.y,
-                        rectangle.bottomRight.x,
-                        rectangle.bottomRight.y,
-                    ),
-                ).toList()
-        return search.map { it.value() }
+        return rTree
+            .search(
+                Geometries.rectangle(
+                    rectangle.topLeft.x,
+                    rectangle.topLeft.y,
+                    rectangle.bottomRight.x,
+                    rectangle.bottomRight.y,
+                ),
+            ).map { it.value() }
     }
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()

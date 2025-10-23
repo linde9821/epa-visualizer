@@ -1,5 +1,9 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
+import com.github.davidmoten.rtree2.Entry
+import com.github.davidmoten.rtree2.RTree
+import com.github.davidmoten.rtree2.geometry.Geometries
+import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
@@ -24,6 +28,8 @@ class PRTLayout(
 
     private val logger = KotlinLogging.logger { }
     private val coordinateByState = mutableMapOf<State, NodePlacement>()
+
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     override fun build(progressCallback: EpaProgressCallback?) {
 
@@ -80,6 +86,8 @@ class PRTLayout(
             logger.info { "State: ${it.key} Coordinate: ${it.value}" }
         }
 
+        rTree = RTreeBuilder.build(coordinateByState.values.toList())
+
         isBuilt = true
     }
 
@@ -92,7 +100,15 @@ class PRTLayout(
     }
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
-        return coordinateByState.values.toList()
+        return rTree
+            .search(
+                Geometries.rectangle(
+                    rectangle.topLeft.x,
+                    rectangle.topLeft.y,
+                    rectangle.bottomRight.x,
+                    rectangle.bottomRight.y,
+                ),
+            ).map(Entry<NodePlacement, PointFloat>::value)
     }
 
     override fun iterator(): Iterator<NodePlacement> {

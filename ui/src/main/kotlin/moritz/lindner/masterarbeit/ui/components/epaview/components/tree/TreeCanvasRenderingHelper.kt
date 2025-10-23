@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
@@ -112,7 +113,7 @@ object TreeCanvasRenderingHelper {
     fun screenToWorld(screenPosition: Offset, offset: Offset, scale: Float): Offset =
         (screenPosition - offset) / scale
 
-    fun findNodeAt(layout: TreeLayout, worldPos: Offset): NodePlacement? {
+    fun findNodeAt(layout: Layout, worldPos: Offset): NodePlacement? {
         val searchWidth = 10f
         return layout.getCoordinatesInRectangle(
             Rectangle(
