@@ -28,11 +28,12 @@ import androidx.compose.ui.unit.IntSize
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
-import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawDepthCircles
@@ -41,6 +42,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCan
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.getControlPoints
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.TransitionDrawMode
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
@@ -176,7 +178,7 @@ fun EpaLayoutCanvasRenderer(
                 when (treeLayout) {
                     is RadialWalkerTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
-                        drawTreeWithNodesAndEdges(
+                        drawTree(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
@@ -190,7 +192,7 @@ fun EpaLayoutCanvasRenderer(
 
                     is DirectAngularPlacementTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
-                        drawTreeWithNodesAndEdges(
+                        drawTree(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
@@ -213,8 +215,7 @@ fun EpaLayoutCanvasRenderer(
                                 alpha = 0.1f
                             )
                         }
-
-                        drawTreeWithNodesAndEdges(
+                        drawTree(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
@@ -227,7 +228,33 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is WalkerTreeLayout -> {
-                        drawTreeWithNodesAndEdges(
+                        drawTree(
+                            drawAtlas,
+                            visibleNodes,
+                            treeLayout,
+                            highlightingAtlas,
+                            tabState,
+                            canvasState.scale,
+                            stateLabels,
+                            animationState
+                        )
+                    }
+
+                    is ClusteringLayout -> {
+                        drawTree(
+                            drawAtlas,
+                            visibleNodes,
+                            treeLayout,
+                            highlightingAtlas,
+                            tabState,
+                            canvasState.scale,
+                            stateLabels,
+                            animationState
+                        )
+                    }
+
+                    is PRTLayout -> {
+                        drawTree(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
@@ -246,10 +273,10 @@ fun EpaLayoutCanvasRenderer(
     }
 }
 
-fun DrawScope.drawTreeWithNodesAndEdges(
+fun DrawScope.drawTree(
     drawAtlas: DrawAtlas,
     visibleNodes: List<NodePlacement>,
-    treeLayout: TreeLayout,
+    layout: Layout,
     highlightingAtlas: HighlightingAtlas,
     tabState: TabState,
     scale: Float,
@@ -262,36 +289,41 @@ fun DrawScope.drawTreeWithNodesAndEdges(
         val highlightedPaint = drawAtlas.highlightedPaint
 
         // Draw edges
-        visibleNodes.forEach { (coordinate, state) ->
-            if (state is PrefixState) {
-                val cx = coordinate.x
-                val cy = -coordinate.y
-                val parentCoordinate = treeLayout.getCoordinate(state.from)
-                val entry = drawAtlas.getTransitionEntryByParentState(state)
+        if (drawAtlas.getTransitionModeForLayout(layout) != TransitionDrawMode.NONE) {
+            visibleNodes.forEach { (coordinate, state) ->
+                if (state is PrefixState) {
+                    val cx = coordinate.x
+                    val cy = -coordinate.y
+                    val parentCoordinate = layout.getCoordinate(state.from)
+                    val entry = drawAtlas.getTransitionEntryByParentState(state)
 
-                val start = Offset(parentCoordinate.x, -parentCoordinate.y)
-                val end = Offset(cx, cy)
-                val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+                    val start = Offset(parentCoordinate.x, -parentCoordinate.y)
+                    val end = Offset(cx, cy)
 
-                path.reset()
-                path.moveTo(start.x, start.y)
-                path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
-
-                if (highlightingAtlas.highlightedStates.contains(state)) {
-                    val strokePaint = highlightedPaint.apply {
-                        mode = PaintMode.STROKE
-                        strokeWidth = entry.paint.strokeWidth + 5f
+                    path.reset()
+                    path.moveTo(start.x, start.y)
+                    if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.BEZIER) {
+                        val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+                        path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
+                    } else if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.LINE) {
+                        path.lineTo(end.x, end.y)
                     }
-                    canvas.nativeCanvas.drawPath(path, strokePaint)
-                }
 
-                canvas.nativeCanvas.drawPath(path, entry.paint)
+                    if (highlightingAtlas.highlightedStates.contains(state)) {
+                        val strokePaint = highlightedPaint.apply {
+                            mode = PaintMode.STROKE
+                            strokeWidth = entry.paint.strokeWidth + 5f
+                        }
+                        canvas.nativeCanvas.drawPath(path, strokePaint)
+                    }
+
+                    canvas.nativeCanvas.drawPath(path, entry.paint)
+                }
             }
         }
 
         val selectedState = tabState.selectedState
         val selectedPaint = drawAtlas.selectedStatePaint
-        val labelThreshold = drawAtlas.stateSizeUntilLabelIsDrawn
 
         // Draw nodes
         drawNodes(
@@ -299,9 +331,7 @@ fun DrawScope.drawTreeWithNodesAndEdges(
             drawAtlas,
             highlightingAtlas,
             canvas,
-            highlightedPaint,
             scale,
-            labelThreshold,
             stateLabels
         )
 
@@ -310,7 +340,7 @@ fun DrawScope.drawTreeWithNodesAndEdges(
             drawTokensWithSpreading(
                 animationState = animationState,
                 visibleStates = visibleNodes.map(NodePlacement::state).toSet(),
-                treeLayout = treeLayout,
+                layout = layout,
                 canvas = canvas,
                 tokenPaint = drawAtlas.tokenPaint
             )
@@ -319,7 +349,7 @@ fun DrawScope.drawTreeWithNodesAndEdges(
         }
 
         selectedState?.let {
-            val coordinate = treeLayout.getCoordinate(selectedState)
+            val coordinate = layout.getCoordinate(selectedState)
             val cx = coordinate.x
             val cy = -coordinate.y
             val entry = drawAtlas.getState(selectedState)

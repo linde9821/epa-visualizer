@@ -29,9 +29,7 @@ object TreeCanvasRenderingHelper {
         drawAtlas: DrawAtlas,
         highlightingAtlas: HighlightingAtlas,
         canvas: Canvas,
-        highlightedPaint: Paint,
         scale: Float,
-        labelThreshold: Float,
         stateLabels: StateLabels
     ) {
         visibleNodes.forEach { (coordinate, state) ->
@@ -40,12 +38,12 @@ object TreeCanvasRenderingHelper {
             val cy = -coordinate.y
 
             if (highlightingAtlas.highlightedStates.contains(state)) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, highlightedPaint)
+                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.highlightedPaint)
             }
 
             canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
 
-            if (entry.size * scale >= labelThreshold) {
+            if (entry.size * scale >= drawAtlas.stateSizeUntilLabelIsDrawn) {
                 val label = stateLabels.getLabelForState(state)
                 canvas.nativeCanvas.drawImage(
                     label,
@@ -56,11 +54,10 @@ object TreeCanvasRenderingHelper {
         }
     }
 
-
     fun drawTokensWithSpreading(
         animationState: AnimationState,
         visibleStates: Set<State>,
-        treeLayout: TreeLayout,
+        layout: Layout,
         canvas: Canvas,
         tokenPaint: Paint,
     ) {
@@ -78,8 +75,8 @@ object TreeCanvasRenderingHelper {
                         (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
                     }
 
-                val fromCoord = treeLayout.getCoordinate(timedState.state)
-                val toCoord = timedState.nextState?.let { treeLayout.getCoordinate(it) }
+                val fromCoord = layout.getCoordinate(timedState.state)
+                val toCoord = timedState.nextState?.let { layout.getCoordinate(it) }
 
                 val tokenPosition = if (toCoord != null) {
                     val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
@@ -161,9 +158,9 @@ object TreeCanvasRenderingHelper {
     fun DrawScope.drawDepthCircles(layout: RadialTreeLayout) {
         (0..layout.getMaxDepth()).forEach { depth ->
             drawCircle(
-                color = Color.Companion.Gray,
+                color = Color.Gray,
                 radius = depth * layout.getCircleRadius(),
-                center = Offset.Companion.Zero,
+                center = Offset.Zero,
                 style = Stroke(width = 2f),
             )
         }

@@ -4,13 +4,23 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 
+enum class TransitionDrawMode {
+    NONE,
+    BEZIER,
+    LINE;
+}
+
 class DrawAtlas(
     val stateSizeUntilLabelIsDrawn: Float
 ) {
+
     val selectedStatePaint =
         Paint().apply {
             color = Color.BLUE
@@ -35,6 +45,14 @@ class DrawAtlas(
 
     val stateEntryByState = HashMap<State, StateAtlasEntry>()
     val transitionEntryByParentState = HashMap<State, TransitionAtlasEntry>()
+
+    fun getTransitionModeForLayout(layout: Layout): TransitionDrawMode {
+        return when (layout) {
+            is ClusteringLayout -> TransitionDrawMode.NONE
+            is PRTLayout -> TransitionDrawMode.LINE
+            else -> TransitionDrawMode.BEZIER
+        }
+    }
 
     fun add(state: State, entry: StateAtlasEntry) {
         stateEntryByState[state] = entry
