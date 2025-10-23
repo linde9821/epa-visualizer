@@ -221,12 +221,22 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
+    enum class PRTInitialLayout {
+        Compact,
+        EdgeLength
+    }
+
     data class PRTLayoutConfig(
         override val render: Boolean = true,
+        val initializer: PRTInitialLayout = PRTInitialLayout.EdgeLength,
     ) : LayoutConfig("PRT") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
-                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+                "initialization" to ParameterInfo.EnumParameterInfo(
+                    "initialization",
+                    PRTInitialLayout.entries
+                )
             )
         }
 
@@ -235,6 +245,7 @@ sealed class LayoutConfig(val name: String) {
             value: Any
         ) = when (name) {
             "enabled" -> copy(render = value as Boolean)
+            "initialization" -> copy(initializer = value as PRTInitialLayout)
             else -> this
         }
     }

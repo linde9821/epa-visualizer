@@ -11,6 +11,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -22,6 +23,7 @@ import kotlin.math.sin
 
 class PRTLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+    private val config: LayoutConfig.PRTLayoutConfig
 ) : Layout {
     private val epaService = EpaService<Long>()
     private var isBuilt = false
@@ -32,50 +34,60 @@ class PRTLayout(
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     override fun build(progressCallback: EpaProgressCallback?) {
-
-        val cycleTimes = epaService.computeAllCycleTimes(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            minus = Long::minus,
-            average = { cycleTimes ->
-                if (cycleTimes.isEmpty()) {
-                    0f
-                } else cycleTimes.average().toFloat()
-            },
-        )
-
-        // Add offset to handle zero values with logarithmic scaling
-        val offset = 1.0f
-        val values = cycleTimes.values.map { it + offset }
-        val min = values.minOrNull() ?: offset
-        val max = values.maxOrNull() ?: offset
-
-        // Define your desired edge length range (adjust these values!)
-        val minEdgeLength = 10.0f  // minimum edge length in pixels/units
-        val maxEdgeLength = 1000.0f // maximum edge length in pixels/units
-
-        val desiredEdgeLengthByTransition = if ((max - min) < 0.0001f) {
-            // All values are essentially the same - use middle of range
-            extendedPrefixAutomaton.transitions.associateWith { (minEdgeLength + maxEdgeLength) / 2 }
-        } else {
-            val logMin = log10(min)
-            val logMax = log10(max)
-
-            extendedPrefixAutomaton.transitions.associateWith { transition ->
-                val rawValue = cycleTimes[transition.start] ?: 0.0f
-                val value = rawValue + offset
-                val logValue = log10(value)
-                val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-
-                // Map to actual edge length range
-                minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
+        when(config.initializer){
+            LayoutConfig.PRTInitialLayout.Compact -> {
+                compactInitialization(
+                    extendedPrefixAutomaton = extendedPrefixAutomaton,
+                    subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
+                    hopsFromRootByState = epaService.hopsFromRootByState(extendedPrefixAutomaton)
+                )
             }
-        }
+            LayoutConfig.PRTInitialLayout.EdgeLength -> {
+                val cycleTimes = epaService.computeAllCycleTimes(
+                    extendedPrefixAutomaton = extendedPrefixAutomaton,
+                    minus = Long::minus,
+                    average = { cycleTimes ->
+                        if (cycleTimes.isEmpty()) {
+                            0f
+                        } else cycleTimes.average().toFloat()
+                    },
+                )
 
-        compactInitialization(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
-            hopsFromRootByState = epaService.hopsFromRootByState(extendedPrefixAutomaton)
-        ).forEach { (state, coordinate) ->
+                // Add offset to handle zero values with logarithmic scaling
+                val offset = 1.0f
+                val values = cycleTimes.values.map { it + offset }
+                val min = values.minOrNull() ?: offset
+                val max = values.maxOrNull() ?: offset
+
+                // Define your desired edge length range (adjust these values!)
+                val minEdgeLength = 10.0f  // minimum edge length in pixels/units
+                val maxEdgeLength = 1000.0f // maximum edge length in pixels/units
+
+                val desiredEdgeLengthByTransition = if ((max - min) < 0.0001f) {
+                    // All values are essentially the same - use middle of range
+                    extendedPrefixAutomaton.transitions.associateWith { (minEdgeLength + maxEdgeLength) / 2 }
+                } else {
+                    val logMin = log10(min)
+                    val logMax = log10(max)
+
+                    extendedPrefixAutomaton.transitions.associateWith { transition ->
+                        val rawValue = cycleTimes[transition.start] ?: 0.0f
+                        val value = rawValue + offset
+                        val logValue = log10(value)
+                        val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+
+                        // Map to actual edge length range
+                        minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
+                    }
+                }
+
+                edgeLengthInitialization(
+                    extendedPrefixAutomaton = extendedPrefixAutomaton,
+                    subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
+                    desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
+                )
+            }
+        }.forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
                 state = state,
@@ -85,17 +97,6 @@ class PRTLayout(
         require(coordinateByState.size == extendedPrefixAutomaton.states.size) {
             logger.info { "Expected Size: ${extendedPrefixAutomaton.states.size} but actual was ${coordinateByState.size}" }
         }
-
-//        edgeLengthInitialization(
-//            extendedPrefixAutomaton = extendedPrefixAutomaton,
-//            subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
-//            desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
-//        ).forEach { state, coordinate ->
-//            coordinateByState[state] = NodePlacement(
-//                coordinate = coordinate,
-//                state = state,
-//            )
-//        }
 
         rTree = RTreeBuilder.build(coordinateByState.values.toList())
 
@@ -210,7 +211,6 @@ class PRTLayout(
             }
         }
         )
-
         return coordinateByState
     }
 
@@ -298,5 +298,13 @@ class PRTLayout(
         })
 
         return coordinateByState
+    }
+
+    private fun forceDirectedImprovements(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        x: Map<State, Coordinate>,
+        iterations: Int
+    ): Map<State, Coordinate> {
+        TODO()
     }
 }

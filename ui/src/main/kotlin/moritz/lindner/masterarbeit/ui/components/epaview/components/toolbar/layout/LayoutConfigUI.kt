@@ -4,10 +4,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
 import org.jetbrains.jewel.ui.component.Checkbox
+import org.jetbrains.jewel.ui.component.GroupHeader
+import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 
@@ -82,6 +88,7 @@ fun LayoutConfigUI(
 
                 is LayoutConfig.PRTLayoutConfig -> when(paramName){
                     "enabled" -> config.render
+                    "initialization" -> config.initializer
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
             }
@@ -128,6 +135,20 @@ fun LayoutConfigUI(
                             )
                         }
                     }
+                }
+
+                is ParameterInfo.EnumParameterInfo<*> -> {
+                    var selectedIndex by remember { mutableStateOf(0) }
+                    Text(info.name)
+                    ListComboBox(
+                        items = info.selectionOptions.map { it.name },
+                        selectedIndex = selectedIndex,
+                        onSelectedItemChange = { index ->
+                            selectedIndex = index
+                            onConfigChange(config.updateParameter(paramName, info.selectionOptions[index]))
+                        },
+                    )
+
                 }
             }
         }

@@ -75,7 +75,8 @@ object LayoutFactory {
             )
 
             is LayoutConfig.PRTLayoutConfig -> PRTLayout(
-                extendedPrefixAutomaton = extendedPrefixAutomaton
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                config = layoutConfig
             )
 
             else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
