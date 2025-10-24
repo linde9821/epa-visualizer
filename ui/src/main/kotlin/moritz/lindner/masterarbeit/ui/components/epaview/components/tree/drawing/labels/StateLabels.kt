@@ -18,6 +18,7 @@ class StateLabels(
     private val maxStateLabelLength: Int = 30
 ) {
     private val labelByState = ConcurrentHashMap<String, Image>()
+    private val labelSizeByState = ConcurrentHashMap<State, Pair<Float, Float>>()
 
     private val paint =
         Paint().apply {
@@ -52,6 +53,10 @@ class StateLabels(
 
             val image = surface.makeImageSnapshot()
             labelByState[label] = image
+            labelSizeByState[state] = image.width.toFloat() to image.height.toFloat()
+        } else {
+            val image = labelByState[label]!!
+            labelSizeByState[state] = image.width.toFloat() to image.height.toFloat()
         }
     }
 
@@ -59,5 +64,9 @@ class StateLabels(
         return if (state.name.length > maxStateLabelLength) {
             "${state.name.take(maxStateLabelLength)}..."
         } else state.name
+    }
+
+    fun getLabelSizeMap(): Map<State, Pair<Float, Float>> {
+        return labelSizeByState.toMap()
     }
 }
