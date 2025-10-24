@@ -11,7 +11,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -29,6 +28,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.log10
+import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -39,6 +39,13 @@ class PRTLayout(
 
     ) : Layout {
     private val labelSizeByState: Map<State, Pair<Float, Float>> = config.labelSizeByState
+
+    private val transitionByStatePair = buildMap {
+        extendedPrefixAutomaton.transitions.forEach {
+            put(Pair(it.start, it.end), it)
+        }
+    }
+
     private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
     private val epaService = EpaService<Long>()
     private var isBuilt = false
@@ -60,14 +67,53 @@ class PRTLayout(
         val (width, height) = labelSizeByState[state]!!
 
         // Use half the diagonal as radius (conservative)
-        return sqrt(width * width + height * height).toFloat() / 2f
+//        return sqrt(width * width + height * height).toFloat() / 2f
 
         // Or simpler: half the maximum dimension + pedding
-//        return (max(width, height) / 2f) + 10f
+        return (max(width, height) / 2f) + 10f
     }
 
     override fun build(progressCallback: EpaProgressCallback?) {
         logger.info { "init" }
+
+        val cycleTimes = epaService.computeAllCycleTimes(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            minus = Long::minus,
+            average = { cycleTimes ->
+                if (cycleTimes.isEmpty()) {
+                    0f
+                } else cycleTimes.average().toFloat()
+            },
+        )
+
+        // Add offset to handle zero values with logarithmic scaling
+        val offset = 1.0f
+        val values = cycleTimes.values.map { it + offset }
+        val min = values.minOrNull() ?: offset
+        val max = values.maxOrNull() ?: offset
+
+        // Define your desired edge length range (adjust these values!)
+        val minEdgeLength = 10.0f  // minimum edge length in pixels/units
+        val maxEdgeLength = 1000.0f // maximum edge length in pixels/units
+
+        val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
+            // All values are essentially the same - use middle of range
+            extendedPrefixAutomaton.transitions.associateWith { (minEdgeLength + maxEdgeLength) / 2 }
+        } else {
+            val logMin = log10(min)
+            val logMax = log10(max)
+
+            extendedPrefixAutomaton.transitions.associateWith { transition ->
+                val rawValue = cycleTimes[transition.start] ?: 0.0f
+                val value = rawValue + offset
+                val logValue = log10(value)
+                val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+
+                // Map to actual edge length range
+                minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
+            }
+        }
+
         val x = when (config.initializer) {
             LayoutConfig.PRTInitialLayout.Compact -> {
                 compactInitialization(
@@ -79,44 +125,6 @@ class PRTLayout(
             }
 
             LayoutConfig.PRTInitialLayout.EdgeLength -> {
-                val cycleTimes = epaService.computeAllCycleTimes(
-                    extendedPrefixAutomaton = extendedPrefixAutomaton,
-                    minus = Long::minus,
-                    average = { cycleTimes ->
-                        if (cycleTimes.isEmpty()) {
-                            0f
-                        } else cycleTimes.average().toFloat()
-                    },
-                )
-
-                // Add offset to handle zero values with logarithmic scaling
-                val offset = 1.0f
-                val values = cycleTimes.values.map { it + offset }
-                val min = values.minOrNull() ?: offset
-                val max = values.maxOrNull() ?: offset
-
-                // Define your desired edge length range (adjust these values!)
-                val minEdgeLength = 10.0f  // minimum edge length in pixels/units
-                val maxEdgeLength = 1000.0f // maximum edge length in pixels/units
-
-                val desiredEdgeLengthByTransition = if ((max - min) < 0.0001f) {
-                    // All values are essentially the same - use middle of range
-                    extendedPrefixAutomaton.transitions.associateWith { (minEdgeLength + maxEdgeLength) / 2 }
-                } else {
-                    val logMin = log10(min)
-                    val logMax = log10(max)
-
-                    extendedPrefixAutomaton.transitions.associateWith { transition ->
-                        val rawValue = cycleTimes[transition.start] ?: 0.0f
-                        val value = rawValue + offset
-                        val logValue = log10(value)
-                        val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-
-                        // Map to actual edge length range
-                        minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
-                    }
-                }
-
                 edgeLengthInitialization(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
                     subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
@@ -130,7 +138,8 @@ class PRTLayout(
         parallelForceDirectedImprovements(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             x = x,
-            progressCallback = progressCallback
+            progressCallback = progressCallback,
+            desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
         ).forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
@@ -362,7 +371,8 @@ class PRTLayout(
         batch: Int = 128,
         samples: Int = 20,
         iterations: Int = 50,
-        progressCallback: EpaProgressCallback?
+        progressCallback: EpaProgressCallback?,
+        desiredEdgeLengthByTransition: Map<Transition, Float>
     ): Map<State, Coordinate> {
         val positions = x.toMutableMap()
         repeat(iterations) { currentIteration ->
@@ -381,12 +391,23 @@ class PRTLayout(
                 runBlocking {
                     // for each node in parallel do
                     batch.map { u ->
-                        yield()
                         scope.async {
                             collisionRegion(u, positions, rTree).forEach { v ->
                                 val labelForce = computeLabelOverlapForce(u, v, positions)
-                                t.merge(v, labelForce) { existing, new -> existing.add(new) }
+                                t.merge(u, labelForce) { existing, new -> existing.add(new) }
                             }
+
+                            var combinedForceU = Vector2D.zero()
+                            epaService.neighbors(extendedPrefixAutomaton, u).forEach { v ->
+                                val force = computeLengthForce(
+                                    u,
+                                    v,
+                                    positions,
+                                    desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
+                                )
+                                combinedForceU = combinedForceU.add(force)
+                            }
+                            t.merge(u, combinedForceU) { existing, new -> existing.add(new) }
                         }
                     }.awaitAll()
                 }
@@ -394,7 +415,6 @@ class PRTLayout(
 
             for (state in positions.keys) {
                 val movement = t[state]!!
-
 
                 // Only apply if movement is non-zero
                 if (movement.magnitude() > 0.0001) {
@@ -409,18 +429,58 @@ class PRTLayout(
                     }
                 }
             }
-
-
         }
 
         return positions
+    }
+
+    private fun computeLengthForce(
+        u: State,
+        v: State,
+        positions: Map<State, Coordinate>,
+        desiredEdgeLengthByTransition: Map<Transition, Float>,
+        k: Float = 1.0f
+    ): Vector2D {
+        val uPos = positions[u]!!
+        val vPos = positions[v]!!
+
+        val dx = vPos.x - uPos.x
+        val dy = vPos.y - uPos.y
+        val currentDistance = sqrt(dx * dx + dy * dy)
+
+        // Avoid division by zero
+        if (currentDistance < 1e-6) return Vector2D.zero()
+
+        val transition = transitionByStatePair[Pair(u, v)]
+            ?: transitionByStatePair[Pair(v, u)]!!
+        val desiredLength = desiredEdgeLengthByTransition[transition]!!
+
+        // Unit vector from u to v
+        val nx = dx / currentDistance
+        val ny = dy / currentDistance
+
+        val forceMagnitude = if (currentDistance > desiredLength) {
+            // Edge is stretched - apply attractive force
+            // f_a = k * d (pulls u toward v)
+            -k * (desiredLength - currentDistance) * (desiredLength / currentDistance)
+        } else {
+            // Edge is compressed - apply repulsive force
+            // f_r = -k / d (pushes u away from v)
+            // Using (desiredLength - currentDistance) to get repulsion magnitude
+            k * (currentDistance - desiredLength)
+        }
+
+        return Vector2D(
+            x = nx * forceMagnitude,
+            y = ny * forceMagnitude
+        )
     }
 
     private fun computeLabelOverlapForce(
         u: State,
         v: State,
         positions: Map<State, Coordinate>,
-        strength: Float = 1.0f
+        strength: Float = .16f
     ): Vector2D {
         val posU = positions[u]!!
         val posV = positions[v]!!
@@ -470,6 +530,7 @@ class PRTLayout(
 
         return rTree
             .search(
+                // maybe use circle
                 Geometries.rectangle(
                     statePosition.x - searchRadius,
                     statePosition.y - searchRadius,

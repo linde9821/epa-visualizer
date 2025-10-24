@@ -217,5 +217,11 @@ class EpaService<T : Comparable<T>> {
             getDepth(state)
         }
     }
+
+    fun neighbors(epa: ExtendedPrefixAutomaton<T>, u: State): Set<State> {
+        val incoming = epa.incomingTransitionsByState[u].orEmpty().map { it.start }
+        val outgoing = epa.outgoingTransitionsByState[u].orEmpty().map { it.end }
+        return (incoming + outgoing).toSet()
+    }
 }
 
