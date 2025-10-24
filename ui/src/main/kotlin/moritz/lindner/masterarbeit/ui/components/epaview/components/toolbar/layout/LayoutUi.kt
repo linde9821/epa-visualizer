@@ -56,7 +56,6 @@ fun LayoutUi(
             },
             LayoutConfig.ClusteringLayoutConfig(),
             currentLabels?.let {
-                logger.info { "Providing labels ${currentLabels?.getLabelSizeMap()?.size}" }
                 LayoutConfig.PRTLayoutConfig(labelSizeByState = currentLabels!!.getLabelSizeMap())
             }
         )

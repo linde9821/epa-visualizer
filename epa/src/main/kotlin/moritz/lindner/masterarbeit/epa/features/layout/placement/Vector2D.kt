@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.layout.placement
 
+import moritz.lindner.masterarbeit.epa.domain.State
 import kotlin.math.sqrt
 
 data class Vector2D(val x: Float, val y: Float) {
@@ -18,5 +19,9 @@ data class Vector2D(val x: Float, val y: Float) {
 
     fun multiply(scalar: Float): Vector2D {
         return Vector2D(x * scalar, y * scalar)
+    }
+
+    companion object {
+        fun zero() = Vector2D(0f, 0f)
     }
 }
