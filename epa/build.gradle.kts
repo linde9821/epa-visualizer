@@ -30,6 +30,8 @@ dependencies {
         implementation("org.bytedeco:openblas:0.3.30-1.5.12:macosx-arm64")
     }
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
