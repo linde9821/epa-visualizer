@@ -91,7 +91,7 @@ class EpaStateManager(
     projectStateManager: ProjectStateManager
 ) {
     private val epaService = EpaService<Long>()
-    private val layoutService = LayoutService<Long>()
+    private val layoutService = LayoutService<Long>(backgroundDispatcher)
     private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
 
     private val _epaByTabId = MutableStateFlow<Map<String, ExtendedPrefixAutomaton<Long>>>(emptyMap())
@@ -137,9 +137,9 @@ class EpaStateManager(
                 position = WindowPosition(Alignment.Center)
             )
         ) { window ->
-            val subEpa = epaService.buildSubEpa(extendedPrefixAutomaton, listOf(primaryState, secondaryState))
+//            val subEpa = epaService.buildSubEpa(extendedPrefixAutomaton, listOf(primaryState, secondaryState))
 
-            val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
+//            val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
 
 //            DetailComparison(tree, drawAtlas)
         }
@@ -173,14 +173,13 @@ class EpaStateManager(
 
     init {
         var rebuildJob: Job? = null
-        var reconstructLayoutJob: Job? = null
 
         scope.launch {
             projectFlow
-                .map { it.getMapper() as? EventLogMapper<Long> }
+                .map { project -> project.getMapper() as? EventLogMapper<Long> }
                 .distinctUntilChanged()
                 .drop(1) // Skip initial value
-                .collect { newMapper ->
+                .collect { _ ->
                     // Cancel any in-progress rebuilding
                     rebuildJob?.cancel()
 
