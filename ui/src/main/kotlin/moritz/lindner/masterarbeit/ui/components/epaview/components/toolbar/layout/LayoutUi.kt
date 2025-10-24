@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
@@ -28,8 +29,12 @@ fun LayoutUi(
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
+    val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val currentTab = remember(tabsState, activeTabId) {
         tabsState.find { it.id == activeTabId }
+    }
+    val currentLabels by remember(currentTab) {
+        mutableStateOf(stateLabelsByTabId[currentTab?.id])
     }
     val currentLayout by remember(currentTab) {
         mutableStateOf(currentTab?.layoutConfig)
@@ -50,7 +55,10 @@ fun LayoutUi(
                 )
             },
             LayoutConfig.ClusteringLayoutConfig(),
-            LayoutConfig.PRTLayoutConfig()
+            currentLabels?.let {
+                logger.info { "Providing labels ${currentLabels?.getLabelSizeMap()?.size}" }
+                LayoutConfig.PRTLayoutConfig(labelSizeByState = currentLabels!!.getLabelSizeMap())
+            }
         )
 
         var layoutSelectionIndex by remember(currentLayout) {

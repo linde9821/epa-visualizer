@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ReductionMethod
 
 sealed class LayoutConfig(val name: String) {
@@ -228,7 +229,8 @@ sealed class LayoutConfig(val name: String) {
 
     data class PRTLayoutConfig(
         override val render: Boolean = true,
-        val initializer: PRTInitialLayout = PRTInitialLayout.EdgeLength,
+        val initializer: PRTInitialLayout = PRTInitialLayout.Compact,
+        val labelSizeByState: Map<State, Pair<Float, Float>>
     ) : LayoutConfig("PRT") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
