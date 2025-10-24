@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -35,7 +34,7 @@ object TreeCanvasRenderingHelper {
         visibleNodes.forEach { (coordinate, state) ->
             val entry = drawAtlas.getState(state)
             val cx = coordinate.x
-            val cy = -coordinate.y
+            val cy = coordinate.y
 
             if (highlightingAtlas.highlightedStates.contains(state)) {
                 canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.highlightedPaint)
@@ -81,10 +80,10 @@ object TreeCanvasRenderingHelper {
                 val tokenPosition = if (toCoord != null) {
                     val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
                     interpolateBezier(
-                        start = Offset(fromCoord.x, -fromCoord.y),
-                        c1 = Offset(c1.x, -c1.y),
-                        c2 = Offset(c2.x, -c2.y),
-                        end = Offset(toCoord.x, -toCoord.y),
+                        start = Offset(fromCoord.x, fromCoord.y),
+                        c1 = Offset(c1.x, c1.y),
+                        c2 = Offset(c2.x, c2.y),
+                        end = Offset(toCoord.x, toCoord.y),
                         t = progress,
                     )
                 } else {
@@ -112,11 +111,18 @@ object TreeCanvasRenderingHelper {
 
     fun findNodeAt(layout: Layout, worldPos: Offset): NodePlacement? {
         val searchWidth = 10f
+
+        val topLeft = Offset(
+            x = worldPos.x - searchWidth,
+            y = worldPos.y - searchWidth
+        )
+        val bottomRight = Offset(
+            x = worldPos.x + searchWidth,
+            y = worldPos.y + searchWidth
+        )
+
         return layout.getCoordinatesInRectangle(
-            Rectangle(
-                topLeft = Coordinate(worldPos.x - searchWidth, worldPos.y - searchWidth),
-                bottomRight = Coordinate(worldPos.x + searchWidth, worldPos.y + searchWidth),
-            )
+            Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
         ).firstOrNull()
     }
 
@@ -181,18 +187,18 @@ object TreeCanvasRenderingHelper {
             x = center.x - ((size.width / scale) / 2f),
             y = center.y - ((size.height / scale) / 2f)
         )
+
         val bottomRight = Offset(
             x = center.x + ((size.width / scale) / 2f),
             y = center.y + ((size.height / scale) / 2f)
         )
-
         return Rectangle(topLeft.toCoordinate(), bottomRight.toCoordinate())
     }
 
     fun Coordinate.toOffset(): Offset {
         return Offset(
             x = this.x,
-            y = this.y * -1
+            y = this.y
         )
     }
 }

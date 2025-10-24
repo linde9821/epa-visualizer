@@ -293,18 +293,18 @@ fun DrawScope.drawTree(
             visibleNodes.forEach { (coordinate, state) ->
                 if (state is PrefixState) {
                     val cx = coordinate.x
-                    val cy = -coordinate.y
+                    val cy = coordinate.y
                     val parentCoordinate = layout.getCoordinate(state.from)
                     val entry = drawAtlas.getTransitionEntryByParentState(state)
 
-                    val start = Offset(parentCoordinate.x, -parentCoordinate.y)
+                    val start = Offset(parentCoordinate.x, parentCoordinate.y)
                     val end = Offset(cx, cy)
 
                     path.reset()
                     path.moveTo(start.x, start.y)
                     if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.BEZIER) {
                         val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-                        path.cubicTo(c1.x, -c1.y, c2.x, -c2.y, end.x, end.y)
+                        path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y)
                     } else if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.LINE) {
                         path.lineTo(end.x, end.y)
                     }
@@ -351,7 +351,7 @@ fun DrawScope.drawTree(
         selectedState?.let {
             val coordinate = layout.getCoordinate(selectedState)
             val cx = coordinate.x
-            val cy = -coordinate.y
+            val cy = coordinate.y
             val entry = drawAtlas.getState(selectedState)
             canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
         }

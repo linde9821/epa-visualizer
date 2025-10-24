@@ -78,7 +78,7 @@ fun DetailComparison(
                 visibleNodes.forEach { (coordinate, state) ->
                     val entry = drawAtlas.getState(state)
                     val cx = coordinate.x
-                    val cy = -coordinate.y
+                    val cy = coordinate.y
 
                     canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
                 }
