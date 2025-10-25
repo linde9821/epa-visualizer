@@ -447,6 +447,16 @@ class PRTLayout(
         val dx = vPos.x - uPos.x
         val dy = vPos.y - uPos.y
         val currentDistance = sqrt(dx * dx + dy * dy)
+    private fun computeLengthForce(
+        u: State,
+        v: State,
+        positions: Map<State, Coordinate>,
+        desiredEdgeLengthByTransition: Map<Transition, Float>,
+    ): Vector2D {
+        val posU = positions[u]!!
+        val posV = positions[v]!!
+
+        val currentDistance = posU.distanceTo(posV)
 
         // Avoid division by zero
         if (currentDistance < 1e-6) return Vector2D.zero()
@@ -455,25 +465,27 @@ class PRTLayout(
             ?: transitionByStatePair[Pair(v, u)]!!
         val desiredLength = desiredEdgeLengthByTransition[transition]!!
 
-        // Unit vector from u to v
-        val nx = dx / currentDistance
-        val ny = dy / currentDistance
+        if (abs(currentDistance - desiredLength) < 1) return Vector2D.zero()
 
-        val forceMagnitude = if (currentDistance > desiredLength) {
-            // Edge is stretched - apply attractive force
-            // f_a = k * d (pulls u toward v)
-            -k * (desiredLength - currentDistance) * (desiredLength / currentDistance)
-        } else {
-            // Edge is compressed - apply repulsive force
-            // f_r = -k / d (pushes u away from v)
-            // Using (desiredLength - currentDistance) to get repulsion magnitude
+        // Unit vector from u to v
+        val direction = posU.vectorTo(posV).normalize()
+
+        val k = .5f
+
+        val magnitude = if (currentDistance > desiredLength) {
+            // Attractive: pull together
             k * (currentDistance - desiredLength)
+        } else {
+            // Repulsive: push apart
+            -k / (desiredLength - currentDistance)
         }
 
-        return Vector2D(
-            x = nx * forceMagnitude,
-            y = ny * forceMagnitude
-        )
+        val vector2D = direction.multiply(magnitude)
+
+        if (u == State.Root || v == State.Root) {
+            logger.info { "$u to $v is $vector2D (${vector2D.magnitude()}). currentDistance is $currentDistance while desired is $desiredLength because of magnitued $magnitude" }
+        }
+        return vector2D
     }
 
     private fun computeLabelOverlapForce(
@@ -491,9 +503,10 @@ class PRTLayout(
         // Combined collision radius for two circles
         val collisionRadius = (radiusU + radiusV)
 
-        // Vector from u to v (direction of repulsion)
-        val dx = (posV.x - posU.x)
-        val dy = (posV.y - posU.y)
+        // Vector from v to u (direction of repulsion - pushing u away from v)
+        val direction = posV.vectorTo(posU)  // Vector from v to u (repulsive)
+        val dx = direction.x
+        val dy = direction.y
 
         // STEP 1: Stretch y-coordinate by factor b=3
         val stretchedDy = dy * 3.0f
