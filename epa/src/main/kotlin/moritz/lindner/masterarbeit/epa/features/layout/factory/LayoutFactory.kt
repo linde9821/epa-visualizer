@@ -7,6 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.SemanticRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
@@ -86,6 +87,13 @@ object LayoutFactory {
                     backgroundDispatcher = backgroundDispatcher,
                 )
             }
+
+//            SemanticRadialLayout(
+//                epa = extendedPrefixAutomaton,
+//                margin = 0.0f,
+//                layerSpace = 100f,
+//                rotation = 0f
+//            )
 
             else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }

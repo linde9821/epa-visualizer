@@ -44,7 +44,7 @@ class DirectAngularPlacementTreeLayout(
         progressCallback?.onProgress(0, 1, "Build Layout")
         assignAngles(tree, 0f, 2f * PI.toFloat())
 
-        rTree = RTreeBuilder.build(nodePlacementByState.values.toList())
+        rTree = RTreeBuilder.build(nodePlacementByState.values.toList(), progressCallback)
         isBuilt = true
         progressCallback?.onProgress(1, 1, "Build Layout")
     }
