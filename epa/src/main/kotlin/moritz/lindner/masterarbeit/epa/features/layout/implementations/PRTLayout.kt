@@ -69,7 +69,7 @@ class PRTLayout(
         val (width, height) = labelSizeByState[state]!!
 
         // Use half the diagonal as radius (conservative)
-//        return sqrt(width * width + height * height).toFloat() / 2f
+        // return sqrt(width * width + height * height).toFloat() / 2f
 
         // Or simpler: half the maximum dimension + pedding
         return (max(width, height) / 2f) + 10f
@@ -88,13 +88,13 @@ class PRTLayout(
             },
         )
 
+        // TODO: Maybe change to a similar way its done in time radius walker
         // Add offset to handle zero values with logarithmic scaling
         val offset = 1.0f
         val values = cycleTimes.values.map { it + offset }
         val min = values.minOrNull() ?: offset
         val max = values.maxOrNull() ?: offset
 
-        // Define your desired edge length range (adjust these values!)
         val minEdgeLength = 10.0f  // minimum edge length in pixels/units
         val maxEdgeLength = 1000.0f // maximum edge length in pixels/units
 
@@ -141,7 +141,8 @@ class PRTLayout(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             x = x,
             progressCallback = progressCallback,
-            desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
+            desiredEdgeLengthByTransition = desiredEdgeLengthByTransition,
+            iterations = config.iterations
         ).forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
@@ -153,7 +154,6 @@ class PRTLayout(
             logger.info { "Expected Size: ${extendedPrefixAutomaton.states.size} but actual was ${coordinateByState.size}" }
         }
 
-        logger.info { "rtree" }
         rTree = RTreeBuilder.build(coordinateByState.values.toList())
 
         isBuilt = true
@@ -188,12 +188,6 @@ class PRTLayout(
         val radius: Float,
         val angleRange: Pair<Float, Float>,
     ) {
-        init {
-//            require(
-//                angleRange.first >= 0f && angleRange.second <= (2f * PI).toFloat()
-//            )
-        }
-
         fun arcMidpoint(): Coordinate {
             val (startAngle, endAngle) = angleRange
             val midAngle = (startAngle + endAngle) / 2.0
@@ -256,7 +250,6 @@ class PRTLayout(
                     subtreeSizes
                 )
 
-                // Place each child
                 for ((transition, angleRange) in transitions.zip(angleRanges)) {
                     val child = transition.end
                     val edgeLength = desiredEdgeLengthByTransition[transition]!!
@@ -430,9 +423,7 @@ class PRTLayout(
             for (state in positions.keys) {
                 val movement = t[state]!!
 
-                // Only apply if movement is non-zero
                 if (movement.magnitude() > 0.1) {
-                    // Check if this movement would introduce edge crossings
                     if (!introducesEdgeCrossing(state, movement, positions)) {
                         // Apply movement
                         val currentPos = positions[state]!!
@@ -520,15 +511,11 @@ class PRTLayout(
             -k / (desiredLength - currentDistance)
         }
 
-//        or use this with k .1f and -magnitude -->  val force = direction.multiply(-magnitude)
-//        val magnitude = k * (desiredLength - currentDistance) / desiredLength
-
+        // or use this with k .1f and -magnitude -->  val force = direction.multiply(-magnitude)
+        // val magnitude = k * (desiredLength - currentDistance) / desiredLength
 
         val force = direction.multiply(magnitude)
 
-        if (u == State.Root || v == State.Root) {
-            logger.info { "$u to $v is $force (${force.magnitude()}). currentDistance is $currentDistance while desired is $desiredLength because of magnitued $magnitude" }
-        }
         return force
     }
 

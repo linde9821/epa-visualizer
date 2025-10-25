@@ -231,6 +231,7 @@ sealed class LayoutConfig(val name: String) {
         override val render: Boolean = true,
         val initializer: PRTInitialLayout = PRTInitialLayout.Compact,
         val labelSizeByState: Map<State, Pair<Float, Float>>,
+        val iterations: Int = 10,
         val seed: Int = 42
     ) : LayoutConfig("PRT") {
         override fun getParameters(): Map<String, ParameterInfo> {
@@ -239,6 +240,12 @@ sealed class LayoutConfig(val name: String) {
                 "initialization" to ParameterInfo.EnumParameterInfo(
                     "initialization",
                     PRTInitialLayout.entries
+                ),
+                "iterations" to ParameterInfo.NumberParameterInfo<Int>(
+                    name = "iterations",
+                    min = 0,
+                    max = 100,
+                    step = 1
                 )
             )
         }
@@ -249,6 +256,7 @@ sealed class LayoutConfig(val name: String) {
         ) = when (name) {
             "enabled" -> copy(render = value as Boolean)
             "initialization" -> copy(initializer = value as PRTInitialLayout)
+            "iterations" -> copy(iterations = value as Int)
             else -> this
         }
     }

@@ -88,6 +88,7 @@ fun LayoutConfigUI(
                 is LayoutConfig.PRTLayoutConfig -> when (paramName) {
                     "enabled" -> config.render
                     "initialization" -> config.initializer
+                    "iterations" -> config.iterations
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
             }
@@ -108,7 +109,7 @@ fun LayoutConfigUI(
                 is ParameterInfo.NumberParameterInfo<*> -> {
                     when (info.step) {
                         is Int -> {
-                            Text("${info.name} (Int): $currentValue")
+                            Text("${info.name}: $currentValue")
                             Slider(
                                 value = (currentValue as Int).toFloat(),
                                 onValueChange = { value ->
@@ -125,7 +126,7 @@ fun LayoutConfigUI(
                         }
 
                         is Float -> {
-                            Text("${info.name} (Float): ${"%.1f".format(currentValue)}")
+                            Text("${info.name}: ${"%.1f".format(currentValue)}")
                             Slider(
                                 value = currentValue as Float,
                                 onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value)) },
