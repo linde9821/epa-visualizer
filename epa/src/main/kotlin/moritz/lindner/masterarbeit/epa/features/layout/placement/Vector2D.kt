@@ -16,7 +16,15 @@ data class Vector2D(val x: Float, val y: Float) {
         return Vector2D(x + other.x, y + other.y)
     }
 
+    fun subtract(other: Vector2D): Vector2D {
+        return Vector2D(x - other.x, y - other.y)
+    }
+
     fun multiply(scalar: Float): Vector2D {
         return Vector2D(x * scalar, y * scalar)
+    }
+
+    companion object {
+        fun zero() = Vector2D(0f, 0f)
     }
 }

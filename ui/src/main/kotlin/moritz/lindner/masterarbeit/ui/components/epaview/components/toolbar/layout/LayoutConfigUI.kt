@@ -4,10 +4,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
 import org.jetbrains.jewel.ui.component.Checkbox
+import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 
@@ -79,6 +84,13 @@ fun LayoutConfigUI(
                     "enabled" -> config.render
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
+
+                is LayoutConfig.PRTLayoutConfig -> when (paramName) {
+                    "enabled" -> config.render
+                    "initialization" -> config.initializer
+                    "iterations" -> config.iterations
+                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
+                }
             }
 
             when (info) {
@@ -97,7 +109,7 @@ fun LayoutConfigUI(
                 is ParameterInfo.NumberParameterInfo<*> -> {
                     when (info.step) {
                         is Int -> {
-                            Text("${info.name} (Int): $currentValue")
+                            Text("${info.name}: $currentValue")
                             Slider(
                                 value = (currentValue as Int).toFloat(),
                                 onValueChange = { value ->
@@ -114,7 +126,7 @@ fun LayoutConfigUI(
                         }
 
                         is Float -> {
-                            Text("${info.name} (Float): ${"%.1f".format(currentValue)}")
+                            Text("${info.name}: ${"%.1f".format(currentValue)}")
                             Slider(
                                 value = currentValue as Float,
                                 onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value)) },
@@ -123,6 +135,20 @@ fun LayoutConfigUI(
                             )
                         }
                     }
+                }
+
+                is ParameterInfo.EnumParameterInfo<*> -> {
+                    var selectedIndex by remember { mutableStateOf(0) }
+                    Text(info.name)
+                    ListComboBox(
+                        items = info.selectionOptions.map { it.name },
+                        selectedIndex = selectedIndex,
+                        onSelectedItemChange = { index ->
+                            selectedIndex = index
+                            onConfigChange(config.updateParameter(paramName, info.selectionOptions[index]))
+                        },
+                    )
+
                 }
             }
         }

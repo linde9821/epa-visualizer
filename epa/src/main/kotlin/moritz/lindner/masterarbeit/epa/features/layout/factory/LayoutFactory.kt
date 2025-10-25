@@ -1,9 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
@@ -66,12 +68,24 @@ object LayoutFactory {
     /** Converts degrees to radians. */
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
-    fun createLayout(layoutConfig: LayoutConfig, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Layout {
+    fun createLayout(
+        layoutConfig: LayoutConfig,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        backgroundDispatcher: ExecutorCoroutineDispatcher
+    ): Layout {
         return when (layoutConfig) {
             is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
                 extendedPrefixAutomaton,
                 config = layoutConfig
             )
+
+            is LayoutConfig.PRTLayoutConfig -> {
+                PRTLayout(
+                    extendedPrefixAutomaton = extendedPrefixAutomaton,
+                    config = layoutConfig,
+                    backgroundDispatcher = backgroundDispatcher,
+                )
+            }
 
             else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }

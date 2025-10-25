@@ -28,8 +28,12 @@ fun LayoutUi(
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
+    val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val currentTab = remember(tabsState, activeTabId) {
         tabsState.find { it.id == activeTabId }
+    }
+    val currentLabels by remember(currentTab) {
+        mutableStateOf(stateLabelsByTabId[currentTab?.id])
     }
     val currentLayout by remember(currentTab) {
         mutableStateOf(currentTab?.layoutConfig)
@@ -49,7 +53,10 @@ fun LayoutUi(
                     extendedPrefixAutomaton = currentEpa
                 )
             },
-            LayoutConfig.ClusteringLayoutConfig()
+            LayoutConfig.ClusteringLayoutConfig(),
+            currentLabels?.let {
+                LayoutConfig.PRTLayoutConfig(labelSizeByState = currentLabels!!.getLabelSizeMap())
+            }
         )
 
         var layoutSelectionIndex by remember(currentLayout) {

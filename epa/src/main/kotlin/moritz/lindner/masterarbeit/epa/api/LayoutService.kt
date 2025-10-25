@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
@@ -13,7 +14,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.tree.EpaToTree
  *
  * @param T The type of timestamps used in the event log.
  */
-class LayoutService<T : Comparable<T>> {
+class LayoutService<T : Comparable<T>>(
+    private val backgroundDispatcher: ExecutorCoroutineDispatcher,
+) {
 
     private val logger = KotlinLogging.logger {}
 
@@ -50,7 +53,16 @@ class LayoutService<T : Comparable<T>> {
         treeVisitor: EpaToTree<Long>
     ): Layout {
         return when (layoutConfig) {
-            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa)
+            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(
+                layoutConfig,
+                epa,
+                backgroundDispatcher
+            )
+
+            is LayoutConfig.PRTLayoutConfig -> {
+                LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
+            }
+
             else -> {
                 LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
             }

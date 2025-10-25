@@ -17,8 +17,8 @@ dependencies {
     implementation(libs.openxes)
     implementation(libs.rtree)
     implementation(libs.csv)
+    implementation(libs.coroutines.core)
     implementation(libs.bundles.serialization)
-
     implementation(libs.bundles.dl4j)
     implementation(libs.bundles.smile)
 
