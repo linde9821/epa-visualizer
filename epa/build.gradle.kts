@@ -17,8 +17,8 @@ dependencies {
     implementation(libs.openxes)
     implementation(libs.rtree)
     implementation(libs.csv)
+    implementation(libs.coroutines.core)
     implementation(libs.bundles.serialization)
-
     implementation(libs.bundles.dl4j)
     implementation(libs.bundles.smile)
 
@@ -29,8 +29,6 @@ dependencies {
         implementation("org.nd4j:nd4j-native:1.0.0-M2.1:macosx-arm64")
         implementation("org.bytedeco:openblas:0.3.30-1.5.12:macosx-arm64")
     }
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
