@@ -537,12 +537,16 @@ class PRTLayout(
             -k / (desiredLength - currentDistance)
         }
 
-        val vector2D = direction.multiply(magnitude)
+//        or use this with k .1f and -magnitude -->  val force = direction.multiply(-magnitude)
+//        val magnitude = k * (desiredLength - currentDistance) / desiredLength
+
+
+        val force = direction.multiply(magnitude)
 
         if (u == State.Root || v == State.Root) {
-            logger.info { "$u to $v is $vector2D (${vector2D.magnitude()}). currentDistance is $currentDistance while desired is $desiredLength because of magnitued $magnitude" }
+            logger.info { "$u to $v is $force (${force.magnitude()}). currentDistance is $currentDistance while desired is $desiredLength because of magnitued $magnitude" }
         }
-        return vector2D
+        return force
     }
 
     private fun computeLabelOverlapForce(
