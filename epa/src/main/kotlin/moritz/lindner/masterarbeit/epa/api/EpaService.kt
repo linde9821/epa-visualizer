@@ -102,24 +102,30 @@ class EpaService<T : Comparable<T>> {
         return filters.joinToString { it.name }
     }
 
+    fun allTransitions(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        state: State
+    ): Set<Transition> {
+        val outgoing = outgoingTransitions(extendedPrefixAutomaton, state)
+        val incoming = incomingTransitions(extendedPrefixAutomaton, state)
+
+        return (outgoing + incoming)
+    }
+
     fun outgoingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        selectedState: State
+        state: State
     ): Set<Transition> {
         return extendedPrefixAutomaton
-            .transitions
-            .filter { transition -> transition.start == selectedState }
-            .toSet()
+            .outgoingTransitionsByState[state]?.toSet() ?: emptySet()
     }
 
     fun incomingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        selectedState: State
+        state: State
     ): Set<Transition> {
         return extendedPrefixAutomaton
-            .transitions
-            .filter { it.end == selectedState }
-            .toSet()
+            .incomingTransitionsByState[state]?.toSet() ?: emptySet()
     }
 
     fun getPathFromRoot(

@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.layout.placement
 
-import moritz.lindner.masterarbeit.epa.domain.State
 import kotlin.math.sqrt
 
 data class Vector2D(val x: Float, val y: Float) {
@@ -15,6 +14,10 @@ data class Vector2D(val x: Float, val y: Float) {
 
     fun add(other: Vector2D): Vector2D {
         return Vector2D(x + other.x, y + other.y)
+    }
+
+    fun subtract(other: Vector2D): Vector2D {
+        return Vector2D(x - other.x, y - other.y)
     }
 
     fun multiply(scalar: Float): Vector2D {

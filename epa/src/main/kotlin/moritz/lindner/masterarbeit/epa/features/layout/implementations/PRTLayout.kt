@@ -8,6 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -23,7 +24,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
+import org.apache.commons.math3.util.FastMath.pow
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -31,13 +34,15 @@ import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.random.Random
 
 class PRTLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.PRTLayoutConfig,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
+) : Layout {
 
-    ) : Layout {
+    private val random = Random(config.seed)
     private val labelSizeByState: Map<State, Pair<Float, Float>> = config.labelSizeByState
 
     private val transitionByStatePair = buildMap {
@@ -365,6 +370,10 @@ class PRTLayout(
         return coordinateByState
     }
 
+    private val LABEL_OVERLAP_FORCE_STRENGTH = 0.16f
+    private val EDGE_LENGTH_FORCE_STRENGTH = 1.0f
+    private val DISTRIBUTION_FORCE_STRENGTH = 0.003f
+
     private fun parallelForceDirectedImprovements(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
@@ -392,21 +401,35 @@ class PRTLayout(
                     // for each node in parallel do
                     batch.map { u ->
                         scope.async {
+                            var combinedForceU = Vector2D.zero()
                             collisionRegion(u, positions, rTree).forEach { v ->
                                 val labelForce = computeLabelOverlapForce(u, v, positions)
-                                t.merge(u, labelForce) { existing, new -> existing.add(new) }
+                                combinedForceU = combinedForceU.add(labelForce.multiply(LABEL_OVERLAP_FORCE_STRENGTH))
                             }
 
-                            var combinedForceU = Vector2D.zero()
-                            epaService.neighbors(extendedPrefixAutomaton, u).forEach { v ->
+                            val neighbors = epaService.neighbors(extendedPrefixAutomaton, u)
+                            neighbors.forEach { v ->
                                 val force = computeLengthForce(
                                     u,
                                     v,
                                     positions,
                                     desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
                                 )
-                                combinedForceU = combinedForceU.add(force)
+                                combinedForceU = combinedForceU.add(force.multiply(EDGE_LENGTH_FORCE_STRENGTH))
                             }
+
+                            sample(samples).forEach { w ->
+                                val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
+                                // function returns a force pointing away from w (repulsive direction)
+                                combinedForceU = combinedForceU.add(force.multiply(DISTRIBUTION_FORCE_STRENGTH))
+                            }
+
+                            // TODO: Node-edge force
+//                            neighbors.forEach { v ->
+//                                val force = nodeEdgeForce(u, v, positions)
+//                                combinedForceU = combinedForceU.subtract(force)
+//                            }
+
                             t.merge(u, combinedForceU) { existing, new -> existing.add(new) }
                         }
                     }.awaitAll()
@@ -417,7 +440,7 @@ class PRTLayout(
                 val movement = t[state]!!
 
                 // Only apply if movement is non-zero
-                if (movement.magnitude() > 0.0001) {
+                if (movement.magnitude() > 0.1) {
                     // Check if this movement would introduce edge crossings
                     if (!introducesEdgeCrossing(state, movement, positions)) {
                         // Apply movement
@@ -434,19 +457,53 @@ class PRTLayout(
         return positions
     }
 
-    private fun computeLengthForce(
+    private fun nodeEdgeForce(
+        u: State,
+        v: State,
+        positions: Map<State, Coordinate>,
+    ): Vector2D {
+        TODO()
+    }
+
+    private fun sUV(
+        u: State,
+        v: State,
+        desiredEdgeLengthByTransition: Map<Transition, Float>
+    ): Float {
+        // Get all transitions (edges) where u is the source
+        val uAdjacentEdges = epaService.allTransitions(extendedPrefixAutomaton, u)
+
+        // Get all transitions (edges) where v is the source
+        val vAdjacentEdges = epaService.allTransitions(extendedPrefixAutomaton, v)
+
+        val maxU = uAdjacentEdges.maxOf { transition -> desiredEdgeLengthByTransition[transition]!! }
+        val maxV = vAdjacentEdges.maxOf { transition -> desiredEdgeLengthByTransition[transition]!! }
+
+        return maxU * maxV
+    }
+
+    private fun distributionForce(
         u: State,
         v: State,
         positions: Map<State, Coordinate>,
         desiredEdgeLengthByTransition: Map<Transition, Float>,
-        k: Float = 1.0f
     ): Vector2D {
         val uPos = positions[u]!!
         val vPos = positions[v]!!
 
-        val dx = vPos.x - uPos.x
-        val dy = vPos.y - uPos.y
-        val currentDistance = sqrt(dx * dx + dy * dy)
+        val distanceSquared = pow(uPos.distanceTo(vPos).toDouble(), 2).toFloat()
+
+        if (distanceSquared < 0.0001f) {
+            return Vector2D(0f, 0f)
+        }
+        val sUV = sUV(u, v, desiredEdgeLengthByTransition)
+        val forceMagnitude = sUV / distanceSquared
+
+        val direction = (vPos.vectorTo(uPos)).normalize()
+
+        return direction.multiply(forceMagnitude)
+    }
+
     private fun computeLengthForce(
         u: State,
         v: State,
@@ -492,7 +549,6 @@ class PRTLayout(
         u: State,
         v: State,
         positions: Map<State, Coordinate>,
-        strength: Float = .16f
     ): Vector2D {
         val posU = positions[u]!!
         val posV = positions[v]!!
@@ -517,7 +573,7 @@ class PRTLayout(
         return if (distance < collisionRadius && distance > 0.0) {
             // STEP 2 (continued): Circular repulsive force in stretched space
             // Force magnitude inversely proportional to distance
-            val forceMagnitude = ((collisionRadius - distance) / distance) * strength
+            val forceMagnitude = ((collisionRadius - distance) / distance)
 
             // Force components in stretched space
             val forceX = dx * forceMagnitude
@@ -639,6 +695,16 @@ class PRTLayout(
             abs(value) < 1e-6f -> 0  // Collinear
             value > 0 -> 1           // Clockwise
             else -> 2                // Counterclockwise
+        }
+    }
+
+    private fun sample(samples: Int): List<State> {
+        val states = extendedPrefixAutomaton.states
+
+        return buildList {
+            repeat(samples) {
+                add(states.random(random))
+            }
         }
     }
 

@@ -230,7 +230,8 @@ sealed class LayoutConfig(val name: String) {
     data class PRTLayoutConfig(
         override val render: Boolean = true,
         val initializer: PRTInitialLayout = PRTInitialLayout.Compact,
-        val labelSizeByState: Map<State, Pair<Float, Float>>
+        val labelSizeByState: Map<State, Pair<Float, Float>>,
+        val seed: Int = 42
     ) : LayoutConfig("PRT") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
