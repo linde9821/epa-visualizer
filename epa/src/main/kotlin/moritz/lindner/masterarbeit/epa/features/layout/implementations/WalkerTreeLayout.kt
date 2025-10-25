@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
-import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat

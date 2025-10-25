@@ -26,7 +26,6 @@ import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CumulativeEventsPlot
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CycleTimePlot
-import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.TimeToReachPlot
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Chip
 import org.jetbrains.jewel.ui.component.Icon

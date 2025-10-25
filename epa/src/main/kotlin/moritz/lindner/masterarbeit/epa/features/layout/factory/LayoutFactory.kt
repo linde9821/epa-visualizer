@@ -68,7 +68,11 @@ object LayoutFactory {
     /** Converts degrees to radians. */
     private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
-    fun createLayout(layoutConfig: LayoutConfig, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>, backgroundDispatcher: ExecutorCoroutineDispatcher): Layout {
+    fun createLayout(
+        layoutConfig: LayoutConfig,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        backgroundDispatcher: ExecutorCoroutineDispatcher
+    ): Layout {
         return when (layoutConfig) {
             is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
                 extendedPrefixAutomaton,

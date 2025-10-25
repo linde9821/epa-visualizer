@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
 import org.jetbrains.jewel.ui.component.Checkbox
-import org.jetbrains.jewel.ui.component.GroupHeader
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
@@ -86,7 +85,7 @@ fun LayoutConfigUI(
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.PRTLayoutConfig -> when(paramName){
+                is LayoutConfig.PRTLayoutConfig -> when (paramName) {
                     "enabled" -> config.render
                     "initialization" -> config.initializer
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")

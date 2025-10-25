@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering
 
-import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig

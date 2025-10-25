@@ -53,10 +53,16 @@ class LayoutService<T : Comparable<T>>(
         treeVisitor: EpaToTree<Long>
     ): Layout {
         return when (layoutConfig) {
-            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
+            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(
+                layoutConfig,
+                epa,
+                backgroundDispatcher
+            )
+
             is LayoutConfig.PRTLayoutConfig -> {
                 LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
             }
+
             else -> {
                 LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
             }

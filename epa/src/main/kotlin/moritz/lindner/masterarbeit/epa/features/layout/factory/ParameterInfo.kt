@@ -13,9 +13,9 @@ sealed class ParameterInfo {
         val name: String,
     ) : ParameterInfo()
 
-    data class EnumParameterInfo<E: Enum<E>>(
+    data class EnumParameterInfo<E : Enum<E>>(
         val name: String,
         val selectionOptions: List<E>
-    ): ParameterInfo()
+    ) : ParameterInfo()
 }
 
