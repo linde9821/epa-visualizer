@@ -8,7 +8,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -25,8 +24,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import org.apache.commons.math3.util.FastMath.pow
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -387,7 +384,7 @@ class PRTLayout(
         repeat(iterations) { currentIteration ->
             progressCallback?.onProgress(currentIteration, iterations, "Force directed improvements")
             logger.info { "parallelForceDirectedImprovements iteration $currentIteration" }
-            val t = ConcurrentHashMap<State, Vector2D>()
+            val t = HashMap<State, Vector2D>()
             positions.keys.forEach { t[it] = Vector2D.zero() }
 
             val batches = extendedPrefixAutomaton.states.chunked(batch)
@@ -424,13 +421,7 @@ class PRTLayout(
                                 combinedForceU = combinedForceU.add(force.multiply(DISTRIBUTION_FORCE_STRENGTH))
                             }
 
-                            // TODO: Node-edge force
-//                            neighbors.forEach { v ->
-//                                val force = nodeEdgeForce(u, v, positions)
-//                                combinedForceU = combinedForceU.subtract(force)
-//                            }
-
-                            t.merge(u, combinedForceU) { existing, new -> existing.add(new) }
+                            t[u] = combinedForceU
                         }
                     }.awaitAll()
                 }
@@ -455,14 +446,6 @@ class PRTLayout(
         }
 
         return positions
-    }
-
-    private fun nodeEdgeForce(
-        u: State,
-        v: State,
-        positions: Map<State, Coordinate>,
-    ): Vector2D {
-        TODO()
     }
 
     private fun sUV(
@@ -627,9 +610,7 @@ class PRTLayout(
         )
 
         // Get all edges connected to this node (edges that will move)
-        val outGoingEdges = extendedPrefixAutomaton.outgoingTransitionsByState[node] ?: emptyList()
-        val incomingEdge = extendedPrefixAutomaton.incomingTransitionsByState[node] ?: emptyList()
-        val affectedEdges = outGoingEdges + incomingEdge
+        val affectedEdges = epaService.allTransitions(extendedPrefixAutomaton, node)
 
         if (affectedEdges.isEmpty()) return false
 
