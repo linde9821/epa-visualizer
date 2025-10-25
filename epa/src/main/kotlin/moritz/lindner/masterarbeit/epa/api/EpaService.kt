@@ -16,6 +16,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
+import moritz.lindner.masterarbeit.epa.features.subtree.SubtreeSizeVisitor
 import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
 
 /**
@@ -101,24 +102,30 @@ class EpaService<T : Comparable<T>> {
         return filters.joinToString { it.name }
     }
 
+    fun allTransitions(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        state: State
+    ): Set<Transition> {
+        val outgoing = outgoingTransitions(extendedPrefixAutomaton, state)
+        val incoming = incomingTransitions(extendedPrefixAutomaton, state)
+
+        return (outgoing + incoming)
+    }
+
     fun outgoingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        selectedState: State
+        state: State
     ): Set<Transition> {
         return extendedPrefixAutomaton
-            .transitions
-            .filter { transition -> transition.start == selectedState }
-            .toSet()
+            .outgoingTransitionsByState[state]?.toSet() ?: emptySet()
     }
 
     fun incomingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        selectedState: State
+        state: State
     ): Set<Transition> {
         return extendedPrefixAutomaton
-            .transitions
-            .filter { it.end == selectedState }
-            .toSet()
+            .incomingTransitionsByState[state]?.toSet() ?: emptySet()
     }
 
     fun getPathFromRoot(
@@ -204,4 +211,23 @@ class EpaService<T : Comparable<T>> {
             .setStates(remainingStates)
             .build()
     }
+
+    fun subtreeSizeByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
+        val subtreeSizeVisitor = SubtreeSizeVisitor()
+        extendedPrefixAutomaton.acceptDepthFirst(subtreeSizeVisitor)
+        return subtreeSizeVisitor.sizeByState
+    }
+
+    fun hopsFromRootByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
+        return extendedPrefixAutomaton.states.associateWith { state ->
+            getDepth(state)
+        }
+    }
+
+    fun neighbors(epa: ExtendedPrefixAutomaton<T>, u: State): Set<State> {
+        val incoming = epa.incomingTransitionsByState[u].orEmpty().map { it.start }
+        val outgoing = epa.outgoingTransitionsByState[u].orEmpty().map { it.end }
+        return (incoming + outgoing).toSet()
+    }
 }
+

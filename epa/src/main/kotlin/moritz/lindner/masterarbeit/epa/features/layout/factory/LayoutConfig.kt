@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ReductionMethod
 
 sealed class LayoutConfig(val name: String) {
@@ -217,6 +218,45 @@ sealed class LayoutConfig(val name: String) {
 
             "useResolveOverlap" -> copy(useResolveOverlap = value as Boolean)
             "enabled" -> copy(render = value as Boolean)
+            else -> this
+        }
+    }
+
+    enum class PRTInitialLayout {
+        Compact,
+        EdgeLength
+    }
+
+    data class PRTLayoutConfig(
+        override val render: Boolean = true,
+        val initializer: PRTInitialLayout = PRTInitialLayout.Compact,
+        val labelSizeByState: Map<State, Pair<Float, Float>>,
+        val iterations: Int = 10,
+        val seed: Int = 42
+    ) : LayoutConfig("PRT") {
+        override fun getParameters(): Map<String, ParameterInfo> {
+            return mapOf(
+                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+                "initialization" to ParameterInfo.EnumParameterInfo(
+                    "initialization",
+                    PRTInitialLayout.entries
+                ),
+                "iterations" to ParameterInfo.NumberParameterInfo<Int>(
+                    name = "iterations",
+                    min = 0,
+                    max = 100,
+                    step = 1
+                )
+            )
+        }
+
+        override fun updateParameter(
+            name: String,
+            value: Any
+        ) = when (name) {
+            "enabled" -> copy(render = value as Boolean)
+            "initialization" -> copy(initializer = value as PRTInitialLayout)
+            "iterations" -> copy(iterations = value as Int)
             else -> this
         }
     }

@@ -19,7 +19,7 @@ object RTreeBuilder {
                     nodePlacement,
                     PointFloat.create(
                         nodePlacement.coordinate.x,
-                        nodePlacement.coordinate.y * -1, // -1 is needed because canvas has different coordination system
+                        nodePlacement.coordinate.y,
                     ),
                 )
             }

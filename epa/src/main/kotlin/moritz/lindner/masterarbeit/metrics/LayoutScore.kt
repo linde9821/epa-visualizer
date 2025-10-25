@@ -110,7 +110,7 @@ class LayoutScore(
 
         layout.forEach { node ->
             val x = node.coordinate.x
-            val y = node.coordinate.y * -1
+            val y = node.coordinate.y
 
             val gridX = ((x - boundingBox.topLeft.x) / cellWidth).toInt().coerceIn(0, gridSize - 1)
             val gridY = ((y - boundingBox.topLeft.y) / cellHeight).toInt().coerceIn(0, gridSize - 1)
