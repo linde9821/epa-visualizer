@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChal
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
 import java.io.File
 
 fun main() {
@@ -48,10 +48,10 @@ fun main() {
 //    println(embeddings.map { (k, v) ->
 //        v.toList().joinToString(",") { it.toString() }
 //    })
-    val clusteringLayout = ClusteringLayout(
+    val stateClusteringLayout = StateClusteringLayout(
         epa
     )
 
 
-    val layout = clusteringLayout.build()
+    val layout = stateClusteringLayout.build()
 }

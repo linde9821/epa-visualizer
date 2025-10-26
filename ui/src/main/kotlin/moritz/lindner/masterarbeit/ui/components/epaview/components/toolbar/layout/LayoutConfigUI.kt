@@ -55,7 +55,7 @@ fun LayoutConfigUI(
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.ClusteringLayoutConfig -> when (paramName) {
+                is LayoutConfig.StateClusteringLayoutConfig -> when (paramName) {
                     "useGraphEmbedding" -> config.useGraphEmbedding
                     "graphEmbeddingDims" -> config.graphEmbeddingDims
                     "walkLength" -> config.walkLength
@@ -89,6 +89,17 @@ fun LayoutConfigUI(
                     "enabled" -> config.render
                     "initialization" -> config.initializer
                     "iterations" -> config.iterations
+                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
+                }
+
+                is LayoutConfig.PartitionClusteringLayoutConfig -> when(paramName) {
+                    "enabled" -> config.render
+                    "umapK" -> config.umapK
+                    "umapIterations" -> config.umapIterations
+                    "canvasWidth" -> config.canvasWidth
+                    "canvasHeight" -> config.canvasHeight
+                    "nodeRadius" -> config.nodeRadius
+                    "padding" -> config.padding
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
             }

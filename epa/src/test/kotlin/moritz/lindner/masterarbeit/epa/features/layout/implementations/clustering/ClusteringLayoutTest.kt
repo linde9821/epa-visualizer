@@ -16,9 +16,9 @@ class ClusteringLayoutTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val clusteringLayout = ClusteringLayout(
+        val stateClusteringLayout = StateClusteringLayout(
             epa,
-            config = LayoutConfig.ClusteringLayoutConfig(
+            config = LayoutConfig.StateClusteringLayoutConfig(
                 useGraphEmbedding = true,
                 umapK = 5,
                 umapIterations = 200,
@@ -27,9 +27,9 @@ class ClusteringLayoutTest {
             )
         )
 
-        assertThat(clusteringLayout.isBuilt()).isFalse
-        clusteringLayout.build()
-        assertThat(clusteringLayout.isBuilt()).isTrue
+        assertThat(stateClusteringLayout.isBuilt()).isFalse
+        stateClusteringLayout.build()
+        assertThat(stateClusteringLayout.isBuilt()).isTrue
 
     }
 

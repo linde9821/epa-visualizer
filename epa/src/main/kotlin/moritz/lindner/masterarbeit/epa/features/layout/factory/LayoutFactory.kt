@@ -7,10 +7,10 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.SemanticRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
 
@@ -75,7 +75,7 @@ object LayoutFactory {
         backgroundDispatcher: ExecutorCoroutineDispatcher
     ): Layout {
         return when (layoutConfig) {
-            is LayoutConfig.ClusteringLayoutConfig -> ClusteringLayout(
+            is LayoutConfig.StateClusteringLayoutConfig -> StateClusteringLayout(
                 extendedPrefixAutomaton,
                 config = layoutConfig
             )
@@ -85,6 +85,13 @@ object LayoutFactory {
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
                     config = layoutConfig,
                     backgroundDispatcher = backgroundDispatcher,
+                )
+            }
+
+            is LayoutConfig.PartitionClusteringLayoutConfig -> {
+                PartitionClusteringLayout(
+                    extendedPrefixAutomaton = extendedPrefixAutomaton,
+                    config = layoutConfig
                 )
             }
 

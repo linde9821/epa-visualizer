@@ -33,7 +33,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawDepthCircles
@@ -240,7 +240,7 @@ fun EpaLayoutCanvasRenderer(
                         )
                     }
 
-                    is ClusteringLayout -> {
+                    is StateClusteringLayout -> {
                         drawTree(
                             drawAtlas,
                             visibleNodes,

@@ -18,9 +18,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import smile.manifold.umap
 import kotlin.math.sqrt
 
-class ClusteringLayout(
+class StateClusteringLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.ClusteringLayoutConfig = LayoutConfig.ClusteringLayoutConfig()
+    private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig()
 ) : Layout {
 
     private val logger = KotlinLogging.logger { }
@@ -277,7 +277,6 @@ class ClusteringLayout(
         val positions = coordinates.toMutableMap()
         val states = positions.keys.toList()
         val minDistance = config.nodeRadius * 2.5f
-
         // Simple overlap resolution
         var hasOverlap = true
         var iterations = 0

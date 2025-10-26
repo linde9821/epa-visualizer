@@ -53,7 +53,8 @@ fun LayoutUi(
                     extendedPrefixAutomaton = currentEpa
                 )
             },
-            LayoutConfig.ClusteringLayoutConfig(),
+            LayoutConfig.StateClusteringLayoutConfig(),
+            LayoutConfig.PartitionClusteringLayoutConfig(),
             currentLabels?.let {
                 LayoutConfig.PRTLayoutConfig(labelSizeByState = currentLabels!!.getLabelSizeMap())
             }

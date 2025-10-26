@@ -97,7 +97,7 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class ClusteringLayoutConfig(
+    data class StateClusteringLayoutConfig(
         // Graph embedding parameters
         val useGraphEmbedding: Boolean = false,
         val graphEmbeddingDims: Int = 16,
@@ -133,11 +133,9 @@ sealed class LayoutConfig(val name: String) {
         val useForceDirected: Boolean = false,
         val repulsionStrength: Float = 100.0f,
         val forceDirectedLayoutIterations: Int = 10,
-
         val useResolveOverlap: Boolean = false,
-
         override val render: Boolean = true,
-    ) : LayoutConfig("Clustering Layout") {
+    ) : LayoutConfig("State-Clustering Layout") {
 
         override fun getParameters() = mapOf(
             // Graph embedding
@@ -222,6 +220,38 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
+    data class PartitionClusteringLayoutConfig(
+        override val render: Boolean = true,
+        val umapK: Int = 10,
+        val umapIterations: Int = 250,
+        val canvasWidth: Float = 2000.0f,
+        val canvasHeight: Float = 2000.0f,
+        val nodeRadius: Float = 5.0f,
+        val padding: Float = 50.0f,
+    ) : LayoutConfig("Partition-Clustering Layout") {
+
+        override fun getParameters() = mapOf(
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
+            "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
+            "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
+            "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
+            "nodeRadius" to ParameterInfo.NumberParameterInfo("Node Radius", 1.0f, 20.0f, 1.0f),
+            "padding" to ParameterInfo.NumberParameterInfo("Padding", 10.0f, 200.0f, 10.0f),
+        )
+
+        override fun updateParameter(name: String, value: Any) = when (name) {
+            "enabled" -> copy(render = value as Boolean)
+            "umapK" -> copy(umapK = value as Int)
+            "umapIterations" -> copy(umapIterations = value as Int)
+            "canvasWidth" -> copy(canvasWidth = value as Float)
+            "canvasHeight" -> copy(canvasHeight = value as Float)
+            "nodeRadius" -> copy(nodeRadius = value as Float)
+            "padding" -> copy(padding = value as Float)
+            else -> this
+        }
+    }
+
     enum class PRTInitialLayout {
         Compact,
         EdgeLength
@@ -241,7 +271,7 @@ sealed class LayoutConfig(val name: String) {
                     "initialization",
                     PRTInitialLayout.entries
                 ),
-                "iterations" to ParameterInfo.NumberParameterInfo<Int>(
+                "iterations" to ParameterInfo.NumberParameterInfo(
                     name = "iterations",
                     min = 0,
                     max = 100,
