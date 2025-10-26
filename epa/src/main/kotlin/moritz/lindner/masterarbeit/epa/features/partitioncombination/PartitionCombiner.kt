@@ -6,8 +6,13 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 class PartitionCombiner<T : Comparable<T>> : AutomatonVisitor<T> {
 
-    private val statePartitionsCollection = StatePartitionsCollection<T>()
+    private lateinit var statePartitionsCollection: StatePartitionsCollection<T>
     private var isFinished = false
+
+    override fun onStart(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
+        isFinished = false
+        statePartitionsCollection = StatePartitionsCollection(extendedPrefixAutomaton)
+    }
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         isFinished = true
@@ -18,7 +23,7 @@ class PartitionCombiner<T : Comparable<T>> : AutomatonVisitor<T> {
         state: State,
         depth: Int
     ) {
-        statePartitionsCollection.addStateAndUpdateAllOtherPartitions(extendedPrefixAutomaton, state)
+        statePartitionsCollection.addStateAndUpdateAllOtherPartitions(state)
     }
 
     fun getStatePartitions(): StatePartitionsCollection<T> {
