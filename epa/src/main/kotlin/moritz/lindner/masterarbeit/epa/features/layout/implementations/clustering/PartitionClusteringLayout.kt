@@ -69,7 +69,7 @@ class PartitionClusteringLayout(
     }
 
     private fun scaleToCanvas(
-        states: List<Int>,
+        partitions: List<Int>,
         coords: Array<DoubleArray>
     ): Map<Int, Coordinate> {
         // Find bounds
@@ -84,7 +84,7 @@ class PartitionClusteringLayout(
         val usableWidth = config.canvasWidth - 2 * config.padding
         val usableHeight = config.canvasHeight - 2 * config.padding
 
-        return states.zip(coords).associate { (state, coord) ->
+        return partitions.zip(coords).associate { (state, coord) ->
             val x = if (rangeX > 0) {
                 ((coord[0].toFloat() - minX) / rangeX) * usableWidth + config.padding
             } else {

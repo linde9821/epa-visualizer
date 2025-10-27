@@ -6,37 +6,37 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.clusterin
 
 sealed class LayoutConfig(val name: String) {
 
-    abstract val render: Boolean
+    abstract val enabled: Boolean
 
     abstract fun getParameters(): Map<String, ParameterInfo>
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
 
-    data class Walker(
+    data class WalkerConfig(
         val distance: Float = 200.0f,
-        val yDistance: Float = 200.0f,
-        override val render: Boolean = true,
+        val layerSpace: Float = 200.0f,
+        override val enabled: Boolean = true,
     ) : LayoutConfig("Walker") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
-            "yDistance" to ParameterInfo.NumberParameterInfo("Y Distance", 1.0f, 500.0f, 5.0f),
+            "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
             "distance" -> copy(distance = value as Float)
-            "yDistance" -> copy(yDistance = value as Float)
-            "enabled" -> copy(render = value as Boolean)
+            "layerSpace" -> copy(layerSpace = value as Float)
+            "enabled" -> copy(enabled = value as Boolean)
             else -> this
         }
     }
 
-    data class TimeRadialWalker(
-        val multiplayer: Float = 500.0f,
+    data class TimeRadialWalkerConfig(
+        val layerBaseUnit: Float = 500.0f,
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         val minCycleTimeDifference: Float = 0.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-        override val render: Boolean = true,
+        override val enabled: Boolean = true,
     ) : LayoutConfig("Radial Walker Time") {
         override fun getParameters() = mapOf(
             "layerBaseUnit" to ParameterInfo.NumberParameterInfo("layerBaseUnit", 1.0f, 2000.0f, 10f),
@@ -47,20 +47,20 @@ sealed class LayoutConfig(val name: String) {
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
-            "layerBaseUnit" -> copy(multiplayer = value as Float)
+            "layerBaseUnit" -> copy(layerBaseUnit = value as Float)
             "margin" -> copy(margin = value as Float)
             "rotation" -> copy(rotation = value as Float)
             "minCycleTimeDifference" -> copy(minCycleTimeDifference = value as Float)
-            "enabled" -> copy(render = value as Boolean)
+            "enabled" -> copy(enabled = value as Boolean)
             else -> this
         }
     }
 
-    data class RadialWalker(
+    data class RadialWalkerConfig(
         val layerSpace: Float = 120.0f,
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
-        override val render: Boolean = true,
+        override val enabled: Boolean = true,
     ) : LayoutConfig("Radial Walker") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
@@ -73,15 +73,44 @@ sealed class LayoutConfig(val name: String) {
             "layerSpace" -> copy(layerSpace = value as Float)
             "margin" -> copy(margin = value as Float)
             "rotation" -> copy(rotation = value as Float)
-            "enabled" -> copy(render = value as Boolean)
+            "enabled" -> copy(enabled = value as Boolean)
             else -> this
         }
     }
 
-    data class DirectAngular(
+    data class PartitionSimilarityRadialLayoutConfig(
+        override val enabled: Boolean = true,
+        val layerSpace: Float = 120.0f,
+        val umapK: Int = 10,
+        val umapIterations: Int = 250,
+        ) : LayoutConfig("Partition Similarity Radial") {
+        override fun getParameters(): Map<String, ParameterInfo> {
+            return mapOf(
+                "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
+                "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
+                "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
+                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            )
+        }
+
+        override fun updateParameter(
+            name: String,
+            value: Any
+        ): LayoutConfig {
+            return when (name) {
+                "umapK" -> copy(umapK = value as Int)
+                "umapIterations" -> copy(umapIterations = value as Int)
+                "layerSpace" -> copy(layerSpace = value as Float)
+                "enabled" -> copy(enabled = value as Boolean)
+                else -> this
+            }
+        }
+    }
+
+    data class DirectAngularConfig(
         val layerSpace: Float = 50.0f,
         val rotation: Float = 0.0f,
-        override val render: Boolean = true,
+        override val enabled: Boolean = true,
     ) : LayoutConfig("Direct Angular") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
@@ -92,7 +121,7 @@ sealed class LayoutConfig(val name: String) {
         override fun updateParameter(name: String, value: Any) = when (name) {
             "layerSpace" -> copy(layerSpace = value as Float)
             "rotation" -> copy(rotation = value as Float)
-            "enabled" -> copy(render = value as Boolean)
+            "enabled" -> copy(enabled = value as Boolean)
             else -> this
         }
     }
@@ -134,7 +163,7 @@ sealed class LayoutConfig(val name: String) {
         val repulsionStrength: Float = 100.0f,
         val forceDirectedLayoutIterations: Int = 10,
         val useResolveOverlap: Boolean = false,
-        override val render: Boolean = true,
+        override val enabled: Boolean = true,
     ) : LayoutConfig("State-Clustering Layout") {
 
         override fun getParameters() = mapOf(
@@ -215,13 +244,13 @@ sealed class LayoutConfig(val name: String) {
             "forceDirectedLayoutIterations" -> copy(forceDirectedLayoutIterations = value as Int)
 
             "useResolveOverlap" -> copy(useResolveOverlap = value as Boolean)
-            "enabled" -> copy(render = value as Boolean)
+            "enabled" -> copy(enabled = value as Boolean)
             else -> this
         }
     }
 
     data class PartitionClusteringLayoutConfig(
-        override val render: Boolean = true,
+        override val enabled: Boolean = true,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
         val canvasWidth: Float = 2000.0f,
@@ -241,7 +270,7 @@ sealed class LayoutConfig(val name: String) {
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
-            "enabled" -> copy(render = value as Boolean)
+            "enabled" -> copy(enabled = value as Boolean)
             "umapK" -> copy(umapK = value as Int)
             "umapIterations" -> copy(umapIterations = value as Int)
             "canvasWidth" -> copy(canvasWidth = value as Float)
@@ -258,7 +287,7 @@ sealed class LayoutConfig(val name: String) {
     }
 
     data class PRTLayoutConfig(
-        override val render: Boolean = true,
+        override val enabled: Boolean = true,
         val initializer: PRTInitialLayout = PRTInitialLayout.Compact,
         val labelSizeByState: Map<State, Pair<Float, Float>>,
         val iterations: Int = 10,
@@ -284,7 +313,7 @@ sealed class LayoutConfig(val name: String) {
             name: String,
             value: Any
         ) = when (name) {
-            "enabled" -> copy(render = value as Boolean)
+            "enabled" -> copy(enabled = value as Boolean)
             "initialization" -> copy(initializer = value as PRTInitialLayout)
             "iterations" -> copy(iterations = value as Int)
             else -> this

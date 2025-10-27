@@ -24,33 +24,33 @@ fun LayoutConfigUI(
     LazyColumn {
         items(config.getParameters().toList()) { (paramName, info) ->
             val currentValue = when (config) {
-                is LayoutConfig.Walker -> when (paramName) {
+                is LayoutConfig.WalkerConfig -> when (paramName) {
                     "distance" -> config.distance
-                    "yDistance" -> config.yDistance
-                    "enabled" -> config.render
+                    "yDistance" -> config.layerSpace
+                    "enabled" -> config.enabled
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.DirectAngular -> when (paramName) {
+                is LayoutConfig.DirectAngularConfig -> when (paramName) {
                     "layerSpace" -> config.layerSpace
                     "rotation" -> config.rotation
-                    "enabled" -> config.render
+                    "enabled" -> config.enabled
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.RadialWalker -> when (paramName) {
+                is LayoutConfig.RadialWalkerConfig -> when (paramName) {
                     "layerSpace" -> config.layerSpace
                     "margin" -> config.margin
                     "rotation" -> config.rotation
-                    "enabled" -> config.render
+                    "enabled" -> config.enabled
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.TimeRadialWalker -> when (paramName) {
-                    "layerBaseUnit" -> config.multiplayer
+                is LayoutConfig.TimeRadialWalkerConfig -> when (paramName) {
+                    "layerBaseUnit" -> config.layerBaseUnit
                     "margin" -> config.margin
                     "rotation" -> config.rotation
-                    "enabled" -> config.render
+                    "enabled" -> config.enabled
                     "minCycleTimeDifference" -> config.minCycleTimeDifference
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
@@ -81,25 +81,33 @@ fun LayoutConfigUI(
                     "repulsionStrength" -> config.repulsionStrength
                     "forceDirectedLayoutIterations" -> config.forceDirectedLayoutIterations
                     "useResolveOverlap" -> config.useResolveOverlap
-                    "enabled" -> config.render
+                    "enabled" -> config.enabled
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
                 is LayoutConfig.PRTLayoutConfig -> when (paramName) {
-                    "enabled" -> config.render
+                    "enabled" -> config.enabled
                     "initialization" -> config.initializer
                     "iterations" -> config.iterations
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
                 is LayoutConfig.PartitionClusteringLayoutConfig -> when(paramName) {
-                    "enabled" -> config.render
+                    "enabled" -> config.enabled
                     "umapK" -> config.umapK
                     "umapIterations" -> config.umapIterations
                     "canvasWidth" -> config.canvasWidth
                     "canvasHeight" -> config.canvasHeight
                     "nodeRadius" -> config.nodeRadius
                     "padding" -> config.padding
+                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
+                }
+
+                is LayoutConfig.PartitionSimilarityRadialLayoutConfig -> when(paramName) {
+                    "enabled" -> config.enabled
+                    "umapK" -> config.umapK
+                    "umapIterations" -> config.umapIterations
+                    "layerSpace" -> config.layerSpace
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
             }

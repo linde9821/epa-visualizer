@@ -45,19 +45,20 @@ fun LayoutUi(
         CircularProgressIndicatorBig()
     } else {
         val availableLayouts = listOfNotNull(
-            LayoutConfig.RadialWalker(),
-            LayoutConfig.Walker(),
-            LayoutConfig.DirectAngular(),
+            LayoutConfig.RadialWalkerConfig(),
+            LayoutConfig.WalkerConfig(),
+            LayoutConfig.DirectAngularConfig(),
+            LayoutConfig.PartitionSimilarityRadialLayoutConfig(),
+            LayoutConfig.StateClusteringLayoutConfig(),
+            LayoutConfig.PartitionClusteringLayoutConfig(),
             currentEpa?.let {
-                LayoutConfig.TimeRadialWalker(
+                LayoutConfig.TimeRadialWalkerConfig(
                     extendedPrefixAutomaton = currentEpa
                 )
             },
-            LayoutConfig.StateClusteringLayoutConfig(),
-            LayoutConfig.PartitionClusteringLayoutConfig(),
             currentLabels?.let {
                 LayoutConfig.PRTLayoutConfig(labelSizeByState = currentLabels!!.getLabelSizeMap())
-            }
+            },
         )
 
         var layoutSelectionIndex by remember(currentLayout) {
