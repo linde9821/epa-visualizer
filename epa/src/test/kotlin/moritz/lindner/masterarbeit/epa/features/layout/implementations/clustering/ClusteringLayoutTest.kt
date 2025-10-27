@@ -16,12 +16,12 @@ class ClusteringLayoutTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val clusteringLayout = ClusteringLayout(
+        val clusteringLayout = StateClusteringLayout(
             epa,
-            config = LayoutConfig.ClusteringLayoutConfig(
+            config = LayoutConfig.StateClusteringLayoutConfig(
                 useGraphEmbedding = true,
                 umapK = 5,
-                umapIterations = 200,
+                iterations = 200,
                 useForceDirected = false,
                 useResolveOverlap = false,
             )
