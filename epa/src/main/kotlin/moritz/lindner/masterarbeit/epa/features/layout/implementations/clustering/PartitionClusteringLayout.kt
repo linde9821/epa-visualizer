@@ -14,6 +14,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import smile.manifold.umap
+import kotlin.collections.set
 
 class PartitionClusteringLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -21,8 +22,8 @@ class PartitionClusteringLayout(
 ): Layout {
 
     private var isBuiltFlag = false
-    private val nodeCoordinates = mutableMapOf<State, Coordinate>()
 
+    private val coordinateByState = mutableMapOf<State, Coordinate>()
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     override fun build(progressCallback: EpaProgressCallback?) {
@@ -30,13 +31,11 @@ class PartitionClusteringLayout(
 
         val featureEmbeddings = embedder.computeEmbedding(extendedPrefixAutomaton)
 
-        val coordinates2D = reduceDimensions(featureEmbeddings)
+        val paritionCoordinates2D = reduceDimensions(featureEmbeddings)
 
         val coordinates = extendedPrefixAutomaton.states.associateWith { state ->
             val partition = extendedPrefixAutomaton.partition(state)
-            coordinates2D[partition]!!.also { coordinate ->
-                nodeCoordinates[state] = coordinate
-            }
+            paritionCoordinates2D[partition]!!
         }
 
         rTree = RTreeBuilder.build(coordinates.map {
@@ -45,6 +44,11 @@ class PartitionClusteringLayout(
                 state = it.key
             )
         })
+
+        coordinates.forEach { (state, coordinate) ->
+            coordinateByState[state] = coordinate
+        }
+
         isBuiltFlag = true
     }
 
@@ -104,7 +108,7 @@ class PartitionClusteringLayout(
 
     override fun getCoordinate(state: State): Coordinate {
         check(isBuiltFlag) { "Layout not built yet" }
-        return nodeCoordinates[state]
+        return coordinateByState[state]
             ?: throw NoSuchElementException("State not found: $state")
     }
 
@@ -123,7 +127,7 @@ class PartitionClusteringLayout(
 
     override fun iterator(): Iterator<NodePlacement> {
         check(isBuiltFlag) { "Layout not built yet" }
-        return nodeCoordinates.entries
+        return coordinateByState.entries
             .map { (state, coordinate) ->
                 NodePlacement(coordinate, state)
             }
