@@ -26,7 +26,7 @@ fun LayoutConfigUI(
             val currentValue = when (config) {
                 is LayoutConfig.WalkerConfig -> when (paramName) {
                     "distance" -> config.distance
-                    "yDistance" -> config.layerSpace
+                    "layerSpace" -> config.layerSpace
                     "enabled" -> config.enabled
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
