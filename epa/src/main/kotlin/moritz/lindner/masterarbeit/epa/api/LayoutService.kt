@@ -36,7 +36,7 @@ class LayoutService<T : Comparable<T>>(
         progressCallback: EpaProgressCallback? = null
     ): Layout {
         val treeVisitor = EpaToTree<Long>(progressCallback)
-        if (layoutConfig.render) {
+        if (layoutConfig.enabled) {
             epa.acceptDepthFirst(treeVisitor)
             logger.info { "building tree layout" }
             val layout = createLayout(layoutConfig, epa, treeVisitor)
@@ -53,19 +53,20 @@ class LayoutService<T : Comparable<T>>(
         treeVisitor: EpaToTree<Long>
     ): Layout {
         return when (layoutConfig) {
-            is LayoutConfig.ClusteringLayoutConfig -> LayoutFactory.createLayout(
+            is LayoutConfig.StateClusteringLayoutConfig -> LayoutFactory.createLayout(
                 layoutConfig,
                 epa,
                 backgroundDispatcher
             )
 
-            is LayoutConfig.PRTLayoutConfig -> {
-                LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
-            }
+            is LayoutConfig.PartitionClusteringLayoutConfig -> LayoutFactory.createLayout(
+                layoutConfig,
+                epa,
+                backgroundDispatcher
+            )
 
-            else -> {
-                LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root)
-            }
+            is LayoutConfig.PRTLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
+            else -> LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root, epa)
         }
     }
 }

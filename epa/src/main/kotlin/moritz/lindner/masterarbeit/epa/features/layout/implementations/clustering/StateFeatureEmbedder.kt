@@ -4,35 +4,14 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
-import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 class StateFeatureEmbedder(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.ClusteringLayoutConfig,
+    private val config: LayoutConfig.StateClusteringLayoutConfig,
     private val progressCallback: EpaProgressCallback?
 ) {
     private val epaService = EpaService<Long>()
-
-    class OutgoingTransitionCounter<T : Comparable<T>>(
-        private val progressCallback: EpaProgressCallback? = null
-    ) : AutomatonVisitor<T> {
-
-        val outcommingByState = mutableMapOf<State, Int>()
-
-        override fun visit(
-            extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-            transition: Transition,
-            depth: Int
-        ) {
-            outcommingByState[transition.start] = outcommingByState.getOrDefault(transition.start, 0) + 1
-        }
-
-        override fun onProgress(current: Long, total: Long) {
-            progressCallback?.onProgress(current.toInt(), total.toInt(), "transition counting")
-        }
-    }
 
     fun computeEmbeddings(): Map<State, DoubleArray> {
         val allActivities = epa.activities.toList()
@@ -47,9 +26,6 @@ class StateFeatureEmbedder(
             progressCallback = progressCallback
         )
 
-        val counter = OutgoingTransitionCounter<Long>(progressCallback)
-        epa.acceptDepthFirst(counter)
-
         var c = 0
         val total = epa.states.size
 
@@ -60,7 +36,7 @@ class StateFeatureEmbedder(
             with(config) {
                 // Structural features
                 if (useDepthFeature) features.add(epaService.getDepth(state).toDouble())
-                if (useOutgoingTransitions) features.add(counter.outcommingByState[state]?.toDouble() ?: 0.0)
+                if (useOutgoingTransitions) features.add(epaService.outgoingTransitions(epa, state).size.toDouble())
                 // EPA-specific features
                 if (usePartitionValue) features.add(epa.partition(state).toDouble())
                 if (useSequenceLength) features.add(epa.sequence(state).size.toDouble())

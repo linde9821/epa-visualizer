@@ -60,7 +60,7 @@ fun ProjectUi(
             id = UUID.randomUUID().toString(),
             title = "root",
             filters = emptyList(),
-            layoutConfig = LayoutConfig.RadialWalker()
+            layoutConfig = LayoutConfig.RadialWalkerConfig()
         )
     }
 

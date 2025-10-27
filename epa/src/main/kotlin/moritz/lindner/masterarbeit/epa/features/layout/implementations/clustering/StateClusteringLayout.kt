@@ -15,12 +15,13 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
+import smile.manifold.tsne
 import smile.manifold.umap
 import kotlin.math.sqrt
 
-class ClusteringLayout(
+class StateClusteringLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.ClusteringLayoutConfig = LayoutConfig.ClusteringLayoutConfig()
+    private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig()
 ) : Layout {
 
     private val logger = KotlinLogging.logger { }
@@ -147,19 +148,21 @@ class ClusteringLayout(
 
         // TODO: add others
         val coordinates2D = when (config.reductionMethod) {
-            ReductionMethod.UMAP -> computeUMAP(matrix)
+            ReductionMethod.UMAP -> umap(
+                data = matrix,
+                d = 2,
+                k = config.umapK,
+                epochs = config.iterations,
+            )
+
+            ReductionMethod.TSNE -> tsne(
+                X = matrix,
+                d = 2,
+                maxIter = config.iterations,
+            ).coordinates
         }
 
         return scaleToCanvas(states, coordinates2D)
-    }
-
-    private fun computeUMAP(matrix: Array<DoubleArray>): Array<DoubleArray> {
-        return umap(
-            data = matrix,
-            d = 2,
-            k = config.umapK,
-            epochs = config.umapIterations,
-        )
     }
 
     private fun scaleToCanvas(
@@ -277,7 +280,6 @@ class ClusteringLayout(
         val positions = coordinates.toMutableMap()
         val states = positions.keys.toList()
         val minDistance = config.nodeRadius * 2.5f
-
         // Simple overlap resolution
         var hasOverlap = true
         var iterations = 0

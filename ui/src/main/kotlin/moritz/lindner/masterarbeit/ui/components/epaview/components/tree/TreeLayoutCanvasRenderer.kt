@@ -30,10 +30,12 @@ import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawDepthCircles
@@ -190,6 +192,20 @@ fun EpaLayoutCanvasRenderer(
                         )
                     }
 
+                    is PartitionSimilarityRadialLayout -> {
+                        drawDepthCircles(layout = treeLayout)
+                        drawTree(
+                            drawAtlas,
+                            visibleNodes,
+                            treeLayout,
+                            highlightingAtlas,
+                            tabState,
+                            canvasState.scale,
+                            stateLabels,
+                            animationState
+                        )
+                    }
+
                     is DirectAngularPlacementTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
                         drawTree(
@@ -240,7 +256,7 @@ fun EpaLayoutCanvasRenderer(
                         )
                     }
 
-                    is ClusteringLayout -> {
+                    is StateClusteringLayout, is PartitionClusteringLayout -> {
                         drawTree(
                             drawAtlas,
                             visibleNodes,
@@ -265,6 +281,8 @@ fun EpaLayoutCanvasRenderer(
                             animationState
                         )
                     }
+
+                    else -> throw IllegalStateException("Expected layout to be known")
                 }
             } catch (e: Exception) {
                 logger.error(e) { "error while drawing: $e" }

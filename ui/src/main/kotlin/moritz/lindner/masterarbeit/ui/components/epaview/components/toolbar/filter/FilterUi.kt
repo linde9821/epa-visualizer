@@ -164,7 +164,7 @@ fun FilterUi(
                             id = id,
                             title = name,
                             filters = filters,
-                            layoutConfig = LayoutConfig.RadialWalker()
+                            layoutConfig = LayoutConfig.RadialWalkerConfig()
                         )
                         tabStateManager.setActiveTab(id)
                     },
