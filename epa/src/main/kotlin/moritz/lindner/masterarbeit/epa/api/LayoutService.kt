@@ -58,11 +58,13 @@ class LayoutService<T : Comparable<T>>(
                 epa,
                 backgroundDispatcher
             )
+
             is LayoutConfig.PartitionClusteringLayoutConfig -> LayoutFactory.createLayout(
                 layoutConfig,
                 epa,
                 backgroundDispatcher
             )
+
             is LayoutConfig.PRTLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
             else -> LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root, epa)
         }

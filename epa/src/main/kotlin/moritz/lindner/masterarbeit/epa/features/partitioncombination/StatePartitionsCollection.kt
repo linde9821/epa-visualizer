@@ -6,7 +6,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
 
 class StatePartitionsCollection<T : Comparable<T>>(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>
-): MutableMap<Int, MutableSet<State>> by mutableMapOf() {
+) : MutableMap<Int, MutableSet<State>> by mutableMapOf() {
 
     private val epaService = EpaService<T>()
 

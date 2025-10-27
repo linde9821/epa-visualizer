@@ -83,7 +83,7 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 120.0f,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
-        ) : LayoutConfig("Partition Similarity Radial") {
+    ) : LayoutConfig("Partition Similarity Radial") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),

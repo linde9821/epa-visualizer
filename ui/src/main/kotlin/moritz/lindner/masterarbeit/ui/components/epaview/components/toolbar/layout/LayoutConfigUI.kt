@@ -92,7 +92,7 @@ fun LayoutConfigUI(
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.PartitionClusteringLayoutConfig -> when(paramName) {
+                is LayoutConfig.PartitionClusteringLayoutConfig -> when (paramName) {
                     "enabled" -> config.enabled
                     "umapK" -> config.umapK
                     "umapIterations" -> config.umapIterations
@@ -103,7 +103,7 @@ fun LayoutConfigUI(
                     else -> throw IllegalArgumentException("Unknown parameter $paramName")
                 }
 
-                is LayoutConfig.PartitionSimilarityRadialLayoutConfig -> when(paramName) {
+                is LayoutConfig.PartitionSimilarityRadialLayoutConfig -> when (paramName) {
                     "enabled" -> config.enabled
                     "umapK" -> config.umapK
                     "umapIterations" -> config.umapIterations

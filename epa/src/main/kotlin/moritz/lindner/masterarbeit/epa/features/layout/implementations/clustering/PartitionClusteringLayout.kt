@@ -14,12 +14,11 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import smile.manifold.umap
-import kotlin.collections.set
 
 class PartitionClusteringLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.PartitionClusteringLayoutConfig = LayoutConfig.PartitionClusteringLayoutConfig()
-): Layout {
+) : Layout {
 
     private var isBuiltFlag = false
 

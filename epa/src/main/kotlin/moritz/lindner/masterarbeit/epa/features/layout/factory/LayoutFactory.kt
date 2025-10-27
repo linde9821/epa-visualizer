@@ -25,7 +25,11 @@ object LayoutFactory {
      * @return A TreeLayout instance configured according to the provided
      *    config.
      */
-    fun createTreeLayout(config: LayoutConfig, root: EPATreeNode, extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): TreeLayout = when (config) {
+    fun createTreeLayout(
+        config: LayoutConfig,
+        root: EPATreeNode,
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>
+    ): TreeLayout = when (config) {
         is LayoutConfig.WalkerConfig -> {
             WalkerTreeLayout(
                 distance = config.distance,
