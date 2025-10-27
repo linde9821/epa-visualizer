@@ -2,6 +2,6 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.clusteri
 
 enum class ReductionMethod {
     UMAP,
-//    TSNE,
+    TSNE,
 //    PCA
 }

@@ -150,7 +150,7 @@ sealed class LayoutConfig(val name: String) {
         // Reduction parameters
         val reductionMethod: ReductionMethod = ReductionMethod.UMAP,
         val umapK: Int = 10,
-        val umapIterations: Int = 250,
+        val iterations: Int = 300,
 
         // Layout parameters
         val canvasWidth: Float = 2000.0f,
@@ -188,9 +188,9 @@ sealed class LayoutConfig(val name: String) {
             "useActivity" to ParameterInfo.BooleanParameterInfo("Use Activity"),
 
             // Reduction parameters
-//            "reductionMethod" to ParameterInfo.EnumParameterInfo("Reduction Method", ReductionMethod.values().toList()),
+            "reductionMethod" to ParameterInfo.EnumParameterInfo("Reduction Method", ReductionMethod.entries),
             "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
-            "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
+            "Iterations" to ParameterInfo.NumberParameterInfo("Iterations", 0, 500, 1),
 
             // Layout parameters
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
@@ -230,9 +230,9 @@ sealed class LayoutConfig(val name: String) {
             "usePathLength" -> copy(usePathLength = value as Boolean)
             "useActivity" -> copy(useActivity = value as Boolean)
 
-//            "reductionMethod" -> copy(reductionMethod = value as ReductionMethod)
+            "reductionMethod" -> copy(reductionMethod = value as ReductionMethod)
             "umapK" -> copy(umapK = value as Int)
-            "umapIterations" -> copy(umapIterations = value as Int)
+            "Iterations" -> copy(iterations = value as Int)
 
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)

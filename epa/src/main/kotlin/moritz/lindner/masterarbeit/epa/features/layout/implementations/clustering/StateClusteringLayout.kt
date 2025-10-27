@@ -15,6 +15,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
+import smile.manifold.tsne
 import smile.manifold.umap
 import kotlin.math.sqrt
 
@@ -147,19 +148,21 @@ class StateClusteringLayout(
 
         // TODO: add others
         val coordinates2D = when (config.reductionMethod) {
-            ReductionMethod.UMAP -> computeUMAP(matrix)
+            ReductionMethod.UMAP -> umap(
+                data = matrix,
+                d = 2,
+                k = config.umapK,
+                epochs = config.iterations,
+            )
+
+            ReductionMethod.TSNE -> tsne(
+                X = matrix,
+                d = 2,
+                maxIter = config.iterations,
+            ).coordinates
         }
 
         return scaleToCanvas(states, coordinates2D)
-    }
-
-    private fun computeUMAP(matrix: Array<DoubleArray>): Array<DoubleArray> {
-        return umap(
-            data = matrix,
-            d = 2,
-            k = config.umapK,
-            epochs = config.umapIterations,
-        )
     }
 
     private fun scaleToCanvas(

@@ -72,7 +72,7 @@ fun LayoutConfigUI(
                     "useActivity" -> config.useActivity
                     "reductionMethod" -> config.reductionMethod
                     "umapK" -> config.umapK
-                    "umapIterations" -> config.umapIterations
+                    "Iterations" -> config.iterations
                     "canvasWidth" -> config.canvasWidth
                     "canvasHeight" -> config.canvasHeight
                     "nodeRadius" -> config.nodeRadius

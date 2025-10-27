@@ -44,10 +44,11 @@ class PartitionFeatureEmbedder() {
             //total event count (including parent partitions)
             val totalEvents = statesOfCurrentPartition.flatMap { state ->
                 extendedPrefixAutomaton.sequence(state)
-            }.distinct()
+            }.distinct() // this is quite slow
             val totalEventCount = totalEvents.count()
             features.add(totalEventCount.toDouble())
 
+            // this is quite slow
             //total trace count (including parent partitions)
             val totalTraceCount = totalEvents.distinctBy { it.caseIdentifier }.distinct().size
             features.add(totalTraceCount.toDouble())
@@ -164,8 +165,6 @@ class NgramEncoder(
 
         return vector
     }
-
-    fun getVocabularySize(): Int = ngramVocabulary.size
 }
 
 // Helper to build vocabulary from actual data
