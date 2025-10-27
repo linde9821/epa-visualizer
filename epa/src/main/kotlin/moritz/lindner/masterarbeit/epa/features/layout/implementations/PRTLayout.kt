@@ -88,15 +88,14 @@ class PRTLayout(
             },
         )
 
-        // TODO: Maybe change to a similar way its done in time radius walker
         // Add offset to handle zero values with logarithmic scaling
         val offset = 1.0f
         val values = cycleTimes.values.map { it + offset }
         val min = values.minOrNull() ?: offset
         val max = values.maxOrNull() ?: offset
 
-        val minEdgeLength = 10.0f  // minimum edge length in pixels/units
-        val maxEdgeLength = 1000.0f // maximum edge length in pixels/units
+        val minEdgeLength = 10.0f
+        val maxEdgeLength = 1000.0f
 
         val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
             // All values are essentially the same - use middle of range
@@ -111,12 +110,11 @@ class PRTLayout(
                 val logValue = log10(value)
                 val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
 
-                // Map to actual edge length range
                 minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
             }
         }
 
-        val x = when (config.initializer) {
+        val initialLayout = when (config.initializer) {
             LayoutConfig.PRTInitialLayout.Compact -> {
                 compactInitialization(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
@@ -139,7 +137,7 @@ class PRTLayout(
         logger.info { "parallelForceDirectedImprovements" }
         parallelForceDirectedImprovements(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
-            x = x,
+            x = initialLayout,
             progressCallback = progressCallback,
             desiredEdgeLengthByTransition = desiredEdgeLengthByTransition,
             iterations = config.iterations

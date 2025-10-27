@@ -53,7 +53,7 @@ object LayoutFactory {
 
         is LayoutConfig.TimeRadialWalkerConfig -> {
             TimeRadialWalkerTreeLayout(
-                multiplyer = config.layerBaseUnit,
+                layerSpace = config.layerBaseUnit,
                 margin = config.margin.degreesToRadians(),
                 rotation = config.rotation.degreesToRadians(),
                 minCycleTimeDifference = config.minCycleTimeDifference,
