@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -24,7 +25,9 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
@@ -50,10 +53,19 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil.textSize
+import org.jetbrains.skia.Font
+import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
+import org.jetbrains.skia.TextLine
+import kotlin.math.absoluteValue
+import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
+
+const val minScale = 0.01f
+const val maxScale = 12f
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -103,7 +115,7 @@ fun EpaLayoutCanvasRenderer(
                         val cursorPosition = event.changes.first().position
 
                         val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
-                        val newScale = (canvasState.scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val newScale = (canvasState.scale * zoomFactor).coerceIn(minScale, maxScale)
                         val worldPosBefore =
                             TreeCanvasRenderingHelper.screenToWorld(
                                 cursorPosition,
@@ -170,6 +182,7 @@ fun EpaLayoutCanvasRenderer(
                 pivot = Offset.Zero,
             )
         }) {
+
             try {
                 val visibleNodes = treeLayout.getCoordinatesInRectangle(
                     rectangle = computeBoundingBox(
@@ -287,6 +300,61 @@ fun EpaLayoutCanvasRenderer(
             } catch (e: Exception) {
                 logger.error(e) { "error while drawing: $e" }
             }
+        }
+
+        val padding = 20.dp.toPx()
+        val lineLength = 180.dp.toPx()
+        val lineHeight = 7.dp.toPx()
+        val dotRadius = 8.dp.toPx()
+
+        val normalized = ((ln(canvasState.scale) - ln(minScale)) / (ln(maxScale) - ln(minScale)))
+            .coerceIn(0f, 1f)
+
+        val topRightX = drawContext.size.width - padding
+        val topRightY = padding
+
+        val lineStart = Offset(topRightX - lineLength, topRightY)
+        val lineEnd = Offset(topRightX, topRightY)
+        drawLine(
+            color = Color.Gray,
+            start = lineStart,
+            end = lineEnd,
+            strokeWidth = lineHeight,
+            cap = StrokeCap.Round
+        )
+
+        val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
+        drawCircle(
+            color = Color(0xFF2196F3),
+            radius = dotRadius,
+            center = Offset(dotX, topRightY)
+        )
+
+         val paint =
+            Paint().apply {
+                color = org.jetbrains.skia.Color.BLACK
+                mode = PaintMode.FILL
+                isAntiAlias = true
+            }
+
+        val skFont =
+            Font()
+                .apply { size = 20f }
+
+        val textLine =
+            TextLine
+                .make("Zoom: %.3fx".format(canvasState.scale), skFont)
+
+        drawIntoCanvas { canvas ->
+            val textOffsetX = lineEnd.x - lineLength / 2
+            val textOffsetY = topRightY + 28.dp.toPx()
+
+            canvas.nativeCanvas.drawTextLine(
+                textLine,
+                textOffsetX - textLine.width,
+                textOffsetY,
+                paint
+            )
         }
     }
 }
