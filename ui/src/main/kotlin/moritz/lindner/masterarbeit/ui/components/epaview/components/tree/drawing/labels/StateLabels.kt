@@ -38,7 +38,7 @@ class StateLabels(
         val label = trimStateName(state)
         if (!labelByState.containsKey(label)) {
             val textLine =
-                TextLine.Companion
+                TextLine
                     .make(label, skFont)
 
             val width = (textLine.width + 10f).toInt()
