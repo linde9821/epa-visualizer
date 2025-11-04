@@ -86,7 +86,7 @@ fun EpaLayoutCanvasRenderer(
 
     val canvasModifier = Modifier
         .background(Color.White)
-        .onSizeChanged { canvasSize = it }
+        .onSizeChanged { size -> canvasSize = size }
         .fillMaxSize()
         .pointerInput(Unit) {
             detectTransformGestures { centroid, pan, zoom, _ ->
@@ -102,8 +102,8 @@ fun EpaLayoutCanvasRenderer(
                     if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
                         val cursorPosition = event.changes.first().position
 
-                        val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
-                        val newScale = (canvasState.scale * zoomFactor).coerceIn(0.01f, 14f)
+                        val zoomFactor = if (scrollDelta < 0) 1.02f else 0.98f
+                        val newScale = (canvasState.scale * zoomFactor).coerceIn(0.01f, 12f)
                         val worldPosBefore =
                             TreeCanvasRenderingHelper.screenToWorld(
                                 cursorPosition,
