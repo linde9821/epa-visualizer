@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -24,8 +25,10 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
@@ -54,8 +57,14 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil.textSize
+import org.jetbrains.skia.Font
+import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
+import org.jetbrains.skia.TextLine
+import kotlin.math.absoluteValue
+import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -184,6 +193,7 @@ fun EpaLayoutCanvasRenderer(
                 pivot = Offset.Zero,
             )
         }) {
+
             try {
                 val visibleNodes = treeLayout
                     // check for coordinates in view
@@ -314,7 +324,39 @@ fun EpaLayoutCanvasRenderer(
                 logger.error(e) { "error while drawing: $e" }
             }
         }
+
+        drawZoomLine(canvasState)
     }
+}
+
+private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
+    val padding = 20.dp.toPx()
+    val lineLength = 180.dp.toPx()
+    val lineHeight = 7.dp.toPx()
+    val dotRadius = 8.dp.toPx()
+
+    val normalized = ((ln(canvasState.scale) - ln(minScale)) / (ln(maxScale) - ln(minScale)))
+        .coerceIn(0f, 1f)
+
+    val topRightX = drawContext.size.width - padding
+    val topRightY = padding
+
+    val lineStart = Offset(topRightX - lineLength, topRightY)
+    val lineEnd = Offset(topRightX, topRightY)
+    drawLine(
+        color = Color.Gray,
+        start = lineStart,
+        end = lineEnd,
+        strokeWidth = lineHeight,
+        cap = StrokeCap.Round
+    )
+
+    val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
+    drawCircle(
+        color = Color(0xFF2196F3),
+        radius = dotRadius,
+        center = Offset(dotX, topRightY)
+    )
 }
 
 fun DrawScope.drawTree(
