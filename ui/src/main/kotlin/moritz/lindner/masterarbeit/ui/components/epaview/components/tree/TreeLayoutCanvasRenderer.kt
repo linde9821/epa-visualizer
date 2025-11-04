@@ -302,61 +302,38 @@ fun EpaLayoutCanvasRenderer(
             }
         }
 
-        val padding = 20.dp.toPx()
-        val lineLength = 180.dp.toPx()
-        val lineHeight = 7.dp.toPx()
-        val dotRadius = 8.dp.toPx()
-
-        val normalized = ((ln(canvasState.scale) - ln(minScale)) / (ln(maxScale) - ln(minScale)))
-            .coerceIn(0f, 1f)
-
-        val topRightX = drawContext.size.width - padding
-        val topRightY = padding
-
-        val lineStart = Offset(topRightX - lineLength, topRightY)
-        val lineEnd = Offset(topRightX, topRightY)
-        drawLine(
-            color = Color.Gray,
-            start = lineStart,
-            end = lineEnd,
-            strokeWidth = lineHeight,
-            cap = StrokeCap.Round
-        )
-
-        val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
-        drawCircle(
-            color = Color(0xFF2196F3),
-            radius = dotRadius,
-            center = Offset(dotX, topRightY)
-        )
-
-         val paint =
-            Paint().apply {
-                color = org.jetbrains.skia.Color.BLACK
-                mode = PaintMode.FILL
-                isAntiAlias = true
-            }
-
-        val skFont =
-            Font()
-                .apply { size = 20f }
-
-        val textLine =
-            TextLine
-                .make("Zoom: %.3fx".format(canvasState.scale), skFont)
-
-        drawIntoCanvas { canvas ->
-            val textOffsetX = lineEnd.x - lineLength / 2
-            val textOffsetY = topRightY + 28.dp.toPx()
-
-            canvas.nativeCanvas.drawTextLine(
-                textLine,
-                textOffsetX - textLine.width,
-                textOffsetY,
-                paint
-            )
-        }
+        drawZoomLine(canvasState)
     }
+}
+
+private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
+    val padding = 20.dp.toPx()
+    val lineLength = 180.dp.toPx()
+    val lineHeight = 7.dp.toPx()
+    val dotRadius = 8.dp.toPx()
+
+    val normalized = ((ln(canvasState.scale) - ln(minScale)) / (ln(maxScale) - ln(minScale)))
+        .coerceIn(0f, 1f)
+
+    val topRightX = drawContext.size.width - padding
+    val topRightY = padding
+
+    val lineStart = Offset(topRightX - lineLength, topRightY)
+    val lineEnd = Offset(topRightX, topRightY)
+    drawLine(
+        color = Color.Gray,
+        start = lineStart,
+        end = lineEnd,
+        strokeWidth = lineHeight,
+        cap = StrokeCap.Round
+    )
+
+    val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
+    drawCircle(
+        color = Color(0xFF2196F3),
+        radius = dotRadius,
+        center = Offset(dotX, topRightY)
+    )
 }
 
 fun DrawScope.drawTree(
