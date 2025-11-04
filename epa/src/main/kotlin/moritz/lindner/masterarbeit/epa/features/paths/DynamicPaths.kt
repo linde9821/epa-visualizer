@@ -14,50 +14,66 @@ data class Route(
     val end: State
 )
 
-class DynamicPaths<T : Comparable<T>>(
-    private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>
-) {
+class DynamicPaths<T : Comparable<T>>() {
     private val epaService = EpaService<T>()
 
     private val allPaths = mutableMapOf<Route, Path>()
 
     fun getPathBetween(start: State, end: State): Path {
+        // Check cache (bidirectional)
         val existing = allPaths[Route(start, end)] ?: allPaths[Route(end, start)]
+        if (existing != null) {
+            return if (allPaths.contains(Route(start, end))) {
+                existing
+            } else {
+                // Return reversed path if we cached it in opposite direction
+                Path(existing.value.reversed())
+            }
+        }
 
-        if (existing != null) return existing
-
+        // Compute path using LCA algorithm
         val startPath = epaService.getPathToRoot(start)
-        val targetPath = epaService.getPathFromRoot(end)
-        val targetPathSet = targetPath.toSet()
+        val endPath = epaService.getPathFromRoot(end)
+        val endPathSet = endPath.toSet()
 
         val path = mutableListOf<State>()
-        var matching: State? = null
+        var lowestCommonAncestor: State? = null
 
         for (stateOnPath in startPath) {
-            if (targetPathSet.contains(stateOnPath)) {
-                matching = stateOnPath
+            if (stateOnPath in endPathSet) {
+                lowestCommonAncestor = stateOnPath
                 break
             } else {
                 path.add(stateOnPath)
             }
         }
 
-        val pathDown = targetPath.dropWhile { state -> state != matching }
+        // Add path down from LCA to end
+        val pathDown = endPath.dropWhile { state -> state != lowestCommonAncestor }
         path.addAll(pathDown)
 
         val finalPath = path.toList()
 
-        val allPairs = finalPath.flatMapIndexed { i, a ->
-            finalPath.drop(i + 1).map { b -> a to b }
-        }
-
-        allPairs.forEach { (start, end) ->
-            if (allPaths.contains(Route(start, end)).not() && allPaths.contains(Route(end, start)).not()) {
-                val subPath = finalPath.dropWhile { it != start }.takeWhile { it != end }
-                allPaths[Route(start, end)] = Path(subPath)
-            }
-        }
+        // Cache all subpaths
+        cacheSubpaths(finalPath)
 
         return Path(finalPath)
+    }
+
+    private fun cacheSubpaths(fullPath: List<State>) {
+        // Generate all pairs of states on the path
+        for (i in fullPath.indices) {
+            for (j in i + 1 until fullPath.size) {
+                val start = fullPath[i]
+                val end = fullPath[j]
+
+                // Check if we already cached this route (in either direction)
+                if (Route(start, end) !in allPaths && Route(end, start) !in allPaths) {
+                    // Extract subpath from i to j (inclusive on both ends!)
+                    val subPath = fullPath.subList(i, j + 1)
+                    allPaths[Route(start, end)] = Path(subPath)
+                }
+            }
+        }
     }
 }

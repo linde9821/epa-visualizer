@@ -1,8 +1,8 @@
 package moritz.lindner.masterarbeit.epa.features.paths
 
+import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -15,12 +15,13 @@ class DynamicPathsTest {
 
     @Test
     fun `must be able to compute expected path`() {
-        val sut = DynamicPaths(epa)
+        val sut = DynamicPaths<Long>()
 
         val start = epa.getStateByName("[c] -> d")!!
         val end = epa.getStateByName("[b] -> d")!!
 
-        sut.getPathBetween(start, end)
+        val result = sut.getPathBetween(start, end)
 
+        expectSelfie(result.value.joinToString(",")).toMatchDisk()
     }
 }
