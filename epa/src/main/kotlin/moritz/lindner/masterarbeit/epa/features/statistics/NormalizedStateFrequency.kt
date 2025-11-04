@@ -32,4 +32,8 @@ class NormalizedStateFrequency(
 
     /** Returns the maximum normalized frequency across all states. */
     fun max(): Float = max
+
+    fun toList(): List<Float> {
+        return relativeFrequencyByState.values.toList()
+    }
 }
