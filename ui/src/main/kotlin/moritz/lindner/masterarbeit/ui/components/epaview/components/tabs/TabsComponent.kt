@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
@@ -43,6 +44,7 @@ fun TabsComponent(
     val layoutByTabId by epaStateManager.layoutAndConfigByTabId.collectAsState()
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val drawAtlasByTabId by epaStateManager.drawAtlasByTabId.collectAsState()
+    val lodByTabId by epaStateManager.lodByTabId.collectAsState()
     val highlightingByTabId by epaStateManager.highlightingByTabId.collectAsState()
     val animationState by epaStateManager.animationState.collectAsState()
 
@@ -53,6 +55,7 @@ fun TabsComponent(
     val currentProgress = currentTab?.progress
     val currentEpa = activeTabId?.let { epaByTabId[it] }
     val currentLayoutAndConfig = activeTabId?.let { layoutByTabId[it] }
+    val currentLod = activeTabId?.let { lodByTabId[it] }
     val currentStateLabels = activeTabId?.let { stateLabelsByTabId[it] }
     val currentDrawAtlas = activeTabId?.let { drawAtlasByTabId[it] }
     val currentHighlightingAtlas = activeTabId?.let { highlightingByTabId[it] }
@@ -141,6 +144,7 @@ fun TabsComponent(
                                     highlightingAtlas = currentHighlightingAtlas,
                                     animationState = animationState,
                                     canvasState = canvasState,
+                                    lodQuery = currentLod ?: NoLOD()
                                 )
                             } else {
                                 Text("Rendering is disabled")
