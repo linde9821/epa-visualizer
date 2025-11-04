@@ -30,6 +30,9 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
+import moritz.lindner.masterarbeit.epa.features.lod.SteinerTreeLOD
+import moritz.lindner.masterarbeit.epa.features.lod.SteinerTreeLODBuilder
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
@@ -106,6 +109,9 @@ class EpaStateManager(
     private val _drawAtlasByTabId = MutableStateFlow<Map<String, DrawAtlas>>(emptyMap())
     val drawAtlasByTabId = _drawAtlasByTabId.asStateFlow()
 
+    private val _lodByTabId = MutableStateFlow<Map<String, LODQuery>>(emptyMap())
+    val lodByTabId = _lodByTabId.asStateFlow()
+
     private val _layoutAndConfigByTabId = MutableStateFlow<Map<String, Pair<Layout, LayoutConfig>>>(emptyMap())
     val layoutAndConfigByTabId = _layoutAndConfigByTabId.asStateFlow()
 
@@ -161,6 +167,9 @@ class EpaStateManager(
         _drawAtlasByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
         }
+        _lodByTabId.update { currentMap ->
+            currentMap.filterNot { it.key == tabId }
+        }
     }
 
     private fun invalidateAllEpas() {
@@ -169,6 +178,7 @@ class EpaStateManager(
         _layoutAndConfigByTabId.value = emptyMap()
         _statisticsByTabId.value = emptyMap()
         _drawAtlasByTabId.value = emptyMap()
+        _lodByTabId.value = emptyMap()
     }
 
     init {
@@ -198,6 +208,7 @@ class EpaStateManager(
                                 buildDrawAtlasForTab(tab)
                                 buildStatisticForTab(tab)
                                 buildHighlightingForTab(tab)
+                                buildLodForTab(tab)
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
@@ -231,6 +242,9 @@ class EpaStateManager(
                         // build highlighting
                         buildHighlightingForTab(tab)
                         ensureActive()
+                        // build lod
+                        buildLodForTab(tab)
+                        ensureActive()
                     }
                 } catch (e: CancellationException) {
                     logger.info { "canceling current tabs building" }
@@ -239,6 +253,27 @@ class EpaStateManager(
                     logger.error(e) { "Error while building state" }
                 }
             }
+        }
+    }
+
+    private fun buildLodForTab(tabState: TabState) {
+        if (_lodByTabId.value.containsKey(tabState.id)) {
+            return
+        }
+        logger.info { "build lods" }
+
+        val epa = _epaByTabId.value[tabState.id]!!
+        val lodBuilder = SteinerTreeLODBuilder(epa)
+        val lods = lodBuilder.buildLODLevels()
+
+        val lod = SteinerTreeLOD<Long>(
+            lodLevels = lods,
+        )
+
+        logger.info { "build lods completed" }
+
+        _lodByTabId.update { currentMap ->
+            currentMap + (tabState.id to lod)
         }
     }
 
@@ -346,6 +381,7 @@ class EpaStateManager(
         _drawAtlasByTabId.update { currentMap ->
             currentMap + (tabState.id to atlas)
         }
+        logger.info { "atlas build" }
     }
 
     suspend fun buildLayoutForTab(
