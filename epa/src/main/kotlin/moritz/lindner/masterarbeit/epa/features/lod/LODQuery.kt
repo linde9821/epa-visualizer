@@ -17,24 +17,6 @@ interface LODQuery {
      */
     fun getOpacity(state: State): Float
 
-    /** Get opacity for transition */
-    fun getOpacity(transition: Transition): Float
-
     /** Get aggregation info if this state represents aggregated children */
     fun getAggregationInfo(state: State): AggregationInfo?
-}
-
-data class AggregationInfo(
-    val hiddenChildCount: Int,
-    val hiddenPartitions: Set<Int>,
-    val totalEventCount: Int
-)
-
-/** Default implementation that shows everything (no LOD) */
-class NoLOD : LODQuery {
-    override fun isVisible(state: State) = true
-    override fun isVisible(transition: Transition) = true
-    override fun getOpacity(state: State) = 1f
-    override fun getOpacity(transition: Transition) = 1f
-    override fun getAggregationInfo(state: State): AggregationInfo? = null
 }
