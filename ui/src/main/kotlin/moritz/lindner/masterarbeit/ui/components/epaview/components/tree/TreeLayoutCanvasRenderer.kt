@@ -25,7 +25,6 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.unit.dp
@@ -43,7 +42,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.clusterin
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
-import moritz.lindner.masterarbeit.epa.features.lod.SteinerTreeLOD
+import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawDepthCircles
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawNodes
@@ -57,19 +56,14 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
-import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil.textSize
-import org.jetbrains.skia.Font
-import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
-import org.jetbrains.skia.TextLine
-import kotlin.math.absoluteValue
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-const val minScale = 0.01f
-const val maxScale = 12f
+const val minScale = 0.1f
+const val maxScale = 5f
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -103,7 +97,7 @@ fun EpaLayoutCanvasRenderer(
 
     LaunchedEffect(canvasState.scale) {
         if (lodQuery is SteinerTreeLOD<*>) {
-            lodQuery.setLODFromZoom(canvasState.scale, minScale, maxScale)
+            lodQuery.setLODFromZoom(canvasState.scale)
         }
     }
 
@@ -325,11 +319,11 @@ fun EpaLayoutCanvasRenderer(
             }
         }
 
-        drawZoomLine(canvasState)
+        drawZoomLine(canvasState, lodQuery)
     }
 }
 
-private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
+private fun DrawScope.drawZoomLine(canvasState: CanvasState, lodQuery: LODQuery) {
     val padding = 20.dp.toPx()
     val lineLength = 180.dp.toPx()
     val lineHeight = 7.dp.toPx()
@@ -351,9 +345,20 @@ private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
         cap = StrokeCap.Round
     )
 
+    val color = Color(0xFF2196F3)
+//    lodQuery.getNormalizedThresholdValues().forEach { threshold ->
+//        val thresholdX = lineStart.x + threshold * (lineEnd.x - lineStart.x)
+//        drawLine(
+//            color = color,
+//            start = Offset(thresholdX, topRightY - lineHeight),
+//            end = Offset(thresholdX, topRightY + lineHeight),
+//            strokeWidth = 5.dp.toPx()
+//        )
+//    }
+
     val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
     drawCircle(
-        color = Color(0xFF2196F3),
+        color = color,
         radius = dotRadius,
         center = Offset(dotX, topRightY)
     )
