@@ -21,7 +21,6 @@ dependencies {
     implementation(libs.bundles.serialization)
     implementation(libs.bundles.dl4j)
     implementation(libs.bundles.smile)
-    implementation("org.jgrapht:jgrapht-core:1.5.2")
 
     val osName = System.getProperty("os.name").lowercase()
     val osArch = System.getProperty("os.arch").lowercase()
