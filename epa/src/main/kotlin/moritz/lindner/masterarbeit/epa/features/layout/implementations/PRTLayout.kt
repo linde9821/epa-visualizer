@@ -358,7 +358,7 @@ class PRTLayout(
         return coordinateByState
     }
 
-    private val LABEL_OVERLAP_FORCE_STRENGTH = 0.16f
+    private val LABEL_OVERLAP_FORCE_STRENGTH = 0.8f
     private val EDGE_LENGTH_FORCE_STRENGTH = 1.0f
     private val DISTRIBUTION_FORCE_STRENGTH = 0.003f
 
