@@ -203,15 +203,12 @@ class EpaStateManager(
                     rebuildJob = scope.launch(backgroundDispatcher) {
                         try {
                             tabStateManager.tabs.value.forEach { tab ->
-                                // Check if still active
-                                ensureActive()
                                 buildEpaForTab(tab)
                                 buildLayoutForTab(tab)
                                 buildStateLabelsForTab(tab)
                                 buildDrawAtlasForTab(tab)
                                 buildStatisticForTab(tab)
                                 buildHighlightingForTab(tab)
-                                buildLodForTab(tab)
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
@@ -227,20 +224,12 @@ class EpaStateManager(
             tabStateManager.tabs.collectLatest { tabs ->
                 try {
                     tabs.forEach { tab ->
-                        // build epa
                         buildEpaForTab(tab)
-                        // build layout
                         buildLayoutForTab(tab)
-                        // build labels
                         buildStateLabelsForTab(tab)
-                        // build draw atlas
                         buildDrawAtlasForTab(tab)
-                        // build statistics
                         buildStatisticForTab(tab)
-                        // build highlighting
                         buildHighlightingForTab(tab)
-                        // build lod
-                        buildLodForTab(tab)
                     }
                 } catch (e: CancellationException) {
                     logger.info { "canceling current tabs building" }
@@ -252,12 +241,10 @@ class EpaStateManager(
         }
     }
 
-    private suspend fun buildLodForTab(tabState: TabState) {
+    private suspend fun buildLodForTab(tabState: TabState, config: LayoutConfig) {
         logger.info { "build lods" }
 
-        val config = _layoutAndConfigByTabId.value[tabState.id]?.second
-
-        val lod = if (config?.lod == true) {
+        val lod = if (config.lod) {
             val epa = _epaByTabId.value[tabState.id]!!
             val lodBuilder = SteinerTreeLODBuilder(epa)
             val lods = lodBuilder.buildLODLevels()
@@ -404,7 +391,7 @@ class EpaStateManager(
 
         val epa = _epaByTabId.value[tabState.id]!!
         val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
-        yield()
+        buildLodForTab(tabState, tabState.layoutConfig)
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }
