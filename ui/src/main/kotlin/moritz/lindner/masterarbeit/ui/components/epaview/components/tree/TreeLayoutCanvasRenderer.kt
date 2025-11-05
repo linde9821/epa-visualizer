@@ -405,7 +405,6 @@ fun DrawScope.drawTree(
                         if (highlightingAtlas.highlightedStates.contains(state)) {
                             val strokePaint = highlightedPaint.apply {
                                 mode = PaintMode.STROKE
-                                alpha = ((lodQuery.getOpacity(state.from)) * 255f).fastRoundToInt()
                                 strokeWidth = entry.paint.strokeWidth + 5f
                             }
                             canvas.nativeCanvas.drawPath(path, strokePaint)

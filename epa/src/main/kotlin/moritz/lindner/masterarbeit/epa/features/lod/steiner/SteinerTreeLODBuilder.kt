@@ -17,7 +17,7 @@ class SteinerTreeLODBuilder<T : Comparable<T>>(private val epa: ExtendedPrefixAu
     suspend fun buildLODLevels(): List<SteinerLODLevel> {
         val normalizedFrequency = epaService.getNormalizedStateFrequency(epa)
 
-        val thresholds = listOf(0.0f, 0.0001f)
+        val thresholds = listOf(0.0f, 0.001f)
 
         return coroutineScope {
             thresholds.map { threshold ->
@@ -29,13 +29,6 @@ class SteinerTreeLODBuilder<T : Comparable<T>>(private val epa: ExtendedPrefixAu
         }
     }
 
-    /**
-     * Select terminal states based on frequency threshold
-     *
-     * Terminals are states that MUST be included in the LOD level:
-     * 1. Root state (always)
-     * 2. States with frequency >= threshold
-     */
     private fun selectTerminals(threshold: Float, normalizedFrequency: NormalizedStateFrequency): Set<State> {
         val terminals = mutableSetOf<State>()
 

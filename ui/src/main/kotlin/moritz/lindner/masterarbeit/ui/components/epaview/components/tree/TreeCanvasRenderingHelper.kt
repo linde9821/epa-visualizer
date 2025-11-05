@@ -36,9 +36,7 @@ object TreeCanvasRenderingHelper {
     ) {
         visibleNodes.forEach { (coordinate, state) ->
             val entry = drawAtlas.getState(state)
-            val paint = entry.paint.apply {
-                alpha = ((lodQuery.getOpacity(state)) * 255f).fastRoundToInt()
-            }
+            val paint = entry.paint
             val cx = coordinate.x
             val cy = coordinate.y
 

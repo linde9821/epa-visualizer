@@ -262,6 +262,7 @@ class EpaStateManager(
         if (_lodByTabId.value.containsKey(tabState.id)) {
             return
         }
+
         logger.info { "build lods" }
 
         val epa = _epaByTabId.value[tabState.id]!!
@@ -272,7 +273,6 @@ class EpaStateManager(
             lodLevels = lods,
             minScale = minScale,
             maxScale = maxScale,
-            initialLevel = 0f,
         )
 
         logger.info { "build lods completed" }
