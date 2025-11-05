@@ -79,6 +79,7 @@ compose.desktop {
                 "-Xmx12g",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
+                "-XX:+UseZGC",
             )
 
         buildTypes.release.proguard {

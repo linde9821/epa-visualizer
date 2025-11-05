@@ -134,6 +134,12 @@ class EpaService<T : Comparable<T>> {
         return traverseToRoot(emptyList(), state).reversed()
     }
 
+    fun getPathToRoot(
+        state: State,
+    ): List<State> {
+        return traverseToRoot(emptyList(), state)
+    }
+
     fun getDepth(
         state: State,
     ): Int {

@@ -6,7 +6,7 @@ sealed class ParameterInfo {
         val name: String,
         val min: T,
         val max: T,
-        val step: T,
+        val steps: T,
     ) : ParameterInfo()
 
     data class BooleanParameterInfo(
@@ -18,4 +18,3 @@ sealed class ParameterInfo {
         val selectionOptions: List<E>
     ) : ParameterInfo()
 }
-

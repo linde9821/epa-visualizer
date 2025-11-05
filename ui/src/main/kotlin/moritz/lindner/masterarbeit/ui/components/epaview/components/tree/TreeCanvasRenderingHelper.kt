@@ -12,6 +12,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
+import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
@@ -33,6 +34,7 @@ object TreeCanvasRenderingHelper {
     ) {
         visibleNodes.forEach { (coordinate, state) ->
             val entry = drawAtlas.getState(state)
+            val paint = entry.paint
             val cx = coordinate.x
             val cy = coordinate.y
 
@@ -40,7 +42,7 @@ object TreeCanvasRenderingHelper {
                 canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.highlightedPaint)
             }
 
-            canvas.nativeCanvas.drawCircle(cx, cy, entry.size, entry.paint)
+            canvas.nativeCanvas.drawCircle(cx, cy, entry.size, paint)
 
             if (entry.size * scale >= drawAtlas.stateSizeUntilLabelIsDrawn) {
                 val label = stateLabels.getLabelForState(state)

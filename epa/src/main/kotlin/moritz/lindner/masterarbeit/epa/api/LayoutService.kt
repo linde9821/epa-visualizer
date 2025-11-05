@@ -36,15 +36,13 @@ class LayoutService<T : Comparable<T>>(
         progressCallback: EpaProgressCallback? = null
     ): Layout {
         val treeVisitor = EpaToTree<Long>(progressCallback)
-        if (layoutConfig.enabled) {
-            epa.acceptDepthFirst(treeVisitor)
-            logger.info { "building tree layout" }
-            val layout = createLayout(layoutConfig, epa, treeVisitor)
+        epa.acceptDepthFirst(treeVisitor)
+        logger.info { "building tree layout" }
+        val layout = createLayout(layoutConfig, epa, treeVisitor)
 
-            layout.build(progressCallback)
+        layout.build(progressCallback)
 
-            return layout
-        } else return createLayout(layoutConfig, epa, treeVisitor)
+        return layout
     }
 
     private fun createLayout(

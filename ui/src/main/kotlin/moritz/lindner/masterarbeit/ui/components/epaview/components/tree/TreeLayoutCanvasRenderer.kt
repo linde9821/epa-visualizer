@@ -25,7 +25,6 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -40,6 +39,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTre
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
+import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
+import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
+import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.computeBoundingBox
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawDepthCircles
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawNodes
@@ -53,19 +55,14 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
-import org.jetbrains.letsPlot.core.plot.base.aes.AestheticsUtil.textSize
-import org.jetbrains.skia.Font
-import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.Path
-import org.jetbrains.skia.TextLine
-import kotlin.math.absoluteValue
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-const val minScale = 0.01f
-const val maxScale = 12f
+const val minScale = 0.1f
+const val maxScale = 5f
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -73,6 +70,7 @@ fun EpaLayoutCanvasRenderer(
     treeLayout: Layout,
     stateLabels: StateLabels,
     highlightingAtlas: HighlightingAtlas,
+    lodQuery: LODQuery = NoLOD(),
     animationState: AnimationState,
     drawAtlas: DrawAtlas,
     canvasState: CanvasState,
@@ -96,9 +94,15 @@ fun EpaLayoutCanvasRenderer(
         }
     }
 
+    LaunchedEffect(canvasState.scale) {
+        if (lodQuery is SteinerTreeLOD<*>) {
+            lodQuery.setLODFromZoom(canvasState.scale)
+        }
+    }
+
     val canvasModifier = Modifier
         .background(Color.White)
-        .onSizeChanged { canvasSize = it }
+        .onSizeChanged { size -> canvasSize = size }
         .fillMaxSize()
         .pointerInput(Unit) {
             detectTransformGestures { centroid, pan, zoom, _ ->
@@ -114,7 +118,7 @@ fun EpaLayoutCanvasRenderer(
                     if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
                         val cursorPosition = event.changes.first().position
 
-                        val zoomFactor = if (scrollDelta < 0) 1.1f else 0.9f
+                        val zoomFactor = if (scrollDelta < 0) 1.03f else 0.97f
                         val newScale = (canvasState.scale * zoomFactor).coerceIn(minScale, maxScale)
                         val worldPosBefore =
                             TreeCanvasRenderingHelper.screenToWorld(
@@ -184,12 +188,17 @@ fun EpaLayoutCanvasRenderer(
         }) {
 
             try {
-                val visibleNodes = treeLayout.getCoordinatesInRectangle(
-                    rectangle = computeBoundingBox(
-                        canvasState.offset,
-                        canvasState.scale
+                val visibleNodes = treeLayout
+                    // check for coordinates in view
+                    .getCoordinatesInRectangle(
+                        computeBoundingBox(
+                            canvasState.offset,
+                            canvasState.scale
+                        )
                     )
-                )
+                    // check that node is visible in lod
+                    .filter { lodQuery.isVisible(it.state) }
+
                 when (treeLayout) {
                     is RadialWalkerTreeLayout -> {
                         drawDepthCircles(layout = treeLayout)
@@ -302,11 +311,11 @@ fun EpaLayoutCanvasRenderer(
             }
         }
 
-        drawZoomLine(canvasState)
+        drawZoomLine(canvasState, lodQuery)
     }
 }
 
-private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
+private fun DrawScope.drawZoomLine(canvasState: CanvasState, lodQuery: LODQuery) {
     val padding = 20.dp.toPx()
     val lineLength = 180.dp.toPx()
     val lineHeight = 7.dp.toPx()
@@ -328,9 +337,20 @@ private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
         cap = StrokeCap.Round
     )
 
+    val color = Color(0xFF2196F3)
+//    lodQuery.getNormalizedThresholdValues().forEach { threshold ->
+//        val thresholdX = lineStart.x + threshold * (lineEnd.x - lineStart.x)
+//        drawLine(
+//            color = color,
+//            start = Offset(thresholdX, topRightY - lineHeight),
+//            end = Offset(thresholdX, topRightY + lineHeight),
+//            strokeWidth = 5.dp.toPx()
+//        )
+//    }
+
     val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
     drawCircle(
-        color = Color(0xFF2196F3),
+        color = color,
         radius = dotRadius,
         center = Offset(dotX, topRightY)
     )
@@ -353,36 +373,37 @@ fun DrawScope.drawTree(
 
         // Draw edges
         if (drawAtlas.getTransitionModeForLayout(layout) != TransitionDrawMode.NONE) {
-            visibleNodes.forEach { (coordinate, state) ->
-                if (state is PrefixState) {
-                    val cx = coordinate.x
-                    val cy = coordinate.y
-                    val parentCoordinate = layout.getCoordinate(state.from)
-                    val entry = drawAtlas.getTransitionEntryByParentState(state)
+            visibleNodes
+                .forEach { (coordinate, state) ->
+                    if (state is PrefixState) {
+                        val cx = coordinate.x
+                        val cy = coordinate.y
+                        val parentCoordinate = layout.getCoordinate(state.from)
+                        val entry = drawAtlas.getTransitionEntryByParentState(state)
 
-                    val start = Offset(parentCoordinate.x, parentCoordinate.y)
-                    val end = Offset(cx, cy)
+                        val start = Offset(parentCoordinate.x, parentCoordinate.y)
+                        val end = Offset(cx, cy)
 
-                    path.reset()
-                    path.moveTo(start.x, start.y)
-                    if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.BEZIER) {
-                        val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
-                        path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y)
-                    } else if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.LINE) {
-                        path.lineTo(end.x, end.y)
-                    }
-
-                    if (highlightingAtlas.highlightedStates.contains(state)) {
-                        val strokePaint = highlightedPaint.apply {
-                            mode = PaintMode.STROKE
-                            strokeWidth = entry.paint.strokeWidth + 5f
+                        path.reset()
+                        path.moveTo(start.x, start.y)
+                        if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.BEZIER) {
+                            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+                            path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y)
+                        } else if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.LINE) {
+                            path.lineTo(end.x, end.y)
                         }
-                        canvas.nativeCanvas.drawPath(path, strokePaint)
-                    }
 
-                    canvas.nativeCanvas.drawPath(path, entry.paint)
+                        if (highlightingAtlas.highlightedStates.contains(state)) {
+                            val strokePaint = highlightedPaint.apply {
+                                mode = PaintMode.STROKE
+                                strokeWidth = entry.paint.strokeWidth + 5f
+                            }
+                            canvas.nativeCanvas.drawPath(path, strokePaint)
+                        }
+
+                        canvas.nativeCanvas.drawPath(path, entry.paint)
+                    }
                 }
-            }
         }
 
         val selectedState = tabState.selectedState

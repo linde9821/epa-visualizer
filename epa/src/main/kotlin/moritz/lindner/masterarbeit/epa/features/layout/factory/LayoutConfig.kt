@@ -7,6 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.clusterin
 sealed class LayoutConfig(val name: String) {
 
     abstract val enabled: Boolean
+    abstract val lod: Boolean
 
     abstract fun getParameters(): Map<String, ParameterInfo>
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
@@ -15,17 +16,20 @@ sealed class LayoutConfig(val name: String) {
         val distance: Float = 200.0f,
         val layerSpace: Float = 200.0f,
         override val enabled: Boolean = true,
+        override val lod: Boolean = true
     ) : LayoutConfig("Walker") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
             "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
             "distance" -> copy(distance = value as Float)
             "layerSpace" -> copy(layerSpace = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -37,13 +41,15 @@ sealed class LayoutConfig(val name: String) {
         val minCycleTimeDifference: Float = 0.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
+        override val lod: Boolean = true
     ) : LayoutConfig("Radial Walker Time") {
         override fun getParameters() = mapOf(
             "layerBaseUnit" to ParameterInfo.NumberParameterInfo("layerBaseUnit", 1.0f, 2000.0f, 10f),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "minCycleTimeDifference" to ParameterInfo.NumberParameterInfo("Min Cycletime change", 0.0f, 1.0f, .1f),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -52,6 +58,7 @@ sealed class LayoutConfig(val name: String) {
             "rotation" -> copy(rotation = value as Float)
             "minCycleTimeDifference" -> copy(minCycleTimeDifference = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -61,12 +68,14 @@ sealed class LayoutConfig(val name: String) {
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         override val enabled: Boolean = true,
+        override val lod: Boolean = true
     ) : LayoutConfig("Radial Walker") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -74,6 +83,7 @@ sealed class LayoutConfig(val name: String) {
             "margin" -> copy(margin = value as Float)
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -83,13 +93,15 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 120.0f,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
+        override val lod: Boolean = true
     ) : LayoutConfig("Partition Similarity Radial") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
                 "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
                 "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
-                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+                "lod" to ParameterInfo.BooleanParameterInfo("lod")
             )
         }
 
@@ -102,6 +114,7 @@ sealed class LayoutConfig(val name: String) {
                 "umapIterations" -> copy(umapIterations = value as Int)
                 "layerSpace" -> copy(layerSpace = value as Float)
                 "enabled" -> copy(enabled = value as Boolean)
+                "lod"-> copy(lod = value as Boolean)
                 else -> this
             }
         }
@@ -111,17 +124,20 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 50.0f,
         val rotation: Float = 0.0f,
         override val enabled: Boolean = true,
+        override val lod: Boolean = true
     ) : LayoutConfig("Direct Angular") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
             "layerSpace" -> copy(layerSpace = value as Float)
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -164,6 +180,7 @@ sealed class LayoutConfig(val name: String) {
         val forceDirectedLayoutIterations: Int = 10,
         val useResolveOverlap: Boolean = false,
         override val enabled: Boolean = true,
+        override val lod: Boolean = true
     ) : LayoutConfig("State-Clustering Layout") {
 
         override fun getParameters() = mapOf(
@@ -189,8 +206,8 @@ sealed class LayoutConfig(val name: String) {
 
             // Reduction parameters
             "reductionMethod" to ParameterInfo.EnumParameterInfo("Reduction Method", ReductionMethod.entries),
-            "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
-            "Iterations" to ParameterInfo.NumberParameterInfo("Iterations", 0, 500, 1),
+            "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),
+            "Iterations" to ParameterInfo.NumberParameterInfo("Iterations", 0, 100, 100),
 
             // Layout parameters
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
@@ -209,7 +226,8 @@ sealed class LayoutConfig(val name: String) {
             ),
 
             "useResolveOverlap" to ParameterInfo.BooleanParameterInfo("Use Resolve Overlap"),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled")
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -245,6 +263,7 @@ sealed class LayoutConfig(val name: String) {
 
             "useResolveOverlap" -> copy(useResolveOverlap = value as Boolean)
             "enabled" -> copy(enabled = value as Boolean)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -257,6 +276,7 @@ sealed class LayoutConfig(val name: String) {
         val canvasHeight: Float = 2000.0f,
         val nodeRadius: Float = 5.0f,
         val padding: Float = 50.0f,
+        override val lod: Boolean = true
     ) : LayoutConfig("Partition-Clustering Layout") {
 
         override fun getParameters() = mapOf(
@@ -267,6 +287,7 @@ sealed class LayoutConfig(val name: String) {
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
             "nodeRadius" to ParameterInfo.NumberParameterInfo("Node Radius", 1.0f, 20.0f, 1.0f),
             "padding" to ParameterInfo.NumberParameterInfo("Padding", 10.0f, 200.0f, 10.0f),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -277,6 +298,7 @@ sealed class LayoutConfig(val name: String) {
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "nodeRadius" -> copy(nodeRadius = value as Float)
             "padding" -> copy(padding = value as Float)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -291,7 +313,8 @@ sealed class LayoutConfig(val name: String) {
         val initializer: PRTInitialLayout = PRTInitialLayout.Compact,
         val labelSizeByState: Map<State, Pair<Float, Float>>,
         val iterations: Int = 10,
-        val seed: Int = 42
+        val seed: Int = 42,
+        override val lod: Boolean = true
     ) : LayoutConfig("PRT") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -304,8 +327,9 @@ sealed class LayoutConfig(val name: String) {
                     name = "iterations",
                     min = 0,
                     max = 100,
-                    step = 1
-                )
+                    steps = 100
+                ),
+                "lod" to ParameterInfo.BooleanParameterInfo("lod")
             )
         }
 
@@ -316,6 +340,7 @@ sealed class LayoutConfig(val name: String) {
             "enabled" -> copy(enabled = value as Boolean)
             "initialization" -> copy(initializer = value as PRTInitialLayout)
             "iterations" -> copy(iterations = value as Int)
+            "lod"-> copy(lod = value as Boolean)
             else -> this
         }
     }

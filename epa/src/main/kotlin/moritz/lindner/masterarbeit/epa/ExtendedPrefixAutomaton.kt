@@ -208,4 +208,8 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
         result = 31 * result + outgoingTransitionsByState.hashCode()
         return result
     }
+
+    fun getStateByName(name: String): State? {
+        return states.find { it.toString() == name }
+    }
 }
