@@ -1,12 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.paths
 
-import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
 
 @JvmInline
 value class Path(
-    val value: List<State>
+    val states: List<State>
 )
 
 data class Route(
@@ -14,10 +13,10 @@ data class Route(
     val end: State
 )
 
-class DynamicPaths<T : Comparable<T>>() {
+class PathFinder<T : Comparable<T>>() {
     private val epaService = EpaService<T>()
 
-    private val allPaths = mutableMapOf<Route, Path>()
+    private val allPaths = HashMap<Route, Path>()
 
     fun getPathBetween(start: State, end: State): Path {
         // Check cache (bidirectional)
@@ -27,7 +26,7 @@ class DynamicPaths<T : Comparable<T>>() {
                 existing
             } else {
                 // Return reversed path if we cached it in opposite direction
-                Path(existing.value.reversed())
+                Path(existing.states.reversed())
             }
         }
 
@@ -68,7 +67,12 @@ class DynamicPaths<T : Comparable<T>>() {
                 val end = fullPath[j]
 
                 // Check if we already cached this route (in either direction)
-                if (Route(start, end) !in allPaths && Route(end, start) !in allPaths) {
+                if (
+                    allPaths.contains(Route(start, end))
+                    || allPaths.contains(Route(end, start))
+                ) {
+                    continue
+                } else {
                     // Extract subpath from i to j (inclusive on both ends!)
                     val subPath = fullPath.subList(i, j + 1)
                     allPaths[Route(start, end)] = Path(subPath)

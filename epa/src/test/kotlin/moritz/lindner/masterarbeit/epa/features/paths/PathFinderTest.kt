@@ -6,7 +6,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMappe
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class DynamicPathsTest {
+class PathFinderTest {
     val epa =
         EpaFromXesBuilder<Long>()
             .setFile(File("./src/test/resources/sample.xes"))
@@ -15,13 +15,13 @@ class DynamicPathsTest {
 
     @Test
     fun `must be able to compute expected path`() {
-        val sut = DynamicPaths<Long>()
+        val sut = PathFinder<Long>()
 
         val start = epa.getStateByName("[c] -> d")!!
         val end = epa.getStateByName("[b] -> d")!!
 
         val result = sut.getPathBetween(start, end)
 
-        expectSelfie(result.value.joinToString(",")).toMatchDisk()
+        expectSelfie(result.states.joinToString(",")).toMatchDisk()
     }
 }
