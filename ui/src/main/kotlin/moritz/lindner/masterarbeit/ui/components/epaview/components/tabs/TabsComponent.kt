@@ -115,7 +115,7 @@ fun TabsComponent(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            if (currentLayoutAndConfig.first.isBuilt()) {
+                            if (currentLayoutAndConfig.first.isBuilt() && currentLayoutAndConfig.second.enabled) {
                                 val layout = currentLayoutAndConfig.first
 
                                 EpaLayoutCanvasRenderer(

@@ -107,13 +107,6 @@ object LayoutFactory {
                 )
             }
 
-//            SemanticRadialLayout(
-//                epa = extendedPrefixAutomaton,
-//                margin = 0.0f,
-//                layerSpace = 100f,
-//                rotation = 0f
-//            )
-
             else -> throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }
     }

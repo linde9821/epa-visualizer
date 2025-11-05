@@ -16,18 +16,18 @@ import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import kotlin.math.roundToInt
 
 @Composable
 fun LayoutConfigUI(
     config: LayoutConfig,
-    onConfigChange: (LayoutConfig) -> Unit
+    onConfigChange: (LayoutConfig) -> Unit,
 ) {
     var currentConfig by remember(config) { mutableStateOf(config) }
-    var hasChange by remember(config) { mutableStateOf(false) }
 
     LazyColumn {
         items(currentConfig.getParameters().toList()) { (paramName, info) ->
-            val currentValue = updateConfigValue(currentConfig, paramName)
+            val currentValue = getCurrentConfigValue(currentConfig, paramName)
 
             when (info) {
                 is ParameterInfo.BooleanParameterInfo -> {
@@ -39,27 +39,25 @@ fun LayoutConfigUI(
                             checked = currentValue as Boolean,
                             onCheckedChange = { value ->
                                 currentConfig = currentConfig.updateParameter(paramName, value)
-                                hasChange = true
                             }
                         )
                     }
                 }
 
                 is ParameterInfo.NumberParameterInfo<*> -> {
-                    when (info.step) {
+                    when (info.steps) {
                         is Int -> {
-                            Text("${info.name}: $currentValue")
+                            Text("${info.name}: $currentValue (steps ${info.steps})")
                             Slider(
                                 value = (currentValue as Int).toFloat(),
                                 onValueChange = { value ->
                                     currentConfig = currentConfig.updateParameter(
                                         paramName,
-                                        value.toInt()
+                                        value.roundToInt()
                                     )
-                                    hasChange = true
                                 },
                                 valueRange = (info.min as Int).toFloat()..(info.max as Int).toFloat(),
-                                steps = info.step as Int
+                                steps = info.steps as Int,
                             )
                         }
 
@@ -69,10 +67,9 @@ fun LayoutConfigUI(
                                 value = currentValue as Float,
                                 onValueChange = { value ->
                                     currentConfig = currentConfig.updateParameter(paramName, value)
-                                    hasChange = true
                                 },
                                 valueRange = (info.min as Float)..(info.max as Float),
-                                steps = (((info.max as Float) - (info.min as Float)) / (info.step as Float)).toInt()
+                                steps = (((info.max as Float) - (info.min as Float)) / (info.steps as Float)).toInt()
                             )
                         }
                     }
@@ -87,7 +84,6 @@ fun LayoutConfigUI(
                         onSelectedItemChange = { index ->
                             selectedIndex = index
                             currentConfig = currentConfig.updateParameter(paramName, info.selectionOptions[index])
-                            hasChange = true
                         },
                     )
                 }
@@ -98,13 +94,12 @@ fun LayoutConfigUI(
         onClick = {
             onConfigChange(currentConfig)
         },
-        enabled = hasChange
     ) {
         Text("Update Layout")
     }
 }
 
-private fun updateConfigValue(
+private fun getCurrentConfigValue(
     config: LayoutConfig,
     paramName: String
 ): Any = when (config) {
@@ -112,6 +107,7 @@ private fun updateConfigValue(
         "distance" -> config.distance
         "layerSpace" -> config.layerSpace
         "enabled" -> config.enabled
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -119,6 +115,7 @@ private fun updateConfigValue(
         "layerSpace" -> config.layerSpace
         "rotation" -> config.rotation
         "enabled" -> config.enabled
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -127,6 +124,7 @@ private fun updateConfigValue(
         "margin" -> config.margin
         "rotation" -> config.rotation
         "enabled" -> config.enabled
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -136,6 +134,7 @@ private fun updateConfigValue(
         "rotation" -> config.rotation
         "enabled" -> config.enabled
         "minCycleTimeDifference" -> config.minCycleTimeDifference
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -166,6 +165,7 @@ private fun updateConfigValue(
         "forceDirectedLayoutIterations" -> config.forceDirectedLayoutIterations
         "useResolveOverlap" -> config.useResolveOverlap
         "enabled" -> config.enabled
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -173,6 +173,7 @@ private fun updateConfigValue(
         "enabled" -> config.enabled
         "initialization" -> config.initializer
         "iterations" -> config.iterations
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -184,6 +185,7 @@ private fun updateConfigValue(
         "canvasHeight" -> config.canvasHeight
         "nodeRadius" -> config.nodeRadius
         "padding" -> config.padding
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -192,6 +194,7 @@ private fun updateConfigValue(
         "umapK" -> config.umapK
         "umapIterations" -> config.umapIterations
         "layerSpace" -> config.layerSpace
+        "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }

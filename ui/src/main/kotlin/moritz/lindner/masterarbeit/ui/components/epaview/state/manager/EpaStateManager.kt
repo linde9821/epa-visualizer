@@ -31,6 +31,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
+import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLODBuilder
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
@@ -228,25 +229,18 @@ class EpaStateManager(
                     tabs.forEach { tab ->
                         // build epa
                         buildEpaForTab(tab)
-                        ensureActive()
                         // build layout
                         buildLayoutForTab(tab)
-                        ensureActive()
                         // build labels
                         buildStateLabelsForTab(tab)
-                        ensureActive()
                         // build draw atlas
                         buildDrawAtlasForTab(tab)
-                        ensureActive()
                         // build statistics
                         buildStatisticForTab(tab)
-                        ensureActive()
                         // build highlighting
                         buildHighlightingForTab(tab)
-                        ensureActive()
                         // build lod
                         buildLodForTab(tab)
-                        ensureActive()
                     }
                 } catch (e: CancellationException) {
                     logger.info { "canceling current tabs building" }
@@ -259,21 +253,23 @@ class EpaStateManager(
     }
 
     private suspend fun buildLodForTab(tabState: TabState) {
-        if (_lodByTabId.value.containsKey(tabState.id)) {
-            return
-        }
-
         logger.info { "build lods" }
 
-        val epa = _epaByTabId.value[tabState.id]!!
-        val lodBuilder = SteinerTreeLODBuilder(epa)
-        val lods = lodBuilder.buildLODLevels()
+        val config = _layoutAndConfigByTabId.value[tabState.id]?.second
 
-        val lod = SteinerTreeLOD<Long>(
-            lodLevels = lods,
-            minScale = minScale,
-            maxScale = maxScale,
-        )
+        val lod = if (config?.lod == true) {
+            val epa = _epaByTabId.value[tabState.id]!!
+            val lodBuilder = SteinerTreeLODBuilder(epa)
+            val lods = lodBuilder.buildLODLevels()
+
+            SteinerTreeLOD<Long>(
+                lodLevels = lods,
+                minScale = minScale,
+                maxScale = maxScale,
+            )
+        } else {
+            NoLOD()
+        }
 
         logger.info { "build lods completed" }
 
