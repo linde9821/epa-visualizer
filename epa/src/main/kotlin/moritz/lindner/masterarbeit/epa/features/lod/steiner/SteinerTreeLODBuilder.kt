@@ -35,7 +35,6 @@ class SteinerTreeLODBuilder<T : Comparable<T>>(private val epa: ExtendedPrefixAu
         // Always include root
         terminals.add(State.Root)
 
-        // Include high-frequency states
         for (state in epa.states) {
             val freq = normalizedFrequency.frequencyByState(state)
             if (freq >= threshold) {

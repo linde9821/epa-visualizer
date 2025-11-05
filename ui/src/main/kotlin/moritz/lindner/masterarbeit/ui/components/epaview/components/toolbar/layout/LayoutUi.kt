@@ -35,13 +35,13 @@ fun LayoutUi(
     val currentLabels by remember(currentTab) {
         mutableStateOf(stateLabelsByTabId[currentTab?.id])
     }
-    val currentLayout by remember(currentTab) {
+    var currentLayoutConfig by remember(currentTab) {
         mutableStateOf(currentTab?.layoutConfig)
     }
 
     val currentEpa = activeTabId?.let { epaByTabId[it] }
 
-    if (currentLayout == null && activeTabId != null && currentTab != null) {
+    if (currentLayoutConfig == null && activeTabId != null && currentTab != null) {
         CircularProgressIndicatorBig()
     } else {
         val availableLayouts = listOfNotNull(
@@ -61,9 +61,9 @@ fun LayoutUi(
             },
         )
 
-        var layoutSelectionIndex by remember(currentLayout) {
-            if (currentLayout != null) {
-                mutableIntStateOf(availableLayouts.indexOfFirst { it.name == currentLayout?.name })
+        var layoutSelectionIndex by remember(currentLayoutConfig) {
+            if (currentLayoutConfig != null) {
+                mutableIntStateOf(availableLayouts.indexOfFirst { it.name == currentLayoutConfig?.name })
             } else {
                 mutableIntStateOf(0)
             }
@@ -74,11 +74,7 @@ fun LayoutUi(
             items = availableLayouts.map { it.name },
             selectedIndex = layoutSelectionIndex,
             onSelectedItemChange = { index ->
-                val newConfig = availableLayouts[index]
-                tabStateManager.updateLayout(
-                    activeTabId!!,
-                    newConfig
-                )
+                currentLayoutConfig = availableLayouts[index]
             },
         )
 
@@ -89,12 +85,12 @@ fun LayoutUi(
             color = JewelTheme.contentColor.copy(alpha = 0.2f)
         )
 
-        GroupHeader("Settings for ${currentLayout?.name}:")
-        LayoutConfigUI(currentLayout!!) { newConfig ->
-            if (newConfig != currentTab?.layoutConfig) {
+        GroupHeader("Settings for ${currentLayoutConfig?.name}:")
+        LayoutConfigUI(currentLayoutConfig!!) { configUpdate ->
+            if (configUpdate != currentTab?.layoutConfig) {
                 tabStateManager.updateLayout(
                     activeTabId!!,
-                    newConfig
+                    configUpdate
                 )
             }
         }

@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.lod.steiner
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
 import kotlin.math.ln
@@ -13,6 +12,7 @@ class SteinerTreeLOD<T : Comparable<T>>(
 ) : LODQuery {
 
     private var level: SteinerLODLevel = lodLevels[0]
+
     /**
      * Map canvas zoom scale to LOD level (Logarithmic mapping)
      *
@@ -25,9 +25,9 @@ class SteinerTreeLOD<T : Comparable<T>>(
         val logMin = ln(minScale)
         val logMax = ln(maxScale)
 
-        val normalizedLog = ((logScale - logMin) / (logMax - logMin))
-            .coerceIn(0f, 1f)
+        val normalizedLog = ((logScale - logMin) / (logMax - logMin)).coerceIn(0f, 1f)
         val index = (1f - normalizedLog).roundToInt().coerceIn(0, lodLevels.size - 1)
+
         level = lodLevels[index]
     }
 

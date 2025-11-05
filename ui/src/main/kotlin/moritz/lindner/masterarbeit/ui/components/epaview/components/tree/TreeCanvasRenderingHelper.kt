@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.util.fastRoundToInt
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -29,7 +28,6 @@ object TreeCanvasRenderingHelper {
         visibleNodes: List<NodePlacement>,
         drawAtlas: DrawAtlas,
         highlightingAtlas: HighlightingAtlas,
-        lodQuery: LODQuery,
         canvas: Canvas,
         scale: Float,
         stateLabels: StateLabels

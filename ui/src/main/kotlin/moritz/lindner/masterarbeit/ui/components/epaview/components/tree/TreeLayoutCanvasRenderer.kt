@@ -26,7 +26,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
@@ -119,7 +118,7 @@ fun EpaLayoutCanvasRenderer(
                     if (event.type == PointerEventType.Scroll && scrollDelta != 0f) {
                         val cursorPosition = event.changes.first().position
 
-                        val zoomFactor = if (scrollDelta < 0) 1.02f else 0.98f
+                        val zoomFactor = if (scrollDelta < 0) 1.03f else 0.97f
                         val newScale = (canvasState.scale * zoomFactor).coerceIn(minScale, maxScale)
                         val worldPosBefore =
                             TreeCanvasRenderingHelper.screenToWorld(
@@ -207,7 +206,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            lodQuery,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -222,7 +220,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            lodQuery,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -237,7 +234,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            lodQuery,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -261,7 +257,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            lodQuery,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -275,7 +270,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            lodQuery,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -289,7 +283,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            NoLOD(),
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -303,7 +296,6 @@ fun EpaLayoutCanvasRenderer(
                             drawAtlas,
                             visibleNodes,
                             treeLayout,
-                            lodQuery,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -368,7 +360,6 @@ fun DrawScope.drawTree(
     drawAtlas: DrawAtlas,
     visibleNodes: List<NodePlacement>,
     layout: Layout,
-    lodQuery: LODQuery,
     highlightingAtlas: HighlightingAtlas,
     tabState: TabState,
     scale: Float,
@@ -423,7 +414,6 @@ fun DrawScope.drawTree(
             visibleNodes,
             drawAtlas,
             highlightingAtlas,
-            lodQuery,
             canvas,
             scale,
             stateLabels

@@ -11,9 +11,6 @@ class SteinerTreeSolver<T : Comparable<T>>(
     /**
      * Computes the minimal Steiner tree connecting all terminal states.
      *
-     * Since EPA is a tree structure (rooted at State.Root), this is optimal
-     * and runs in O(|States|).
-     *
      * @param terminals Set of states that must be connected
      * @return SteinerTreeResult containing the minimal connecting subtree
      */
@@ -44,7 +41,6 @@ class SteinerTreeSolver<T : Comparable<T>>(
                 steinerStates.add(state)
             }
 
-            // Get all outgoing transitions from this state
             val outgoingTransitions = epa.outgoingTransitionsByState[state] ?: emptyList()
 
             for (transition in outgoingTransitions) {

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
 import org.jetbrains.jewel.ui.component.Checkbox
+import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
@@ -21,96 +22,12 @@ fun LayoutConfigUI(
     config: LayoutConfig,
     onConfigChange: (LayoutConfig) -> Unit
 ) {
+    var currentConfig by remember(config) { mutableStateOf(config) }
+    var hasChange by remember(config) { mutableStateOf(false) }
+
     LazyColumn {
-        items(config.getParameters().toList()) { (paramName, info) ->
-            val currentValue = when (config) {
-                is LayoutConfig.WalkerConfig -> when (paramName) {
-                    "distance" -> config.distance
-                    "layerSpace" -> config.layerSpace
-                    "enabled" -> config.enabled
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.DirectAngularConfig -> when (paramName) {
-                    "layerSpace" -> config.layerSpace
-                    "rotation" -> config.rotation
-                    "enabled" -> config.enabled
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.RadialWalkerConfig -> when (paramName) {
-                    "layerSpace" -> config.layerSpace
-                    "margin" -> config.margin
-                    "rotation" -> config.rotation
-                    "enabled" -> config.enabled
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.TimeRadialWalkerConfig -> when (paramName) {
-                    "layerBaseUnit" -> config.layerBaseUnit
-                    "margin" -> config.margin
-                    "rotation" -> config.rotation
-                    "enabled" -> config.enabled
-                    "minCycleTimeDifference" -> config.minCycleTimeDifference
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.StateClusteringLayoutConfig -> when (paramName) {
-                    "useGraphEmbedding" -> config.useGraphEmbedding
-                    "graphEmbeddingDims" -> config.graphEmbeddingDims
-                    "walkLength" -> config.walkLength
-                    "walksPerVertex" -> config.walksPerVertex
-                    "windowSize" -> config.windowSize
-                    "useFeatureEmbedding" -> config.useFeatureEmbedding
-                    "featureEmbeddingDims" -> config.featureEmbeddingDims
-                    "useDepthFeature" -> config.useDepthFeature
-                    "useOutgoingTransitions" -> config.useOutgoingTransitions
-                    "usePartitionValue" -> config.usePartitionValue
-                    "useSequenceLength" -> config.useSequenceLength
-                    "useCycleTime" -> config.useCycleTime
-                    "usePathLength" -> config.usePathLength
-                    "useActivity" -> config.useActivity
-                    "reductionMethod" -> config.reductionMethod
-                    "umapK" -> config.umapK
-                    "Iterations" -> config.iterations
-                    "canvasWidth" -> config.canvasWidth
-                    "canvasHeight" -> config.canvasHeight
-                    "nodeRadius" -> config.nodeRadius
-                    "padding" -> config.padding
-                    "useForceDirected" -> config.useForceDirected
-                    "repulsionStrength" -> config.repulsionStrength
-                    "forceDirectedLayoutIterations" -> config.forceDirectedLayoutIterations
-                    "useResolveOverlap" -> config.useResolveOverlap
-                    "enabled" -> config.enabled
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.PRTLayoutConfig -> when (paramName) {
-                    "enabled" -> config.enabled
-                    "initialization" -> config.initializer
-                    "iterations" -> config.iterations
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.PartitionClusteringLayoutConfig -> when (paramName) {
-                    "enabled" -> config.enabled
-                    "umapK" -> config.umapK
-                    "umapIterations" -> config.umapIterations
-                    "canvasWidth" -> config.canvasWidth
-                    "canvasHeight" -> config.canvasHeight
-                    "nodeRadius" -> config.nodeRadius
-                    "padding" -> config.padding
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-
-                is LayoutConfig.PartitionSimilarityRadialLayoutConfig -> when (paramName) {
-                    "enabled" -> config.enabled
-                    "umapK" -> config.umapK
-                    "umapIterations" -> config.umapIterations
-                    "layerSpace" -> config.layerSpace
-                    else -> throw IllegalArgumentException("Unknown parameter $paramName")
-                }
-            }
+        items(currentConfig.getParameters().toList()) { (paramName, info) ->
+            val currentValue = updateConfigValue(currentConfig, paramName)
 
             when (info) {
                 is ParameterInfo.BooleanParameterInfo -> {
@@ -120,7 +37,10 @@ fun LayoutConfigUI(
                         Text("${info.name}:")
                         Checkbox(
                             checked = currentValue as Boolean,
-                            onCheckedChange = { value -> onConfigChange(config.updateParameter(paramName, value)) }
+                            onCheckedChange = { value ->
+                                currentConfig = currentConfig.updateParameter(paramName, value)
+                                hasChange = true
+                            }
                         )
                     }
                 }
@@ -132,12 +52,11 @@ fun LayoutConfigUI(
                             Slider(
                                 value = (currentValue as Int).toFloat(),
                                 onValueChange = { value ->
-                                    onConfigChange(
-                                        config.updateParameter(
-                                            paramName,
-                                            value.toInt()
-                                        )
+                                    currentConfig = currentConfig.updateParameter(
+                                        paramName,
+                                        value.toInt()
                                     )
+                                    hasChange = true
                                 },
                                 valueRange = (info.min as Int).toFloat()..(info.max as Int).toFloat(),
                                 steps = info.step as Int
@@ -148,7 +67,10 @@ fun LayoutConfigUI(
                             Text("${info.name}: ${"%.1f".format(currentValue)}")
                             Slider(
                                 value = currentValue as Float,
-                                onValueChange = { value -> onConfigChange(config.updateParameter(paramName, value)) },
+                                onValueChange = { value ->
+                                    currentConfig = currentConfig.updateParameter(paramName, value)
+                                    hasChange = true
+                                },
                                 valueRange = (info.min as Float)..(info.max as Float),
                                 steps = (((info.max as Float) - (info.min as Float)) / (info.step as Float)).toInt()
                             )
@@ -164,12 +86,112 @@ fun LayoutConfigUI(
                         selectedIndex = selectedIndex,
                         onSelectedItemChange = { index ->
                             selectedIndex = index
-                            onConfigChange(config.updateParameter(paramName, info.selectionOptions[index]))
+                            currentConfig = currentConfig.updateParameter(paramName, info.selectionOptions[index])
+                            hasChange = true
                         },
                     )
-
                 }
             }
         }
+    }
+    DefaultButton(
+        onClick = {
+            onConfigChange(currentConfig)
+        },
+        enabled = hasChange
+    ) {
+        Text("Update Layout")
+    }
+}
+
+private fun updateConfigValue(
+    config: LayoutConfig,
+    paramName: String
+): Any = when (config) {
+    is LayoutConfig.WalkerConfig -> when (paramName) {
+        "distance" -> config.distance
+        "layerSpace" -> config.layerSpace
+        "enabled" -> config.enabled
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.DirectAngularConfig -> when (paramName) {
+        "layerSpace" -> config.layerSpace
+        "rotation" -> config.rotation
+        "enabled" -> config.enabled
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.RadialWalkerConfig -> when (paramName) {
+        "layerSpace" -> config.layerSpace
+        "margin" -> config.margin
+        "rotation" -> config.rotation
+        "enabled" -> config.enabled
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.TimeRadialWalkerConfig -> when (paramName) {
+        "layerBaseUnit" -> config.layerBaseUnit
+        "margin" -> config.margin
+        "rotation" -> config.rotation
+        "enabled" -> config.enabled
+        "minCycleTimeDifference" -> config.minCycleTimeDifference
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.StateClusteringLayoutConfig -> when (paramName) {
+        "useGraphEmbedding" -> config.useGraphEmbedding
+        "graphEmbeddingDims" -> config.graphEmbeddingDims
+        "walkLength" -> config.walkLength
+        "walksPerVertex" -> config.walksPerVertex
+        "windowSize" -> config.windowSize
+        "useFeatureEmbedding" -> config.useFeatureEmbedding
+        "featureEmbeddingDims" -> config.featureEmbeddingDims
+        "useDepthFeature" -> config.useDepthFeature
+        "useOutgoingTransitions" -> config.useOutgoingTransitions
+        "usePartitionValue" -> config.usePartitionValue
+        "useSequenceLength" -> config.useSequenceLength
+        "useCycleTime" -> config.useCycleTime
+        "usePathLength" -> config.usePathLength
+        "useActivity" -> config.useActivity
+        "reductionMethod" -> config.reductionMethod
+        "umapK" -> config.umapK
+        "Iterations" -> config.iterations
+        "canvasWidth" -> config.canvasWidth
+        "canvasHeight" -> config.canvasHeight
+        "nodeRadius" -> config.nodeRadius
+        "padding" -> config.padding
+        "useForceDirected" -> config.useForceDirected
+        "repulsionStrength" -> config.repulsionStrength
+        "forceDirectedLayoutIterations" -> config.forceDirectedLayoutIterations
+        "useResolveOverlap" -> config.useResolveOverlap
+        "enabled" -> config.enabled
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.PRTLayoutConfig -> when (paramName) {
+        "enabled" -> config.enabled
+        "initialization" -> config.initializer
+        "iterations" -> config.iterations
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.PartitionClusteringLayoutConfig -> when (paramName) {
+        "enabled" -> config.enabled
+        "umapK" -> config.umapK
+        "umapIterations" -> config.umapIterations
+        "canvasWidth" -> config.canvasWidth
+        "canvasHeight" -> config.canvasHeight
+        "nodeRadius" -> config.nodeRadius
+        "padding" -> config.padding
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.PartitionSimilarityRadialLayoutConfig -> when (paramName) {
+        "enabled" -> config.enabled
+        "umapK" -> config.umapK
+        "umapIterations" -> config.umapIterations
+        "layerSpace" -> config.layerSpace
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
