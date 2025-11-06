@@ -10,11 +10,28 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerButton
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupPositionProviderAtPosition
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
@@ -24,13 +41,16 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateM
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.PopupMenu
 import org.jetbrains.jewel.ui.component.SimpleTabContent
 import org.jetbrains.jewel.ui.component.TabData
 import org.jetbrains.jewel.ui.component.TabStrip
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
+import java.util.UUID
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TabsComponent(
     tabStateManager: TabStateManager,
@@ -63,6 +83,28 @@ fun TabsComponent(
     val interactionSource = remember { MutableInteractionSource() }
     val canvasState = rememberCanvasState()
 
+    var showContextMenu by remember { mutableStateOf(false) }
+    var componentPosition by remember { mutableStateOf(IntOffset.Zero) }
+    var mousePosition by remember { mutableStateOf(IntOffset.Zero) }
+    var selectedEpaTab: moritz.lindner.masterarbeit.ui.components.epaview.state.TabState? by remember {
+        mutableStateOf(
+            null
+        )
+    }
+
+    val popupPositionProvider = remember(mousePosition) {
+        object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize
+            ): IntOffset {
+                return mousePosition
+            }
+        }
+    }
+
     val tabs =
         remember(tabsState, activeTabId) {
             tabsState.map { epaTab ->
@@ -71,7 +113,20 @@ fun TabsComponent(
                     content = { tabState ->
                         SimpleTabContent(
                             state = tabState,
-                            modifier = Modifier.Companion,
+                            modifier = Modifier
+                                .pointerInput(epaTab.id) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            if (event.button == PointerButton.Secondary &&
+                                                event.type == PointerEventType.Press
+                                            ) {
+                                                showContextMenu = true
+                                                selectedEpaTab = epaTab
+                                            }
+                                        }
+                                    }
+                                },
                             icon = {
                                 Icon(
                                     key = AllIconsKeys.Graph.Layout,
@@ -83,7 +138,7 @@ fun TabsComponent(
                         )
                     },
                     onClose = {
-                        if (tabsState.size > 1) {
+                        if (tabsState.size > 1 && epaTab.title != "root") {
                             tabStateManager.removeTab(epaTab.id)
                             epaStateManager.removeAllForTab(epaTab.id)
                         }
@@ -95,7 +150,18 @@ fun TabsComponent(
             }
         }
 
-    Row {
+    Row(
+        Modifier
+            .onGloballyPositioned { coordinates ->
+                // Get the position of this component in window coordinates
+                componentPosition = coordinates.positionInWindow().round()
+            }
+            .onPointerEvent(PointerEventType.Press) { event ->
+                val localPosition = event.changes.first().position.round()
+                // Add component position to get absolute window position
+                mousePosition = componentPosition + localPosition
+            }
+    ) {
         Column {
             TabStrip(
                 tabs = tabs,
@@ -169,5 +235,42 @@ fun TabsComponent(
             }
         }
     }
-}
 
+    if (showContextMenu) {
+        PopupMenu(
+            onDismissRequest = { _ ->
+                showContextMenu = false
+                true
+            },
+            popupPositionProvider =popupPositionProvider
+        ) {
+            selectableItem(
+                selected = false,
+                onClick = {
+                    showContextMenu = false
+                    tabStateManager.addTab(
+                        id = UUID.randomUUID().toString(),
+                        title = selectedEpaTab?.title + " copy",
+                        filters = selectedEpaTab!!.filters,
+                        layoutConfig = selectedEpaTab!!.layoutConfig
+                    )
+                }
+            ) {
+                Text("Copy Tab")
+            }
+
+            selectableItem(
+                selected = false,
+                onClick = {
+                    if (tabsState.size > 1 && selectedEpaTab?.title != "root") {
+                        tabStateManager.removeTab(selectedEpaTab!!.id)
+                        epaStateManager.removeAllForTab(selectedEpaTab!!.id)
+                    }
+                    showContextMenu = false
+                }
+            ) {
+                Text("Close Tab")
+            }
+        }
+    }
+}
