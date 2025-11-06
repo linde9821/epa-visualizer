@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupPositionProviderAtPosition
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
@@ -242,7 +241,7 @@ fun TabsComponent(
                 showContextMenu = false
                 true
             },
-            popupPositionProvider =popupPositionProvider
+            popupPositionProvider = popupPositionProvider
         ) {
             selectableItem(
                 selected = false,
@@ -256,7 +255,13 @@ fun TabsComponent(
                     )
                 }
             ) {
-                Text("Copy Tab")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(AllIconsKeys.General.Copy, "Copy")
+                    Text("Copy Tab")
+                }
             }
 
             selectableItem(
@@ -269,7 +274,13 @@ fun TabsComponent(
                     showContextMenu = false
                 }
             ) {
-                Text("Close Tab")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(AllIconsKeys.General.Close, "Close")
+                    Text("Close Tab")
+                }
             }
         }
     }
