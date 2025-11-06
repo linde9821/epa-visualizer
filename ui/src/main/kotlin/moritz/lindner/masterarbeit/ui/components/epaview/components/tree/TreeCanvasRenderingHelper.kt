@@ -12,7 +12,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
-import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels

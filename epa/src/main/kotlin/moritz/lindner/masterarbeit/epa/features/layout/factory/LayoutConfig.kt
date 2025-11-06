@@ -29,7 +29,7 @@ sealed class LayoutConfig(val name: String) {
             "distance" -> copy(distance = value as Float)
             "layerSpace" -> copy(layerSpace = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -58,7 +58,7 @@ sealed class LayoutConfig(val name: String) {
             "rotation" -> copy(rotation = value as Float)
             "minCycleTimeDifference" -> copy(minCycleTimeDifference = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -83,7 +83,7 @@ sealed class LayoutConfig(val name: String) {
             "margin" -> copy(margin = value as Float)
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -114,7 +114,7 @@ sealed class LayoutConfig(val name: String) {
                 "umapIterations" -> copy(umapIterations = value as Int)
                 "layerSpace" -> copy(layerSpace = value as Float)
                 "enabled" -> copy(enabled = value as Boolean)
-                "lod"-> copy(lod = value as Boolean)
+                "lod" -> copy(lod = value as Boolean)
                 else -> this
             }
         }
@@ -137,7 +137,7 @@ sealed class LayoutConfig(val name: String) {
             "layerSpace" -> copy(layerSpace = value as Float)
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -263,7 +263,7 @@ sealed class LayoutConfig(val name: String) {
 
             "useResolveOverlap" -> copy(useResolveOverlap = value as Boolean)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -298,7 +298,7 @@ sealed class LayoutConfig(val name: String) {
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "nodeRadius" -> copy(nodeRadius = value as Float)
             "padding" -> copy(padding = value as Float)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -340,7 +340,7 @@ sealed class LayoutConfig(val name: String) {
             "enabled" -> copy(enabled = value as Boolean)
             "initialization" -> copy(initializer = value as PRTInitialLayout)
             "iterations" -> copy(iterations = value as Int)
-            "lod"-> copy(lod = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
