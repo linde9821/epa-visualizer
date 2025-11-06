@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.state.manager
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPosition
@@ -43,52 +42,9 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
-import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 
-data class ManagedWindow(
-    val id: String = UUID.randomUUID().toString(),
-    val title: String,
-    val windowState: WindowState = WindowState(),
-    val content: @Composable (ManagedWindow) -> Unit
-)
-
-class WindowManager {
-    private val _windows = MutableStateFlow<List<ManagedWindow>>(emptyList())
-    val windows = _windows.asStateFlow()
-
-    fun openWindow(
-        title: String,
-        windowState: WindowState = WindowState(),
-        content: @Composable (ManagedWindow) -> Unit
-    ): String {
-        val window = ManagedWindow(
-            title = title,
-            windowState = windowState,
-            content = content
-        )
-        _windows.update { it + window }
-        return window.id
-    }
-
-    fun closeWindow(windowId: String) {
-        _windows.update { it.filterNot { window -> window.id == windowId } }
-    }
-
-    fun closeWindow(window: ManagedWindow) {
-        closeWindow(window.id)
-    }
-
-    fun updateWindowTitle(windowId: String, newTitle: String) {
-        _windows.update { windows ->
-            windows.map { window ->
-                if (window.id == windowId) window.copy(title = newTitle)
-                else window
-            }
-        }
-    }
-}
-
+@Suppress("UNCHECKED_CAST")
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
     private val backgroundDispatcher: ExecutorCoroutineDispatcher,

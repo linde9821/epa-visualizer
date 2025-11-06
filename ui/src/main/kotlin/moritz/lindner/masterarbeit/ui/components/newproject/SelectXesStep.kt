@@ -39,12 +39,12 @@ fun SelectXesStep(
     onPrevious: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Select XES event log file", style = JewelTheme.Companion.typography.h3TextStyle)
+        Text("Select XES event log file", style = JewelTheme.typography.h3TextStyle)
 
         Box(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, JewelTheme.Companion.contentColor.copy(alpha = 0.3f))
+                .border(1.dp, JewelTheme.contentColor.copy(alpha = 0.3f))
                 .clickable { onFileSelect(null) }
                 .dragAndDropTarget(
                     shouldStartDragAndDrop = { event ->
@@ -54,6 +54,7 @@ fun SelectXesStep(
                         override fun onDrop(event: DragAndDropEvent): Boolean {
                             val transferable = event.awtTransferable
                             if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                                @Suppress("UNCHECKED_CAST")
                                 val files = transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<File>
                                 files.firstOrNull()?.let { file ->
                                     if (file.extension == "xes" || file.name.endsWith(".xes.gz")) {
@@ -68,24 +69,24 @@ fun SelectXesStep(
                 ).padding(16.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
                     key = AllIconsKeys.Actions.Upload,
                     contentDescription = null,
-                    modifier = Modifier.Companion.size(48.dp),
-                    tint = JewelTheme.Companion.contentColor
+                    modifier = Modifier.size(48.dp),
+                    tint = JewelTheme.contentColor
                 )
                 Text(
                     text = selectedFile?.name ?: "Click to select XES file or drag and drop a XES file",
-                    style = JewelTheme.Companion.typography.regular
+                    style = JewelTheme.typography.regular
                 )
                 selectedFile?.let {
                     Text(
                         text = it.absolutePath,
-                        style = JewelTheme.Companion.typography.regular.copy(fontSize = 12.sp),
-                        color = JewelTheme.Companion.contentColor.copy(alpha = 0.7f)
+                        style = JewelTheme.typography.regular.copy(fontSize = 12.sp),
+                        color = JewelTheme.contentColor.copy(alpha = 0.7f)
                     )
                 }
             }
