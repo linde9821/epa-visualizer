@@ -87,7 +87,7 @@ compose.desktop {
         }
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb)
             packageName = "EPA Visualizer"
             description =
                 "Interactive Visualization of Extended Prefix Automaton Using Radial Trees. A tool for analyzing trace variants in large, complex event logs using Extended Prefix Automata (EPA) and radial tidy tree layouts. This visualization approach encodes thousands of trace variants while minimizing visual clutter and supporting interactive filtering."

@@ -40,3 +40,20 @@ jobs:
 
       - name: build
         run: ./gradlew packageReleaseDistributionForCurrentOS
+        
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gmitch215/setup-java@6d2c5e1f82f180ae79f799f0ed6e3e5efb4e664d
+        with:
+          distribution: 'jetbrains'
+          java-version: 21
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Windows distributable
+        run: ./gradlew packageMsi packageExe
+      - uses: actions/upload-artifact@v3
+        with:
+          name: windows-distributables
+          path: build/compose/binaries/main/*/
