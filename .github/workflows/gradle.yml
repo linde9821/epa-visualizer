@@ -61,7 +61,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: linux-distributables
-          path: build/compose/binaries/main/*/
+          path: ui/build/compose/binaries/main/*/
 
   build-windows:
     runs-on: windows-latest
@@ -89,4 +89,3 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: windows-distributables
-          path: build/compose/binaries/main/*/
