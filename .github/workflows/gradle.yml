@@ -89,3 +89,32 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: windows-distributables
+          path: ui/build/compose/binaries/main/*/
+
+  build-macOs:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gmitch215/setup-java@6d2c5e1f82f180ae79f799f0ed6e3e5efb4e664d
+        with:
+          distribution: 'jetbrains'
+          java-version: 21
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+      - name: Build macOs distributable
+        run: ./gradlew packageReleaseDistributionForCurrentOS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-distributables
+          path: ui/build/compose/binaries/main/*/
