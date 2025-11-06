@@ -61,7 +61,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: linux-distributables
-          path: ui/build/compose/binaries/main/*/
+          path: ui/build/compose/binaries/main-release/deb/*.deb
 
   build-windows:
     runs-on: windows-latest
@@ -85,11 +85,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       - name: Build Windows distributable
-        run: ./gradlew packageMsi packageExe
+        run: ./gradlew packageMsi
       - uses: actions/upload-artifact@v4
         with:
           name: windows-distributables
-          path: ui/build/compose/binaries/main/*/
+          path: ui\build\compose\binaries\main\msi\*.msi
 
   build-macOs:
     runs-on: macos-latest
@@ -116,5 +116,5 @@ jobs:
         run: ./gradlew packageReleaseDistributionForCurrentOS
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-distributables
-          path: ui/build/compose/binaries/main/*/
+          name: macOs-distributables
+          path: ui/build/compose/binaries/main-release/dmg/*.dmg
