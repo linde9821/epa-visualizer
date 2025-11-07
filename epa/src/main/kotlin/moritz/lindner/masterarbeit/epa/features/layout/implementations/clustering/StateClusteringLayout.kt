@@ -35,24 +35,20 @@ class StateClusteringLayout(
         progressCallback: EpaProgressCallback?
     ) {
         MathEx.setSeed(42);
-        logger.info { "building $config" }
-        progressCallback?.onProgress(0, 7, "Starting semantic layout...")
-
-        progressCallback?.onProgress(1, 7, "Creating graph embeddings...")
+        progressCallback?.onProgress(0, 4, "Creating graph embeddings...")
         val graphEmbeddings = createGraphEmbeddings(progressCallback)
 
+        progressCallback?.onProgress(1, 4, "Create feature embeddings...")
         val featureEmbeddings = createFeatureEmbeddings(progressCallback)
 
-        progressCallback?.onProgress(3, 7, "Combining embeddings...")
         val combinedEmbeddings = combineEmbeddings(graphEmbeddings, featureEmbeddings)
 
-        progressCallback?.onProgress(4, 7, "Reducing dimensions...")
+        progressCallback?.onProgress(2, 4, "Reducing dimensions...")
         val coordinates2D = reduceDimensions(combinedEmbeddings)
 
-        progressCallback?.onProgress(6, 7, "Resolving conflicts...")
+        progressCallback?.onProgress(3, 4, "Resolving conflicts...")
         val finalCoordinates = resolveConflicts(coordinates2D, progressCallback)
 
-        progressCallback?.onProgress(7, 7, "Finalizing layout...")
         finalizeLayout(finalCoordinates)
 
         rTree = RTreeBuilder.build(nodeCoordinates.map {
@@ -60,7 +56,7 @@ class StateClusteringLayout(
                 coordinate = it.value,
                 state = it.key
             )
-        })
+        }, progressCallback)
         isBuiltFlag = true
     }
 

@@ -76,8 +76,6 @@ class PRTLayout(
     }
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        logger.info { "init" }
-
         val cycleTimes = epaService.computeAllCycleTimes(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
@@ -86,6 +84,7 @@ class PRTLayout(
                     0f
                 } else cycleTimes.average().toFloat()
             },
+            progressCallback = progressCallback
         )
 
         // Add offset to handle zero values with logarithmic scaling
@@ -308,6 +307,11 @@ class PRTLayout(
         )
 
         extendedPrefixAutomaton.acceptBreadthFirst(object : AutomatonVisitor<Long> {
+
+            override fun onProgress(current: Long, total: Long) {
+                progressCallback?.onProgress(current, total, "Edge Length Initialization")
+            }
+
             override fun visit(
                 extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
                 state: State,
@@ -342,10 +346,6 @@ class PRTLayout(
                 }
             }
 
-            override fun onProgress(current: Long, total: Long) {
-                progressCallback?.onProgress(current, total, "Edge Length Initialization")
-            }
-
             private fun centralize(children: List<State>): List<State> {
                 val sorted = children.sortedBy { subtreeSizeByState[it]!! }
                 val first = sorted.filterIndexed { index, _ -> index % 2 == 0 }
@@ -358,15 +358,15 @@ class PRTLayout(
         return coordinateByState
     }
 
-    private val LABEL_OVERLAP_FORCE_STRENGTH = 0.8f
+    private val LABEL_OVERLAP_FORCE_STRENGTH = 1.0f
     private val EDGE_LENGTH_FORCE_STRENGTH = 1.0f
-    private val DISTRIBUTION_FORCE_STRENGTH = 0.003f
+    private val DISTRIBUTION_FORCE_STRENGTH = 0.1f
 
     private fun parallelForceDirectedImprovements(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
         batch: Int = 128,
-        samples: Int = 20,
+        samples: Int = 40,
         iterations: Int = 50,
         progressCallback: EpaProgressCallback?,
         desiredEdgeLengthByTransition: Map<Transition, Float>
@@ -677,5 +677,4 @@ class PRTLayout(
             }
         }
     }
-
 }

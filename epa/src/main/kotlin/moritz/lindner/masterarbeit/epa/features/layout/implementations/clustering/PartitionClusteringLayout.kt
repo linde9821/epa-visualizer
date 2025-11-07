@@ -30,13 +30,15 @@ class PartitionClusteringLayout(
         MathEx.setSeed(42);
         val embedder = PartitionFeatureEmbedder()
 
+        progressCallback?.onProgress(0, 2, "Create Embeddings")
         val featureEmbeddings = embedder.computeEmbedding(extendedPrefixAutomaton)
 
-        val paritionCoordinates2D = reduceDimensions(featureEmbeddings)
+        progressCallback?.onProgress(1, 2, "Reduce Dimensions")
+        val partitionCoordinates2D = reduceDimensions(featureEmbeddings)
 
         val coordinates = extendedPrefixAutomaton.states.associateWith { state ->
             val partition = extendedPrefixAutomaton.partition(state)
-            paritionCoordinates2D[partition]!!
+            partitionCoordinates2D[partition]!!
         }
 
         rTree = RTreeBuilder.build(coordinates.map {
