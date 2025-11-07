@@ -53,12 +53,14 @@ class StateLabels(
 
             val image = surface.makeImageSnapshot()
             labelByState[label] = image
-            labelSizeByState[state] = image.width.toFloat() to image.height.toFloat()
+            labelSizeByState[state] = getWithAndHeight(image)
         } else {
             val image = labelByState[label]!!
-            labelSizeByState[state] = image.width.toFloat() to image.height.toFloat()
+            labelSizeByState[state] = getWithAndHeight(image)
         }
     }
+
+    private fun getWithAndHeight(image: Image, padding: Float = 8.0f): Pair<Float, Float> = image.width.toFloat() + padding to image.height.toFloat() + padding
 
     private fun trimStateName(state: State): String {
         return if (state.name.length > maxStateLabelLength) {

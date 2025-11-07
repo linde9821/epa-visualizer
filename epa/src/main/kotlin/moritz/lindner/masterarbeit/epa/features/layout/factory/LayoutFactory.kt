@@ -5,7 +5,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.prt.ParallelReadableTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
@@ -93,7 +93,7 @@ object LayoutFactory {
             )
 
             is LayoutConfig.PRTLayoutConfig -> {
-                PRTLayout(
+                ParallelReadableTreeLayout(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
                     config = layoutConfig,
                     backgroundDispatcher = backgroundDispatcher,
