@@ -117,100 +117,52 @@ class PartitionFeatureEmbedder() {
 
         return subStrings.size
     }
-}
 
-data class NgramConfig(
-    val n: Int = 3,
-    val includeUnigrams: Boolean = true,
-    val includeBigrams: Boolean = true,
-    val maxNgramFeatures: Int = 100
-)
+    private fun buildNgramVocabularyFromData(
+        statePartitions: StatePartitionsCollection<Long>,
+        config: NgramConfig
+    ): Map<String, Int> {
+        val ngramFrequencies = mutableMapOf<String, Int>()
+        val epaService = EpaService<Long>()
 
-class NgramEncoder(
-    private val config: NgramConfig,
-    private val ngramVocabulary: Map<String, Int>
-) {
+        statePartitions.getAllPartitions().forEach { partition ->
+            val states = statePartitions.getStates(partition).sortedBy { epaService.getDepth(it) }
+            val activities = extractActivitySequence(states)
 
-    fun encode(activitySequence: List<String>): DoubleArray {
-        val ngramCounts = mutableMapOf<String, Int>()
+            // Count all n-grams
+            if (config.includeUnigrams) {
+                activities.forEach { activity ->
+                    ngramFrequencies[activity] = ngramFrequencies.getOrDefault(activity, 0) + 1
+                }
+            }
 
-        // Generate n-grams of different sizes
-        if (config.includeUnigrams) {
-            activitySequence.forEach { activity ->
-                ngramCounts[activity] = ngramCounts.getOrDefault(activity, 0) + 1
+            if (config.includeBigrams && activities.size >= 2) {
+                activities.windowed(2).forEach { bigram ->
+                    val key = bigram.joinToString("->")
+                    ngramFrequencies[key] = ngramFrequencies.getOrDefault(key, 0) + 1
+                }
+            }
+
+            if (config.n >= 3 && activities.size >= config.n) {
+                activities.windowed(config.n).forEach { ngram ->
+                    val key = ngram.joinToString("->")
+                    ngramFrequencies[key] = ngramFrequencies.getOrDefault(key, 0) + 1
+                }
             }
         }
 
-        if (config.includeBigrams && activitySequence.size >= 2) {
-            activitySequence.windowed(2).forEach { bigram ->
-                val key = bigram.joinToString("->")
-                ngramCounts[key] = ngramCounts.getOrDefault(key, 0) + 1
-            }
-        }
+        // Take top N most frequent n-grams
+        return ngramFrequencies
+            .entries
+            .sortedByDescending { it.value }
+            .take(config.maxNgramFeatures)
+            .mapIndexed { index, entry -> entry.key to index }
+            .toMap()
+    }
 
-        if (config.n >= 3 && activitySequence.size >= config.n) {
-            activitySequence.windowed(config.n).forEach { ngram ->
-                val key = ngram.joinToString("->")
-                ngramCounts[key] = ngramCounts.getOrDefault(key, 0) + 1
-            }
-        }
-
-        // Convert to fixed-size vector
-        val vector = DoubleArray(ngramVocabulary.size)
-        ngramCounts.forEach { (ngram, count) ->
-            ngramVocabulary[ngram]?.let { index ->
-                vector[index] = count.toDouble()
-            }
-        }
-
-        return vector
+    private fun extractActivitySequence(states: List<State>): List<String> {
+        return states
+            .mapNotNull { (it as? State.PrefixState)?.via?.name }
     }
 }
 
-// Helper to build vocabulary from actual data
-fun buildNgramVocabularyFromData(
-    statePartitions: StatePartitionsCollection<Long>,
-    config: NgramConfig
-): Map<String, Int> {
-    val ngramFrequencies = mutableMapOf<String, Int>()
-    val epaService = EpaService<Long>()
-
-    statePartitions.getAllPartitions().forEach { partition ->
-        val states = statePartitions.getStates(partition).sortedBy { epaService.getDepth(it) }
-        val activities = extractActivitySequence(states)
-
-        // Count all n-grams
-        if (config.includeUnigrams) {
-            activities.forEach { activity ->
-                ngramFrequencies[activity] = ngramFrequencies.getOrDefault(activity, 0) + 1
-            }
-        }
-
-        if (config.includeBigrams && activities.size >= 2) {
-            activities.windowed(2).forEach { bigram ->
-                val key = bigram.joinToString("->")
-                ngramFrequencies[key] = ngramFrequencies.getOrDefault(key, 0) + 1
-            }
-        }
-
-        if (config.n >= 3 && activities.size >= config.n) {
-            activities.windowed(config.n).forEach { ngram ->
-                val key = ngram.joinToString("->")
-                ngramFrequencies[key] = ngramFrequencies.getOrDefault(key, 0) + 1
-            }
-        }
-    }
-
-    // Take top N most frequent n-grams
-    return ngramFrequencies
-        .entries
-        .sortedByDescending { it.value }
-        .take(config.maxNgramFeatures)
-        .mapIndexed { index, entry -> entry.key to index }
-        .toMap()
-}
-
-fun extractActivitySequence(states: List<State>): List<String> {
-    return states
-        .mapNotNull { (it as? State.PrefixState)?.via?.name }
-}

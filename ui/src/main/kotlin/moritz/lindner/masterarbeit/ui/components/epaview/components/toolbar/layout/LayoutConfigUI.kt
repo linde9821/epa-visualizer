@@ -166,17 +166,10 @@ private fun getCurrentConfigValue(
         "useCycleTime" -> config.useCycleTime
         "usePathLength" -> config.usePathLength
         "useActivity" -> config.useActivity
-        "reductionMethod" -> config.reductionMethod
         "umapK" -> config.umapK
         "Iterations" -> config.iterations
         "canvasWidth" -> config.canvasWidth
         "canvasHeight" -> config.canvasHeight
-        "nodeRadius" -> config.nodeRadius
-        "padding" -> config.padding
-        "useForceDirected" -> config.useForceDirected
-        "repulsionStrength" -> config.repulsionStrength
-        "forceDirectedLayoutIterations" -> config.forceDirectedLayoutIterations
-        "useResolveOverlap" -> config.useResolveOverlap
         "enabled" -> config.enabled
         "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
