@@ -5,13 +5,13 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.PRTLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.prt.ParallelReadableTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
 
@@ -55,7 +55,7 @@ object LayoutFactory {
             )
         }
 
-        is LayoutConfig.TimeRadialWalkerConfig -> {
+        is LayoutConfig.RadialWalkerTimeConfig -> {
             TimeRadialWalkerTreeLayout(
                 multiplier = config.layerBaseUnit,
                 margin = config.margin.degreesToRadians(),
@@ -93,7 +93,7 @@ object LayoutFactory {
             )
 
             is LayoutConfig.PRTLayoutConfig -> {
-                PRTLayout(
+                ParallelReadableTreeLayout(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
                     config = layoutConfig,
                     backgroundDispatcher = backgroundDispatcher,

@@ -6,6 +6,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -13,6 +14,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
@@ -44,6 +46,7 @@ import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
 import kotlin.coroutines.cancellation.CancellationException
 
+@OptIn(FlowPreview::class)
 @Suppress("UNCHECKED_CAST")
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
@@ -145,7 +148,7 @@ class EpaStateManager(
             projectFlow
                 .map { project -> project.getMapper() as? EventLogMapper<Long> }
                 .distinctUntilChanged()
-                .drop(1) // Skip initial value
+                .drop(1)
                 .collect { _ ->
                     // Cancel any in-progress rebuilding
                     rebuildJob?.cancel()
@@ -175,7 +178,7 @@ class EpaStateManager(
         }
 
         scope.launch {
-            tabStateManager.tabs.collectLatest { tabs ->
+            tabStateManager.tabs.debounce(300).collectLatest { tabs ->
                 try {
                     tabs.forEach { tab ->
                         buildEpaForTab(tab)

@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.layout.implementations
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.prt
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
@@ -18,66 +18,53 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
-import org.apache.commons.math3.util.FastMath.pow
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.math.log10
 import kotlin.math.max
-import kotlin.math.sin
+import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-class PRTLayout(
+class ParallelReadableTreeLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.PRTLayoutConfig,
     backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) : Layout {
 
+    private val logger = KotlinLogging.logger { }
+    private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
     private val random = Random(config.seed)
-    private val labelSizeByState: Map<State, Pair<Float, Float>> = config.labelSizeByState
+    private var isBuilt = false
+    private val epaService = EpaService<Long>()
 
-    private val transitionByStatePair = buildMap {
-        extendedPrefixAutomaton.transitions.forEach {
-            put(Pair(it.start, it.end), it)
+    private val transitionByStates = buildMap {
+        extendedPrefixAutomaton.transitions.forEach { transition ->
+            put(Pair(transition.start, transition.end), transition)
         }
     }
-
-    private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
-    private val epaService = EpaService<Long>()
-    private var isBuilt = false
-
-    private val logger = KotlinLogging.logger { }
-    private val coordinateByState = mutableMapOf<State, NodePlacement>()
-
-    private lateinit var rTree: RTree<NodePlacement, PointFloat>
-
     private val collisionRadiusByState: Map<State, Float> = buildMap {
         extendedPrefixAutomaton.states.forEach { state ->
             put(state, getCollisionRadius(state))
         }
     }
-
     private val maxCollisionRadius = collisionRadiusByState.values.max()
 
-    private fun getCollisionRadius(state: State): Float {
-        val (width, height) = labelSizeByState[state]!!
+    private val coordinateByState = mutableMapOf<State, NodePlacement>()
+    private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
-        // Use half the diagonal as radius (conservative)
-        // return sqrt(width * width + height * height).toFloat() / 2f
-
-        // Or simpler: half the maximum dimension + pedding
-        return (max(width, height) / 2f) + 10f
+    private fun getCollisionRadius(state: State, padding: Float = 5f): Float {
+        val (width, height) = config.labelSizeByState[state]!!
+        return max(width, height) + padding
     }
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        logger.info { "init" }
-
         val cycleTimes = epaService.computeAllCycleTimes(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
@@ -86,20 +73,20 @@ class PRTLayout(
                     0f
                 } else cycleTimes.average().toFloat()
             },
+            progressCallback = progressCallback
         )
 
+        // TODO: adapt this for other time based layout
         // Add offset to handle zero values with logarithmic scaling
         val offset = 1.0f
         val values = cycleTimes.values.map { it + offset }
         val min = values.minOrNull() ?: offset
         val max = values.maxOrNull() ?: offset
 
-        val minEdgeLength = 10.0f
-        val maxEdgeLength = 1000.0f
 
         val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
             // All values are essentially the same - use middle of range
-            extendedPrefixAutomaton.transitions.associateWith { (minEdgeLength + maxEdgeLength) / 2 }
+            extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }
         } else {
             val logMin = log10(min)
             val logMax = log10(max)
@@ -110,7 +97,7 @@ class PRTLayout(
                 val logValue = log10(value)
                 val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
 
-                minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
+                config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
             }
         }
 
@@ -134,7 +121,6 @@ class PRTLayout(
             }
         }
 
-        logger.info { "parallelForceDirectedImprovements" }
         parallelForceDirectedImprovements(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             x = initialLayout,
@@ -152,7 +138,7 @@ class PRTLayout(
             logger.info { "Expected Size: ${extendedPrefixAutomaton.states.size} but actual was ${coordinateByState.size}" }
         }
 
-        rTree = RTreeBuilder.build(coordinateByState.values.toList())
+        rTree = RTreeBuilder.build(coordinateByState.values.toList(), progressCallback)
 
         isBuilt = true
     }
@@ -179,22 +165,6 @@ class PRTLayout(
 
     override fun iterator(): Iterator<NodePlacement> {
         return coordinateByState.values.iterator()
-    }
-
-    data class Wedge(
-        val center: Coordinate,
-        val radius: Float,
-        val angleRange: Pair<Float, Float>,
-    ) {
-        fun arcMidpoint(): Coordinate {
-            val (startAngle, endAngle) = angleRange
-            val midAngle = (startAngle + endAngle) / 2.0
-
-            return Coordinate(
-                x = (center.x + radius * cos(midAngle)).toFloat(),
-                y = (center.y + radius * sin(midAngle)).toFloat()
-            )
-        }
     }
 
     private fun edgeLengthInitialization(
@@ -308,6 +278,11 @@ class PRTLayout(
         )
 
         extendedPrefixAutomaton.acceptBreadthFirst(object : AutomatonVisitor<Long> {
+
+            override fun onProgress(current: Long, total: Long) {
+                progressCallback?.onProgress(current, total, "Edge Length Initialization")
+            }
+
             override fun visit(
                 extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
                 state: State,
@@ -342,10 +317,6 @@ class PRTLayout(
                 }
             }
 
-            override fun onProgress(current: Long, total: Long) {
-                progressCallback?.onProgress(current, total, "Edge Length Initialization")
-            }
-
             private fun centralize(children: List<State>): List<State> {
                 val sorted = children.sortedBy { subtreeSizeByState[it]!! }
                 val first = sorted.filterIndexed { index, _ -> index % 2 == 0 }
@@ -358,22 +329,18 @@ class PRTLayout(
         return coordinateByState
     }
 
-    private val LABEL_OVERLAP_FORCE_STRENGTH = 0.8f
-    private val EDGE_LENGTH_FORCE_STRENGTH = 1.0f
-    private val DISTRIBUTION_FORCE_STRENGTH = 0.003f
-
     private fun parallelForceDirectedImprovements(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
         batch: Int = 128,
-        samples: Int = 20,
+        samples: Int = 40,
         iterations: Int = 50,
         progressCallback: EpaProgressCallback?,
         desiredEdgeLengthByTransition: Map<Transition, Float>
     ): Map<State, Coordinate> {
         val positions = x.toMutableMap()
         repeat(iterations) { currentIteration ->
-            progressCallback?.onProgress(currentIteration, iterations, "Force directed improvements")
+            progressCallback?.onProgress(currentIteration, iterations, "Force-Directed improvements")
             logger.info { "parallelForceDirectedImprovements iteration $currentIteration" }
             val t = HashMap<State, Vector2D>()
             positions.keys.forEach { t[it] = Vector2D.zero() }
@@ -392,7 +359,7 @@ class PRTLayout(
                             var combinedForceU = Vector2D.zero()
                             collisionRegion(u, positions, rTree).forEach { v ->
                                 val labelForce = computeLabelOverlapForce(u, v, positions)
-                                combinedForceU = combinedForceU.add(labelForce.multiply(LABEL_OVERLAP_FORCE_STRENGTH))
+                                combinedForceU = combinedForceU.add(labelForce.multiply(config.LABEL_OVERLAP_FORCE_STRENGTH))
                             }
 
                             val neighbors = epaService.neighbors(extendedPrefixAutomaton, u)
@@ -403,13 +370,12 @@ class PRTLayout(
                                     positions,
                                     desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
                                 )
-                                combinedForceU = combinedForceU.add(force.multiply(EDGE_LENGTH_FORCE_STRENGTH))
+                                combinedForceU = combinedForceU.add(force.multiply(config.EDGE_LENGTH_FORCE_STRENGTH))
                             }
 
                             sample(samples).forEach { w ->
                                 val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
-                                // function returns a force pointing away from w (repulsive direction)
-                                combinedForceU = combinedForceU.add(force.multiply(DISTRIBUTION_FORCE_STRENGTH))
+                                combinedForceU = combinedForceU.add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
                             }
 
                             t[u] = combinedForceU
@@ -423,7 +389,6 @@ class PRTLayout(
 
                 if (movement.magnitude() > 0.1) {
                     if (!introducesEdgeCrossing(state, movement, positions)) {
-                        // Apply movement
                         val currentPos = positions[state]!!
                         positions[state] = Coordinate(
                             x = (currentPos.x + movement.x),
@@ -463,9 +428,9 @@ class PRTLayout(
         val uPos = positions[u]!!
         val vPos = positions[v]!!
 
-        val distanceSquared = pow(uPos.distanceTo(vPos).toDouble(), 2).toFloat()
+        val distanceSquared = uPos.distanceTo(vPos).toDouble().pow(2.0).toFloat()
 
-        if (distanceSquared < 0.0001f) {
+        if (distanceSquared < 0.01f) {
             return Vector2D(0f, 0f)
         }
         val sUV = sUV(u, v, desiredEdgeLengthByTransition)
@@ -490,8 +455,8 @@ class PRTLayout(
         // Avoid division by zero
         if (currentDistance < 1e-6) return Vector2D.zero()
 
-        val transition = transitionByStatePair[Pair(u, v)]
-            ?: transitionByStatePair[Pair(v, u)]!!
+        val transition = transitionByStates[Pair(u, v)]
+            ?: transitionByStates[Pair(v, u)]!!
         val desiredLength = desiredEdgeLengthByTransition[transition]!!
 
         if (abs(currentDistance - desiredLength) < 1) return Vector2D.zero()
@@ -571,12 +536,10 @@ class PRTLayout(
 
         return rTree
             .search(
-                // maybe use circle
-                Geometries.rectangle(
-                    statePosition.x - searchRadius,
-                    statePosition.y - searchRadius,
-                    statePosition.x + searchRadius,
-                    statePosition.y + searchRadius
+                Geometries.circle(
+                    statePosition.x,
+                    statePosition.y,
+                    searchRadius
                 )
             )
             .map { entry -> entry.value().state }
@@ -663,19 +626,16 @@ class PRTLayout(
 
         return when {
             abs(value) < 1e-6f -> 0  // Collinear
-            value > 0 -> 1           // Clockwise
-            else -> 2                // Counterclockwise
+            value > 0 -> 1               // Clockwise
+            else -> 2                    // Counterclockwise
         }
     }
 
     private fun sample(samples: Int): List<State> {
-        val states = extendedPrefixAutomaton.states
-
         return buildList {
             repeat(samples) {
-                add(states.random(random))
+                add(extendedPrefixAutomaton.states.random(random))
             }
         }
     }
-
 }
