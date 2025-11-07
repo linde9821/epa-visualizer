@@ -25,22 +25,26 @@ class TabStateManager {
         filters: List<EpaFilter<Long>>,
         layoutConfig: LayoutConfig
     ) {
+        val isFirstTab = _tabs.value.isEmpty()
+
         _tabs.update { currentTabs ->
             if (currentTabs.any { it.id == id }) {
                 currentTabs
             } else {
-                currentTabs + TabState(
+                val newTab = TabState(
                     id = id,
                     title = title,
                     filters = filters,
-                    layoutConfig = layoutConfig
+                    layoutConfig = layoutConfig,
+                    isActive = isFirstTab // Set active immediately if first tab
                 )
+                currentTabs + newTab
             }
         }
 
-        // If this is the first tab, make it active
-        if (_activeTabId.value == null) {
-            setActiveTab(id)
+        // Set active tab ID without triggering another _tabs update
+        if (isFirstTab) {
+            _activeTabId.value = id
         }
     }
 
