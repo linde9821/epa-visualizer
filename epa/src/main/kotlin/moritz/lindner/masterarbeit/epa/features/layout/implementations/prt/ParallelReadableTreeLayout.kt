@@ -24,8 +24,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
-import org.apache.commons.math3.util.FastMath
-import java.lang.Math.pow
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.log10

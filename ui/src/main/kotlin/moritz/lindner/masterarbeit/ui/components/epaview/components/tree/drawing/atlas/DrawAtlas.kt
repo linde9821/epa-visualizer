@@ -5,9 +5,9 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.prt.ParallelReadableTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.prt.ParallelReadableTreeLayout
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode

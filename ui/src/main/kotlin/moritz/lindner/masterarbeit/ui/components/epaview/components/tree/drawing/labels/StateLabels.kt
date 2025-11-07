@@ -60,7 +60,8 @@ class StateLabels(
         }
     }
 
-    private fun getWithAndHeight(image: Image, padding: Float = 8.0f): Pair<Float, Float> = image.width.toFloat() + padding to image.height.toFloat() + padding
+    private fun getWithAndHeight(image: Image, padding: Float = 8.0f): Pair<Float, Float> =
+        image.width.toFloat() + padding to image.height.toFloat() + padding
 
     private fun trimStateName(state: State): String {
         return if (state.name.length > maxStateLabelLength) {
