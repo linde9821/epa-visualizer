@@ -3,7 +3,6 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.clusteri
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
-import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -14,6 +13,9 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuil
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
+import org.locationtech.jts.algorithm.ConvexHull
+import org.locationtech.jts.geom.GeometryFactory
+import smile.clustering.DBSCAN
 import smile.manifold.umap
 import smile.math.MathEx
 import kotlin.math.sqrt
@@ -23,7 +25,6 @@ class StateClusteringLayout(
     private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig()
 ) : Layout {
 
-    private val logger = KotlinLogging.logger { }
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
 
@@ -44,6 +45,8 @@ class StateClusteringLayout(
         progressCallback?.onProgress(2, 4, "Reducing dimensions...")
         val coordinates = reduceDimensions(combinedEmbeddings)
 
+        val polygons = createPolygonsForClusters(coordinates)
+
         finalizeLayout(coordinates)
 
         rTree = RTreeBuilder.build(
@@ -56,6 +59,40 @@ class StateClusteringLayout(
             epaProgressCallback = progressCallback
         )
         isBuiltFlag = true
+    }
+
+    private fun createPolygonsForClusters(coordinates: Map<State, Coordinate>) {
+        val coordinates2D = coordinates.map { (_, coordinate) ->
+            arrayOf(coordinate.x.toDouble(), coordinate.y.toDouble()).toDoubleArray()
+        }.toTypedArray()
+        val dbscan = DBSCAN.fit(
+            coordinates2D,
+            5,
+            0.5
+        )
+
+        val clusterLabels = dbscan.group()
+
+// Group points by cluster (excluding noise points with label -1)
+        val pointsByCluster = coordinates2D.indices
+            .filter { clusterLabels[it] >= 0 } // Exclude noise
+            .groupBy { clusterLabels[it] }
+            .mapValues { (_, indices) ->
+                indices.map { coordinates2D[it] }.toTypedArray()
+            }
+
+
+        val geometryFactory = GeometryFactory()
+
+        val clusterPolygons = pointsByCluster.mapValues { (_, points) ->
+            if (points.size < 3) return@mapValues null
+
+            val hull = ConvexHull(points, geometryFactory)
+            val geometry = hull.convexHull
+
+            // Extract coordinates from the polygon
+            geometry.coordinates // Array<Coordinate> with x, y accessible
+        }
     }
 
     override fun getCoordinate(state: State): Coordinate {
@@ -128,14 +165,14 @@ class StateClusteringLayout(
         val states = embeddings.keys.toList()
         val matrix = states.map { embeddings[it]!! }.toTypedArray()
 
-        val coordinates2D = umap(
+        val coordinates = umap(
             data = matrix,
             d = 2,
             k = config.umapK,
             epochs = config.iterations,
         )
 
-        return scaleToCanvas(states, coordinates2D)
+        return scaleToCanvas(states, coordinates)
     }
 
     private fun scaleToCanvas(

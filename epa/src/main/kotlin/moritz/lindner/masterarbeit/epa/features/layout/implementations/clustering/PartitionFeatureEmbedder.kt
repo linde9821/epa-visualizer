@@ -161,8 +161,7 @@ class PartitionFeatureEmbedder() {
     }
 
     private fun extractActivitySequence(states: List<State>): List<String> {
-        return states
-            .mapNotNull { (it as? State.PrefixState)?.via?.name }
+        return states.mapNotNull { (it as? State.PrefixState)?.via?.name }
     }
 }
 
