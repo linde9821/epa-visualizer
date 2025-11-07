@@ -189,6 +189,9 @@ private fun getCurrentConfigValue(
         "lod" -> config.lod
         "minEdgeLength" -> config.minEdgeLength
         "maxEdgeLength" -> config.maxEdgeLength
+        "LABEL_OVERLAP_FORCE_STRENGTH" -> config.LABEL_OVERLAP_FORCE_STRENGTH
+        "EDGE_LENGTH_FORCE_STRENGTH" -> config.EDGE_LENGTH_FORCE_STRENGTH
+        "DISTRIBUTION_FORCE_STRENGTH" -> config.DISTRIBUTION_FORCE_STRENGTH
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 

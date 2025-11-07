@@ -316,6 +316,9 @@ sealed class LayoutConfig(val name: String) {
         val seed: Int = 42,
         val minEdgeLength: Float = 10.0f,
         val maxEdgeLength: Float = 1000.0f,
+        val LABEL_OVERLAP_FORCE_STRENGTH: Float = 1.0f,
+        val EDGE_LENGTH_FORCE_STRENGTH: Float = 1.0f,
+        val DISTRIBUTION_FORCE_STRENGTH: Float = 0.1f,
         override val lod: Boolean = true
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
@@ -331,20 +334,40 @@ sealed class LayoutConfig(val name: String) {
                     max = 100,
                     steps = 100
                 ),
-
                 "minEdgeLength" to ParameterInfo.NumberParameterInfo(
                     name = "minEdgeLength",
                     min = 0f,
                     max = 1000f,
                     steps = 10f
                 ),
-
                 "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
                     name = "maxEdgeLength",
                     min = 100f,
                     max = 3000f,
                     steps = 10f
                 ),
+
+                "LABEL_OVERLAP_FORCE_STRENGTH" to ParameterInfo.NumberParameterInfo(
+                    name = "LABEL_OVERLAP_FORCE_STRENGTH",
+                    min = 0.0f,
+                    max = 1.0f,
+                    steps = 0.1f
+                ),
+
+                "EDGE_LENGTH_FORCE_STRENGTH" to ParameterInfo.NumberParameterInfo(
+                    name = "EDGE_LENGTH_FORCE_STRENGTH",
+                    min = 0.0f,
+                    max = 1.0f,
+                    steps = 0.1f
+                ),
+
+                "DISTRIBUTION_FORCE_STRENGTH" to ParameterInfo.NumberParameterInfo(
+                    name = "DISTRIBUTION_FORCE_STRENGTH",
+                    min = 0.0f,
+                    max = 1.0f,
+                    steps = 0.1f
+                ),
+
 
                 "lod" to ParameterInfo.BooleanParameterInfo("lod")
             )
@@ -359,6 +382,11 @@ sealed class LayoutConfig(val name: String) {
             "iterations" -> copy(iterations = value as Int)
             "minEdgeLength" -> copy(minEdgeLength = value as Float)
             "maxEdgeLength" -> copy(maxEdgeLength = value as Float)
+
+            "LABEL_OVERLAP_FORCE_STRENGTH" -> copy(LABEL_OVERLAP_FORCE_STRENGTH = value as Float)
+            "EDGE_LENGTH_FORCE_STRENGTH" -> copy(EDGE_LENGTH_FORCE_STRENGTH = value as Float)
+            "DISTRIBUTION_FORCE_STRENGTH" -> copy(DISTRIBUTION_FORCE_STRENGTH = value as Float)
+
             "lod" -> copy(lod = value as Boolean)
             else -> this
         }

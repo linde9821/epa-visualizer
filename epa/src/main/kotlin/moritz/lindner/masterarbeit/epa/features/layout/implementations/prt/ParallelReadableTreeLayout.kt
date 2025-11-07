@@ -329,10 +329,6 @@ class ParallelReadableTreeLayout(
         return coordinateByState
     }
 
-    private val LABEL_OVERLAP_FORCE_STRENGTH = 1.0f
-    private val EDGE_LENGTH_FORCE_STRENGTH = 1.0f
-    private val DISTRIBUTION_FORCE_STRENGTH = 0.1f
-
     private fun parallelForceDirectedImprovements(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
@@ -363,7 +359,7 @@ class ParallelReadableTreeLayout(
                             var combinedForceU = Vector2D.zero()
                             collisionRegion(u, positions, rTree).forEach { v ->
                                 val labelForce = computeLabelOverlapForce(u, v, positions)
-                                combinedForceU = combinedForceU.add(labelForce.multiply(LABEL_OVERLAP_FORCE_STRENGTH))
+                                combinedForceU = combinedForceU.add(labelForce.multiply(config.LABEL_OVERLAP_FORCE_STRENGTH))
                             }
 
                             val neighbors = epaService.neighbors(extendedPrefixAutomaton, u)
@@ -374,12 +370,12 @@ class ParallelReadableTreeLayout(
                                     positions,
                                     desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
                                 )
-                                combinedForceU = combinedForceU.add(force.multiply(EDGE_LENGTH_FORCE_STRENGTH))
+                                combinedForceU = combinedForceU.add(force.multiply(config.EDGE_LENGTH_FORCE_STRENGTH))
                             }
 
                             sample(samples).forEach { w ->
                                 val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
-                                combinedForceU = combinedForceU.add(force.multiply(DISTRIBUTION_FORCE_STRENGTH))
+                                combinedForceU = combinedForceU.add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
                             }
 
                             t[u] = combinedForceU
