@@ -314,6 +314,8 @@ sealed class LayoutConfig(val name: String) {
         val labelSizeByState: Map<State, Pair<Float, Float>>,
         val iterations: Int = 10,
         val seed: Int = 42,
+        val minEdgeLength: Float = 10.0f,
+        val maxEdgeLength: Float = 1000.0f,
         override val lod: Boolean = true
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
@@ -329,6 +331,21 @@ sealed class LayoutConfig(val name: String) {
                     max = 100,
                     steps = 100
                 ),
+
+                "minEdgeLength" to ParameterInfo.NumberParameterInfo(
+                    name = "minEdgeLength",
+                    min = 0f,
+                    max = 1000f,
+                    steps = 10f
+                ),
+
+                "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
+                    name = "maxEdgeLength",
+                    min = 100f,
+                    max = 3000f,
+                    steps = 10f
+                ),
+
                 "lod" to ParameterInfo.BooleanParameterInfo("lod")
             )
         }
@@ -340,6 +357,8 @@ sealed class LayoutConfig(val name: String) {
             "enabled" -> copy(enabled = value as Boolean)
             "initialization" -> copy(initializer = value as PRTInitialLayout)
             "iterations" -> copy(iterations = value as Int)
+            "minEdgeLength" -> copy(minEdgeLength = value as Float)
+            "maxEdgeLength" -> copy(maxEdgeLength = value as Float)
             "lod" -> copy(lod = value as Boolean)
             else -> this
         }

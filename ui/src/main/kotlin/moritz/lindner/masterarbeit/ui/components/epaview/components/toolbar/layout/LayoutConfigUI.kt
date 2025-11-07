@@ -187,6 +187,8 @@ private fun getCurrentConfigValue(
         "initialization" -> config.initializer
         "iterations" -> config.iterations
         "lod" -> config.lod
+        "minEdgeLength" -> config.minEdgeLength
+        "maxEdgeLength" -> config.maxEdgeLength
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 

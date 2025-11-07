@@ -83,12 +83,10 @@ class ParallelReadableTreeLayout(
         val min = values.minOrNull() ?: offset
         val max = values.maxOrNull() ?: offset
 
-        val minEdgeLength = 10.0f
-        val maxEdgeLength = 1000.0f
 
         val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
             // All values are essentially the same - use middle of range
-            extendedPrefixAutomaton.transitions.associateWith { (minEdgeLength + maxEdgeLength) / 2 }
+            extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }
         } else {
             val logMin = log10(min)
             val logMax = log10(max)
@@ -99,7 +97,7 @@ class ParallelReadableTreeLayout(
                 val logValue = log10(value)
                 val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
 
-                minEdgeLength + normalized * (maxEdgeLength - minEdgeLength)
+                config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
             }
         }
 
@@ -349,7 +347,7 @@ class ParallelReadableTreeLayout(
             progressCallback?.onProgress(currentIteration, iterations, "Force-Directed improvements")
             logger.info { "parallelForceDirectedImprovements iteration $currentIteration" }
             val t = HashMap<State, Vector2D>()
-            positions.keys.forEach { t[it] = Vector2D.Companion.zero() }
+            positions.keys.forEach { t[it] = Vector2D.zero() }
 
             val batches = extendedPrefixAutomaton.states.chunked(batch)
 
@@ -362,7 +360,7 @@ class ParallelReadableTreeLayout(
                     // for each node in parallel do
                     batch.map { u ->
                         scope.async {
-                            var combinedForceU = Vector2D.Companion.zero()
+                            var combinedForceU = Vector2D.zero()
                             collisionRegion(u, positions, rTree).forEach { v ->
                                 val labelForce = computeLabelOverlapForce(u, v, positions)
                                 combinedForceU = combinedForceU.add(labelForce.multiply(LABEL_OVERLAP_FORCE_STRENGTH))
@@ -459,13 +457,13 @@ class ParallelReadableTreeLayout(
         val currentDistance = posU.distanceTo(posV)
 
         // Avoid division by zero
-        if (currentDistance < 1e-6) return Vector2D.Companion.zero()
+        if (currentDistance < 1e-6) return Vector2D.zero()
 
         val transition = transitionByStates[Pair(u, v)]
             ?: transitionByStates[Pair(v, u)]!!
         val desiredLength = desiredEdgeLengthByTransition[transition]!!
 
-        if (abs(currentDistance - desiredLength) < 1) return Vector2D.Companion.zero()
+        if (abs(currentDistance - desiredLength) < 1) return Vector2D.zero()
 
         // Unit vector from u to v
         val direction = posU.vectorTo(posV).normalize()
@@ -527,7 +525,7 @@ class ParallelReadableTreeLayout(
                 x = forceX,
                 y = forceY / 3.0f       // y scaled by 1/b (reciprocal)
             )
-        } else Vector2D.Companion.zero()
+        } else Vector2D.zero()
     }
 
     private fun collisionRegion(
