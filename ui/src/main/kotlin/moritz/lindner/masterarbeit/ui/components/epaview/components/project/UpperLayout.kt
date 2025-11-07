@@ -36,10 +36,21 @@ fun UpperLayout(
             )
         },
         second = {
-            TabsComponent(
-                tabStateManager = tabStateManager,
-                epaStateManager = epaStateManager,
-                backgroundDispatcher = backgroundDispatcher,
+            HorizontalSplitLayout(
+                first = {
+                    TabsComponent(
+                        tabStateManager = tabStateManager,
+                        epaStateManager = epaStateManager,
+                        backgroundDispatcher = backgroundDispatcher,
+                    )
+                },
+                second = {
+                    TabsComponent(
+                        tabStateManager = tabStateManager,
+                        epaStateManager = epaStateManager,
+                        backgroundDispatcher = backgroundDispatcher,
+                    )
+                }
             )
         },
         modifier = Modifier.fillMaxWidth(),
