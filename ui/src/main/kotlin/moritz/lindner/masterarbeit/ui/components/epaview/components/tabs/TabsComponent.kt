@@ -247,12 +247,14 @@ fun TabsComponent(
                 selected = false,
                 onClick = {
                     showContextMenu = false
+                    val id = UUID.randomUUID().toString()
                     tabStateManager.addTab(
-                        id = UUID.randomUUID().toString(),
+                        id = id,
                         title = selectedEpaTab?.title + " copy",
                         filters = selectedEpaTab!!.filters,
                         layoutConfig = selectedEpaTab!!.layoutConfig
                     )
+                    tabStateManager.setActiveTab(id)
                 }
             ) {
                 Row(
