@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.ReductionMethod
 
 sealed class LayoutConfig(val name: String) {
 
@@ -22,7 +21,7 @@ sealed class LayoutConfig(val name: String) {
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
             "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -46,7 +45,7 @@ sealed class LayoutConfig(val name: String) {
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -74,7 +73,7 @@ sealed class LayoutConfig(val name: String) {
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "minCycleTimeDifference" to ParameterInfo.NumberParameterInfo("Min Cycletime change", 0.0f, 1.0f, .1f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -101,7 +100,7 @@ sealed class LayoutConfig(val name: String) {
                 "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
                 "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
                 "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-                "lod" to ParameterInfo.BooleanParameterInfo("lod")
+                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
             )
         }
 
@@ -130,7 +129,7 @@ sealed class LayoutConfig(val name: String) {
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -164,21 +163,13 @@ sealed class LayoutConfig(val name: String) {
         val useActivity: Boolean = true,
 
         // Reduction parameters
-        val reductionMethod: ReductionMethod = ReductionMethod.UMAP,
         val umapK: Int = 10,
         val iterations: Int = 300,
 
         // Layout parameters
         val canvasWidth: Float = 2000.0f,
         val canvasHeight: Float = 2000.0f,
-        val nodeRadius: Float = 5.0f,
-        val padding: Float = 50.0f,
 
-        // Force-directed parameters
-        val useForceDirected: Boolean = false,
-        val repulsionStrength: Float = 100.0f,
-        val forceDirectedLayoutIterations: Int = 10,
-        val useResolveOverlap: Boolean = false,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
     ) : LayoutConfig("State Clustering Layout") {
@@ -205,7 +196,6 @@ sealed class LayoutConfig(val name: String) {
             "useActivity" to ParameterInfo.BooleanParameterInfo("Use Activity"),
 
             // Reduction parameters
-            "reductionMethod" to ParameterInfo.EnumParameterInfo("Reduction Method", ReductionMethod.entries),
             "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),
             "Iterations" to ParameterInfo.NumberParameterInfo("Iterations", 0, 100, 100),
 
@@ -227,7 +217,7 @@ sealed class LayoutConfig(val name: String) {
 
             "useResolveOverlap" to ParameterInfo.BooleanParameterInfo("Use Resolve Overlap"),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -236,10 +226,8 @@ sealed class LayoutConfig(val name: String) {
             "walkLength" -> copy(walkLength = value as Int)
             "walksPerVertex" -> copy(walksPerVertex = value as Int)
             "windowSize" -> copy(windowSize = value as Int)
-
             "useFeatureEmbedding" -> copy(useFeatureEmbedding = value as Boolean)
             "featureEmbeddingDims" -> copy(featureEmbeddingDims = value as Int)
-
             "useDepthFeature" -> copy(useDepthFeature = value as Boolean)
             "useOutgoingTransitions" -> copy(useOutgoingTransitions = value as Boolean)
             "usePartitionValue" -> copy(usePartitionValue = value as Boolean)
@@ -247,21 +235,10 @@ sealed class LayoutConfig(val name: String) {
             "useCycleTime" -> copy(useCycleTime = value as Boolean)
             "usePathLength" -> copy(usePathLength = value as Boolean)
             "useActivity" -> copy(useActivity = value as Boolean)
-
-            "reductionMethod" -> copy(reductionMethod = value as ReductionMethod)
             "umapK" -> copy(umapK = value as Int)
             "Iterations" -> copy(iterations = value as Int)
-
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
-            "nodeRadius" -> copy(nodeRadius = value as Float)
-            "padding" -> copy(padding = value as Float)
-
-            "useForceDirected" -> copy(useForceDirected = value as Boolean)
-            "repulsionStrength" -> copy(repulsionStrength = value as Float)
-            "forceDirectedLayoutIterations" -> copy(forceDirectedLayoutIterations = value as Int)
-
-            "useResolveOverlap" -> copy(useResolveOverlap = value as Boolean)
             "enabled" -> copy(enabled = value as Boolean)
             "lod" -> copy(lod = value as Boolean)
             else -> this
@@ -287,7 +264,7 @@ sealed class LayoutConfig(val name: String) {
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
             "nodeRadius" to ParameterInfo.NumberParameterInfo("Node Radius", 1.0f, 20.0f, 1.0f),
             "padding" to ParameterInfo.NumberParameterInfo("Padding", 10.0f, 200.0f, 10.0f),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -369,7 +346,7 @@ sealed class LayoutConfig(val name: String) {
                 ),
 
 
-                "lod" to ParameterInfo.BooleanParameterInfo("lod")
+                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
             )
         }
 
