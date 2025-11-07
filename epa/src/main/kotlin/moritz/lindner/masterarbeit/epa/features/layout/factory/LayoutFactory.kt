@@ -55,7 +55,7 @@ object LayoutFactory {
             )
         }
 
-        is LayoutConfig.TimeRadialWalkerConfig -> {
+        is LayoutConfig.RadialWalkerTimeConfig -> {
             TimeRadialWalkerTreeLayout(
                 multiplier = config.layerBaseUnit,
                 margin = config.margin.degreesToRadians(),

@@ -17,7 +17,7 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 200.0f,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
-    ) : LayoutConfig("Walker") {
+    ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
             "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
@@ -34,7 +34,32 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class TimeRadialWalkerConfig(
+    data class RadialWalkerConfig(
+        val layerSpace: Float = 120.0f,
+        val margin: Float = 5.0f,
+        val rotation: Float = 90.0f,
+        override val enabled: Boolean = true,
+        override val lod: Boolean = true
+    ) : LayoutConfig("Radial Walker Tree Layout") {
+        override fun getParameters() = mapOf(
+            "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
+            "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
+            "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("lod")
+        )
+
+        override fun updateParameter(name: String, value: Any) = when (name) {
+            "layerSpace" -> copy(layerSpace = value as Float)
+            "margin" -> copy(margin = value as Float)
+            "rotation" -> copy(rotation = value as Float)
+            "enabled" -> copy(enabled = value as Boolean)
+            "lod" -> copy(lod = value as Boolean)
+            else -> this
+        }
+    }
+
+    data class RadialWalkerTimeConfig(
         val layerBaseUnit: Float = 500.0f,
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
@@ -42,7 +67,7 @@ sealed class LayoutConfig(val name: String) {
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
-    ) : LayoutConfig("Radial Walker Time") {
+    ) : LayoutConfig("Time-based Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "layerBaseUnit" to ParameterInfo.NumberParameterInfo("layerBaseUnit", 1.0f, 2000.0f, 10f),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
@@ -63,38 +88,13 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class RadialWalkerConfig(
-        val layerSpace: Float = 120.0f,
-        val margin: Float = 5.0f,
-        val rotation: Float = 90.0f,
-        override val enabled: Boolean = true,
-        override val lod: Boolean = true
-    ) : LayoutConfig("Radial Walker") {
-        override fun getParameters() = mapOf(
-            "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
-            "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
-            "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("lod")
-        )
-
-        override fun updateParameter(name: String, value: Any) = when (name) {
-            "layerSpace" -> copy(layerSpace = value as Float)
-            "margin" -> copy(margin = value as Float)
-            "rotation" -> copy(rotation = value as Float)
-            "enabled" -> copy(enabled = value as Boolean)
-            "lod" -> copy(lod = value as Boolean)
-            else -> this
-        }
-    }
-
     data class PartitionSimilarityRadialLayoutConfig(
         override val enabled: Boolean = true,
         val layerSpace: Float = 120.0f,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
         override val lod: Boolean = true
-    ) : LayoutConfig("Partition Similarity Radial") {
+    ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
@@ -125,7 +125,7 @@ sealed class LayoutConfig(val name: String) {
         val rotation: Float = 0.0f,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
-    ) : LayoutConfig("Direct Angular") {
+    ) : LayoutConfig("Direct Angular Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
@@ -181,7 +181,7 @@ sealed class LayoutConfig(val name: String) {
         val useResolveOverlap: Boolean = false,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
-    ) : LayoutConfig("State-Clustering Layout") {
+    ) : LayoutConfig("State Clustering Layout") {
 
         override fun getParameters() = mapOf(
             // Graph embedding
@@ -277,7 +277,7 @@ sealed class LayoutConfig(val name: String) {
         val nodeRadius: Float = 5.0f,
         val padding: Float = 50.0f,
         override val lod: Boolean = true
-    ) : LayoutConfig("Partition-Clustering Layout") {
+    ) : LayoutConfig("Partition Clustering Layout") {
 
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -315,7 +315,7 @@ sealed class LayoutConfig(val name: String) {
         val iterations: Int = 10,
         val seed: Int = 42,
         override val lod: Boolean = true
-    ) : LayoutConfig("PRT") {
+    ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
