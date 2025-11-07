@@ -14,6 +14,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import smile.manifold.umap
+import smile.math.MathEx
 
 class PartitionClusteringLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -26,6 +27,7 @@ class PartitionClusteringLayout(
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     override fun build(progressCallback: EpaProgressCallback?) {
+        MathEx.setSeed(42);
         val embedder = PartitionFeatureEmbedder()
 
         val featureEmbeddings = embedder.computeEmbedding(extendedPrefixAutomaton)

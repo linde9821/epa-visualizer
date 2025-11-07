@@ -15,6 +15,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import smile.manifold.umap
+import smile.math.MathEx
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -34,6 +35,9 @@ class PartitionSimilarityRadialLayout(
     private var maxDepth = Int.MIN_VALUE
 
     override fun build(progressCallback: EpaProgressCallback?) {
+
+        MathEx.setSeed(42);
+
         val embedder = PartitionFeatureEmbedder()
         val featureEmbeddings = embedder.computeEmbedding(extendedPrefixAutomaton)
 

@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import smile.manifold.tsne
 import smile.manifold.umap
+import smile.math.MathEx
 import kotlin.math.sqrt
 
 class StateClusteringLayout(
@@ -33,6 +34,7 @@ class StateClusteringLayout(
     override fun build(
         progressCallback: EpaProgressCallback?
     ) {
+        MathEx.setSeed(42);
         logger.info { "building $config" }
         progressCallback?.onProgress(0, 7, "Starting semantic layout...")
 
