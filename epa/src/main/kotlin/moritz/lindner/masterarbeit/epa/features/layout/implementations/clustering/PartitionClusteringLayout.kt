@@ -10,6 +10,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -118,14 +119,7 @@ class PartitionClusteringLayout(
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         check(isBuiltFlag) { "Layout not built yet" }
         return rTree
-            .search(
-                Geometries.rectangle(
-                    rectangle.topLeft.x,
-                    rectangle.topLeft.y,
-                    rectangle.bottomRight.x,
-                    rectangle.bottomRight.y,
-                ),
-            ).map(Entry<NodePlacement, PointFloat>::value)
+            .search(rectangle.toRTreeRectangle()).map(Entry<NodePlacement, PointFloat>::value)
     }
 
     override fun iterator(): Iterator<NodePlacement> {
