@@ -13,7 +13,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Analysis
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Filter
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Layout
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.NaturalLanguage
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.None
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Project
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -92,7 +91,7 @@ fun ToolbarUi(
                 },
             ) {
                 Icon(
-                    key = AllIconsKeys.General.Layout,
+                    key = AllIconsKeys.Debugger.RestoreLayout,
                     contentDescription = "Map",
                     tint =
                         if (upperState == Layout) {
@@ -113,7 +112,7 @@ fun ToolbarUi(
                 },
             ) {
                 Icon(
-                    key = AllIconsKeys.General.InspectionsEye,
+                    key = AllIconsKeys.General.Note,
                     contentDescription = "Analysis",
                     tint =
                         if (upperState == Analysis) {
@@ -124,28 +123,6 @@ fun ToolbarUi(
                     modifier = Modifier.size(23.dp)
                 )
             }
-
-            // NLI
-            IconButton(
-                onClick = {
-                    onUpperStateChange(
-                        if (upperState != NaturalLanguage) NaturalLanguage else None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.FileTypes.Text,
-                    contentDescription = "Natural Language Interface",
-                    tint =
-                        if (upperState == NaturalLanguage) {
-                            JewelTheme.defaultTabStyle.colors.underlineSelected
-                        } else {
-                            Color.Unspecified
-                        },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
-
         }
 
         Column {
