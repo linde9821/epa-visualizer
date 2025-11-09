@@ -184,7 +184,7 @@ sealed class LayoutConfig(val name: String) {
 
             // Feature embedding
             "useFeatureEmbedding" to ParameterInfo.BooleanParameterInfo("Use Feature Embedding"),
-            "featureEmbeddingDims" to ParameterInfo.NumberParameterInfo("Feature Embedding Dims", 2, 128, 2),
+            "featureEmbeddingDims" to ParameterInfo.NumberParameterInfo("Feature Embedding Dims", 2, 100, 100),
 
             // Feature flags
             "useDepthFeature" to ParameterInfo.BooleanParameterInfo("Use Depth Feature"),
@@ -202,20 +202,7 @@ sealed class LayoutConfig(val name: String) {
             // Layout parameters
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
-            "nodeRadius" to ParameterInfo.NumberParameterInfo("Node Radius", 1.0f, 20.0f, 1.0f),
-            "padding" to ParameterInfo.NumberParameterInfo("Padding", 10.0f, 200.0f, 10.0f),
 
-            // Force-directed parameters
-            "useForceDirected" to ParameterInfo.BooleanParameterInfo("Use Force Directed"),
-            "repulsionStrength" to ParameterInfo.NumberParameterInfo("Repulsion Strength", 10.0f, 500.0f, 10.0f),
-            "forceDirectedLayoutIterations" to ParameterInfo.NumberParameterInfo(
-                "Force Directed Iterations",
-                5,
-                100,
-                5
-            ),
-
-            "useResolveOverlap" to ParameterInfo.BooleanParameterInfo("Use Resolve Overlap"),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
@@ -251,8 +238,6 @@ sealed class LayoutConfig(val name: String) {
         val umapIterations: Int = 250,
         val canvasWidth: Float = 2000.0f,
         val canvasHeight: Float = 2000.0f,
-        val nodeRadius: Float = 5.0f,
-        val padding: Float = 50.0f,
         override val lod: Boolean = true
     ) : LayoutConfig("Partition Clustering Layout") {
 
@@ -262,8 +247,6 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
-            "nodeRadius" to ParameterInfo.NumberParameterInfo("Node Radius", 1.0f, 20.0f, 1.0f),
-            "padding" to ParameterInfo.NumberParameterInfo("Padding", 10.0f, 200.0f, 10.0f),
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
@@ -273,8 +256,6 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" -> copy(umapIterations = value as Int)
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
-            "nodeRadius" -> copy(nodeRadius = value as Float)
-            "padding" -> copy(padding = value as Float)
             "lod" -> copy(lod = value as Boolean)
             else -> this
         }
