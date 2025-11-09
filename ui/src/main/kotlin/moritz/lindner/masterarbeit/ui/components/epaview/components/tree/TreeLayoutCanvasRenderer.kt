@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -55,8 +56,12 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
+import org.jetbrains.skia.PaintStrokeCap
+import org.jetbrains.skia.PaintStrokeJoin
 import org.jetbrains.skia.Path
+import org.jetbrains.skia.PathEffect
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -91,6 +96,18 @@ fun EpaLayoutCanvasRenderer(
 
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             canvasState.offset = screenCenter - targetNode.toOffset() * canvasState.scale
+        }
+    }
+
+    val dashLineLength = 100f
+    val dashGap = 40f
+    var dashPhase by remember { mutableStateOf(0f) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            withFrameMillis {
+                dashPhase = (dashPhase + 1f) % (dashLineLength + dashGap)
+            }
         }
     }
 
@@ -289,6 +306,40 @@ fun EpaLayoutCanvasRenderer(
                             stateLabels,
                             animationState
                         )
+
+                        val pathPaint = Paint().apply {
+                            color = org.jetbrains.skia.Color.RED
+                            mode = PaintMode.STROKE
+                            isAntiAlias = true
+                            strokeWidth = 5f
+                            strokeCap = PaintStrokeCap.ROUND
+                            strokeJoin = PaintStrokeJoin.ROUND
+                            pathEffect = PathEffect.makeDash(
+                                floatArrayOf(dashLineLength, dashGap),
+                                dashPhase
+                            )
+                        }
+
+                        drawIntoCanvas { canvas ->
+                            treeLayout.getClusterPolygons().forEach { (cluster, coords) ->
+                                val path = Path().apply {
+                                    moveTo(
+                                        coords.first().x,
+                                        coords.first().y
+                                    )
+                                    coords.drop(1).forEach { coord ->
+                                        lineTo(
+                                            coord.x,
+                                            coord.y
+                                        )
+                                    }
+
+                                    closePath()
+                                }
+
+                                canvas.nativeCanvas.drawPath(path, pathPaint)
+                            }
+                        }
                     }
 
                     is ParallelReadableTreeLayout -> {
@@ -325,10 +376,9 @@ private fun DrawScope.drawZoomLine(canvasState: CanvasState, lodQuery: LODQuery)
         .coerceIn(0f, 1f)
 
     val topRightX = drawContext.size.width - padding
-    val topRightY = padding
 
-    val lineStart = Offset(topRightX - lineLength, topRightY)
-    val lineEnd = Offset(topRightX, topRightY)
+    val lineStart = Offset(topRightX - lineLength, padding)
+    val lineEnd = Offset(topRightX, padding)
     drawLine(
         color = Color.Gray,
         start = lineStart,
@@ -338,21 +388,12 @@ private fun DrawScope.drawZoomLine(canvasState: CanvasState, lodQuery: LODQuery)
     )
 
     val color = Color(0xFF2196F3)
-//    lodQuery.getNormalizedThresholdValues().forEach { threshold ->
-//        val thresholdX = lineStart.x + threshold * (lineEnd.x - lineStart.x)
-//        drawLine(
-//            color = color,
-//            start = Offset(thresholdX, topRightY - lineHeight),
-//            end = Offset(thresholdX, topRightY + lineHeight),
-//            strokeWidth = 5.dp.toPx()
-//        )
-//    }
 
     val dotX = lineStart.x + normalized * (lineEnd.x - lineStart.x)
     drawCircle(
         color = color,
         radius = dotRadius,
-        center = Offset(dotX, topRightY)
+        center = Offset(dotX, padding)
     )
 }
 

@@ -6,7 +6,7 @@ import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
@@ -15,6 +15,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import org.locationtech.jts.algorithm.ConvexHull
 import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Polygon
 import smile.clustering.DBSCAN
 import smile.manifold.umap
 import smile.math.MathEx
@@ -23,12 +24,13 @@ import kotlin.math.sqrt
 class StateClusteringLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig()
-) : Layout {
+) : ClusterLayout {
 
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
 
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
+    lateinit var boundingBoxByCluster: Map<Int, List<Coordinate>>
 
     override fun build(
         progressCallback: EpaProgressCallback?
@@ -45,7 +47,9 @@ class StateClusteringLayout(
         progressCallback?.onProgress(2, 4, "Reducing dimensions...")
         val coordinates = reduceDimensions(combinedEmbeddings)
 
-        val polygons = createPolygonsForClusters(coordinates)
+        boundingBoxByCluster = createClusterPolygons(coordinates)
+
+        println("having ${boundingBoxByCluster.size} clusters")
 
         finalizeLayout(coordinates)
 
@@ -61,38 +65,63 @@ class StateClusteringLayout(
         isBuiltFlag = true
     }
 
-    private fun createPolygonsForClusters(coordinates: Map<State, Coordinate>) {
-        val coordinates2D = coordinates.map { (_, coordinate) ->
+    private fun createClusterPolygons(coordinates: Map<State, Coordinate>): Map<Int, List<Coordinate>> {
+        val coordinates2d = coordinates.map { (_, coordinate) ->
             arrayOf(coordinate.x.toDouble(), coordinate.y.toDouble()).toDoubleArray()
         }.toTypedArray()
+
         val dbscan = DBSCAN.fit(
-            coordinates2D,
-            5,
-            0.5
+            coordinates2d,
+            3,
+            50.0
         )
 
         val clusterLabels = dbscan.group()
 
-// Group points by cluster (excluding noise points with label -1)
-        val pointsByCluster = coordinates2D.indices
+        // Group points by cluster (excluding noise points with label -1)
+        val pointsByCluster: Map<Int, Array<DoubleArray>> = coordinates2d.indices
             .filter { clusterLabels[it] >= 0 } // Exclude noise
             .groupBy { clusterLabels[it] }
             .mapValues { (_, indices) ->
-                indices.map { coordinates2D[it] }.toTypedArray()
+                indices.map { coordinates2d[it] }.toTypedArray()
             }
 
+        println("Found ${pointsByCluster.size} clusters")
 
         val geometryFactory = GeometryFactory()
 
-        val clusterPolygons = pointsByCluster.mapValues { (_, points) ->
-            if (points.size < 3) return@mapValues null
+        return pointsByCluster
+            .mapValues { (_, points: Array<DoubleArray>) ->
+                when {
+                    points.size < 3 -> emptyList()
+                    points.size == 3 -> {
+                        points.map {
+                            Coordinate(
+                                x = it[0].toFloat(),
+                                y = it[1].toFloat()
+                            )
+                        }
+                    }
 
-            val hull = ConvexHull(points, geometryFactory)
-            val geometry = hull.convexHull
+                    else -> {
+                        // Convert to JTS Coordinates
+                        val jtsCoordinates =
+                            points.map { org.locationtech.jts.geom.Coordinate(it[0], it[1]) }.toTypedArray()
 
-            // Extract coordinates from the polygon
-            geometry.coordinates // Array<Coordinate> with x, y accessible
-        }
+                        val hull = ConvexHull(jtsCoordinates, geometryFactory)
+                        val basePolygon = hull.convexHull as? Polygon
+                        val paddedPolygon = basePolygon?.buffer(35.0) as Polygon
+
+
+                        paddedPolygon.coordinates.map { coord ->
+                            Coordinate(
+                                x = coord.x.toFloat(),
+                                y = coord.y.toFloat()
+                            )
+                        }
+                    }
+                }
+            }.filter { it.value.isNotEmpty() }
     }
 
     override fun getCoordinate(state: State): Coordinate {
@@ -222,6 +251,10 @@ class StateClusteringLayout(
 //        if (clusters.isNotEmpty()) {
 //            calculateClusterBounds(coordinates, clusters)
 //        }
+    }
+
+    override fun getClusterPolygons(): Map<Int, List<Coordinate>> {
+        return boundingBoxByCluster
     }
 }
 

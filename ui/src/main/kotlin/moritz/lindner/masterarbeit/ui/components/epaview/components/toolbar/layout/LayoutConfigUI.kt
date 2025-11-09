@@ -194,8 +194,6 @@ private fun getCurrentConfigValue(
         "umapIterations" -> config.umapIterations
         "canvasWidth" -> config.canvasWidth
         "canvasHeight" -> config.canvasHeight
-        "nodeRadius" -> config.nodeRadius
-        "padding" -> config.padding
         "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }

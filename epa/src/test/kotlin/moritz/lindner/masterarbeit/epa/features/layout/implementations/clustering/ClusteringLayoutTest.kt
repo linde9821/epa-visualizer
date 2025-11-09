@@ -22,8 +22,6 @@ class ClusteringLayoutTest {
                 useGraphEmbedding = true,
                 umapK = 5,
                 iterations = 200,
-                useForceDirected = false,
-                useResolveOverlap = false,
             )
         )
 
