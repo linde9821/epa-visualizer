@@ -321,7 +321,7 @@ fun EpaLayoutCanvasRenderer(
                         }
 
                         drawIntoCanvas { canvas ->
-                            treeLayout.getClusterPolygons().forEach { (cluster, coords) ->
+                            treeLayout.getClusterPolygons().forEach { (_, coords) ->
                                 val path = Path().apply {
                                     moveTo(
                                         coords.first().x,
