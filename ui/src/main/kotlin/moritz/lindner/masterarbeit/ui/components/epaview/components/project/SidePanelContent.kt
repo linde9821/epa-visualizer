@@ -67,14 +67,6 @@ fun SidePanelContent(
             )
         }
 
-        EpaViewUpperState.NaturalLanguage -> PanelMenu(
-            title = "NLI",
-            modifier = Modifier.Companion.padding(8.dp),
-            onClose = { onClose() }
-        ) {
-            InfoText("Not implemented")
-        }
-
         EpaViewUpperState.None -> {
             /* Should not happen */
         }
