@@ -99,8 +99,6 @@ class PartitionClusteringLayout(
                 indices.map { coordinates2d[it] }.toTypedArray()
             }
 
-        println("Found ${pointsByCluster.size} clusters")
-
         val geometryFactory = GeometryFactory()
 
         return pointsByCluster
@@ -117,21 +115,19 @@ class PartitionClusteringLayout(
                     }
 
                     else -> {
-                        // Convert to JTS Coordinates
                         val jtsCoordinates =
                             points.map { org.locationtech.jts.geom.Coordinate(it[0], it[1]) }.toTypedArray()
 
                         val hull = ConvexHull(jtsCoordinates, geometryFactory)
                         val basePolygon = hull.convexHull as? Polygon
-                        val paddedPolygon = basePolygon?.buffer(35.0) as Polygon
+                        val paddedPolygon = basePolygon?.buffer(35.0) as Polygon?
 
-
-                        paddedPolygon.coordinates.map { coord ->
+                        paddedPolygon?.coordinates?.map { coord ->
                             Coordinate(
                                 x = coord.x.toFloat(),
                                 y = coord.y.toFloat()
                             )
-                        }
+                        } ?: emptyList()
                     }
                 }
             }.filter { it.value.isNotEmpty() }

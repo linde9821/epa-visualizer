@@ -96,7 +96,7 @@ sealed class LayoutConfig(val name: String) {
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
-                "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
+                "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),
                 "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
                 "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
                 "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -243,7 +243,7 @@ sealed class LayoutConfig(val name: String) {
 
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
+            "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),
             "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),

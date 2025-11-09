@@ -49,9 +49,8 @@ class StateClusteringLayout(
 
         boundingBoxByCluster = createClusterPolygons(coordinates)
 
-        println("having ${boundingBoxByCluster.size} clusters")
-
-        finalizeLayout(coordinates)
+        nodeCoordinates.clear()
+        nodeCoordinates.putAll(coordinates)
 
         rTree = RTreeBuilder.build(
             nodePlacements = nodeCoordinates.map {
@@ -86,8 +85,6 @@ class StateClusteringLayout(
                 indices.map { coordinates2d[it] }.toTypedArray()
             }
 
-        println("Found ${pointsByCluster.size} clusters")
-
         val geometryFactory = GeometryFactory()
 
         return pointsByCluster
@@ -104,21 +101,19 @@ class StateClusteringLayout(
                     }
 
                     else -> {
-                        // Convert to JTS Coordinates
                         val jtsCoordinates =
                             points.map { org.locationtech.jts.geom.Coordinate(it[0], it[1]) }.toTypedArray()
 
                         val hull = ConvexHull(jtsCoordinates, geometryFactory)
                         val basePolygon = hull.convexHull as? Polygon
-                        val paddedPolygon = basePolygon?.buffer(35.0) as Polygon
+                        val paddedPolygon = basePolygon?.buffer(35.0) as Polygon?
 
-
-                        paddedPolygon.coordinates.map { coord ->
+                        paddedPolygon?.coordinates?.map { coord ->
                             Coordinate(
                                 x = coord.x.toFloat(),
                                 y = coord.y.toFloat()
                             )
-                        }
+                        } ?: emptyList()
                     }
                 }
             }.filter { it.value.isNotEmpty() }
@@ -232,25 +227,6 @@ class StateClusteringLayout(
 
             state to Coordinate(x, y)
         }
-    }
-
-
-    private fun finalizeLayout(
-        coordinates: Map<State, Coordinate>,
-//        clusters: Map<State, Int>
-    ) {
-        // Store coordinates
-        nodeCoordinates.clear()
-        nodeCoordinates.putAll(coordinates)
-
-        // Store clusters
-//        nodeClusters.clear()
-//        nodeClusters.putAll(clusters)
-
-        // Calculate cluster bounding boxes
-//        if (clusters.isNotEmpty()) {
-//            calculateClusterBounds(coordinates, clusters)
-//        }
     }
 
     override fun getClusterPolygons(): Map<Int, List<Coordinate>> {
