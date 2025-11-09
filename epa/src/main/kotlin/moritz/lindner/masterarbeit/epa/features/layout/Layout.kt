@@ -43,3 +43,4 @@ interface Layout : Iterable<NodePlacement> {
      */
     fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement>
 }
+

@@ -33,6 +33,7 @@ class GraphEmbedder(
         var c = 0
         val total = epa.states.size
         return epa.states.associateWith { state ->
+            c++
             progressCallback?.onProgress(c, total, "Save graph embedding")
             val vertex = stateToVertex[state]!!
             val vector = deepWalk.getVertexVector(vertex)
