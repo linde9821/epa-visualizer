@@ -55,7 +55,6 @@ fun TabsComponent(
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
     modifier: Modifier = Modifier.Companion,
-    backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
@@ -152,12 +151,10 @@ fun TabsComponent(
     Row(
         Modifier
             .onGloballyPositioned { coordinates ->
-                // Get the position of this component in window coordinates
                 componentPosition = coordinates.positionInWindow().round()
             }
             .onPointerEvent(PointerEventType.Press) { event ->
                 val localPosition = event.changes.first().position.round()
-                // Add component position to get absolute window position
                 mousePosition = componentPosition + localPosition
             }
     ) {
@@ -243,6 +240,22 @@ fun TabsComponent(
             },
             popupPositionProvider = popupPositionProvider
         ) {
+            selectableItem(
+                selected = false,
+                onClick = {
+                    showContextMenu = false
+                }
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(AllIconsKeys.Actions.SplitVertically, "Split")
+                    Text("Split Right")
+                }
+            }
+
+
             selectableItem(
                 selected = false,
                 onClick = {
