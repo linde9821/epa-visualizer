@@ -33,10 +33,14 @@ class PartitionClusteringLayout(
 
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
-        val embedder = PartitionFeatureEmbedder()
+        val embedder = PartitionFeatureEmbedder(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            config = PartitionEmbedderConfig.from(config),
+            progressCallback = progressCallback
+        )
 
         progressCallback?.onProgress(0, 2, "Create Embeddings")
-        val featureEmbeddings = embedder.computeEmbedding(extendedPrefixAutomaton)
+        val featureEmbeddings = embedder.computeEmbedding()
 
         progressCallback?.onProgress(1, 2, "Reduce Dimensions")
         val partitionCoordinates2D = reduceDimensions(featureEmbeddings)

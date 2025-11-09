@@ -37,7 +37,9 @@ fun LayoutConfigUI(
             when (info) {
                 is ParameterInfo.BooleanParameterInfo -> {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("${info.name}:")
                         Checkbox(
@@ -97,7 +99,7 @@ fun LayoutConfigUI(
 
         item {
             Row(
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
             ) {
                 DefaultButton(
@@ -195,6 +197,15 @@ private fun getCurrentConfigValue(
         "canvasWidth" -> config.canvasWidth
         "canvasHeight" -> config.canvasHeight
         "lod" -> config.lod
+        "useTotalStateCount" -> config.useTotalStateCount
+        "useTotalEventCount" -> config.useTotalEventCount
+        "useTotalTraceCount" -> config.useTotalTraceCount
+        "useDeepestDepth" -> config.useDeepestDepth
+        "useSplittingFactor" -> config.useSplittingFactor
+        "useHasRepetition" -> config.useHasRepetition
+        "useCombinedCycleTime" -> config.useCombinedCycleTime
+        "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
+        "useLempelZivComplexity" -> config.useLempelZivComplexity
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -204,6 +215,15 @@ private fun getCurrentConfigValue(
         "umapIterations" -> config.umapIterations
         "layerSpace" -> config.layerSpace
         "lod" -> config.lod
+        "useTotalStateCount" -> config.useTotalStateCount
+        "useTotalEventCount" -> config.useTotalEventCount
+        "useTotalTraceCount" -> config.useTotalTraceCount
+        "useDeepestDepth" -> config.useDeepestDepth
+        "useSplittingFactor" -> config.useSplittingFactor
+        "useHasRepetition" -> config.useHasRepetition
+        "useCombinedCycleTime" -> config.useCombinedCycleTime
+        "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
+        "useLempelZivComplexity" -> config.useLempelZivComplexity
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }

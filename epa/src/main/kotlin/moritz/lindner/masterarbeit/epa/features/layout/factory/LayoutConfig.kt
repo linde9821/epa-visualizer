@@ -92,6 +92,15 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 120.0f,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
+        val useTotalStateCount: Boolean = true,
+        val useTotalEventCount: Boolean = true,
+        val useTotalTraceCount: Boolean = true,
+        val useDeepestDepth: Boolean = true,
+        val useSplittingFactor: Boolean = true,
+        val useHasRepetition: Boolean = true,
+        val useCombinedCycleTime: Boolean = true,
+        val useActivitySequenceEncoding: Boolean = true,
+        val useLempelZivComplexity: Boolean = true,
         override val lod: Boolean = true
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
@@ -100,7 +109,16 @@ sealed class LayoutConfig(val name: String) {
                 "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
                 "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
                 "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+                "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
+                "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
+                "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
+                "useDeepestDepth" to ParameterInfo.BooleanParameterInfo("useDeepestDepth"),
+                "useSplittingFactor" to ParameterInfo.BooleanParameterInfo("useSplittingFactor"),
+                "useHasRepetition" to ParameterInfo.BooleanParameterInfo("useHasRepetition"),
+                "useCombinedCycleTime" to ParameterInfo.BooleanParameterInfo("useCombinedCycleTime"),
+                "useActivitySequenceEncoding" to ParameterInfo.BooleanParameterInfo("useActivitySequenceEncoding"),
+                "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
             )
         }
 
@@ -114,6 +132,14 @@ sealed class LayoutConfig(val name: String) {
                 "layerSpace" -> copy(layerSpace = value as Float)
                 "enabled" -> copy(enabled = value as Boolean)
                 "lod" -> copy(lod = value as Boolean)
+                "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
+                "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
+                "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
+                "useSplittingFactor" -> copy(useSplittingFactor = value as Boolean)
+                "useHasRepetition" -> copy(useHasRepetition = value as Boolean)
+                "useCombinedCycleTime" -> copy(useCombinedCycleTime = value as Boolean)
+                "useActivitySequenceEncoding" -> copy(useActivitySequenceEncoding = value as Boolean)
+                "useLempelZivComplexity" -> copy(useLempelZivComplexity = value as Boolean)
                 else -> this
             }
         }
@@ -238,6 +264,15 @@ sealed class LayoutConfig(val name: String) {
         val umapIterations: Int = 250,
         val canvasWidth: Float = 2000.0f,
         val canvasHeight: Float = 2000.0f,
+        val useTotalStateCount: Boolean = true,
+        val useTotalEventCount: Boolean = true,
+        val useTotalTraceCount: Boolean = true,
+        val useDeepestDepth: Boolean = true,
+        val useSplittingFactor: Boolean = true,
+        val useHasRepetition: Boolean = true,
+        val useCombinedCycleTime: Boolean = true,
+        val useActivitySequenceEncoding: Boolean = true,
+        val useLempelZivComplexity: Boolean = true,
         override val lod: Boolean = true
     ) : LayoutConfig("Partition Clustering Layout") {
 
@@ -247,7 +282,16 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+            "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
+            "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
+            "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
+            "useDeepestDepth" to ParameterInfo.BooleanParameterInfo("useDeepestDepth"),
+            "useSplittingFactor" to ParameterInfo.BooleanParameterInfo("useSplittingFactor"),
+            "useHasRepetition" to ParameterInfo.BooleanParameterInfo("useHasRepetition"),
+            "useCombinedCycleTime" to ParameterInfo.BooleanParameterInfo("useCombinedCycleTime"),
+            "useActivitySequenceEncoding" to ParameterInfo.BooleanParameterInfo("useActivitySequenceEncoding"),
+            "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -257,6 +301,14 @@ sealed class LayoutConfig(val name: String) {
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "lod" -> copy(lod = value as Boolean)
+            "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
+            "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
+            "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
+            "useSplittingFactor" -> copy(useSplittingFactor = value as Boolean)
+            "useHasRepetition" -> copy(useHasRepetition = value as Boolean)
+            "useCombinedCycleTime" -> copy(useCombinedCycleTime = value as Boolean)
+            "useActivitySequenceEncoding" -> copy(useActivitySequenceEncoding = value as Boolean)
+            "useLempelZivComplexity" -> copy(useLempelZivComplexity = value as Boolean)
             else -> this
         }
     }
@@ -325,7 +377,6 @@ sealed class LayoutConfig(val name: String) {
                     max = 1.0f,
                     steps = 0.1f
                 ),
-
 
                 "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
             )
