@@ -2,20 +2,21 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.clusteri
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
-import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
-import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
-import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
-import smile.manifold.tsne
+import org.locationtech.jts.algorithm.ConvexHull
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Polygon
+import smile.clustering.DBSCAN
 import smile.manifold.umap
 import smile.math.MathEx
 import kotlin.math.sqrt
@@ -23,13 +24,13 @@ import kotlin.math.sqrt
 class StateClusteringLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig()
-) : Layout {
+) : ClusterLayout {
 
-    private val logger = KotlinLogging.logger { }
     private var isBuiltFlag = false
     private val nodeCoordinates = mutableMapOf<State, Coordinate>()
 
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
+    lateinit var boundingBoxByCluster: Map<Int, List<Coordinate>>
 
     override fun build(
         progressCallback: EpaProgressCallback?
@@ -44,20 +45,78 @@ class StateClusteringLayout(
         val combinedEmbeddings = combineEmbeddings(graphEmbeddings, featureEmbeddings)
 
         progressCallback?.onProgress(2, 4, "Reducing dimensions...")
-        val coordinates2D = reduceDimensions(combinedEmbeddings)
+        val coordinates = reduceDimensions(combinedEmbeddings)
 
-        progressCallback?.onProgress(3, 4, "Resolving conflicts...")
-        val finalCoordinates = resolveConflicts(coordinates2D, progressCallback)
+        boundingBoxByCluster = createClusterPolygons(coordinates)
 
-        finalizeLayout(finalCoordinates)
+        nodeCoordinates.clear()
+        nodeCoordinates.putAll(coordinates)
 
-        rTree = RTreeBuilder.build(nodeCoordinates.map {
-            NodePlacement(
-                coordinate = it.value,
-                state = it.key
-            )
-        }, progressCallback)
+        rTree = RTreeBuilder.build(
+            nodePlacements = nodeCoordinates.map {
+                NodePlacement(
+                    coordinate = it.value,
+                    state = it.key
+                )
+            },
+            epaProgressCallback = progressCallback
+        )
         isBuiltFlag = true
+    }
+
+    private fun createClusterPolygons(coordinates: Map<State, Coordinate>): Map<Int, List<Coordinate>> {
+        val coordinates2d = coordinates.map { (_, coordinate) ->
+            arrayOf(coordinate.x.toDouble(), coordinate.y.toDouble()).toDoubleArray()
+        }.toTypedArray()
+
+        val dbscan = DBSCAN.fit(
+            coordinates2d,
+            3,
+            50.0
+        )
+
+        val clusterLabels = dbscan.group()
+
+        // Group points by cluster (excluding noise points with label -1)
+        val pointsByCluster: Map<Int, Array<DoubleArray>> = coordinates2d.indices
+            .filter { clusterLabels[it] >= 0 } // Exclude noise
+            .groupBy { clusterLabels[it] }
+            .mapValues { (_, indices) ->
+                indices.map { coordinates2d[it] }.toTypedArray()
+            }
+
+        val geometryFactory = GeometryFactory()
+
+        return pointsByCluster
+            .mapValues { (_, points: Array<DoubleArray>) ->
+                when {
+                    points.size < 3 -> emptyList()
+                    points.size == 3 -> {
+                        points.map {
+                            Coordinate(
+                                x = it[0].toFloat(),
+                                y = it[1].toFloat()
+                            )
+                        }
+                    }
+
+                    else -> {
+                        val jtsCoordinates =
+                            points.map { org.locationtech.jts.geom.Coordinate(it[0], it[1]) }.toTypedArray()
+
+                        val hull = ConvexHull(jtsCoordinates, geometryFactory)
+                        val basePolygon = hull.convexHull as? Polygon
+                        val paddedPolygon = basePolygon?.buffer(35.0) as Polygon?
+
+                        paddedPolygon?.coordinates?.map { coord ->
+                            Coordinate(
+                                x = coord.x.toFloat(),
+                                y = coord.y.toFloat()
+                            )
+                        } ?: emptyList()
+                    }
+                }
+            }.filter { it.value.isNotEmpty() }
     }
 
     override fun getCoordinate(state: State): Coordinate {
@@ -68,15 +127,7 @@ class StateClusteringLayout(
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
         check(isBuiltFlag) { "Layout not built yet" }
-        return rTree
-            .search(
-                Geometries.rectangle(
-                    rectangle.topLeft.x,
-                    rectangle.topLeft.y,
-                    rectangle.bottomRight.x,
-                    rectangle.bottomRight.y,
-                ),
-            ).map(Entry<NodePlacement, PointFloat>::value)
+        return rTree.search(rectangle.toRTreeRectangle()).map(Entry<NodePlacement, PointFloat>::value)
     }
 
     override fun isBuilt(): Boolean = isBuiltFlag
@@ -138,29 +189,14 @@ class StateClusteringLayout(
         val states = embeddings.keys.toList()
         val matrix = states.map { embeddings[it]!! }.toTypedArray()
 
-        // Check minimum requirements
-        if (states.size < 3) {
-            // Too few states for dimensionality reduction
-//            return handleSmallDataset(states, matrix)
-        }
+        val coordinates = umap(
+            data = matrix,
+            d = 2,
+            k = config.umapK,
+            epochs = config.iterations,
+        )
 
-        // TODO: add others
-        val coordinates2D = when (config.reductionMethod) {
-            ReductionMethod.UMAP -> umap(
-                data = matrix,
-                d = 2,
-                k = config.umapK,
-                epochs = config.iterations,
-            )
-
-            ReductionMethod.TSNE -> tsne(
-                X = matrix,
-                d = 2,
-                maxIter = config.iterations,
-            ).coordinates
-        }
-
-        return scaleToCanvas(states, coordinates2D)
+        return scaleToCanvas(states, coordinates)
     }
 
     private fun scaleToCanvas(
@@ -176,18 +212,15 @@ class StateClusteringLayout(
         val rangeX = maxX - minX
         val rangeY = maxY - minY
 
-        val usableWidth = config.canvasWidth - 2 * config.padding
-        val usableHeight = config.canvasHeight - 2 * config.padding
-
         return states.zip(coords).associate { (state, coord) ->
             val x = if (rangeX > 0) {
-                ((coord[0].toFloat() - minX) / rangeX) * usableWidth + config.padding
+                ((coord[0].toFloat() - minX) / rangeX) * config.canvasWidth
             } else {
                 config.canvasWidth / 2
             }
 
             val y = if (rangeY > 0) {
-                ((coord[1].toFloat() - minY) / rangeY) * usableHeight + config.padding
+                ((coord[1].toFloat() - minY) / rangeY) * config.canvasHeight
             } else {
                 config.canvasHeight / 2
             }
@@ -196,136 +229,8 @@ class StateClusteringLayout(
         }
     }
 
-    private fun resolveConflicts(
-        coordinates: Map<State, Coordinate>,
-        progressCallback: EpaProgressCallback?,
-    ): Map<State, Coordinate> {
-        var result = coordinates
-
-        if (config.useForceDirected) {
-            result = applyForceDirectedLayout(result, progressCallback)
-        }
-
-        if (config.useResolveOverlap) {
-            result = resolveOverlaps(result, progressCallback)
-        }
-
-        return result
-    }
-
-    private fun applyForceDirectedLayout(
-        coordinates: Map<State, Coordinate>,
-        progressCallback: EpaProgressCallback?,
-    ): Map<State, Coordinate> {
-        val positions = coordinates.toMutableMap()
-        val states = positions.keys.toList()
-
-        repeat(config.forceDirectedLayoutIterations) {
-            progressCallback?.onProgress(it, config.forceDirectedLayoutIterations, "apply force directed layout")
-            val forces = mutableMapOf<State, Vector2D>()
-
-            // Calculate repulsion forces
-            states.forEach { s1 ->
-                var force = Vector2D(0.0f, 0.0f)
-
-                states.forEach { s2 ->
-                    if (s1 != s2) {
-                        val pos1 = positions[s1]!!
-                        val pos2 = positions[s2]!!
-                        val diff = pos1.vectorTo(pos2)
-                        val dist = diff.magnitude()
-
-                        if (dist > 0 && dist < config.repulsionStrength * 2) {
-                            // Repulsion force
-                            val repulsion = diff.normalize().multiply(
-                                -config.repulsionStrength / (dist * dist)
-                            )
-
-                            // Stronger repulsion between different clusters
-                            val clusterMultiplier = 1.0f
-//                            val clusterMultiplier = if (clusters[s1] != clusters[s2]) {
-//                                2.0f
-//                            } else {
-//                                1.0f
-//                            }
-
-                            force = force.add(repulsion.multiply(clusterMultiplier))
-                        }
-                    }
-                }
-
-                forces[s1] = force
-            }
-
-            // Apply forces with damping
-            val damping = 0.1f
-            forces.forEach { (state, force) ->
-                val pos = positions[state]!!
-                positions[state] = Coordinate(
-                    pos.x + force.x * damping,
-                    pos.y + force.y * damping
-                )
-            }
-        }
-
-        return positions
-    }
-
-    private fun resolveOverlaps(
-        coordinates: Map<State, Coordinate>,
-        progressCallback: EpaProgressCallback?
-    ): Map<State, Coordinate> {
-        val positions = coordinates.toMutableMap()
-        val states = positions.keys.toList()
-        val minDistance = config.nodeRadius * 2.5f
-        // Simple overlap resolution
-        var hasOverlap = true
-        var iterations = 0
-
-        val totalIterations = 20
-        while (hasOverlap && iterations < totalIterations) {
-            progressCallback?.onProgress(iterations, totalIterations, "Resolve overlap")
-            hasOverlap = false
-
-            states.forEach { s1 ->
-                states.forEach { s2 ->
-                    if (s1 != s2) {
-                        val pos1 = positions[s1]!!
-                        val pos2 = positions[s2]!!
-                        val dist = pos1.distanceTo(pos2)
-
-                        if (dist < minDistance) {
-                            hasOverlap = true
-                            val push = (minDistance - dist) / 2.0f
-                            val direction = pos1.vectorTo(pos2).normalize()
-
-                            positions[s1] = pos1.move(direction.multiply(-push))
-                            positions[s2] = pos2.move(direction.multiply(push))
-                        }
-                    }
-                }
-            }
-            iterations++
-        }
-
-        return positions
-    }
-
-    private fun finalizeLayout(
-        coordinates: Map<State, Coordinate>,
-//        clusters: Map<State, Int>
-    ) {
-        // Store coordinates
-        nodeCoordinates.clear()
-        nodeCoordinates.putAll(coordinates)
-
-        // Store clusters
-//        nodeClusters.clear()
-//        nodeClusters.putAll(clusters)
-
-        // Calculate cluster bounding boxes
-//        if (clusters.isNotEmpty()) {
-//            calculateClusterBounds(coordinates, clusters)
-//        }
+    override fun getClusterPolygons(): Map<Int, List<Coordinate>> {
+        return boundingBoxByCluster
     }
 }
+

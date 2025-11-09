@@ -1,11 +1,11 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
 import com.github.davidmoten.rtree2.RTree
-import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -90,15 +90,7 @@ class DirectAngularPlacementTreeLayout(
     override fun isBuilt(): Boolean = isBuilt
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
-        return rTree
-            .search(
-                Geometries.rectangle(
-                    rectangle.topLeft.x,
-                    rectangle.topLeft.y,
-                    rectangle.bottomRight.x,
-                    rectangle.bottomRight.y,
-                ),
-            ).map { it.value() }
+        return rTree.search(rectangle.toRTreeRectangle()).map { it.value() }
     }
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()

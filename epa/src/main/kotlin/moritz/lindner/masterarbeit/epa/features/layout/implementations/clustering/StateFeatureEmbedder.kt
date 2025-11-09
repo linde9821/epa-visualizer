@@ -7,16 +7,16 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 
 class StateFeatureEmbedder(
-    private val epa: ExtendedPrefixAutomaton<Long>,
+    private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.StateClusteringLayoutConfig,
     private val progressCallback: EpaProgressCallback?
 ) {
     private val epaService = EpaService<Long>()
 
     fun computeEmbeddings(): Map<State, DoubleArray> {
-        val allActivities = epa.activities.toList()
+        val allActivities = extendedPrefixAutomaton.activities.toList()
         val cycleTimeByState = epaService.computeAllCycleTimes(
-            extendedPrefixAutomaton = epa,
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
             average = { cycleTimes ->
                 if (cycleTimes.isEmpty()) {
@@ -27,19 +27,24 @@ class StateFeatureEmbedder(
         )
 
         var c = 0
-        val total = epa.states.size
+        val total = extendedPrefixAutomaton.states.size
 
-        return epa.states.associateWith { state ->
+        return extendedPrefixAutomaton.states.associateWith { state ->
             progressCallback?.onProgress(c++, total, "feature embedding")
             val features = mutableListOf<Double>()
 
             with(config) {
                 // Structural features
                 if (useDepthFeature) features.add(epaService.getDepth(state).toDouble())
-                if (useOutgoingTransitions) features.add(epaService.outgoingTransitions(epa, state).size.toDouble())
+                if (useOutgoingTransitions) features.add(
+                    epaService.outgoingTransitions(
+                        extendedPrefixAutomaton,
+                        state
+                    ).size.toDouble()
+                )
                 // EPA-specific features
-                if (usePartitionValue) features.add(epa.partition(state).toDouble())
-                if (useSequenceLength) features.add(epa.sequence(state).size.toDouble())
+                if (usePartitionValue) features.add(extendedPrefixAutomaton.partition(state).toDouble())
+                if (useSequenceLength) features.add(extendedPrefixAutomaton.sequence(state).size.toDouble())
                 if (useCycleTime) features.add(cycleTimeByState[state]!!.toDouble())
                 // Path features
                 if (usePathLength) {

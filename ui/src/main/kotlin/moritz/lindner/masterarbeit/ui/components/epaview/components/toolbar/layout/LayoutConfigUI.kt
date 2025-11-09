@@ -37,7 +37,9 @@ fun LayoutConfigUI(
             when (info) {
                 is ParameterInfo.BooleanParameterInfo -> {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("${info.name}:")
                         Checkbox(
@@ -97,7 +99,7 @@ fun LayoutConfigUI(
 
         item {
             Row(
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
             ) {
                 DefaultButton(
@@ -166,17 +168,10 @@ private fun getCurrentConfigValue(
         "useCycleTime" -> config.useCycleTime
         "usePathLength" -> config.usePathLength
         "useActivity" -> config.useActivity
-        "reductionMethod" -> config.reductionMethod
         "umapK" -> config.umapK
         "Iterations" -> config.iterations
         "canvasWidth" -> config.canvasWidth
         "canvasHeight" -> config.canvasHeight
-        "nodeRadius" -> config.nodeRadius
-        "padding" -> config.padding
-        "useForceDirected" -> config.useForceDirected
-        "repulsionStrength" -> config.repulsionStrength
-        "forceDirectedLayoutIterations" -> config.forceDirectedLayoutIterations
-        "useResolveOverlap" -> config.useResolveOverlap
         "enabled" -> config.enabled
         "lod" -> config.lod
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
@@ -201,9 +196,16 @@ private fun getCurrentConfigValue(
         "umapIterations" -> config.umapIterations
         "canvasWidth" -> config.canvasWidth
         "canvasHeight" -> config.canvasHeight
-        "nodeRadius" -> config.nodeRadius
-        "padding" -> config.padding
         "lod" -> config.lod
+        "useTotalStateCount" -> config.useTotalStateCount
+        "useTotalEventCount" -> config.useTotalEventCount
+        "useTotalTraceCount" -> config.useTotalTraceCount
+        "useDeepestDepth" -> config.useDeepestDepth
+        "useSplittingFactor" -> config.useSplittingFactor
+        "useHasRepetition" -> config.useHasRepetition
+        "useCombinedCycleTime" -> config.useCombinedCycleTime
+        "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
+        "useLempelZivComplexity" -> config.useLempelZivComplexity
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -213,6 +215,15 @@ private fun getCurrentConfigValue(
         "umapIterations" -> config.umapIterations
         "layerSpace" -> config.layerSpace
         "lod" -> config.lod
+        "useTotalStateCount" -> config.useTotalStateCount
+        "useTotalEventCount" -> config.useTotalEventCount
+        "useTotalTraceCount" -> config.useTotalTraceCount
+        "useDeepestDepth" -> config.useDeepestDepth
+        "useSplittingFactor" -> config.useSplittingFactor
+        "useHasRepetition" -> config.useHasRepetition
+        "useCombinedCycleTime" -> config.useCombinedCycleTime
+        "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
+        "useLempelZivComplexity" -> config.useLempelZivComplexity
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }

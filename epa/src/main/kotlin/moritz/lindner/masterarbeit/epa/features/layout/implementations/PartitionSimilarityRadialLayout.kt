@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
-import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
@@ -10,6 +9,8 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionEmbedderConfig
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionFeatureEmbedder
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
@@ -37,9 +38,14 @@ class PartitionSimilarityRadialLayout(
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
 
-        val embedder = PartitionFeatureEmbedder()
+        val embedder = PartitionFeatureEmbedder(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            config = PartitionEmbedderConfig.from(config),
+            progressCallback = progressCallback
+        )
+
         progressCallback?.onProgress(0, 2, "Create Embedding")
-        val featureEmbeddings = embedder.computeEmbedding(extendedPrefixAutomaton)
+        val featureEmbeddings = embedder.computeEmbedding()
 
         progressCallback?.onProgress(1, 2, "Reduce Dimensions")
         val partitionCoordinates = reduceDimensions(featureEmbeddings)
@@ -141,15 +147,7 @@ class PartitionSimilarityRadialLayout(
     }
 
     override fun getCoordinatesInRectangle(rectangle: Rectangle): List<NodePlacement> {
-        return rTree
-            .search(
-                Geometries.rectangle(
-                    rectangle.topLeft.x,
-                    rectangle.topLeft.y,
-                    rectangle.bottomRight.x,
-                    rectangle.bottomRight.y,
-                ),
-            ).map(Entry<NodePlacement, PointFloat>::value)
+        return rTree.search(rectangle.toRTreeRectangle()).map(Entry<NodePlacement, PointFloat>::value)
 
     }
 
