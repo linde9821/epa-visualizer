@@ -14,8 +14,8 @@ csv-jvm = "1.10.0"
 selfie = "2.5.4"
 kotlin = "2.2.21"
 gradle-buildconfig = "5.7.1"
-compose-version = "1.9.2"
-jewel = "0.31.0-252.27409"
+compose-version = "1.9.3"
+jewel = "0.31.0-253.28086.58"
 intelliJPlatformBuild = "252.26199.158"
 jna = "5.18.1"
 composeHotReload = "1.0.0-rc02"
@@ -69,7 +69,11 @@ coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ve
 log4j = ["log4j-slf4j2-impl", "log4j-core", "log4j-api"]
 filekit = ["filekit-core", "filekit-dialogs-compose"]
 serialization = ["kotlinx-serialization-core", "kotlinx-serialization-json"]
-lets-plot = ["lets-plot-kotlin-kernel", "lets-plot-kotlin-common", "lets-plot-kotlin-compose"]
+lets-plot = [
+    "lets-plot-kotlin-kernel",
+    "lets-plot-kotlin-common",
+    "lets-plot-kotlin-compose"
+]
 dl4j = [
     "deeplearning4j-core",
     "nd4j-native-platform",
