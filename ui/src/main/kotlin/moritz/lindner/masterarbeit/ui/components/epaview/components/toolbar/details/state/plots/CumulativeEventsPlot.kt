@@ -35,14 +35,12 @@ fun CumulativeEventsPlot(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Create plot data - use immutable map
         val data = mapOf(
             "timestamp" to sortedEvents.map { it.timestamp },
             "cumulative" to sortedEvents.indices.map { it + 1 }
         )
 
-        // Create the plot
-        val plot = letsPlot(data) {
+        val plotSpec = letsPlot(data) {
             x = "timestamp"
             y = "cumulative"
         } +
@@ -56,7 +54,7 @@ fun CumulativeEventsPlot(
                 ).legendPositionNone()
 
         PlotPanel(
-            figure = plot,
+            figure = plotSpec,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(400.dp),
