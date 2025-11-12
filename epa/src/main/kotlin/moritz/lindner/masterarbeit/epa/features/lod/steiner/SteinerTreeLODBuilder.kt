@@ -1,8 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.lod.steiner
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -10,22 +8,21 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 
 class SteinerTreeLODBuilder<T : Comparable<T>>(private val epa: ExtendedPrefixAutomaton<T>) {
 
+    private val logger = KotlinLogging.logger { }
     private val solver = SteinerTreeSolver(epa)
     private val epaService = EpaService<T>()
 
     /** Build LOD levels using Steiner tree approximation */
-    suspend fun buildLODLevels(): List<SteinerLODLevel> {
+    fun buildLODLevels(): List<SteinerLODLevel> {
+        logger.debug { "building steiner lod levels" }
         val normalizedFrequency = epaService.getNormalizedStateFrequency(epa)
 
         val thresholds = listOf(0.0f, 0.001f)
 
-        return coroutineScope {
-            thresholds.map { threshold ->
-                async {
-                    val terminals = selectTerminals(threshold, normalizedFrequency)
-                    solver.computeSteinerTree(terminals)
-                }
-            }.awaitAll()
+        return thresholds.map { threshold ->
+            val terminals = selectTerminals(threshold, normalizedFrequency)
+            logger.debug { "solving steiner tree for threshold $threshold" }
+            solver.computeSteinerTree(terminals)
         }
     }
 
