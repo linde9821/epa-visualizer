@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.9.0"
+version = "1.9.1"
 
 repositories {
     google()

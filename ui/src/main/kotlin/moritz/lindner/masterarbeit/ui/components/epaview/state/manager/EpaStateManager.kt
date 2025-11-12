@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.api.LayoutService
@@ -145,6 +146,12 @@ class EpaStateManager(
         var rebuildJob: Job? = null
 
         scope.launch {
+            tabStateManager.tabs.collectLatest { tabs ->
+                logger.warn { ">>> tabs emission detected (${tabs.size})" }
+            }
+        }
+
+        scope.launch {
             projectFlow
                 .map { project -> project.getMapper() as? EventLogMapper<Long> }
                 .distinctUntilChanged()
@@ -178,7 +185,7 @@ class EpaStateManager(
         }
 
         scope.launch {
-            tabStateManager.tabs.debounce(300).collectLatest { tabs ->
+            tabStateManager.tabs.collectLatest { tabs ->
                 try {
                     tabs.forEach { tab ->
                         buildEpaForTab(tab)
@@ -189,7 +196,8 @@ class EpaStateManager(
                         buildHighlightingForTab(tab)
                     }
                 } catch (e: CancellationException) {
-                    logger.info { "canceling current tabs building" }
+                    logger.warn(e) { "canceling current tabs building" }
+                    e.printStackTrace()
                 } catch (e: Exception) {
                     // TODO: move try catch into functions and set error for tabs accordingly
                     logger.error(e) { "Error while building state" }
@@ -198,7 +206,7 @@ class EpaStateManager(
         }
     }
 
-    private suspend fun buildLodForTab(tabState: TabState, config: LayoutConfig) {
+    private fun buildLodForTab(tabState: TabState, config: LayoutConfig) {
         logger.info { "build lods" }
 
         val lod = if (config.lod) {
@@ -264,7 +272,7 @@ class EpaStateManager(
         }
     }
 
-    suspend fun buildStateLabelsForTab(
+    fun buildStateLabelsForTab(
         tabState: TabState
     ) {
         if (_stateLabelsByTabId.value.containsKey(tabState.id)) {
@@ -281,10 +289,12 @@ class EpaStateManager(
         val states = epa.states
         val chunkSize = 100
 
-        states.chunked(chunkSize).forEach { chunk ->
-            chunk.map { state ->
-                scope.async { stateLabels.generateLabelForState(state) }
-            }.awaitAll()
+        runBlocking {
+            states.chunked(chunkSize).forEach { chunk ->
+                chunk.map { state ->
+                    scope.async { stateLabels.generateLabelForState(state) }
+                }.awaitAll()
+            }
         }
 
         _stateLabelsByTabId.update { currentMap ->
@@ -348,10 +358,10 @@ class EpaStateManager(
 
         val epa = _epaByTabId.value[tabState.id]!!
         val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
-        buildLodForTab(tabState, tabState.layoutConfig)
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }
+        buildLodForTab(tabState, tabState.layoutConfig)
         tabStateManager.clearProgress(tabState.id)
     }
 
