@@ -245,14 +245,15 @@ fun TabsComponent(
                 selected = false,
                 onClick = {
                     showContextMenu = false
+                    epaStateManager.openEpaInNewWindow(tabId = selectedEpaTab!!.id)
                 }
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(AllIconsKeys.Actions.SplitVertically, "Split")
-                    Text("Split Right")
+                    Icon(AllIconsKeys.Actions.MoveToWindow, "Window")
+                    Text("Open in new windows")
                 }
             }
 

@@ -33,12 +33,14 @@ import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLODBuilder
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.maxScale
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.minScale
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TaskProgressState
@@ -89,6 +91,33 @@ class EpaStateManager(
 
     fun updateAnimation(animationState: AnimationState) {
         _animationState.value = animationState
+    }
+
+    fun openEpaInNewWindow(
+        tabId: String,
+    ) {
+        windowManager.openWindow(
+            title = "EPA",
+            windowState = WindowState(
+                width = 800.dp,
+                height = 600.dp,
+                position = WindowPosition(Alignment.Center)
+            )
+        ) { window ->
+            EpaLayoutCanvasRenderer(
+                treeLayout = _layoutAndConfigByTabId.value[tabId]!!.first,
+                stateLabels = _stateLabelsByTabId.value[tabId]!!,
+                drawAtlas = _drawAtlasByTabId.value[tabId]!!,
+                onStateHover = {},
+                onRightClickState = {},
+                onLeftClickState = {},
+                tabState = tabStateManager.getActiveTab()!!,
+                highlightingAtlas = _highlightingByTabId.value[tabId]!!,
+                animationState = _animationState.value,
+                canvasState = rememberCanvasState(),
+                lodQuery = _lodByTabId.value[tabId]!! ?: NoLOD()
+            )
+        }
     }
 
     fun openStateComparisonWindow(
