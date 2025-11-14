@@ -96,51 +96,41 @@ class EpaStateManager(
     fun openEpaInNewWindow(
         tabId: String,
     ) {
-        val treeLayout = _layoutAndConfigByTabId.value[tabId]!!.first
-        val tabState = tabStateManager.getActiveTab()!!
-        windowManager.openWindow(
-            title = "EPA read only view of ${tabState.title}",
-            windowState = WindowState(
-                width = 800.dp,
-                height = 600.dp,
-                position = WindowPosition(Alignment.Center)
-            )
-        ) { _ ->
-            EpaLayoutCanvasRenderer(
-                treeLayout = treeLayout,
-                stateLabels = _stateLabelsByTabId.value[tabId]!!,
-                drawAtlas = _drawAtlasByTabId.value[tabId]!!,
-                onStateHover = {},
-                onRightClickState = {},
-                onLeftClickState = {},
-                tabState = tabState,
-                highlightingAtlas = _highlightingByTabId.value[tabId]!!,
-                animationState = _animationState.value,
-                canvasState = rememberCanvasState(),
-                lodQuery = _lodByTabId.value[tabId] ?: NoLOD()
-            )
-        }
-    }
+        val treeLayout = _layoutAndConfigByTabId.value[tabId]?.first
+        val tabState = tabStateManager.getActiveTab()
+        val stateLabels = _stateLabelsByTabId.value[tabId]
+        val drawAtlas = _drawAtlasByTabId.value[tabId]
+        val highlightingAtlas = _highlightingByTabId.value[tabId]
 
-    fun openStateComparisonWindow(
-        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-        drawAtlas: DrawAtlas,
-        primaryState: State,
-        secondaryState: State,
-    ) {
-        windowManager.openWindow(
-            title = "State Comparison ${primaryState.name} -> ${secondaryState.name}",
-            windowState = WindowState(
-                width = 800.dp,
-                height = 600.dp,
-                position = WindowPosition(Alignment.Center)
-            )
-        ) { window ->
-//            val subEpa = epaService.buildSubEpa(extendedPrefixAutomaton, listOf(primaryState, secondaryState))
-
-//            val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
-
-//            DetailComparison(tree, drawAtlas)
+        if (
+            treeLayout != null &&
+            tabState != null &&
+            stateLabels != null &&
+            drawAtlas != null &&
+            highlightingAtlas != null
+        ) {
+            windowManager.openWindow(
+                title = "EPA read only view of ${tabState.title}",
+                windowState = WindowState(
+                    width = 800.dp,
+                    height = 600.dp,
+                    position = WindowPosition(Alignment.Center)
+                )
+            ) { _ ->
+                EpaLayoutCanvasRenderer(
+                    treeLayout = treeLayout,
+                    stateLabels = stateLabels,
+                    drawAtlas = drawAtlas,
+                    onStateHover = {},
+                    onRightClickState = {},
+                    onLeftClickState = {},
+                    tabState = tabState,
+                    highlightingAtlas = highlightingAtlas,
+                    animationState = _animationState.value,
+                    canvasState = rememberCanvasState(),
+                    lodQuery = _lodByTabId.value[tabId] ?: NoLOD()
+                )
+            }
         }
     }
 
