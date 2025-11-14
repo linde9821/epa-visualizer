@@ -6,7 +6,6 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -14,7 +13,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
@@ -43,11 +41,11 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.maxScal
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.minScale
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.TaskProgressState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
 import kotlin.coroutines.cancellation.CancellationException
 
-@OptIn(FlowPreview::class)
 @Suppress("UNCHECKED_CAST")
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
@@ -83,6 +81,9 @@ class EpaStateManager(
 
     private val _animationState = MutableStateFlow(AnimationState.Empty)
     val animationState = _animationState.asStateFlow()
+
+    private val _progressByTabId = MutableStateFlow<Map<String, TaskProgressState?>>(emptyMap())
+    val progressByTabId = _progressByTabId.asStateFlow()
 
     val windowManager = WindowManager()
 
@@ -131,6 +132,9 @@ class EpaStateManager(
         _lodByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
         }
+        _progressByTabId.update { currentMap ->
+            currentMap.filterNot { it.key == tabId }
+        }
     }
 
     private fun invalidateAllEpas() {
@@ -140,6 +144,7 @@ class EpaStateManager(
         _statisticsByTabId.value = emptyMap()
         _drawAtlasByTabId.value = emptyMap()
         _lodByTabId.value = emptyMap()
+        _progressByTabId.value = emptyMap()
     }
 
     init {
@@ -313,7 +318,7 @@ class EpaStateManager(
         logger.info { "building atlas" }
 
         val progressCallback = EpaProgressCallback { current, total, task ->
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = current,
                 total = total,
@@ -332,14 +337,14 @@ class EpaStateManager(
             ),
             progressCallback = progressCallback
         )
-        tabStateManager.clearProgress(tabState.id)
+        clearProgress(tabState.id)
         _drawAtlasByTabId.update { currentMap ->
             currentMap + (tabState.id to atlas)
         }
         logger.info { "atlas build" }
     }
 
-    suspend fun buildLayoutForTab(
+    fun buildLayoutForTab(
         tabState: TabState
     ) {
         val layoutAndConfig = _layoutAndConfigByTabId.value[tabState.id]
@@ -348,7 +353,7 @@ class EpaStateManager(
         }
 
         val progressCallback = EpaProgressCallback { current, total, task ->
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = current,
                 total = total,
@@ -362,7 +367,7 @@ class EpaStateManager(
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }
         buildLodForTab(tabState, tabState.layoutConfig)
-        tabStateManager.clearProgress(tabState.id)
+        clearProgress(tabState.id)
     }
 
     fun buildEpaForTab(
@@ -374,7 +379,7 @@ class EpaStateManager(
 
         try {
             // Set initial progress
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = 0,
                 total = 1,
@@ -383,7 +388,7 @@ class EpaStateManager(
 
             // Create progress callback
             val progressCallback = EpaProgressCallback { current, total, task ->
-                tabStateManager.updateProgress(
+                updateProgress(
                     tabId = tabState.id,
                     current = current,
                     total = total,
@@ -406,14 +411,39 @@ class EpaStateManager(
             }
 
             // Clear progress when complete
-            tabStateManager.clearProgress(tabState.id)
+            clearProgress(tabState.id)
         } catch (e: Exception) {
             // Handle error - update progress with error state
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = 0,
                 total = 1,
                 task = "Error: ${e.message}"
+            )
+        }
+    }
+
+    fun updateProgress(
+        tabId: String,
+        current: Long,
+        total: Long,
+        task: String
+    ) {
+        _progressByTabId.update { currentProgressMap ->
+            currentProgressMap.plus(
+                tabId to TaskProgressState(
+                    current = current,
+                    total = total,
+                    taskName = task
+                )
+            )
+        }
+    }
+
+    fun clearProgress(tabId: String) {
+        _progressByTabId.update { currentProgressMap ->
+            currentProgressMap.plus(
+                tabId to null
             )
         }
     }

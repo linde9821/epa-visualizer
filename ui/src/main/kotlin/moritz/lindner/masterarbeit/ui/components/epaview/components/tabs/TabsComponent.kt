@@ -59,6 +59,7 @@ fun TabsComponent(
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
+    val progressByTabId by epaStateManager.progressByTabId.collectAsState()
     val layoutByTabId by epaStateManager.layoutAndConfigByTabId.collectAsState()
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val drawAtlasByTabId by epaStateManager.drawAtlasByTabId.collectAsState()
@@ -70,7 +71,7 @@ fun TabsComponent(
         tabsState.find { it.id == activeTabId }
     }
 
-    val currentProgress = currentTab?.progress
+    val currentProgress = activeTabId?.let { progressByTabId[it] }
     val currentEpa = activeTabId?.let { epaByTabId[it] }
     val currentLayoutAndConfig = activeTabId?.let { layoutByTabId[it] }
     val currentLod = activeTabId?.let { lodByTabId[it] }

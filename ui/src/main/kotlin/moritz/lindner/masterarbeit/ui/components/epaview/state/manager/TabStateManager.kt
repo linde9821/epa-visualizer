@@ -98,43 +98,6 @@ class TabStateManager {
         }
     }
 
-    /** Update progress for a specific tab */
-    fun updateProgress(
-        tabId: String,
-        current: Long,
-        total: Long,
-        task: String
-    ) {
-        _tabs.update { currentTabs ->
-            currentTabs.map { tab ->
-                if (tab.id == tabId) {
-                    tab.copy(
-                        progress = TaskProgressState(
-                            current = current,
-                            total = total,
-                            taskName = task
-                        )
-                    )
-                } else {
-                    tab
-                }
-            }
-        }
-    }
-
-    /** Clear progress for a specific tab */
-    fun clearProgress(tabId: String) {
-        _tabs.update { currentTabs ->
-            currentTabs.map { tab ->
-                if (tab.id == tabId) {
-                    tab.copy(progress = null)
-                } else {
-                    tab
-                }
-            }
-        }
-    }
-
     fun locateState(state: State, tabId: String) {
         _tabs.update { currentTabs ->
             currentTabs.map { tab ->
