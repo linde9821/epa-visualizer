@@ -113,7 +113,7 @@ class EpaStateManager(
                 title = "EPA read only view of ${tabState.title}",
                 windowState = WindowState(
                     width = 800.dp,
-                    height = 600.dp,
+                    height = 800.dp,
                     position = WindowPosition(Alignment.Center)
                 )
             ) { _ ->
