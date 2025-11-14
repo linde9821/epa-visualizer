@@ -76,10 +76,10 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-Xmx12g",
+                "-Xmx14g",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
-                "-XX:+UseZGC",
+                "-XX:+UseG1GC",
             )
 
         buildTypes.release.proguard {
