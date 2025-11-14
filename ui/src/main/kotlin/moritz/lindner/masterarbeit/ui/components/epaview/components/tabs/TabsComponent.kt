@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.PopupPositionProvider
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
@@ -55,11 +54,11 @@ fun TabsComponent(
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
     modifier: Modifier = Modifier.Companion,
-    backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
+    val progressByTabId by epaStateManager.progressByTabId.collectAsState()
     val layoutByTabId by epaStateManager.layoutAndConfigByTabId.collectAsState()
     val stateLabelsByTabId by epaStateManager.stateLabelsByTabId.collectAsState()
     val drawAtlasByTabId by epaStateManager.drawAtlasByTabId.collectAsState()
@@ -71,7 +70,7 @@ fun TabsComponent(
         tabsState.find { it.id == activeTabId }
     }
 
-    val currentProgress = currentTab?.progress
+    val currentProgress = activeTabId?.let { progressByTabId[it] }
     val currentEpa = activeTabId?.let { epaByTabId[it] }
     val currentLayoutAndConfig = activeTabId?.let { layoutByTabId[it] }
     val currentLod = activeTabId?.let { lodByTabId[it] }
@@ -152,12 +151,10 @@ fun TabsComponent(
     Row(
         Modifier
             .onGloballyPositioned { coordinates ->
-                // Get the position of this component in window coordinates
                 componentPosition = coordinates.positionInWindow().round()
             }
             .onPointerEvent(PointerEventType.Press) { event ->
                 val localPosition = event.changes.first().position.round()
-                // Add component position to get absolute window position
                 mousePosition = componentPosition + localPosition
             }
     ) {
@@ -194,17 +191,7 @@ fun TabsComponent(
                                             epaStateManager.highlightPathFromRootForState(currentTab.id, state)
                                         }
                                     },
-                                    onLeftClickState = { state ->
-                                        val currentSelected = tabStateManager.getSelectedStateForCurrentTab()
-                                        if (state != null && currentSelected != null) {
-                                            epaStateManager.openStateComparisonWindow(
-                                                currentEpa,
-                                                drawAtlasByTabId[currentTab.id]!!,
-                                                currentSelected,
-                                                state
-                                            )
-                                        }
-                                    },
+                                    onLeftClickState = {},
                                     tabState = currentTab,
                                     highlightingAtlas = currentHighlightingAtlas,
                                     animationState = animationState,
@@ -243,6 +230,23 @@ fun TabsComponent(
             },
             popupPositionProvider = popupPositionProvider
         ) {
+            selectableItem(
+                selected = false,
+                onClick = {
+                    showContextMenu = false
+                    epaStateManager.openEpaInNewWindow(tabId = selectedEpaTab!!.id)
+                }
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(AllIconsKeys.Actions.MoveToWindow, "Move To Window")
+                    Text("Open in new windows")
+                }
+            }
+
+
             selectableItem(
                 selected = false,
                 onClick = {

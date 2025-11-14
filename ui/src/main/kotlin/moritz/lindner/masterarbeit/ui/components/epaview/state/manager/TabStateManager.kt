@@ -8,7 +8,6 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
-import moritz.lindner.masterarbeit.ui.components.epaview.state.TaskProgressState
 
 /** Main state class managing all tabs */
 class TabStateManager {
@@ -94,43 +93,6 @@ class TabStateManager {
         _tabs.update { currentTabs ->
             currentTabs.map { tab ->
                 tab.copy(isActive = tab.id == tabId)
-            }
-        }
-    }
-
-    /** Update progress for a specific tab */
-    fun updateProgress(
-        tabId: String,
-        current: Long,
-        total: Long,
-        task: String
-    ) {
-        _tabs.update { currentTabs ->
-            currentTabs.map { tab ->
-                if (tab.id == tabId) {
-                    tab.copy(
-                        progress = TaskProgressState(
-                            current = current,
-                            total = total,
-                            taskName = task
-                        )
-                    )
-                } else {
-                    tab
-                }
-            }
-        }
-    }
-
-    /** Clear progress for a specific tab */
-    fun clearProgress(tabId: String) {
-        _tabs.update { currentTabs ->
-            currentTabs.map { tab ->
-                if (tab.id == tabId) {
-                    tab.copy(progress = null)
-                } else {
-                    tab
-                }
             }
         }
     }

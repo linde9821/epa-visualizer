@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.9.1"
+version = "1.10.0"
 
 repositories {
     google()
@@ -76,10 +76,10 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-Xmx12g",
+                "-Xmx14g",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
-                "-XX:+UseZGC",
+                "-XX:+UseG1GC",
             )
 
         buildTypes.release.proguard {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +54,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.roundToInt
 
 val logger = KotlinLogging.logger {}
 
@@ -60,11 +62,59 @@ val logger = KotlinLogging.logger {}
 @ExperimentalLayoutApi
 @ExperimentalJewelApi
 fun main() {
-    logger.info { "Starting EPA-Visualizer" }
+    try {
+        logger.info { "Starting EPA-Visualizer" }
+        setSystemProperties()
+        val backgroundDispatcher = buildDispatcherAndMonitoring()
+        runApplication(backgroundDispatcher)
+    } catch (e: Exception) {
+        logger.error(e) { "Failed to start application" }
+        throw e
+    }
+}
 
-    setSystemProperties()
-    val backgroundDispatcher = buildDispatcherAndMonitoring()
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AppTitleWithLogo() {
+    Tooltip(
+        tooltip = { Text("$APPLICATION_NAME version ${BuildConfig.APP_VERSION}") }
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(APPLICATION_NAME)
+            Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
+        }
+    }
+}
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun GitHubButton() {
+    Tooltip({ Text("Open the $APPLICATION_NAME repository on Github") }) {
+        IconButton(
+            onClick = {
+                runCatching {
+                    Desktop.getDesktop().browse(URI.create("https://github.com/linde9821/epa-visualizer"))
+                }.onFailure { e ->
+                    logger.error(e) { "Failed to open GitHub repository" }
+                }
+            },
+            modifier = Modifier.size(40.dp).padding(5.dp),
+        ) {
+            Icon(Icons.gitHub, "Github")
+        }
+    }
+}
+
+private fun setupDesktopIntegration() {
+    if (Desktop.isDesktopSupported()) {
+        val desktop = Desktop.getDesktop()
+        if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
+            desktop.setAboutHandler { _ -> showAboutDialog() }
+        }
+    }
+}
+
+private fun runApplication(backgroundDispatcher: ExecutorCoroutineDispatcher) {
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
 
@@ -89,22 +139,14 @@ fun main() {
             DecoratedWindow(
                 onCloseRequest = ::exitApplication,
                 state = WindowState(
-                    placement = WindowPlacement.Floating,
+                    placement = WindowPlacement.Maximized,
                     isMinimized = false,
-                    size = DpSize(1400.dp, 900.dp)
                 ),
                 title = APPLICATION_NAME,
                 icon = painterResource(Res.drawable.logo),
             ) {
                 LaunchedEffect(Unit) {
-                    if (Desktop.isDesktopSupported()) {
-                        val desktop = Desktop.getDesktop()
-                        if (desktop.isSupported(Desktop.Action.APP_ABOUT)) {
-                            desktop.setAboutHandler { _ ->
-                                showAboutDialog()
-                            }
-                        }
-                    }
+                    setupDesktopIntegration()
                 }
 
                 TitleBar(Modifier.newFullscreenControls()) {
@@ -112,28 +154,11 @@ fun main() {
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Tooltip(
-                            tooltip = { Text("$APPLICATION_NAME version ${BuildConfig.APP_VERSION}") }
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(APPLICATION_NAME)
-                                Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
-                            }
-                        }
+                        AppTitleWithLogo()
                     }
 
                     Row(Modifier.align(Alignment.End)) {
-                        Tooltip({ Text("Open the $APPLICATION_NAME repository on Github") }) {
-                            IconButton(
-                                {
-                                    Desktop.getDesktop()
-                                        .browse(URI.create("https://github.com/linde9821/epa-visualizer"))
-                                },
-                                Modifier.size(40.dp).padding(5.dp),
-                            ) {
-                                Icon(Icons.gitHub, "Github")
-                            }
-                        }
+                        GitHubButton()
                     }
 
                 }
@@ -144,53 +169,71 @@ fun main() {
 }
 
 private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
-    val i = AtomicInteger(0)
+    val threadCount = maxOf(2, Runtime.getRuntime().availableProcessors() / 2)
     val threadFactory = ThreadFactory { runnable ->
-        Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
+        Thread(runnable, "EPA-Thread-${Thread.currentThread().threadGroup.activeCount()}").apply {
+            isDaemon = true
+        }
     }
-    val threads = Runtime.getRuntime().availableProcessors() / 2
-    val executor = Executors.newFixedThreadPool(threads, threadFactory)
+    val executor = Executors.newFixedThreadPool(threadCount, threadFactory)
     val backgroundDispatcher = executor.asCoroutineDispatcher()
 
-    val memoryMonitor = ScheduledThreadPoolExecutor(1)
+    setupMemoryMonitoring()
+    setupShutdownHook(executor, backgroundDispatcher)
+    
+    logger.info { "Started background dispatcher with $threadCount threads" }
+    return backgroundDispatcher
+}
 
+private fun setupMemoryMonitoring() {
+    val memoryMonitor = ScheduledThreadPoolExecutor(1) { runnable ->
+        Thread(runnable, "Memory-Monitor").apply { isDaemon = true }
+    }
+    
     memoryMonitor.scheduleAtFixedRate({
         val runtime = Runtime.getRuntime()
         val usedMemory = runtime.totalMemory() - runtime.freeMemory()
         val maxMemory = runtime.maxMemory()
         val usagePercent = (usedMemory.toDouble() / maxMemory * 100).toInt()
 
-        if (usagePercent > 70) {
-            logger.warn { "High memory usage: $usagePercent%" }
+        if (usagePercent > 80) {
+            logger.warn { "High memory usage: $usagePercent% (${usedMemory / 1024 / 1024}MB / ${maxMemory / 1024 / 1024}MB)" }
+            if (usagePercent > 90) {
+                System.gc()
+            }
         }
-    }, 0, 30, TimeUnit.SECONDS)
+    }, 30, 30, TimeUnit.SECONDS)
+}
 
-    logger.info { "Starting background dispatcher with $threads threads" }
-
+private fun setupShutdownHook(executor: java.util.concurrent.ExecutorService, dispatcher: ExecutorCoroutineDispatcher) {
     Runtime.getRuntime().addShutdownHook(Thread {
-        logger.info { "Application is shutting down" }
-        backgroundDispatcher.close()
-        executor.shutdownNow()
+        logger.info { "Shutting down application..." }
+        try {
+            executor.shutdown()
+            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                executor.shutdownNow()
+            }
+            dispatcher.close()
+        } catch (e: Exception) {
+            logger.error(e) { "Error during shutdown" }
+        }
         logger.info { "Shutdown complete" }
     })
-
-    return backgroundDispatcher
 }
 
 private fun setSystemProperties() {
-    // Cross-platform application name settings
-    System.setProperty("apple.awt.application.name", APPLICATION_NAME) // macOS
-    System.setProperty("awt.useSystemAAFontSettings", "on") // Better font rendering
-    System.setProperty("swing.aatext", "true") // Anti-aliasing
-
-    // Windows-specific properties
-    System.setProperty("sun.awt.useSystemAAFontSettings", "on")
-
-    // Linux/Unix-specific properties
-    System.setProperty("awt.useSystemAAFontSettings", "lcd")
-    System.setProperty("swing.aatext", "true")
-
-    // General application properties that work across platforms
-    System.setProperty("java.awt.headless", "false")
-    System.setProperty("file.encoding", "UTF-8")
+    val properties = mapOf(
+        "apple.awt.application.name" to APPLICATION_NAME,
+        "awt.useSystemAAFontSettings" to "on",
+        "swing.aatext" to "true",
+        "sun.awt.useSystemAAFontSettings" to "on",
+        "java.awt.headless" to "false",
+        "file.encoding" to "UTF-8"
+    )
+    
+    properties.forEach { (key, value) ->
+        System.setProperty(key, value)
+    }
+    
+    logger.debug { "System properties configured" }
 }

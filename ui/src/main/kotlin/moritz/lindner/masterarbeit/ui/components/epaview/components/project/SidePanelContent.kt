@@ -13,7 +13,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
-import org.jetbrains.jewel.ui.component.InfoText
 
 @Composable
 fun SidePanelContent(
@@ -65,14 +64,6 @@ fun SidePanelContent(
                 tabStateManager = tabStateManager,
                 epaStateManager = epaStateManager
             )
-        }
-
-        EpaViewUpperState.NaturalLanguage -> PanelMenu(
-            title = "NLI",
-            modifier = Modifier.Companion.padding(8.dp),
-            onClose = { onClose() }
-        ) {
-            InfoText("Not implemented")
         }
 
         EpaViewUpperState.None -> {

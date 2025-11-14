@@ -6,7 +6,6 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -14,7 +13,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
@@ -35,19 +33,21 @@ import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLODBuilder
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DefaultConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.maxScale
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.minScale
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.TaskProgressState
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.skia.Color
 import kotlin.coroutines.cancellation.CancellationException
 
-@OptIn(FlowPreview::class)
 @Suppress("UNCHECKED_CAST")
 class EpaStateManager(
     private val tabStateManager: TabStateManager,
@@ -84,31 +84,53 @@ class EpaStateManager(
     private val _animationState = MutableStateFlow(AnimationState.Empty)
     val animationState = _animationState.asStateFlow()
 
+    private val _progressByTabId = MutableStateFlow<Map<String, TaskProgressState?>>(emptyMap())
+    val progressByTabId = _progressByTabId.asStateFlow()
+
     val windowManager = WindowManager()
 
     fun updateAnimation(animationState: AnimationState) {
         _animationState.value = animationState
     }
 
-    fun openStateComparisonWindow(
-        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-        drawAtlas: DrawAtlas,
-        primaryState: State,
-        secondaryState: State,
+    fun openEpaInNewWindow(
+        tabId: String,
     ) {
-        windowManager.openWindow(
-            title = "State Comparison ${primaryState.name} -> ${secondaryState.name}",
-            windowState = WindowState(
-                width = 800.dp,
-                height = 600.dp,
-                position = WindowPosition(Alignment.Center)
-            )
-        ) { window ->
-//            val subEpa = epaService.buildSubEpa(extendedPrefixAutomaton, listOf(primaryState, secondaryState))
+        val treeLayout = _layoutAndConfigByTabId.value[tabId]?.first
+        val tabState = tabStateManager.getActiveTab()
+        val stateLabels = _stateLabelsByTabId.value[tabId]
+        val drawAtlas = _drawAtlasByTabId.value[tabId]
+        val highlightingAtlas = _highlightingByTabId.value[tabId]
 
-//            val tree = LayoutService<Long>().buildLayout(subEpa, LayoutConfig.Walker())
-
-//            DetailComparison(tree, drawAtlas)
+        if (
+            treeLayout != null &&
+            tabState != null &&
+            stateLabels != null &&
+            drawAtlas != null &&
+            highlightingAtlas != null
+        ) {
+            windowManager.openWindow(
+                title = "EPA read only view of ${tabState.title}",
+                windowState = WindowState(
+                    width = 800.dp,
+                    height = 800.dp,
+                    position = WindowPosition(Alignment.Center)
+                )
+            ) { _ ->
+                EpaLayoutCanvasRenderer(
+                    treeLayout = treeLayout,
+                    stateLabels = stateLabels,
+                    drawAtlas = drawAtlas,
+                    onStateHover = {},
+                    onRightClickState = {},
+                    onLeftClickState = {},
+                    tabState = tabState,
+                    highlightingAtlas = highlightingAtlas,
+                    animationState = _animationState.value,
+                    canvasState = rememberCanvasState(),
+                    lodQuery = _lodByTabId.value[tabId] ?: NoLOD()
+                )
+            }
         }
     }
 
@@ -131,6 +153,9 @@ class EpaStateManager(
         _lodByTabId.update { currentMap ->
             currentMap.filterNot { it.key == tabId }
         }
+        _progressByTabId.update { currentMap ->
+            currentMap.filterNot { it.key == tabId }
+        }
     }
 
     private fun invalidateAllEpas() {
@@ -140,16 +165,11 @@ class EpaStateManager(
         _statisticsByTabId.value = emptyMap()
         _drawAtlasByTabId.value = emptyMap()
         _lodByTabId.value = emptyMap()
+        _progressByTabId.value = emptyMap()
     }
 
     init {
         var rebuildJob: Job? = null
-
-        scope.launch {
-            tabStateManager.tabs.collectLatest { tabs ->
-                logger.warn { ">>> tabs emission detected (${tabs.size})" }
-            }
-        }
 
         scope.launch {
             projectFlow
@@ -185,24 +205,26 @@ class EpaStateManager(
         }
 
         scope.launch {
-            tabStateManager.tabs.collectLatest { tabs ->
-                try {
-                    tabs.forEach { tab ->
-                        buildEpaForTab(tab)
-                        buildLayoutForTab(tab)
-                        buildStateLabelsForTab(tab)
-                        buildDrawAtlasForTab(tab)
-                        buildStatisticForTab(tab)
-                        buildHighlightingForTab(tab)
+            tabStateManager
+                .tabs
+                .collectLatest { tabs ->
+                    try {
+                        tabs.forEach { tab ->
+                            buildEpaForTab(tab)
+                            buildLayoutForTab(tab)
+                            buildStateLabelsForTab(tab)
+                            buildDrawAtlasForTab(tab)
+                            buildStatisticForTab(tab)
+                            buildHighlightingForTab(tab)
+                        }
+                    } catch (e: CancellationException) {
+                        logger.warn(e) { "canceling current tabs building" }
+                        e.printStackTrace()
+                    } catch (e: Exception) {
+                        // TODO: move try catch into functions and set error for tabs accordingly
+                        logger.error(e) { "Error while building state" }
                     }
-                } catch (e: CancellationException) {
-                    logger.warn(e) { "canceling current tabs building" }
-                    e.printStackTrace()
-                } catch (e: Exception) {
-                    // TODO: move try catch into functions and set error for tabs accordingly
-                    logger.error(e) { "Error while building state" }
                 }
-            }
         }
     }
 
@@ -313,7 +335,7 @@ class EpaStateManager(
         logger.info { "building atlas" }
 
         val progressCallback = EpaProgressCallback { current, total, task ->
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = current,
                 total = total,
@@ -332,14 +354,14 @@ class EpaStateManager(
             ),
             progressCallback = progressCallback
         )
-        tabStateManager.clearProgress(tabState.id)
+        clearProgress(tabState.id)
         _drawAtlasByTabId.update { currentMap ->
             currentMap + (tabState.id to atlas)
         }
         logger.info { "atlas build" }
     }
 
-    suspend fun buildLayoutForTab(
+    fun buildLayoutForTab(
         tabState: TabState
     ) {
         val layoutAndConfig = _layoutAndConfigByTabId.value[tabState.id]
@@ -348,7 +370,7 @@ class EpaStateManager(
         }
 
         val progressCallback = EpaProgressCallback { current, total, task ->
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = current,
                 total = total,
@@ -362,7 +384,7 @@ class EpaStateManager(
             currentMap + (tabState.id to (layout to tabState.layoutConfig))
         }
         buildLodForTab(tabState, tabState.layoutConfig)
-        tabStateManager.clearProgress(tabState.id)
+        clearProgress(tabState.id)
     }
 
     fun buildEpaForTab(
@@ -374,7 +396,7 @@ class EpaStateManager(
 
         try {
             // Set initial progress
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = 0,
                 total = 1,
@@ -383,7 +405,7 @@ class EpaStateManager(
 
             // Create progress callback
             val progressCallback = EpaProgressCallback { current, total, task ->
-                tabStateManager.updateProgress(
+                updateProgress(
                     tabId = tabState.id,
                     current = current,
                     total = total,
@@ -406,14 +428,39 @@ class EpaStateManager(
             }
 
             // Clear progress when complete
-            tabStateManager.clearProgress(tabState.id)
+            clearProgress(tabState.id)
         } catch (e: Exception) {
             // Handle error - update progress with error state
-            tabStateManager.updateProgress(
+            updateProgress(
                 tabId = tabState.id,
                 current = 0,
                 total = 1,
                 task = "Error: ${e.message}"
+            )
+        }
+    }
+
+    fun updateProgress(
+        tabId: String,
+        current: Long,
+        total: Long,
+        task: String
+    ) {
+        _progressByTabId.update { currentProgressMap ->
+            currentProgressMap.plus(
+                tabId to TaskProgressState(
+                    current = current,
+                    total = total,
+                    taskName = task
+                )
+            )
+        }
+    }
+
+    fun clearProgress(tabId: String) {
+        _progressByTabId.update { currentProgressMap ->
+            currentProgressMap.plus(
+                tabId to null
             )
         }
     }
