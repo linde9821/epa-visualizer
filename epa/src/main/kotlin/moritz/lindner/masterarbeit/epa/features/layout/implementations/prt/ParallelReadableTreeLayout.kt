@@ -84,7 +84,6 @@ class ParallelReadableTreeLayout(
         val min = values.minOrNull() ?: offset
         val max = values.maxOrNull() ?: offset
 
-
         val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
             // All values are essentially the same - use middle of range
             extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }

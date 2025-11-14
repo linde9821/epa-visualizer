@@ -151,12 +151,6 @@ class EpaStateManager(
         var rebuildJob: Job? = null
 
         scope.launch {
-            tabStateManager.tabs.collectLatest { tabs ->
-                logger.warn { ">>> tabs emission detected (${tabs.size})" }
-            }
-        }
-
-        scope.launch {
             projectFlow
                 .map { project -> project.getMapper() as? EventLogMapper<Long> }
                 .distinctUntilChanged()
@@ -190,24 +184,26 @@ class EpaStateManager(
         }
 
         scope.launch {
-            tabStateManager.tabs.collectLatest { tabs ->
-                try {
-                    tabs.forEach { tab ->
-                        buildEpaForTab(tab)
-                        buildLayoutForTab(tab)
-                        buildStateLabelsForTab(tab)
-                        buildDrawAtlasForTab(tab)
-                        buildStatisticForTab(tab)
-                        buildHighlightingForTab(tab)
+            tabStateManager
+                .tabs
+                .collectLatest { tabs ->
+                    try {
+                        tabs.forEach { tab ->
+                            buildEpaForTab(tab)
+                            buildLayoutForTab(tab)
+                            buildStateLabelsForTab(tab)
+                            buildDrawAtlasForTab(tab)
+                            buildStatisticForTab(tab)
+                            buildHighlightingForTab(tab)
+                        }
+                    } catch (e: CancellationException) {
+                        logger.warn(e) { "canceling current tabs building" }
+                        e.printStackTrace()
+                    } catch (e: Exception) {
+                        // TODO: move try catch into functions and set error for tabs accordingly
+                        logger.error(e) { "Error while building state" }
                     }
-                } catch (e: CancellationException) {
-                    logger.warn(e) { "canceling current tabs building" }
-                    e.printStackTrace()
-                } catch (e: Exception) {
-                    // TODO: move try catch into functions and set error for tabs accordingly
-                    logger.error(e) { "Error while building state" }
                 }
-            }
         }
     }
 

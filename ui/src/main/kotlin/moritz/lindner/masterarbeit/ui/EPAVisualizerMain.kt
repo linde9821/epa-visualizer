@@ -53,6 +53,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.roundToInt
 
 val logger = KotlinLogging.logger {}
 
@@ -146,9 +147,9 @@ fun main() {
 private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
     val i = AtomicInteger(0)
     val threadFactory = ThreadFactory { runnable ->
-        Thread(runnable, "EPA-Visualizer-Background-Thread ${i.incrementAndGet()}")
+        Thread(runnable, "EPA-Thread ${i.incrementAndGet()}")
     }
-    val threads = Runtime.getRuntime().availableProcessors() / 2
+    val threads = (Runtime.getRuntime().availableProcessors() / 2.0).roundToInt()
     val executor = Executors.newFixedThreadPool(threads, threadFactory)
     val backgroundDispatcher = executor.asCoroutineDispatcher()
 
@@ -163,15 +164,21 @@ private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
         if (usagePercent > 70) {
             logger.warn { "High memory usage: $usagePercent%" }
         }
-    }, 0, 30, TimeUnit.SECONDS)
+    }, 20, 30, TimeUnit.SECONDS)
 
     logger.info { "Starting background dispatcher with $threads threads" }
 
     Runtime.getRuntime().addShutdownHook(Thread {
         logger.info { "Application is shutting down" }
-        backgroundDispatcher.close()
-        executor.shutdownNow()
-        logger.info { "Shutdown complete" }
+        try {
+            executor.shutdownNow()
+            backgroundDispatcher.close()
+            memoryMonitor.close()
+        } catch (e: Exception) {
+            logger.error(e) { "Error during shutdown" }
+        } finally {
+            logger.info { "Shutdown complete" }
+        }
     })
 
     return backgroundDispatcher
