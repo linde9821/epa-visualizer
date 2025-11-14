@@ -96,26 +96,28 @@ class EpaStateManager(
     fun openEpaInNewWindow(
         tabId: String,
     ) {
+        val treeLayout = _layoutAndConfigByTabId.value[tabId]!!.first
+        val tabState = tabStateManager.getActiveTab()!!
         windowManager.openWindow(
-            title = "EPA",
+            title = "EPA read only view of ${tabState.title}",
             windowState = WindowState(
                 width = 800.dp,
                 height = 600.dp,
                 position = WindowPosition(Alignment.Center)
             )
-        ) { window ->
+        ) { _ ->
             EpaLayoutCanvasRenderer(
-                treeLayout = _layoutAndConfigByTabId.value[tabId]!!.first,
+                treeLayout = treeLayout,
                 stateLabels = _stateLabelsByTabId.value[tabId]!!,
                 drawAtlas = _drawAtlasByTabId.value[tabId]!!,
                 onStateHover = {},
                 onRightClickState = {},
                 onLeftClickState = {},
-                tabState = tabStateManager.getActiveTab()!!,
+                tabState = tabState,
                 highlightingAtlas = _highlightingByTabId.value[tabId]!!,
                 animationState = _animationState.value,
                 canvasState = rememberCanvasState(),
-                lodQuery = _lodByTabId.value[tabId]!! ?: NoLOD()
+                lodQuery = _lodByTabId.value[tabId] ?: NoLOD()
             )
         }
     }

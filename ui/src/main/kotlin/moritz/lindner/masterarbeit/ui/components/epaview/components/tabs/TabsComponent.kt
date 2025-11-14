@@ -252,7 +252,7 @@ fun TabsComponent(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(AllIconsKeys.Actions.MoveToWindow, "Window")
+                    Icon(AllIconsKeys.Actions.MoveToWindow, "Move To Window")
                     Text("Open in new windows")
                 }
             }
