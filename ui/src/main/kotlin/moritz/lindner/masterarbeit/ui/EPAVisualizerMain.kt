@@ -90,9 +90,8 @@ fun main() {
             DecoratedWindow(
                 onCloseRequest = ::exitApplication,
                 state = WindowState(
-                    placement = WindowPlacement.Floating,
+                    placement = WindowPlacement.Maximized,
                     isMinimized = false,
-                    size = DpSize(1400.dp, 900.dp)
                 ),
                 title = APPLICATION_NAME,
                 icon = painterResource(Res.drawable.logo),

@@ -191,17 +191,7 @@ fun TabsComponent(
                                             epaStateManager.highlightPathFromRootForState(currentTab.id, state)
                                         }
                                     },
-                                    onLeftClickState = { state ->
-                                        val currentSelected = tabStateManager.getSelectedStateForCurrentTab()
-                                        if (state != null && currentSelected != null) {
-                                            epaStateManager.openStateComparisonWindow(
-                                                currentEpa,
-                                                drawAtlasByTabId[currentTab.id]!!,
-                                                currentSelected,
-                                                state
-                                            )
-                                        }
-                                    },
+                                    onLeftClickState = {},
                                     tabState = currentTab,
                                     highlightingAtlas = currentHighlightingAtlas,
                                     animationState = animationState,
