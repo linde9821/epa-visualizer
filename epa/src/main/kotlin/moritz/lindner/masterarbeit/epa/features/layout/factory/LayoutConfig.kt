@@ -341,8 +341,8 @@ sealed class LayoutConfig(val name: String) {
                 "iterations" to ParameterInfo.NumberParameterInfo(
                     name = "iterations",
                     min = 0,
-                    max = 100,
-                    steps = 100
+                    max = 200,
+                    steps = 200
                 ),
                 "minEdgeLength" to ParameterInfo.NumberParameterInfo(
                     name = "minEdgeLength",
