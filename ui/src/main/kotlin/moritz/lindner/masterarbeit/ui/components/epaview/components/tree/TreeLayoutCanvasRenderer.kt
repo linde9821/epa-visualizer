@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.DirectAngularPlacementTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.PartitionSimilarityRadialLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.TimeRadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.TimeRadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout

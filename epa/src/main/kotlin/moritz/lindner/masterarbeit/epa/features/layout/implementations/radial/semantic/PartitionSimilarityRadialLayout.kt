@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.layout.implementations
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
@@ -9,6 +9,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionEmbedderConfig
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionFeatureEmbedder
