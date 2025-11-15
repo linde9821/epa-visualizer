@@ -1,10 +1,8 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.project
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tabs.TabsComponent
@@ -14,7 +12,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectSt
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.ui.component.HorizontalSplitLayout
 import org.jetbrains.jewel.ui.component.SplitLayoutState
-import org.jetbrains.jewel.ui.component.rememberSplitLayoutState
 
 @Composable
 fun UpperLayout(

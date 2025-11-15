@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
@@ -53,8 +52,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.math.roundToInt
 
 val logger = KotlinLogging.logger {}
 
@@ -65,8 +62,8 @@ fun main() {
     try {
         logger.info { "Starting EPA-Visualizer" }
         setSystemProperties()
-        val backgroundDispatcher = buildDispatcherAndMonitoring()
-        runApplication(backgroundDispatcher)
+        setupMemoryMonitoring()
+        runApplication()
     } catch (e: Exception) {
         logger.error(e) { "Failed to start application" }
         throw e
@@ -114,7 +111,7 @@ private fun setupDesktopIntegration() {
     }
 }
 
-private fun runApplication(backgroundDispatcher: ExecutorCoroutineDispatcher) {
+private fun runApplication() {
     application {
         logger.info { "Skiko rendering API: ${SkikoProperties.renderApi.name}" }
 
@@ -162,27 +159,10 @@ private fun runApplication(backgroundDispatcher: ExecutorCoroutineDispatcher) {
                     }
 
                 }
-                EPAVisualizerUi(backgroundDispatcher)
+                EPAVisualizerUi()
             }
         }
     }
-}
-
-private fun buildDispatcherAndMonitoring(): ExecutorCoroutineDispatcher {
-    val threadCount = maxOf(2, Runtime.getRuntime().availableProcessors() / 2)
-    val threadFactory = ThreadFactory { runnable ->
-        Thread(runnable, "EPA-Thread-${Thread.currentThread().threadGroup.activeCount()}").apply {
-            isDaemon = true
-        }
-    }
-    val executor = Executors.newFixedThreadPool(threadCount, threadFactory)
-    val backgroundDispatcher = executor.asCoroutineDispatcher()
-
-    setupMemoryMonitoring()
-    setupShutdownHook(executor, backgroundDispatcher)
-    
-    logger.info { "Started background dispatcher with $threadCount threads" }
-    return backgroundDispatcher
 }
 
 private fun setupMemoryMonitoring() {
