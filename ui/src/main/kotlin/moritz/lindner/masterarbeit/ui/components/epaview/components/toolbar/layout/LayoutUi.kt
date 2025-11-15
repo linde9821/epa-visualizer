@@ -69,9 +69,9 @@ fun LayoutUi(
             }
         }
 
-        GroupHeader("Layout algorithm")
+        GroupHeader("Layout algorithm:")
         ListComboBox(
-            items = availableLayouts.map { it.name },
+            items = availableLayouts.map(LayoutConfig::name),
             selectedIndex = layoutSelectionIndex,
             onSelectedItemChange = { index ->
                 currentLayoutConfig = availableLayouts[index]
