@@ -346,47 +346,52 @@ class ParallelReadableTreeLayout(
             batches.forEach { batch ->
                 runBlocking {
                     // for each node in parallel do
-                    batch.map { u ->
+                    val forces = batch.map { u ->
                         scope.async {
                             var combinedForceU = Vector2D.zero()
-                            collisionRegion(u, positions, rTree).forEach { v ->
-                                val labelForce = computeLabelOverlapForce(u, v, positions)
-                                combinedForceU =
-                                    combinedForceU.add(labelForce.multiply(config.LABEL_OVERLAP_FORCE_STRENGTH))
+
+                            if (config.LABEL_OVERLAP_FORCE_STRENGTH > 0.01f) {
+                                collisionRegion(u, positions, rTree).forEach { v ->
+                                    val labelForce = computeLabelOverlapForce(u, v, positions)
+                                    combinedForceU = combinedForceU
+                                        .add(labelForce.multiply(config.LABEL_OVERLAP_FORCE_STRENGTH))
+                                }
                             }
 
                             val neighbors = epaService.neighbors(extendedPrefixAutomaton, u)
-                            neighbors.forEach { v ->
-                                val force = computeLengthForce(
-                                    u,
-                                    v,
-                                    positions,
-                                    desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
-                                )
-                                combinedForceU = combinedForceU.add(force.multiply(config.EDGE_LENGTH_FORCE_STRENGTH))
+
+                            if (config.EDGE_LENGTH_FORCE_STRENGTH > 0.01f) {
+                                neighbors.forEach { v ->
+                                    val force = computeLengthForce(
+                                        u,
+                                        v,
+                                        positions,
+                                        desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
+                                    )
+                                    combinedForceU = combinedForceU
+                                        .add(force.multiply(config.EDGE_LENGTH_FORCE_STRENGTH))
+                                }
                             }
 
-                            sample(samples).forEach { w ->
-                                val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
-                                combinedForceU = combinedForceU.add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
+                            if (config.DISTRIBUTION_FORCE_STRENGTH > 0.01f) {
+                                sample(samples).forEach { w ->
+                                    val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
+                                    combinedForceU = combinedForceU
+                                        .add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
+                                }
                             }
 
-                            t[u] = combinedForceU
+                            u to combinedForceU
                         }
                     }.awaitAll()
-                }
-            }
 
-            for (state in positions.keys) {
-                val movement = t[state]!!
-
-                if (movement.magnitude() > 0.1) {
-                    if (!introducesEdgeCrossing(state, movement, positions)) {
-                        val currentPos = positions[state]!!
-                        positions[state] = Coordinate(
-                            x = (currentPos.x + movement.x),
-                            y = (currentPos.y + movement.y)
-                        )
+                    for ((u, force) in forces) {
+                        if (force.magnitude() > 0.01) {
+                            if (!introducesEdgeCrossing(u, force, positions)) {
+                                val p = positions[u]!!
+                                positions[u] = Coordinate(p.x + force.x, p.y + force.y)
+                            }
+                        }
                     }
                 }
             }
@@ -457,20 +462,20 @@ class ParallelReadableTreeLayout(
         // Unit vector from u to v
         val direction = posU.vectorTo(posV).normalize()
 
-        val k = .5f
+        val k = 2f
 
-        val magnitude = if (currentDistance > desiredLength) {
-            // Attractive: pull together
-            k * (currentDistance - desiredLength)
-        } else {
-            // Repulsive: push apart
-            -k / (desiredLength - currentDistance)
-        }
+//        val magnitude = if (currentDistance > desiredLength) {
+//            // Attractive: pull together
+//            k * (currentDistance - desiredLength)
+//        } else {
+//            // Repulsive: push apart
+//            -k / (desiredLength - currentDistance)
+//        }
 
         // or use this with k .1f and -magnitude -->  val force = direction.multiply(-magnitude)
-        // val magnitude = k * (desiredLength - currentDistance) / desiredLength
+        val magnitude = k * (desiredLength - currentDistance) / desiredLength
 
-        val force = direction.multiply(magnitude)
+        val force = direction.multiply(-magnitude)
 
         return force
     }
