@@ -40,61 +40,13 @@ fun UpperLayout(
             )
         },
         second = {
-            MultiSplitLayout(
-                panels = listOf(
-
-                    {
-                        TabsComponent(
-                            tabStateManager = tabStateManager,
-                            epaStateManager = epaStateManager,
-                        )
-                    }
-                )
-
+            TabsComponent(
+                tabStateManager = tabStateManager,
+                epaStateManager = epaStateManager,
             )
         },
         modifier = Modifier.fillMaxWidth(),
         firstPaneMinWidth = 0.dp,
         secondPaneMinWidth = 300.dp,
     )
-}
-
-@Composable
-fun MultiSplitLayout(
-    panels: List<@Composable () -> Unit>,
-    modifier: Modifier = Modifier,
-    minPaneWidth: Dp = 200.dp,
-) {
-    when {
-        panels.isEmpty() -> {
-            // No panels to show
-        }
-
-        panels.size == 1 -> {
-            Box(modifier = modifier) {
-                panels[0]()
-            }
-        }
-
-        else -> {
-            val splitState = rememberSplitLayoutState(1f / panels.size)
-
-            HorizontalSplitLayout(
-                state = splitState,
-                first = {
-                    panels[0]()
-                },
-                second = {
-                    // Recursively render the remaining panels
-                    MultiSplitLayout(
-                        panels = panels.drop(1),
-                        minPaneWidth = minPaneWidth
-                    )
-                },
-                modifier = modifier,
-                firstPaneMinWidth = minPaneWidth,
-                secondPaneMinWidth = minPaneWidth,
-            )
-        }
-    }
 }
