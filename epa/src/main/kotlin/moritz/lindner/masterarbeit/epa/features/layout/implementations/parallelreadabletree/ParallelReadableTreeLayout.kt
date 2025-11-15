@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.layout.implementations.prt
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
@@ -387,6 +387,9 @@ class ParallelReadableTreeLayout(
 
                     for ((u, force) in forces) {
                         if (force.magnitude() > 0.01) {
+                            // Add damping
+                            // Clamp force magnitude
+                            // Add a temperature schedule
                             if (!introducesEdgeCrossing(u, force, positions)) {
                                 val p = positions[u]!!
                                 positions[u] = Coordinate(p.x + force.x, p.y + force.y)
@@ -459,18 +462,11 @@ class ParallelReadableTreeLayout(
 
         if (abs(currentDistance - desiredLength) < 1) return Vector2D.zero()
 
+        // TODO: think about other wayt to compute the force
         // Unit vector from u to v
         val direction = posU.vectorTo(posV).normalize()
 
         val k = 2f
-
-//        val magnitude = if (currentDistance > desiredLength) {
-//            // Attractive: pull together
-//            k * (currentDistance - desiredLength)
-//        } else {
-//            // Repulsive: push apart
-//            -k / (desiredLength - currentDistance)
-//        }
 
         // or use this with k .1f and -magnitude -->  val force = direction.multiply(-magnitude)
         val magnitude = k * (desiredLength - currentDistance) / desiredLength
