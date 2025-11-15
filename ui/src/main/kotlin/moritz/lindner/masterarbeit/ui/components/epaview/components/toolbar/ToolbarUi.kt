@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewLowerState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Analysis
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Details
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Filter
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Layout
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.None
@@ -20,8 +21,46 @@ import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
+import org.jetbrains.jewel.ui.icon.IntelliJIconKey
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ToolbarButton(
+    iconKey: IntelliJIconKey,
+    contentDescription: String,
+    isSelected: Boolean,
+    tooltip: String? = null,
+    onClick: () -> Unit,
+) {
+    val button: @Composable () -> Unit = {
+        IconButton(onClick = onClick) {
+            Icon(
+                key = iconKey,
+                contentDescription = contentDescription,
+                tint = if (isSelected) {
+                    JewelTheme.defaultTabStyle.colors.underlineSelected
+                } else {
+                    Color.Unspecified
+                },
+                modifier = Modifier.size(23.dp)
+            )
+        }
+    }
+
+    if (tooltip != null) {
+        Tooltip(
+            tooltip = { Text(tooltip) }
+        ) {
+            button()
+        }
+    } else {
+        button()
+    }
+}
 
 @Composable
 fun ToolbarUi(
@@ -37,136 +76,59 @@ fun ToolbarUi(
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
-            // Close
             IconButton(onClick = onClose) {
                 Icon(key = AllIconsKeys.General.Close, contentDescription = "Close", modifier = Modifier.size(23.dp))
             }
 
-            // Project
-            IconButton(
-                onClick = {
-                    onUpperStateChange(
-                        if (upperState != Project) Project else None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.Actions.ProjectDirectory,
-                    contentDescription = "Project",
-                    tint = if (upperState == Project) {
-                        JewelTheme.defaultTabStyle.colors.underlineSelected
-                    } else {
-                        Color.Unspecified
-                    },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
+            ToolbarButton(
+                iconKey = AllIconsKeys.Actions.ProjectDirectory,
+                contentDescription = "Project",
+                tooltip = "Configure project settings like the mapper.",
+                isSelected = upperState == Project,
+                onClick = { onUpperStateChange(if (upperState != Project) Project else None) }
+            )
 
-            // Filter
-            IconButton(
-                onClick = {
-                    onUpperStateChange(
-                        if (upperState != Filter) Filter else None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.General.Filter,
-                    contentDescription = "Filter",
-                    tint = if (upperState == Filter) {
-                        JewelTheme.defaultTabStyle.colors.underlineSelected
-                    } else {
-                        Color.Unspecified
-                    },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
+            ToolbarButton(
+                iconKey = AllIconsKeys.General.Filter,
+                contentDescription = "Filter",
+                tooltip = "Apply filters to the EPA for the current tab.",
+                isSelected = upperState == Filter,
+                onClick = { onUpperStateChange(if (upperState != Filter) Filter else None) }
+            )
 
-            // Layout
-            IconButton(
-                onClick = {
-                    onUpperStateChange(
-                        if (upperState != Layout) Layout else None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.Debugger.RestoreLayout,
-                    contentDescription = "Map",
-                    tint =
-                        if (upperState == Layout) {
-                            JewelTheme.defaultTabStyle.colors.underlineSelected
-                        } else {
-                            Color.Unspecified
-                        },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
+            ToolbarButton(
+                iconKey = AllIconsKeys.Debugger.RestoreLayout,
+                contentDescription = "Layout",
+                tooltip = "Change or configure the layout of the EPA visualization for the current tab",
+                isSelected = upperState == Layout,
+                onClick = { onUpperStateChange(if (upperState != Layout) Layout else None) }
+            )
 
-            // Analysis
-            IconButton(
-                onClick = {
-                    onUpperStateChange(
-                        if (upperState != Analysis) Analysis else None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.General.Note,
-                    contentDescription = "Analysis",
-                    tint =
-                        if (upperState == Analysis) {
-                            JewelTheme.defaultTabStyle.colors.underlineSelected
-                        } else {
-                            Color.Unspecified
-                        },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
+            ToolbarButton(
+                iconKey = AllIconsKeys.General.Note,
+                contentDescription = "Details",
+                isSelected = upperState == Details,
+                tooltip = "View details of a selected state in the EPA.",
+                onClick = { onUpperStateChange(if (upperState != Details) Details else None) }
+            )
         }
 
         Column {
-            // Animation
-            IconButton(
-                onClick = {
-                    onLowerStateChange(
-                        if (lowerState != EpaViewLowerState.Animation) EpaViewLowerState.Animation else EpaViewLowerState.None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.Run.Restart,
-                    contentDescription = "Animation",
-                    tint =
-                        if (lowerState == EpaViewLowerState.Animation) {
-                            JewelTheme.defaultTabStyle.colors.underlineSelected
-                        } else {
-                            Color.Unspecified
-                        },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
+            ToolbarButton(
+                iconKey = AllIconsKeys.Run.Restart,
+                contentDescription = "Animation",
+                tooltip = "Animate a single case or the whole event log in the EPA visualization.",
+                isSelected = lowerState == EpaViewLowerState.Animation,
+                onClick = { onLowerStateChange(if (lowerState != EpaViewLowerState.Animation) EpaViewLowerState.Animation else EpaViewLowerState.None) }
+            )
 
-            // Statistics
-            IconButton(
-                onClick = {
-                    onLowerStateChange(
-                        if (lowerState != EpaViewLowerState.Statistics) EpaViewLowerState.Statistics else EpaViewLowerState.None,
-                    )
-                },
-            ) {
-                Icon(
-                    key = AllIconsKeys.Actions.ShowImportStatements,
-                    contentDescription = "Statistics",
-                    tint =
-                        if (lowerState == EpaViewLowerState.Statistics) {
-                            JewelTheme.defaultTabStyle.colors.underlineSelected
-                        } else {
-                            Color.Unspecified
-                        },
-                    modifier = Modifier.size(23.dp)
-                )
-            }
+            ToolbarButton(
+                iconKey = AllIconsKeys.Actions.ProjectWideAnalysisOff,
+                contentDescription = "Statistics",
+                tooltip = "Show details of the root EPA and the EPA in currently open tab.",
+                isSelected = lowerState == EpaViewLowerState.Statistics,
+                onClick = { onLowerStateChange(if (lowerState != EpaViewLowerState.Statistics) EpaViewLowerState.Statistics else EpaViewLowerState.None) }
+            )
         }
     }
 

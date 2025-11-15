@@ -55,7 +55,7 @@ fun SidePanelContent(
             )
         }
 
-        EpaViewUpperState.Analysis -> PanelMenu(
+        EpaViewUpperState.Details -> PanelMenu(
             title = "Details",
             modifier = Modifier.Companion.padding(8.dp),
             onClose = { onClose() }
