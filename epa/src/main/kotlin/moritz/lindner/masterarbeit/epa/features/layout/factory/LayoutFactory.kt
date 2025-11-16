@@ -7,7 +7,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.TimeRadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.TimeBasedRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
@@ -56,11 +56,8 @@ object LayoutFactory {
         }
 
         is LayoutConfig.RadialWalkerTimeConfig -> {
-            TimeRadialWalkerTreeLayout(
-                multiplier = config.layerBaseUnit,
-                margin = config.margin.degreesToRadians(),
-                rotation = config.rotation.degreesToRadians(),
-                minCycleTimeDifference = config.minCycleTimeDifference,
+            TimeBasedRadialLayout(
+                config = config,
                 extendedPrefixAutomaton = config.extendedPrefixAutomaton,
                 tree = root
             )
