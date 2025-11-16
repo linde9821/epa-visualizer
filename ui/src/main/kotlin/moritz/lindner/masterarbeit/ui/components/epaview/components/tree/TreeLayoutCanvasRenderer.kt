@@ -34,7 +34,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.TimeRadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.TimeBasedRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
@@ -259,7 +259,7 @@ fun EpaLayoutCanvasRenderer(
                         )
                     }
 
-                    is TimeRadialWalkerTreeLayout -> {
+                    is TimeBasedRadialLayout -> {
                         treeLayout.forEach { node ->
                             val radius = sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2))
                             drawCircle(

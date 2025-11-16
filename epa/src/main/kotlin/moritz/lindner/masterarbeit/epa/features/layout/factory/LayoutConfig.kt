@@ -63,6 +63,8 @@ sealed class LayoutConfig(val name: String) {
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         val minCycleTimeDifference: Float = 0.0f,
+        val minEdgeLength: Float = 10.0f,
+        val maxEdgeLength: Float = 1000.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
