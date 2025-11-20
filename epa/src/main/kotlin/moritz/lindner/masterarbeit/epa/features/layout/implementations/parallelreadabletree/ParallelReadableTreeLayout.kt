@@ -29,7 +29,9 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -126,7 +128,8 @@ class ParallelReadableTreeLayout(
             x = initialLayout,
             progressCallback = progressCallback,
             desiredEdgeLengthByTransition = desiredEdgeLengthByTransition,
-            iterations = config.iterations
+            iterations = config.iterations,
+            samples = min(40, (extendedPrefixAutomaton.states.size / 2.0f).roundToInt())
         ).forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
@@ -325,7 +328,7 @@ class ParallelReadableTreeLayout(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
         batch: Int = 128,
-        samples: Int = 40,
+        samples: Int,
         iterations: Int = 50,
         progressCallback: EpaProgressCallback?,
         desiredEdgeLengthByTransition: Map<Transition, Float>
@@ -374,7 +377,7 @@ class ParallelReadableTreeLayout(
                             }
 
                             if (config.DISTRIBUTION_FORCE_STRENGTH > 0.01f) {
-                                sample(samples).forEach { w ->
+                                sample(samples, u).forEach { w ->
                                     val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
                                     combinedForceU = combinedForceU
                                         .add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
@@ -625,10 +628,11 @@ class ParallelReadableTreeLayout(
         }
     }
 
-    private fun sample(samples: Int): List<State> {
+    private fun sample(samples: Int, not: State): List<State> {
         return buildList {
             repeat(samples) {
-                add(extendedPrefixAutomaton.states.random(random))
+                val randomState = extendedPrefixAutomaton.states.random(random)
+                if (randomState != not) add(randomState)
             }
         }
     }
