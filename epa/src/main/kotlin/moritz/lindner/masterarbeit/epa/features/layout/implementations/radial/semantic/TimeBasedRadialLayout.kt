@@ -40,11 +40,11 @@ class TimeBasedRadialLayout(
     private fun cycleTimeSum(state: State.PrefixState, cycleTimes: Map<State, Float>): Float {
         return epaService
             .getPathFromRoot(state)
-            .map { stateOnPath -> cycleTimes[state]!! }
+            .map { stateOnPath -> cycleTimes[stateOnPath]!! }
             .sum()
     }
 
-    val logarihtmicNormalizedDepth = buildMap {
+    val logarithmicNormalizedDepth = buildMap {
         val cycleTimes = epaService.computeAllCycleTimes(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
@@ -62,19 +62,24 @@ class TimeBasedRadialLayout(
             }
         }
 
-        val max = combinedCycleTimeByState.values.max()
-        val min = combinedCycleTimeByState.values.min()
+        val offset = 1.0f
+        val values = cycleTimes.values.map { it + offset }
 
-        val logMin = log10(min)
-        val logMax = log10(max)
+        val min = values.minOrNull() ?: offset
+        val max = values.maxOrNull() ?: offset
 
-        extendedPrefixAutomaton.states.forEach { state ->
-            val logValue = log10(combinedCycleTimeByState[state]!!)
-            val normalized = (((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f))
-            put(state, config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength))
+        if ((max - min) < 0.0001f) {
+            extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }
+        } else {
+            val logMin = log10(min)
+            val logMax = log10(max)
+
+            extendedPrefixAutomaton.states.forEach { state ->
+                val logValue = log10(combinedCycleTimeByState[state]!!)
+                val normalized = (((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f))
+                put(state, config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength))
+            }
         }
-    }.also {
-        logger.info { it }
     }
 
     private val threads = HashMap<EPATreeNode, EPATreeNode?>(expectedCapacity)
@@ -302,7 +307,7 @@ class TimeBasedRadialLayout(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the accumulated average cycle time of the path from v to root
-        val y = logarihtmicNormalizedDepth[v.state]!!
+        val y = logarithmicNormalizedDepth[v.state]!!
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)

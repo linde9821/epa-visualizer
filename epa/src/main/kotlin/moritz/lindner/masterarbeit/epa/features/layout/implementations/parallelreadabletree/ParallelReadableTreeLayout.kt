@@ -79,9 +79,9 @@ class ParallelReadableTreeLayout(
             progressCallback = progressCallback
         )
 
+        val offset = 1.0f
         // TODO: adapt this for other time based layout
         // Add offset to handle zero values with logarithmic scaling
-        val offset = 1.0f
         val values = cycleTimes.values.map { it + offset }
         val min = values.minOrNull() ?: offset
         val max = values.maxOrNull() ?: offset

@@ -24,6 +24,7 @@ import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import kotlin.math.PI
 import kotlin.math.roundToInt
 
 @Composable
@@ -237,3 +238,6 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
+
+/** Converts degrees to radians. */
+private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
