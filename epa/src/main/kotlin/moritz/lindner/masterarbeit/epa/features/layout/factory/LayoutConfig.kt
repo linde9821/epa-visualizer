@@ -63,6 +63,8 @@ sealed class LayoutConfig(val name: String) {
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         val minCycleTimeDifference: Float = 0.0f,
+        val minEdgeLength: Float = 10.0f,
+        val maxEdgeLength: Float = 1000.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
         override val lod: Boolean = true
@@ -197,8 +199,10 @@ sealed class LayoutConfig(val name: String) {
         val canvasHeight: Float = 2000.0f,
 
         override val enabled: Boolean = true,
-        override val lod: Boolean = true
     ) : LayoutConfig("State Clustering Layout") {
+
+        override val lod: Boolean
+            get() = false
 
         override fun getParameters() = mapOf(
             // Graph embedding
@@ -230,7 +234,6 @@ sealed class LayoutConfig(val name: String) {
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
 
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -253,7 +256,6 @@ sealed class LayoutConfig(val name: String) {
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -273,8 +275,10 @@ sealed class LayoutConfig(val name: String) {
         val useCombinedCycleTime: Boolean = true,
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
-        override val lod: Boolean = true
     ) : LayoutConfig("Partition Clustering Layout") {
+
+        override val lod: Boolean
+            get() = false
 
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -282,7 +286,6 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
             "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
             "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
@@ -300,7 +303,6 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" -> copy(umapIterations = value as Int)
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
-            "lod" -> copy(lod = value as Boolean)
             "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
             "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
             "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
@@ -341,8 +343,8 @@ sealed class LayoutConfig(val name: String) {
                 "iterations" to ParameterInfo.NumberParameterInfo(
                     name = "iterations",
                     min = 0,
-                    max = 100,
-                    steps = 100
+                    max = 200,
+                    steps = 200
                 ),
                 "minEdgeLength" to ParameterInfo.NumberParameterInfo(
                     name = "minEdgeLength",
