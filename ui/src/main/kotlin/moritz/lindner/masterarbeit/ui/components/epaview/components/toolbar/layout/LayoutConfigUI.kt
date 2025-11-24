@@ -155,12 +155,12 @@ private fun getCurrentConfigValue(
     }
 
     is LayoutConfig.TimeBasedRadialConfig -> when (paramName) {
-        "layerBaseUnit" -> config.layerBaseUnit
         "margin" -> config.margin
         "rotation" -> config.rotation
         "enabled" -> config.enabled
-        "minCycleTimeDifference" -> config.minCycleTimeDifference
         "lod" -> config.lod
+        "minEdgeLength" -> config.minEdgeLength
+        "maxEdgeLength" -> config.maxEdgeLength
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 

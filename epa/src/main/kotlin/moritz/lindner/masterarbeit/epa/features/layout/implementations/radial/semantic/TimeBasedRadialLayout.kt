@@ -62,21 +62,36 @@ class TimeBasedRadialLayout(
         }
 
         val offset = 1.0f
-        val values = cycleTimes.values.map { it + offset }
+        val cumulativeValuesWithoutRoot = cycleTimeSumByState
+            .filterKeys { it != State.Root }
+            .values
+            .map { it + offset }
 
-        val min = values.minOrNull() ?: offset
-        val max = values.maxOrNull() ?: offset
+        val cumulativeMin = cumulativeValuesWithoutRoot.minOrNull() ?: offset
+        val cumulativeMax = cumulativeValuesWithoutRoot.maxOrNull() ?: offset
 
-        if ((max - min) < 0.0001f) {
+        if ((cumulativeMax - cumulativeMin) < 0.0001f) {
             extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }
         } else {
-            val logMin = log10(min)
-            val logMax = log10(max)
+            val logMin = log10(cumulativeMin)
+            val logMax = log10(cumulativeMax)
 
             extendedPrefixAutomaton.states.forEach { state ->
-                val logValue = log10(cycleTimeSumByState[state]!!)
-                val normalized = (((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f))
-                put(state, config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength))
+                when(state){
+                    is State.PrefixState -> {
+                        // 1. log scaling
+                        val rawValue = cycleTimeSumByState[state]!!
+                        val value = rawValue + offset
+                        val logValue = log10(value)
+
+                        // 2. min-max normalization
+                        val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+                        val timeBasedDistance = config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
+
+                        put(state, timeBasedDistance)
+                    }
+                    State.Root -> put(state, 0f)
+                }
             }
         }
     }
@@ -329,7 +344,7 @@ class TimeBasedRadialLayout(
             val theta = (normalizedX * usableAngle) + config.rotation.degreesToRadians()
 
             nodePlacementByState[state] = NodePlacement(
-                coordinate = Coordinate.fromPolar(normalizedX, theta),
+                coordinate = Coordinate.fromPolar(radius, theta),
                 state = state
             )
         }
