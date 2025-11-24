@@ -9,6 +9,12 @@ repositories {
     maven("https://jitpack.io")
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 dependencies {
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
@@ -18,10 +24,10 @@ dependencies {
     implementation(libs.rtree)
     implementation(libs.csv)
     implementation(libs.coroutines.core)
+    implementation(libs.jts.core)
     implementation(libs.bundles.serialization)
     implementation(libs.bundles.dl4j)
     implementation(libs.bundles.smile)
-    implementation("org.locationtech.jts:jts-core:1.20.0")
 
     val osName = System.getProperty("os.name").lowercase()
     val osArch = System.getProperty("os.arch").lowercase()
@@ -35,13 +41,6 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
     testImplementation(libs.assertjCore)
-}
-
-// Apply a specific Java toolchain to ease working on different environments.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
 }
 
 tasks.test {

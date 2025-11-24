@@ -11,6 +11,12 @@ plugins {
 group = "moritz.lindner.masterarbeit"
 version = "1.11.0"
 
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 repositories {
     google()
     mavenCentral()
@@ -48,20 +54,6 @@ tasks.test {
     useJUnitPlatform()
 }
 
-kotlin {
-    jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.JETBRAINS
-    }
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.JETBRAINS
-    }
-}
-
 compose.desktop {
     application {
         mainClass = "moritz.lindner.masterarbeit.ui.EPAVisualizerMainKt"
@@ -69,7 +61,7 @@ compose.desktop {
         javaHome =
             javaToolchains
                 .launcherFor {
-                    languageVersion.set(JavaLanguageVersion.of(21))
+                    languageVersion.set(JavaLanguageVersion.of(25))
                     vendor.set(JvmVendorSpec.JETBRAINS)
                 }.get()
                 .metadata.installationPath.asFile.absolutePath
