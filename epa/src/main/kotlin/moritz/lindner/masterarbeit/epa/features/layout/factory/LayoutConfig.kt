@@ -2,6 +2,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory.degreesToRadians
 
 sealed class LayoutConfig(val name: String) {
 
@@ -58,10 +59,10 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class RadialWalkerTimeConfig(
+    data class TimeBasedRadialConfig(
         val layerBaseUnit: Float = 500.0f,
         val margin: Float = 5.0f,
-        val rotation: Float = 90.0f,
+        val rotation: Float = 0.0f,
         val minCycleTimeDifference: Float = 0.0f,
         val minEdgeLength: Float = 10.0f,
         val maxEdgeLength: Float = 1000.0f,

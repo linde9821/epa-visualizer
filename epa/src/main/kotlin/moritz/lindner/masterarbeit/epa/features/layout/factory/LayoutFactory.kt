@@ -55,7 +55,7 @@ object LayoutFactory {
             )
         }
 
-        is LayoutConfig.RadialWalkerTimeConfig -> {
+        is LayoutConfig.TimeBasedRadialConfig -> {
             TimeBasedRadialLayout(
                 config = config,
                 extendedPrefixAutomaton = config.extendedPrefixAutomaton,
@@ -76,7 +76,7 @@ object LayoutFactory {
     }
 
     /** Converts degrees to radians. */
-    private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
+    fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
     fun createLayout(
         layoutConfig: LayoutConfig,
