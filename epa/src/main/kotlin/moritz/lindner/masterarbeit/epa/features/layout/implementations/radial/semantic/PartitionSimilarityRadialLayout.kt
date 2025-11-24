@@ -59,15 +59,10 @@ class PartitionSimilarityRadialLayout(
             val radius = epaService.getDepth(state)
 
             maxDepth = max(maxDepth, radius)
-
             val partition = extendedPrefixAutomaton.partition(state)
             val theta = angleByPartition[partition]!!
-
             nodePlacementByState[state] = NodePlacement(
-                coordinate = Coordinate(
-                    x = (radius * config.layerSpace) * cos(theta),
-                    y = (radius * config.layerSpace) * sin(theta),
-                ),
+                coordinate = Coordinate.fromPolar(radius * config.layerSpace, theta),
                 state = state
             )
         }

@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory.degreesToRadians
 
 sealed class LayoutConfig(val name: String) {
 

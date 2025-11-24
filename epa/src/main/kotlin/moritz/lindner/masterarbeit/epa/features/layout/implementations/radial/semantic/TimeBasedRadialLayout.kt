@@ -10,6 +10,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory.degreesToRadians
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
@@ -17,17 +18,15 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 class TimeBasedRadialLayout(
     private val tree: EPATreeNode,
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.RadialWalkerTimeConfig
+    private val config: LayoutConfig.TimeBasedRadialConfig
 ) : RadialTreeLayout {
 
     private val expectedCapacity = extendedPrefixAutomaton.states.size
@@ -44,7 +43,7 @@ class TimeBasedRadialLayout(
             .sum()
     }
 
-    val logarithmicNormalizedDepth = buildMap {
+    val logarithmicNormalizedCycleTimeSumByState = buildMap {
         val cycleTimes = epaService.computeAllCycleTimes(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
@@ -55,7 +54,7 @@ class TimeBasedRadialLayout(
             },
         )
 
-        val combinedCycleTimeByState = extendedPrefixAutomaton.states.associateWith { state ->
+        val cycleTimeSumByState = extendedPrefixAutomaton.states.associateWith { state ->
             when (state) {
                 is State.PrefixState -> cycleTimeSum(state, cycleTimes)
                 State.Root -> 0f
@@ -75,7 +74,7 @@ class TimeBasedRadialLayout(
             val logMax = log10(max)
 
             extendedPrefixAutomaton.states.forEach { state ->
-                val logValue = log10(combinedCycleTimeByState[state]!!)
+                val logValue = log10(cycleTimeSumByState[state]!!)
                 val normalized = (((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f))
                 put(state, config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength))
             }
@@ -97,7 +96,7 @@ class TimeBasedRadialLayout(
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
     private var isBuilt: Boolean = false
 
-    private val usableAngle = 2 * PI.toFloat() - config.margin
+    private val usableAngle = 2 * PI.toFloat() - config.margin.degreesToRadians()
 
     private fun firstWalk(v: EPATreeNode) {
         // if v is a leaf
@@ -307,7 +306,7 @@ class TimeBasedRadialLayout(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the accumulated average cycle time of the path from v to root
-        val y = logarithmicNormalizedDepth[v.state]!!
+        val y = logarithmicNormalizedCycleTimeSumByState[v.state]!!
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)
@@ -324,16 +323,13 @@ class TimeBasedRadialLayout(
 
     private fun convertToAngles() {
         coordinateAndTreeNodeByState.forEach { state, (cartesianCoordinate, _) ->
-            val (x, radius) = cartesianCoordinate  // ← now use the stored radius
+            val (x, radius) = cartesianCoordinate
 
             val normalizedX = (x - xMin) / (xMax - xMin)
-            val theta = (normalizedX * usableAngle) + config.rotation
+            val theta = (normalizedX * usableAngle) + config.rotation.degreesToRadians()
 
             nodePlacementByState[state] = NodePlacement(
-                coordinate = Coordinate(
-                    x = radius * cos(theta),
-                    y = radius * sin(theta),
-                ),
+                coordinate = Coordinate.fromPolar(normalizedX, theta),
                 state = state
             )
         }

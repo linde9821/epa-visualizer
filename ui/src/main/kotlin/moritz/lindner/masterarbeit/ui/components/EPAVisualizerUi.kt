@@ -11,7 +11,9 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.project.Proj
 import moritz.lindner.masterarbeit.ui.components.newproject.NewProjectUi
 import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
-import moritz.lindner.masterarbeit.ui.state.ApplicationState.*
+import moritz.lindner.masterarbeit.ui.state.ApplicationState.NewProject
+import moritz.lindner.masterarbeit.ui.state.ApplicationState.ProjectSelected
+import moritz.lindner.masterarbeit.ui.state.ApplicationState.Start
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory

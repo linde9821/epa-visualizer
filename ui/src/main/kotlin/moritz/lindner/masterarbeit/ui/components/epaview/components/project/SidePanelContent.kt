@@ -10,7 +10,11 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.filt
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.project.ProjectOverviewUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
-import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.*
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Details
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Filter
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Layout
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.None
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Project
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager

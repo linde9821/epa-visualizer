@@ -16,7 +16,6 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.buildconfig.BuildConfig
 import moritz.lindner.masterarbeit.ui.common.AboutPanel.showAboutDialog
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
@@ -48,9 +47,7 @@ import org.jetbrains.jewel.window.styling.TitleBarStyle
 import org.jetbrains.skiko.SkikoProperties
 import java.awt.Desktop
 import java.net.URI
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledThreadPoolExecutor
-import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 
 val logger = KotlinLogging.logger {}
@@ -169,7 +166,7 @@ private fun setupMemoryMonitoring() {
     val memoryMonitor = ScheduledThreadPoolExecutor(1) { runnable ->
         Thread(runnable, "Memory-Monitor").apply { isDaemon = true }
     }
-    
+
     memoryMonitor.scheduleAtFixedRate({
         val runtime = Runtime.getRuntime()
         val usedMemory = runtime.totalMemory() - runtime.freeMemory()
@@ -210,10 +207,10 @@ private fun setSystemProperties() {
         "java.awt.headless" to "false",
         "file.encoding" to "UTF-8"
     )
-    
+
     properties.forEach { (key, value) ->
         System.setProperty(key, value)
     }
-    
+
     logger.debug { "System properties configured" }
 }

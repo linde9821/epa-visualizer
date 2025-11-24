@@ -158,7 +158,7 @@ fun FilterUi(
                     }
                 }
 
-                if (newFilters.isNotEmpty()){
+                if (newFilters.isNotEmpty()) {
                     Divider(
                         orientation = Orientation.Horizontal,
                         modifier = Modifier.fillMaxWidth(),

@@ -52,7 +52,7 @@ fun LayoutUi(
             LayoutConfig.StateClusteringLayoutConfig(),
             LayoutConfig.PartitionClusteringLayoutConfig(),
             currentEpa?.let {
-                LayoutConfig.RadialWalkerTimeConfig(
+                LayoutConfig.TimeBasedRadialConfig(
                     extendedPrefixAutomaton = currentEpa
                 )
             },

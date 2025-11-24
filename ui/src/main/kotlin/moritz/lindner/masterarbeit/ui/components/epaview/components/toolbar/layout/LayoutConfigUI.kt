@@ -154,7 +154,7 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
-    is LayoutConfig.RadialWalkerTimeConfig -> when (paramName) {
+    is LayoutConfig.TimeBasedRadialConfig -> when (paramName) {
         "layerBaseUnit" -> config.layerBaseUnit
         "margin" -> config.margin
         "rotation" -> config.rotation

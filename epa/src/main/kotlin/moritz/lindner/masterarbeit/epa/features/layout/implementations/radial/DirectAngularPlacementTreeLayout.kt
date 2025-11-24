@@ -12,9 +12,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.max
-import kotlin.math.sin
 
 /**
  * A radial tree layout using direct angular partitioning per node.
@@ -63,14 +61,10 @@ class DirectAngularPlacementTreeLayout(
             val radius = layerSpace * treeNode.depth
             val theta = ((start + end) / 2f) + rotation
 
-            nodePlacementByState[treeNode.state] =
-                NodePlacement(
-                    Coordinate(
-                        x = radius * cos(theta),
-                        y = radius * sin(theta),
-                    ),
-                    treeNode.state,
-                )
+            nodePlacementByState[treeNode.state] = NodePlacement(
+                Coordinate.fromPolar(radius, theta),
+                treeNode.state,
+            )
         }
 
         val anglePerChild = (end - start) / (treeNode.children().size.toFloat())

@@ -14,10 +14,8 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 
 /**
  * A radial variant of the Walker tree layout algorithm.
@@ -295,10 +293,7 @@ class RadialWalkerTreeLayout(
             val theta = (normalizedX * usableAngle) + rotation
 
             nodePlacementByState[state] = NodePlacement(
-                coordinate = Coordinate(
-                    x = radius * cos(theta),
-                    y = radius * sin(theta),
-                ),
+                coordinate = Coordinate.fromPolar(radius, theta),
                 state = state
             )
         }

@@ -1,6 +1,8 @@
 package moritz.lindner.masterarbeit.epa.features.layout.placement
 
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -21,7 +23,12 @@ data class Coordinate(
         return Vector2D(other.x - x, other.y - y)
     }
 
-    fun move(vector: Vector2D): Coordinate {
-        return Coordinate(x + vector.x, y + vector.y)
+    companion object {
+        fun fromPolar(radius: Float, theta: Float): Coordinate {
+            return Coordinate(
+                x = radius * cos(theta),
+                y = radius * sin(theta),
+            )
+        }
     }
 }
