@@ -9,7 +9,13 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.10.0"
+version = "1.10.1"
+
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
 
 repositories {
     google()
@@ -46,20 +52,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.JETBRAINS
-    }
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.JETBRAINS
-    }
 }
 
 compose.desktop {

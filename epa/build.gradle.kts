@@ -9,6 +9,12 @@ repositories {
     maven("https://jitpack.io")
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
+
 dependencies {
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
@@ -35,13 +41,6 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
     testImplementation(libs.assertjCore)
-}
-
-// Apply a specific Java toolchain to ease working on different environments.
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
 }
 
 tasks.test {

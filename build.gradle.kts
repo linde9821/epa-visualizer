@@ -11,7 +11,7 @@ plugins {
 subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_21
+            jvmTarget = JvmTarget.JVM_24
             freeCompilerArgs.addAll(
                 listOf(
                     "-Xjvm-default=all",
