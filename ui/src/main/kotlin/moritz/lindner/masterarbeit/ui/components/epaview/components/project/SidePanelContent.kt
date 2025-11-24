@@ -10,6 +10,11 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.filt
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout.LayoutUi
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.project.ProjectOverviewUi
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Details
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Filter
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Layout
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.None
+import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState.Project
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.ProjectStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
@@ -24,7 +29,7 @@ fun SidePanelContent(
     onClose: () -> Unit
 ) {
     when (upperState) {
-        EpaViewUpperState.Project -> PanelMenu(
+        Project -> PanelMenu(
             "Project Settings",
             modifier = Modifier.padding(8.dp),
             onClose = { onClose() }
@@ -32,7 +37,7 @@ fun SidePanelContent(
             ProjectOverviewUi(projectState)
         }
 
-        EpaViewUpperState.Filter -> PanelMenu(
+        Filter -> PanelMenu(
             "Filter Settings",
             modifier = Modifier.padding(4.dp),
             onClose = { onClose() }
@@ -44,7 +49,7 @@ fun SidePanelContent(
             )
         }
 
-        EpaViewUpperState.Layout -> PanelMenu(
+        Layout -> PanelMenu(
             title = "Layout Settings",
             modifier = Modifier.padding(8.dp),
             onClose = { onClose() }
@@ -55,7 +60,7 @@ fun SidePanelContent(
             )
         }
 
-        EpaViewUpperState.Details -> PanelMenu(
+        Details -> PanelMenu(
             title = "Details",
             modifier = Modifier.Companion.padding(8.dp),
             onClose = { onClose() }
@@ -66,7 +71,7 @@ fun SidePanelContent(
             )
         }
 
-        EpaViewUpperState.None -> {
+        None -> {
             /* Should not happen */
         }
     }

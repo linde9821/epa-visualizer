@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.layout.implementations.prt
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree
 
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import kotlin.math.cos

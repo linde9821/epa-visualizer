@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.layout.implementations
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.radial
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
@@ -7,16 +7,15 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
 
 /**
  * A radial variant of the Walker tree layout algorithm.
@@ -294,10 +293,7 @@ class RadialWalkerTreeLayout(
             val theta = (normalizedX * usableAngle) + rotation
 
             nodePlacementByState[state] = NodePlacement(
-                coordinate = Coordinate(
-                    x = radius * cos(theta),
-                    y = radius * sin(theta),
-                ),
+                coordinate = Coordinate.fromPolar(radius, theta),
                 state = state
             )
         }

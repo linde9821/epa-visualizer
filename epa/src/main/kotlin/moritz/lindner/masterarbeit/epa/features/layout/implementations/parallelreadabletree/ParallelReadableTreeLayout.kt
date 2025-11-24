@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.layout.implementations.prt
+package moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree
 
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
@@ -29,7 +29,9 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -77,12 +79,15 @@ class ParallelReadableTreeLayout(
             progressCallback = progressCallback
         )
 
+        val offset = 1.0f
         // TODO: adapt this for other time based layout
         // Add offset to handle zero values with logarithmic scaling
-        val offset = 1.0f
-        val values = cycleTimes.values.map { it + offset }
-        val min = values.minOrNull() ?: offset
-        val max = values.maxOrNull() ?: offset
+        val valuesWithoutRoot = cycleTimes
+            .filterKeys { it != State.Root }
+            .values
+            .map { it + offset }
+        val min = valuesWithoutRoot.minOrNull() ?: offset
+        val max = valuesWithoutRoot.maxOrNull() ?: offset
 
         val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
             // All values are essentially the same - use middle of range
@@ -126,7 +131,8 @@ class ParallelReadableTreeLayout(
             x = initialLayout,
             progressCallback = progressCallback,
             desiredEdgeLengthByTransition = desiredEdgeLengthByTransition,
-            iterations = config.iterations
+            iterations = config.iterations,
+            samples = min(40, (extendedPrefixAutomaton.states.size / 2.0f).roundToInt())
         ).forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
@@ -325,7 +331,7 @@ class ParallelReadableTreeLayout(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
         batch: Int = 128,
-        samples: Int = 40,
+        samples: Int,
         iterations: Int = 50,
         progressCallback: EpaProgressCallback?,
         desiredEdgeLengthByTransition: Map<Transition, Float>
@@ -346,47 +352,55 @@ class ParallelReadableTreeLayout(
             batches.forEach { batch ->
                 runBlocking {
                     // for each node in parallel do
-                    batch.map { u ->
+                    val forces = batch.map { u ->
                         scope.async {
                             var combinedForceU = Vector2D.zero()
-                            collisionRegion(u, positions, rTree).forEach { v ->
-                                val labelForce = computeLabelOverlapForce(u, v, positions)
-                                combinedForceU =
-                                    combinedForceU.add(labelForce.multiply(config.LABEL_OVERLAP_FORCE_STRENGTH))
+
+                            if (config.LABEL_OVERLAP_FORCE_STRENGTH > 0.01f) {
+                                collisionRegion(u, positions, rTree).forEach { v ->
+                                    val labelForce = computeLabelOverlapForce(u, v, positions)
+                                    combinedForceU = combinedForceU
+                                        .add(labelForce.multiply(config.LABEL_OVERLAP_FORCE_STRENGTH))
+                                }
                             }
 
                             val neighbors = epaService.neighbors(extendedPrefixAutomaton, u)
-                            neighbors.forEach { v ->
-                                val force = computeLengthForce(
-                                    u,
-                                    v,
-                                    positions,
-                                    desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
-                                )
-                                combinedForceU = combinedForceU.add(force.multiply(config.EDGE_LENGTH_FORCE_STRENGTH))
+
+                            if (config.EDGE_LENGTH_FORCE_STRENGTH > 0.01f) {
+                                neighbors.forEach { v ->
+                                    val force = computeLengthForce(
+                                        u,
+                                        v,
+                                        positions,
+                                        desiredEdgeLengthByTransition = desiredEdgeLengthByTransition
+                                    )
+                                    combinedForceU = combinedForceU
+                                        .add(force.multiply(config.EDGE_LENGTH_FORCE_STRENGTH))
+                                }
                             }
 
-                            sample(samples).forEach { w ->
-                                val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
-                                combinedForceU = combinedForceU.add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
+                            if (config.DISTRIBUTION_FORCE_STRENGTH > 0.01f) {
+                                sample(samples, u).forEach { w ->
+                                    val force = distributionForce(u, w, positions, desiredEdgeLengthByTransition)
+                                    combinedForceU = combinedForceU
+                                        .add(force.multiply(config.DISTRIBUTION_FORCE_STRENGTH))
+                                }
                             }
 
-                            t[u] = combinedForceU
+                            u to combinedForceU
                         }
                     }.awaitAll()
-                }
-            }
 
-            for (state in positions.keys) {
-                val movement = t[state]!!
-
-                if (movement.magnitude() > 0.1) {
-                    if (!introducesEdgeCrossing(state, movement, positions)) {
-                        val currentPos = positions[state]!!
-                        positions[state] = Coordinate(
-                            x = (currentPos.x + movement.x),
-                            y = (currentPos.y + movement.y)
-                        )
+                    for ((u, force) in forces) {
+                        if (force.magnitude() > 0.01) {
+                            // Add damping
+                            // Clamp force magnitude
+                            // Add a temperature schedule
+                            if (!introducesEdgeCrossing(u, force, positions)) {
+                                val p = positions[u]!!
+                                positions[u] = Coordinate(p.x + force.x, p.y + force.y)
+                            }
+                        }
                     }
                 }
             }
@@ -454,23 +468,16 @@ class ParallelReadableTreeLayout(
 
         if (abs(currentDistance - desiredLength) < 1) return Vector2D.zero()
 
+        // TODO: think about other wayt to compute the force
         // Unit vector from u to v
         val direction = posU.vectorTo(posV).normalize()
 
-        val k = .5f
-
-        val magnitude = if (currentDistance > desiredLength) {
-            // Attractive: pull together
-            k * (currentDistance - desiredLength)
-        } else {
-            // Repulsive: push apart
-            -k / (desiredLength - currentDistance)
-        }
+        val k = 2f
 
         // or use this with k .1f and -magnitude -->  val force = direction.multiply(-magnitude)
-        // val magnitude = k * (desiredLength - currentDistance) / desiredLength
+        val magnitude = k * (desiredLength - currentDistance) / desiredLength
 
-        val force = direction.multiply(magnitude)
+        val force = direction.multiply(-magnitude)
 
         return force
     }
@@ -624,10 +631,11 @@ class ParallelReadableTreeLayout(
         }
     }
 
-    private fun sample(samples: Int): List<State> {
+    private fun sample(samples: Int, not: State): List<State> {
         return buildList {
             repeat(samples) {
-                add(extendedPrefixAutomaton.states.random(random))
+                val randomState = extendedPrefixAutomaton.states.random(random)
+                if (randomState != not) add(randomState)
             }
         }
     }

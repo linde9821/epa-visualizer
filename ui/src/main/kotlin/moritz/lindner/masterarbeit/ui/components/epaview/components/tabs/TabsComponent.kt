@@ -172,33 +172,32 @@ fun TabsComponent(
                             Modifier.align(Alignment.Center)
                         )
                     } else if (currentEpa != null && currentLayoutAndConfig != null && currentStateLabels != null && currentDrawAtlas != null && currentHighlightingAtlas != null) {
-                        // TODO: does this need to be a column
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            if (currentLayoutAndConfig.first.isBuilt() && currentLayoutAndConfig.second.enabled) {
-                                val layout = currentLayoutAndConfig.first
+                        if (currentLayoutAndConfig.first.isBuilt() && currentLayoutAndConfig.second.enabled) {
+                            val layout = currentLayoutAndConfig.first
 
-                                EpaLayoutCanvasRenderer(
-                                    treeLayout = layout,
-                                    stateLabels = currentStateLabels,
-                                    drawAtlas = currentDrawAtlas,
-                                    onStateHover = {},
-                                    onRightClickState = { state ->
-                                        if (state != null) {
-                                            tabStateManager.setSelectedStateForCurrentTab(state)
-                                            epaStateManager.highlightPathFromRootForState(currentTab.id, state)
-                                        }
-                                    },
-                                    onLeftClickState = {},
-                                    tabState = currentTab,
-                                    highlightingAtlas = currentHighlightingAtlas,
-                                    animationState = animationState,
-                                    canvasState = canvasState,
-                                    lodQuery = currentLod ?: NoLOD()
-                                )
-                            } else {
+                            EpaLayoutCanvasRenderer(
+                                treeLayout = layout,
+                                stateLabels = currentStateLabels,
+                                drawAtlas = currentDrawAtlas,
+                                onStateHover = {},
+                                onRightClickState = { state ->
+                                    if (state != null) {
+                                        tabStateManager.setSelectedStateForCurrentTab(state)
+                                        epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                                    }
+                                },
+                                onLeftClickState = {},
+                                tabState = currentTab,
+                                highlightingAtlas = currentHighlightingAtlas,
+                                animationState = animationState,
+                                canvasState = canvasState,
+                                lodQuery = currentLod ?: NoLOD()
+                            )
+                        } else {
+                            Box(
+                                modifier = modifier.fillMaxSize().background(Color.White),
+                                contentAlignment = Alignment.Center,
+                            ) {
                                 Text("Rendering is disabled")
                             }
                         }

@@ -6,42 +6,50 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.ui.components.epaview.components.project.ProjectUi
 import moritz.lindner.masterarbeit.ui.components.newproject.NewProjectUi
 import moritz.lindner.masterarbeit.ui.components.projectselection.ProjectSelectionUi
 import moritz.lindner.masterarbeit.ui.state.ApplicationState
+import moritz.lindner.masterarbeit.ui.state.ApplicationState.NewProject
+import moritz.lindner.masterarbeit.ui.state.ApplicationState.ProjectSelected
+import moritz.lindner.masterarbeit.ui.state.ApplicationState.Start
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 
 @Composable
-fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
-    var state: ApplicationState by remember { mutableStateOf(ApplicationState.Start()) }
+fun EPAVisualizerUi() {
+    var state: ApplicationState by remember { mutableStateOf(Start()) }
 
     Column {
         when (val currentState = state) {
-            is ApplicationState.Start -> ProjectSelectionUi(
+            is Start -> ProjectSelectionUi(
                 error = currentState.error,
                 onProjectOpen = {
-                    state = ApplicationState.ProjectSelected(it)
+                    state = ProjectSelected(it)
                 },
                 onNewProject = {
-                    state = ApplicationState.NewProject
+                    state = NewProject
                 },
                 onError = { error ->
                     state = currentState.copy(error = error)
                 }
             )
 
-            is ApplicationState.NewProject -> NewProjectUi(
-                onAbort = { state = ApplicationState.Start() },
-                onProjectCreated = { state = ApplicationState.ProjectSelected(it) }
+            is NewProject -> NewProjectUi(
+                onAbort = { state = Start() },
+                onProjectCreated = { state = ProjectSelected(it) }
             )
 
-            is ApplicationState.ProjectSelected -> {
+            is ProjectSelected -> {
+                val executor = remember { buildDispatcher() }
                 ProjectUi(
                     project = currentState.project,
-                    backgroundDispatcher,
+                    executor.asCoroutineDispatcher(),
                     onClose = {
-                        state = ApplicationState.Start()
+                        executor.shutdownNow()
+                        state = Start()
                     },
                 )
             }
@@ -49,3 +57,13 @@ fun EPAVisualizerUi(backgroundDispatcher: ExecutorCoroutineDispatcher) {
     }
 }
 
+fun buildDispatcher(): ExecutorService {
+    val threadCount = maxOf(2, Runtime.getRuntime().availableProcessors() - 1)
+    var threadCounter = 0
+    val threadFactory = ThreadFactory { runnable ->
+        Thread(runnable, "EPA-Worker-${++threadCounter}").apply {
+            isDaemon = true
+        }
+    }
+    return Executors.newFixedThreadPool(threadCount, threadFactory)
+}

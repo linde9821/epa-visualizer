@@ -16,11 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.DefaultButton
+import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
+import kotlin.math.PI
 import kotlin.math.roundToInt
 
 @Composable
@@ -98,9 +102,16 @@ fun LayoutConfigUI(
         }
 
         item {
+            Divider(
+                orientation = Orientation.Horizontal,
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = JewelTheme.contentColor.copy(alpha = 0.2f)
+            )
+
             Row(
                 horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp)
+                modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp, top = 5.dp)
             ) {
                 DefaultButton(
                     onClick = {
@@ -143,13 +154,13 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
-    is LayoutConfig.RadialWalkerTimeConfig -> when (paramName) {
-        "layerBaseUnit" -> config.layerBaseUnit
+    is LayoutConfig.TimeBasedRadialConfig -> when (paramName) {
         "margin" -> config.margin
         "rotation" -> config.rotation
         "enabled" -> config.enabled
-        "minCycleTimeDifference" -> config.minCycleTimeDifference
         "lod" -> config.lod
+        "minEdgeLength" -> config.minEdgeLength
+        "maxEdgeLength" -> config.maxEdgeLength
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -227,3 +238,6 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
+
+/** Converts degrees to radians. */
+private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f

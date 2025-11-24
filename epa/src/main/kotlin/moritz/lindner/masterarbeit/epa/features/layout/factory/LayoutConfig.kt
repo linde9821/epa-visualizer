@@ -15,7 +15,7 @@ sealed class LayoutConfig(val name: String) {
         val distance: Float = 200.0f,
         val layerSpace: Float = 200.0f,
         override val enabled: Boolean = true,
-        override val lod: Boolean = true
+        override val lod: Boolean = false
     ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
@@ -38,7 +38,7 @@ sealed class LayoutConfig(val name: String) {
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         override val enabled: Boolean = true,
-        override val lod: Boolean = true
+        override val lod: Boolean = false
     ) : LayoutConfig("Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
@@ -57,32 +57,41 @@ sealed class LayoutConfig(val name: String) {
             else -> this
         }
     }
-
-    data class RadialWalkerTimeConfig(
-        val layerBaseUnit: Float = 500.0f,
+    data class TimeBasedRadialConfig(
         val margin: Float = 5.0f,
-        val rotation: Float = 90.0f,
-        val minCycleTimeDifference: Float = 0.0f,
+        val rotation: Float = 0.0f,
+        val minEdgeLength: Float = 10.0f,
+        val maxEdgeLength: Float = 1000.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
-        override val lod: Boolean = true
+        override val lod: Boolean = false
     ) : LayoutConfig("Time-based Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
-            "layerBaseUnit" to ParameterInfo.NumberParameterInfo("layerBaseUnit", 1.0f, 2000.0f, 10f),
+            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
-            "minCycleTimeDifference" to ParameterInfo.NumberParameterInfo("Min Cycletime change", 0.0f, 1.0f, .1f),
-            "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+            "minEdgeLength" to ParameterInfo.NumberParameterInfo(
+                name = "minEdgeLength",
+                min = 0f,
+                max = 1000f,
+                steps = 10f
+            ),
+            "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
+                name = "maxEdgeLength",
+                min = 100f,
+                max = 3000f,
+                steps = 10f
+            ),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
-            "layerBaseUnit" -> copy(layerBaseUnit = value as Float)
             "margin" -> copy(margin = value as Float)
             "rotation" -> copy(rotation = value as Float)
-            "minCycleTimeDifference" -> copy(minCycleTimeDifference = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
             "lod" -> copy(lod = value as Boolean)
+            "minEdgeLength" -> copy(minEdgeLength = value as Float)
+            "maxEdgeLength" -> copy(maxEdgeLength = value as Float)
             else -> this
         }
     }
@@ -101,7 +110,7 @@ sealed class LayoutConfig(val name: String) {
         val useCombinedCycleTime: Boolean = true,
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
-        override val lod: Boolean = true
+        override val lod: Boolean = false
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -149,7 +158,7 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 50.0f,
         val rotation: Float = 0.0f,
         override val enabled: Boolean = true,
-        override val lod: Boolean = true
+        override val lod: Boolean = false
     ) : LayoutConfig("Direct Angular Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
@@ -197,8 +206,10 @@ sealed class LayoutConfig(val name: String) {
         val canvasHeight: Float = 2000.0f,
 
         override val enabled: Boolean = true,
-        override val lod: Boolean = true
     ) : LayoutConfig("State Clustering Layout") {
+
+        override val lod: Boolean
+            get() = false
 
         override fun getParameters() = mapOf(
             // Graph embedding
@@ -207,11 +218,9 @@ sealed class LayoutConfig(val name: String) {
             "walkLength" to ParameterInfo.NumberParameterInfo("Walk Length", 5, 50, 5),
             "walksPerVertex" to ParameterInfo.NumberParameterInfo("Walks Per Vertex", 5, 50, 5),
             "windowSize" to ParameterInfo.NumberParameterInfo("Window Size", 3, 20, 1),
-
             // Feature embedding
             "useFeatureEmbedding" to ParameterInfo.BooleanParameterInfo("Use Feature Embedding"),
             "featureEmbeddingDims" to ParameterInfo.NumberParameterInfo("Feature Embedding Dims", 2, 100, 100),
-
             // Feature flags
             "useDepthFeature" to ParameterInfo.BooleanParameterInfo("Use Depth Feature"),
             "useOutgoingTransitions" to ParameterInfo.BooleanParameterInfo("Use Outgoing Transitions"),
@@ -220,17 +229,13 @@ sealed class LayoutConfig(val name: String) {
             "useCycleTime" to ParameterInfo.BooleanParameterInfo("Use Cycle Time"),
             "usePathLength" to ParameterInfo.BooleanParameterInfo("Use Path Length"),
             "useActivity" to ParameterInfo.BooleanParameterInfo("Use Activity"),
-
             // Reduction parameters
             "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),
             "Iterations" to ParameterInfo.NumberParameterInfo("Iterations", 0, 100, 100),
-
             // Layout parameters
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
-
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -253,7 +258,6 @@ sealed class LayoutConfig(val name: String) {
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
-            "lod" -> copy(lod = value as Boolean)
             else -> this
         }
     }
@@ -273,8 +277,10 @@ sealed class LayoutConfig(val name: String) {
         val useCombinedCycleTime: Boolean = true,
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
-        override val lod: Boolean = true
     ) : LayoutConfig("Partition Clustering Layout") {
+
+        override val lod: Boolean
+            get() = false
 
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -282,7 +288,6 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
             "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
             "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
@@ -300,7 +305,6 @@ sealed class LayoutConfig(val name: String) {
             "umapIterations" -> copy(umapIterations = value as Int)
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
-            "lod" -> copy(lod = value as Boolean)
             "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
             "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
             "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
@@ -329,7 +333,7 @@ sealed class LayoutConfig(val name: String) {
         val LABEL_OVERLAP_FORCE_STRENGTH: Float = 1.0f,
         val EDGE_LENGTH_FORCE_STRENGTH: Float = 1.0f,
         val DISTRIBUTION_FORCE_STRENGTH: Float = 0.1f,
-        override val lod: Boolean = true
+        override val lod: Boolean = false
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -341,8 +345,8 @@ sealed class LayoutConfig(val name: String) {
                 "iterations" to ParameterInfo.NumberParameterInfo(
                     name = "iterations",
                     min = 0,
-                    max = 100,
-                    steps = 100
+                    max = 200,
+                    steps = 200
                 ),
                 "minEdgeLength" to ParameterInfo.NumberParameterInfo(
                     name = "minEdgeLength",
@@ -356,28 +360,24 @@ sealed class LayoutConfig(val name: String) {
                     max = 3000f,
                     steps = 10f
                 ),
-
                 "LABEL_OVERLAP_FORCE_STRENGTH" to ParameterInfo.NumberParameterInfo(
                     name = "LABEL_OVERLAP_FORCE_STRENGTH",
                     min = 0.0f,
                     max = 1.0f,
                     steps = 0.1f
                 ),
-
                 "EDGE_LENGTH_FORCE_STRENGTH" to ParameterInfo.NumberParameterInfo(
                     name = "EDGE_LENGTH_FORCE_STRENGTH",
                     min = 0.0f,
                     max = 1.0f,
                     steps = 0.1f
                 ),
-
                 "DISTRIBUTION_FORCE_STRENGTH" to ParameterInfo.NumberParameterInfo(
                     name = "DISTRIBUTION_FORCE_STRENGTH",
                     min = 0.0f,
                     max = 1.0f,
                     steps = 0.1f
                 ),
-
                 "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
             )
         }
@@ -391,11 +391,9 @@ sealed class LayoutConfig(val name: String) {
             "iterations" -> copy(iterations = value as Int)
             "minEdgeLength" -> copy(minEdgeLength = value as Float)
             "maxEdgeLength" -> copy(maxEdgeLength = value as Float)
-
             "LABEL_OVERLAP_FORCE_STRENGTH" -> copy(LABEL_OVERLAP_FORCE_STRENGTH = value as Float)
             "EDGE_LENGTH_FORCE_STRENGTH" -> copy(EDGE_LENGTH_FORCE_STRENGTH = value as Float)
             "DISTRIBUTION_FORCE_STRENGTH" -> copy(DISTRIBUTION_FORCE_STRENGTH = value as Float)
-
             "lod" -> copy(lod = value as Boolean)
             else -> this
         }
