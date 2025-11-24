@@ -136,9 +136,8 @@ The project consists of two modules:
 
 ### Prerequisites
 
-- JetBrains Runtime **21+** (it must be a jetbrains JDK due to the usage
-  of [jewels](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel))
-- Kotlin **2.2.20+**
+- JetBrains Runtime **25+** (it must be a jetbrains JDK due to the usage of [jewels](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel), and smile)
+- Kotlin **2.2.21+**
 - Gradle (or use the included Gradle wrapper)
 
 ### Run the App
