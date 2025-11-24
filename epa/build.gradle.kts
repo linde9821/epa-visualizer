@@ -24,10 +24,10 @@ dependencies {
     implementation(libs.rtree)
     implementation(libs.csv)
     implementation(libs.coroutines.core)
+    implementation(libs.jts.core)
     implementation(libs.bundles.serialization)
     implementation(libs.bundles.dl4j)
     implementation(libs.bundles.smile)
-    implementation("org.locationtech.jts:jts-core:1.20.0")
 
     val osName = System.getProperty("os.name").lowercase()
     val osArch = System.getProperty("os.arch").lowercase()
