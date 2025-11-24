@@ -13,7 +13,7 @@ version = "1.10.1"
 
 kotlin {
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
