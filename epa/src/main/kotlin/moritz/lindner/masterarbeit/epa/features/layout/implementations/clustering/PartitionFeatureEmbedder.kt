@@ -4,52 +4,8 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.partitioncombination.PartitionCombiner
 import moritz.lindner.masterarbeit.epa.features.partitioncombination.StatePartitionsCollection
-
-data class PartitionEmbedderConfig(
-    val useTotalStateCount: Boolean = true,
-    val useTotalEventCount: Boolean = true,
-    val useTotalTraceCount: Boolean = true,
-    val useDeepestDepth: Boolean = true,
-    val useSplittingFactor: Boolean = true,
-    val useHasRepetition: Boolean = true,
-    val useCombinedCycleTime: Boolean = true,
-    val useActivitySequenceEncoding: Boolean = true,
-    val useLempelZivComplexity: Boolean = true,
-) {
-    companion object {
-        fun from(c: LayoutConfig.PartitionClusteringLayoutConfig): PartitionEmbedderConfig {
-            return PartitionEmbedderConfig(
-                useTotalStateCount = c.useTotalStateCount,
-                useTotalEventCount = c.useTotalEventCount,
-                useTotalTraceCount = c.useTotalTraceCount,
-                useDeepestDepth = c.useDeepestDepth,
-                useSplittingFactor = c.useSplittingFactor,
-                useHasRepetition = c.useHasRepetition,
-                useCombinedCycleTime = c.useCombinedCycleTime,
-                useActivitySequenceEncoding = c.useActivitySequenceEncoding,
-                useLempelZivComplexity = c.useLempelZivComplexity,
-            )
-        }
-
-        fun from(c: LayoutConfig.PartitionSimilarityRadialLayoutConfig): PartitionEmbedderConfig {
-            return PartitionEmbedderConfig(
-                useTotalStateCount = c.useTotalStateCount,
-                useTotalEventCount = c.useTotalEventCount,
-                useTotalTraceCount = c.useTotalTraceCount,
-                useDeepestDepth = c.useDeepestDepth,
-                useSplittingFactor = c.useSplittingFactor,
-                useHasRepetition = c.useHasRepetition,
-                useCombinedCycleTime = c.useCombinedCycleTime,
-                useActivitySequenceEncoding = c.useActivitySequenceEncoding,
-                useLempelZivComplexity = c.useLempelZivComplexity,
-            )
-        }
-
-    }
-}
 
 class PartitionFeatureEmbedder(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
