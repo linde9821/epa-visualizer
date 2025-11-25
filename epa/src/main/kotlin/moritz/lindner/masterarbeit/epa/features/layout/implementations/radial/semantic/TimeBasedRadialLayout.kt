@@ -86,6 +86,8 @@ class TimeBasedRadialLayout(
 
                         // 2. min-max normalization
                         val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+
+                        // TODO: maybe scale on each level and not in total
                         val timeBasedDistance = config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
 
                         put(state, timeBasedDistance)
