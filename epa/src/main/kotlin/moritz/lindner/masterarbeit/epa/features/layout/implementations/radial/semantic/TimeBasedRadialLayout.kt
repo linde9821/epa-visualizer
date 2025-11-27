@@ -77,7 +77,7 @@ class TimeBasedRadialLayout(
             val logMax = log10(cumulativeMax)
 
             extendedPrefixAutomaton.states.forEach { state ->
-                when(state){
+                when (state) {
                     is State.PrefixState -> {
                         // 1. log scaling
                         val rawValue = cycleTimeSumByState[state]!!
@@ -86,10 +86,14 @@ class TimeBasedRadialLayout(
 
                         // 2. min-max normalization
                         val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-                        val timeBasedDistance = config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
+
+                        // TODO: maybe scale on each level and not in total
+                        val timeBasedDistance =
+                            config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
 
                         put(state, timeBasedDistance)
                     }
+
                     State.Root -> put(state, 0f)
                 }
             }
@@ -390,9 +394,7 @@ class TimeBasedRadialLayout(
     override fun getMaxDepth(): Int = maxDepth
 
     override fun getCoordinate(state: State): Coordinate =
-        nodePlacementByState[state]?.coordinate ?: throw IllegalStateException(
-            "No coodinate for $state present",
-        )
+        nodePlacementByState[state]?.coordinate ?: throw IllegalStateException("No coordinate for $state present")
 
     override fun getCircleRadius(): Float = 0f
 

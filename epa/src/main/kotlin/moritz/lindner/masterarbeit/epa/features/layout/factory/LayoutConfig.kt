@@ -8,6 +8,12 @@ sealed class LayoutConfig(val name: String) {
     abstract val enabled: Boolean
     abstract val lod: Boolean
 
+    abstract val stateSize: Float
+    abstract val minTransitionSize: Float
+    abstract val maxTransitionSize: Float
+    abstract val stateSizeUntilLabelIsDrawn: Float
+    abstract val transitionDrawMode: TransitionDrawMode
+
     abstract fun getParameters(): Map<String, ParameterInfo>
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
 
@@ -15,13 +21,32 @@ sealed class LayoutConfig(val name: String) {
         val distance: Float = 200.0f,
         val layerSpace: Float = 200.0f,
         override val enabled: Boolean = true,
-        override val lod: Boolean = false
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
     ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
             "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+            "stateSize" to ParameterInfo.NumberParameterInfo("State Size", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("Min Transition Size", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("Max Transition Size", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo("Label drawn after", 1.0f, 100.0f, 1.0f),
+            "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                "stateSizeUntilLabelIsDrawn",
+                1.0f,
+                100.0f,
+                1.0f
+            ),
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -29,6 +54,11 @@ sealed class LayoutConfig(val name: String) {
             "layerSpace" -> copy(layerSpace = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
             "lod" -> copy(lod = value as Boolean)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }
@@ -38,14 +68,29 @@ sealed class LayoutConfig(val name: String) {
         val margin: Float = 5.0f,
         val rotation: Float = 90.0f,
         override val enabled: Boolean = true,
-        override val lod: Boolean = false
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
     ) : LayoutConfig("Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+            "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                "stateSizeUntilLabelIsDrawn",
+                1.0f,
+                100.0f,
+                1.0f
+            ),
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -54,9 +99,15 @@ sealed class LayoutConfig(val name: String) {
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
             "lod" -> copy(lod = value as Boolean)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }
+
     data class TimeBasedRadialConfig(
         val margin: Float = 5.0f,
         val rotation: Float = 0.0f,
@@ -64,7 +115,12 @@ sealed class LayoutConfig(val name: String) {
         val maxEdgeLength: Float = 1000.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
-        override val lod: Boolean = false
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
     ) : LayoutConfig("Time-based Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -83,6 +139,16 @@ sealed class LayoutConfig(val name: String) {
                 max = 3000f,
                 steps = 10f
             ),
+            "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                "stateSizeUntilLabelIsDrawn",
+                1.0f,
+                100.0f,
+                1.0f
+            ),
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -92,6 +158,11 @@ sealed class LayoutConfig(val name: String) {
             "lod" -> copy(lod = value as Boolean)
             "minEdgeLength" -> copy(minEdgeLength = value as Float)
             "maxEdgeLength" -> copy(maxEdgeLength = value as Float)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }
@@ -110,7 +181,12 @@ sealed class LayoutConfig(val name: String) {
         val useCombinedCycleTime: Boolean = true,
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
-        override val lod: Boolean = false
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -128,6 +204,19 @@ sealed class LayoutConfig(val name: String) {
                 "useCombinedCycleTime" to ParameterInfo.BooleanParameterInfo("useCombinedCycleTime"),
                 "useActivitySequenceEncoding" to ParameterInfo.BooleanParameterInfo("useActivitySequenceEncoding"),
                 "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
+                "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+                "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+                "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                    "stateSizeUntilLabelIsDrawn",
+                    1.0f,
+                    100.0f,
+                    1.0f
+                ),
+                "transitionDrawMode" to ParameterInfo.EnumParameterInfo(
+                    "transitionDrawMode",
+                    TransitionDrawMode.entries
+                )
             )
         }
 
@@ -149,6 +238,11 @@ sealed class LayoutConfig(val name: String) {
                 "useCombinedCycleTime" -> copy(useCombinedCycleTime = value as Boolean)
                 "useActivitySequenceEncoding" -> copy(useActivitySequenceEncoding = value as Boolean)
                 "useLempelZivComplexity" -> copy(useLempelZivComplexity = value as Boolean)
+                "stateSize" -> copy(stateSize = value as Float)
+                "minTransitionSize" -> copy(minTransitionSize = value as Float)
+                "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+                "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+                "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
                 else -> this
             }
         }
@@ -158,13 +252,28 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 50.0f,
         val rotation: Float = 0.0f,
         override val enabled: Boolean = true,
-        override val lod: Boolean = false
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
     ) : LayoutConfig("Direct Angular Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
-            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+            "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+            "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                "stateSizeUntilLabelIsDrawn",
+                1.0f,
+                100.0f,
+                1.0f
+            ),
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -172,6 +281,11 @@ sealed class LayoutConfig(val name: String) {
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
             "lod" -> copy(lod = value as Boolean)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }
@@ -206,6 +320,12 @@ sealed class LayoutConfig(val name: String) {
         val canvasHeight: Float = 2000.0f,
 
         override val enabled: Boolean = true,
+
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
     ) : LayoutConfig("State Clustering Layout") {
 
         override val lod: Boolean
@@ -236,6 +356,16 @@ sealed class LayoutConfig(val name: String) {
             "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
             "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+            "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                "stateSizeUntilLabelIsDrawn",
+                1.0f,
+                100.0f,
+                1.0f
+            ),
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -258,6 +388,11 @@ sealed class LayoutConfig(val name: String) {
             "canvasWidth" -> copy(canvasWidth = value as Float)
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }
@@ -277,6 +412,11 @@ sealed class LayoutConfig(val name: String) {
         val useCombinedCycleTime: Boolean = true,
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
     ) : LayoutConfig("Partition Clustering Layout") {
 
         override val lod: Boolean
@@ -297,6 +437,16 @@ sealed class LayoutConfig(val name: String) {
             "useCombinedCycleTime" to ParameterInfo.BooleanParameterInfo("useCombinedCycleTime"),
             "useActivitySequenceEncoding" to ParameterInfo.BooleanParameterInfo("useActivitySequenceEncoding"),
             "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
+            "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+            "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                "stateSizeUntilLabelIsDrawn",
+                1.0f,
+                100.0f,
+                1.0f
+            ),
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -313,6 +463,11 @@ sealed class LayoutConfig(val name: String) {
             "useCombinedCycleTime" -> copy(useCombinedCycleTime = value as Boolean)
             "useActivitySequenceEncoding" -> copy(useActivitySequenceEncoding = value as Boolean)
             "useLempelZivComplexity" -> copy(useLempelZivComplexity = value as Boolean)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }
@@ -333,7 +488,12 @@ sealed class LayoutConfig(val name: String) {
         val LABEL_OVERLAP_FORCE_STRENGTH: Float = 1.0f,
         val EDGE_LENGTH_FORCE_STRENGTH: Float = 1.0f,
         val DISTRIBUTION_FORCE_STRENGTH: Float = 0.1f,
-        override val lod: Boolean = false
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -378,7 +538,20 @@ sealed class LayoutConfig(val name: String) {
                     max = 1.0f,
                     steps = 0.1f
                 ),
-                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail")
+                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+                "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+                "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+                "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                    "stateSizeUntilLabelIsDrawn",
+                    1.0f,
+                    100.0f,
+                    1.0f
+                ),
+                "transitionDrawMode" to ParameterInfo.EnumParameterInfo(
+                    "transitionDrawMode",
+                    TransitionDrawMode.entries
+                )
             )
         }
 
@@ -395,6 +568,11 @@ sealed class LayoutConfig(val name: String) {
             "EDGE_LENGTH_FORCE_STRENGTH" -> copy(EDGE_LENGTH_FORCE_STRENGTH = value as Float)
             "DISTRIBUTION_FORCE_STRENGTH" -> copy(DISTRIBUTION_FORCE_STRENGTH = value as Float)
             "lod" -> copy(lod = value as Boolean)
+            "stateSize" -> copy(stateSize = value as Float)
+            "minTransitionSize" -> copy(minTransitionSize = value as Float)
+            "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+            "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+            "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
             else -> this
         }
     }

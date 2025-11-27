@@ -40,10 +40,9 @@ class RadialWalkerTreeLayout(
     private val rotation: Float,
     expectedCapacity: Int = 10000,
 ) : RadialTreeLayout {
+
     private val logger = KotlinLogging.logger {}
-
     private val distance = 1.0f
-
     private val threads = HashMap<EPATreeNode, EPATreeNode?>(expectedCapacity)
     private val modifiers = HashMap<EPATreeNode, Float>(expectedCapacity)
     private val ancestor = HashMap<EPATreeNode, EPATreeNode>(expectedCapacity)
@@ -340,7 +339,7 @@ class RadialWalkerTreeLayout(
 
     override fun getCoordinate(state: State): Coordinate =
         nodePlacementByState[state]?.coordinate ?: throw IllegalStateException(
-            "No coodinate for $state present",
+            "No coordinate for $state present",
         )
 
     override fun getCircleRadius(): Float = layerSpace

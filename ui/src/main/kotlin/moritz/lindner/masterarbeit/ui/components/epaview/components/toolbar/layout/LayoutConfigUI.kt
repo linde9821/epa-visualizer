@@ -24,7 +24,6 @@ import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.ListComboBox
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
-import kotlin.math.PI
 import kotlin.math.roundToInt
 
 @Composable
@@ -87,7 +86,11 @@ fun LayoutConfigUI(
                 }
 
                 is ParameterInfo.EnumParameterInfo<*> -> {
-                    var selectedIndex by remember { mutableStateOf(0) }
+                    var selectedIndex by remember {
+                        mutableStateOf(
+                            info.selectionOptions.indexOf(currentValue)
+                        )
+                    }
                     Text(info.name)
                     ListComboBox(
                         items = info.selectionOptions.map { it.name },
@@ -134,6 +137,11 @@ private fun getCurrentConfigValue(
         "layerSpace" -> config.layerSpace
         "enabled" -> config.enabled
         "lod" -> config.lod
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -142,6 +150,11 @@ private fun getCurrentConfigValue(
         "rotation" -> config.rotation
         "enabled" -> config.enabled
         "lod" -> config.lod
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -151,6 +164,11 @@ private fun getCurrentConfigValue(
         "rotation" -> config.rotation
         "enabled" -> config.enabled
         "lod" -> config.lod
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -161,6 +179,11 @@ private fun getCurrentConfigValue(
         "lod" -> config.lod
         "minEdgeLength" -> config.minEdgeLength
         "maxEdgeLength" -> config.maxEdgeLength
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -185,6 +208,11 @@ private fun getCurrentConfigValue(
         "canvasHeight" -> config.canvasHeight
         "enabled" -> config.enabled
         "lod" -> config.lod
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -198,6 +226,11 @@ private fun getCurrentConfigValue(
         "LABEL_OVERLAP_FORCE_STRENGTH" -> config.LABEL_OVERLAP_FORCE_STRENGTH
         "EDGE_LENGTH_FORCE_STRENGTH" -> config.EDGE_LENGTH_FORCE_STRENGTH
         "DISTRIBUTION_FORCE_STRENGTH" -> config.DISTRIBUTION_FORCE_STRENGTH
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -217,6 +250,11 @@ private fun getCurrentConfigValue(
         "useCombinedCycleTime" -> config.useCombinedCycleTime
         "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
         "useLempelZivComplexity" -> config.useLempelZivComplexity
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -235,9 +273,11 @@ private fun getCurrentConfigValue(
         "useCombinedCycleTime" -> config.useCombinedCycleTime
         "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
         "useLempelZivComplexity" -> config.useLempelZivComplexity
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
-
-/** Converts degrees to radians. */
-private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f

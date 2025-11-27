@@ -1,61 +1,26 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.partitioncombination.PartitionCombiner
 import moritz.lindner.masterarbeit.epa.features.partitioncombination.StatePartitionsCollection
-
-data class PartitionEmbedderConfig(
-    val useTotalStateCount: Boolean = true,
-    val useTotalEventCount: Boolean = true,
-    val useTotalTraceCount: Boolean = true,
-    val useDeepestDepth: Boolean = true,
-    val useSplittingFactor: Boolean = true,
-    val useHasRepetition: Boolean = true,
-    val useCombinedCycleTime: Boolean = true,
-    val useActivitySequenceEncoding: Boolean = true,
-    val useLempelZivComplexity: Boolean = true,
-) {
-    companion object {
-        fun from(c: LayoutConfig.PartitionClusteringLayoutConfig): PartitionEmbedderConfig {
-            return PartitionEmbedderConfig(
-                useTotalStateCount = c.useTotalStateCount,
-                useTotalEventCount = c.useTotalEventCount,
-                useTotalTraceCount = c.useTotalTraceCount,
-                useDeepestDepth = c.useDeepestDepth,
-                useSplittingFactor = c.useSplittingFactor,
-                useHasRepetition = c.useHasRepetition,
-                useCombinedCycleTime = c.useCombinedCycleTime,
-                useActivitySequenceEncoding = c.useActivitySequenceEncoding,
-                useLempelZivComplexity = c.useLempelZivComplexity,
-            )
-        }
-
-        fun from(c: LayoutConfig.PartitionSimilarityRadialLayoutConfig): PartitionEmbedderConfig {
-            return PartitionEmbedderConfig(
-                useTotalStateCount = c.useTotalStateCount,
-                useTotalEventCount = c.useTotalEventCount,
-                useTotalTraceCount = c.useTotalTraceCount,
-                useDeepestDepth = c.useDeepestDepth,
-                useSplittingFactor = c.useSplittingFactor,
-                useHasRepetition = c.useHasRepetition,
-                useCombinedCycleTime = c.useCombinedCycleTime,
-                useActivitySequenceEncoding = c.useActivitySequenceEncoding,
-                useLempelZivComplexity = c.useLempelZivComplexity,
-            )
-        }
-
-    }
-}
+import java.util.concurrent.atomic.AtomicInteger
 
 class PartitionFeatureEmbedder(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: PartitionEmbedderConfig,
-    private val progressCallback: EpaProgressCallback?
+    private val backgroundDispatcher: CoroutineDispatcher,
+    private val progressCallback: EpaProgressCallback?,
 ) {
+
+    private val logger = KotlinLogging.logger {  }
 
     fun computeEmbedding(): Map<Int, DoubleArray> {
         val epaService = EpaService<Long>()
@@ -70,6 +35,7 @@ class PartitionFeatureEmbedder(
                     0f
                 } else cycleTimes.average().toFloat()
             },
+            progressCallback = progressCallback
         )
 
         val ngramEncoder = NgramEncoder(
@@ -80,86 +46,97 @@ class PartitionFeatureEmbedder(
             )
         )
 
-        var counter = 0
+        val counter = AtomicInteger(0)
+
         val allPartitions = statePartitions.getAllPartitions()
         val total = allPartitions.size
 
-        return allPartitions.associateWith { c ->
-            progressCallback?.onProgress(counter, total, "Partition Feature Embedding")
-            counter++
+        return runBlocking {
+            val chunkSize = 100
 
-            val features = mutableListOf<Double>()
-            val statesOfCurrentPartition = statePartitions.getStates(c).sortedBy { epaService.getDepth(it) }
-            val activitySequence = statesOfCurrentPartition.mapNotNull { it as? State.PrefixState }
-                .map { it.via.name }
+            allPartitions.chunked(chunkSize).mapIndexed { index, chunk ->
+                async(backgroundDispatcher) {
+                    logger.info { "Computing chunk $index" }
+                    chunk.map { c ->
+                        val currentCount = counter.incrementAndGet()
+                        progressCallback?.onProgress(currentCount, total, "Partition Feature Embedding")
 
-            //total state count (including parent partitions)
-            if (config.useTotalStateCount) {
-                val totalStateCount = statesOfCurrentPartition.size
-                features.add(totalStateCount.toDouble())
-            }
+                        val features = mutableListOf<Double>()
+                        val statesOfCurrentPartition = statePartitions.getStates(c).sortedBy { epaService.getDepth(it) }
+                        val activitySequence = statesOfCurrentPartition.mapNotNull { it as? State.PrefixState }
+                            .map { it.via.name }
 
-            //total event count (including parent partitions)
-            val totalEvents = statesOfCurrentPartition.flatMap { state ->
-                extendedPrefixAutomaton.sequence(state)
-            }.distinct()
-            if (config.useTotalEventCount) {
-                val totalEventCount = totalEvents.count()
-                features.add(totalEventCount.toDouble())
-            }
+                        //total state count (including parent partitions)
+                        if (config.useTotalStateCount) {
+                            val totalStateCount = statesOfCurrentPartition.size
+                            features.add(totalStateCount.toDouble())
+                        }
 
-            //total trace count (including parent partitions)
-            if (config.useTotalTraceCount) {
-                val totalTraceCount = totalEvents.distinctBy { it.caseIdentifier }.distinct().size
-                features.add(totalTraceCount.toDouble())
-            }
+                        //total event count (including parent partitions)
+                        val totalEvents = statesOfCurrentPartition.flatMap { state ->
+                            extendedPrefixAutomaton.sequence(state)
+                        }.distinct()
+                        if (config.useTotalEventCount) {
+                            val totalEventCount = totalEvents.count()
+                            features.add(totalEventCount.toDouble())
+                        }
 
-            //depth of finale state in partition
-            if (config.useDeepestDepth) {
-                val deepestDepth = statesOfCurrentPartition.maxOf { state ->
-                    epaService.getDepth(state)
+                        //total trace count (including parent partitions)
+                        if (config.useTotalTraceCount) {
+                            val totalTraceCount = totalEvents.distinctBy { it.caseIdentifier }.distinct().size
+                            features.add(totalTraceCount.toDouble())
+                        }
+
+                        //depth of finale state in partition
+                        if (config.useDeepestDepth) {
+                            val deepestDepth = statesOfCurrentPartition.maxOf { state ->
+                                epaService.getDepth(state)
+                            }
+                            features.add(deepestDepth.toDouble())
+                        }
+
+                        //splitting factor (how many new different partitions are created along the path)
+                        if (config.useSplittingFactor) {
+                            features.add(statePartitions.splittingFactor(c).toDouble())
+                        }
+
+                        //has repetitions (including parent partitions)
+                        if (config.useHasRepetition) {
+                            val hasRepetition = statePartitions.hasRepetition(c)
+                            if (hasRepetition) {
+                                features.add(1.0)
+                            } else {
+                                features.add(0.0)
+                            }
+                        }
+
+                        //total combined cycle time (including parent partitions)
+                        if (config.useCombinedCycleTime) {
+                            val combinedCycleTime = statesOfCurrentPartition.map { cycleTimes[it]!! }.sum()
+                            features.add(combinedCycleTime.toDouble())
+                        }
+
+                        if (config.useActivitySequenceEncoding) {
+                            val activityEncoding = ngramEncoder.encode(activitySequence)
+                            features.addAll(activityEncoding.toList())
+                        }
+
+                        //Lempel-Ziv Complexity LZ76 Algorithm (Most Common for Complexity Measurement)
+                        if (config.useLempelZivComplexity) {
+                            val complexity =
+                                lempelZivComplexity(activitySequence)
+                            features.add(complexity.toDouble())
+                        }
+
+                        val result = DoubleArray(features.size)
+                        features.forEachIndexed { index, value ->
+                            result[index] = value
+                        }
+
+                        c to result
+                    }
                 }
-                features.add(deepestDepth.toDouble())
-            }
-
-            //splitting factor (how many new different partitions are created along the path)
-            if (config.useSplittingFactor) {
-                features.add(statePartitions.splittingFactor(c).toDouble())
-            }
-
-            //has repetitions (including parent partitions)
-            if (config.useHasRepetition) {
-                val hasRepetition = statePartitions.hasRepetition(c)
-                if (hasRepetition) {
-                    features.add(1.0)
-                } else {
-                    features.add(0.0)
-                }
-            }
-
-            //total combined cycle time (including parent partitions)
-            if (config.useCombinedCycleTime) {
-                val combinedCycleTime = statesOfCurrentPartition.map { cycleTimes[it]!! }.sum()
-                features.add(combinedCycleTime.toDouble())
-            }
-
-            if (config.useActivitySequenceEncoding) {
-                val activityEncoding = ngramEncoder.encode(activitySequence)
-                features.addAll(activityEncoding.toList())
-            }
-
-            //Lempel-Ziv Complexity LZ76 Algorithm (Most Common for Complexity Measurement)
-            if (config.useLempelZivComplexity) {
-                val complexity =
-                    lempelZivComplexity(activitySequence)
-                features.add(complexity.toDouble())
-            }
-
-            val result = DoubleArray(features.size)
-            features.forEachIndexed { index, value ->
-                result[index] = value
-            }
-            result
+            }.awaitAll().flatten().toMap()
         }
     }
 
