@@ -238,6 +238,3 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
-
-/** Converts degrees to radians. */
-private fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
