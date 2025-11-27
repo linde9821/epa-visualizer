@@ -71,9 +71,10 @@ class DrawAtlas(
         fun <T : Comparable<T>> build(
             extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
             atlasConfig: AtlasConfig,
+            stateSizeUntilLabelIsDrawn: Float,
             progressCallback: EpaProgressCallback? = null
         ): DrawAtlas {
-            val atlas = DrawAtlas(13f)
+            val atlas = DrawAtlas(stateSizeUntilLabelIsDrawn)
 
             extendedPrefixAutomaton.states.forEachIndexed { index, state ->
                 progressCallback?.onProgress(

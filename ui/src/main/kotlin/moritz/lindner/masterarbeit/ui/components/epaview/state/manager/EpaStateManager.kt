@@ -328,7 +328,9 @@ class EpaStateManager(
         tabState: TabState
     ) {
         val drawAtlas = _drawAtlasByTabId.value[tabState.id]
-        if (drawAtlas != null) return
+        val config = _layoutAndConfigByTabId.value[tabState.id]!!.second
+
+//        if (drawAtlas != null && config == tabState.layoutConfig) return
 
         val epa = _epaByTabId.value[tabState.id]!!
 
@@ -347,12 +349,13 @@ class EpaStateManager(
             epa,
             DefaultConfig(
                 extendedPrefixAutomaton = epa,
-                stateSize = 25f,
-                minTransitionSize = 2f,
-                maxTransitionSize = 25f,
+                stateSize = config.stateSize,
+                minTransitionSize = config.minTransitionSize,
+                maxTransitionSize = config.maxTransitionSize,
                 progressCallback = progressCallback
             ),
-            progressCallback = progressCallback
+            progressCallback = progressCallback,
+            stateSizeUntilLabelIsDrawn = config.stateSizeUntilLabelIsDrawn
         )
         clearProgress(tabState.id)
         _drawAtlasByTabId.update { currentMap ->
