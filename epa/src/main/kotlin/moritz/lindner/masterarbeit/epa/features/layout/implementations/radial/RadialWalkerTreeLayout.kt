@@ -339,7 +339,7 @@ class RadialWalkerTreeLayout(
 
     override fun getCoordinate(state: State): Coordinate =
         nodePlacementByState[state]?.coordinate ?: throw IllegalStateException(
-            "No coodinate for $state present",
+            "No coordinate for $state present",
         )
 
     override fun getCircleRadius(): Float = layerSpace

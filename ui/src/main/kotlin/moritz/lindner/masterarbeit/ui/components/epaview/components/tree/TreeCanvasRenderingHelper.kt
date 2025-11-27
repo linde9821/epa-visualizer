@@ -149,6 +149,7 @@ object TreeCanvasRenderingHelper {
         )
     }
 
+    // TODO: maybe change computation
     fun getControlPoints(
         parentCoordinate: Coordinate,
         coordinate: Coordinate,
@@ -173,11 +174,12 @@ object TreeCanvasRenderingHelper {
         }
     }
 
-    fun Offset.toCoordinate(): Coordinate =
-        Coordinate(
+    fun Offset.toCoordinate(): Coordinate {
+        return Coordinate(
             x = this.x,
             y = this.y,
         )
+    }
 
     fun DrawScope.computeBoundingBox(
         offset: Offset,

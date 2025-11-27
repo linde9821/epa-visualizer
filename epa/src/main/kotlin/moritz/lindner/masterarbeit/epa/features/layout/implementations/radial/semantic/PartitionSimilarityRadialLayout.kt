@@ -183,7 +183,7 @@ class PartitionSimilarityRadialLayout(
 
     override fun getCoordinate(state: State): Coordinate {
         return nodePlacementByState[state]?.coordinate ?: throw IllegalStateException(
-            "No coodinate for $state present",
+            "No coordinate for $state present",
         )
     }
 

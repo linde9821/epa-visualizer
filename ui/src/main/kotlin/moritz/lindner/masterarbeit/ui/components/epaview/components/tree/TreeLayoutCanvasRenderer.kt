@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
+import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
@@ -66,7 +67,7 @@ import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-const val minScale = 0.1f
+const val minScale = 0.05f
 const val maxScale = 5f
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -260,18 +261,7 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is TimeBasedRadialLayout -> {
-                        treeLayout
-                            .map { node -> sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2)) }
-                            .distinct()
-                            .forEach { radius ->
-                                drawCircle(
-                                    color = Color.Gray,
-                                    radius = radius,
-                                    center = Offset.Zero,
-                                    style = Stroke(width = 2f),
-                                    alpha = 0.05f
-                                )
-                            }
+                        drawTimeCircles(treeLayout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
@@ -309,39 +299,7 @@ fun EpaLayoutCanvasRenderer(
                             animationState
                         )
 
-                        val pathPaint = Paint().apply {
-                            color = org.jetbrains.skia.Color.RED
-                            mode = PaintMode.STROKE
-                            isAntiAlias = true
-                            strokeWidth = 5f
-                            strokeCap = PaintStrokeCap.ROUND
-                            strokeJoin = PaintStrokeJoin.ROUND
-                            pathEffect = PathEffect.makeDash(
-                                floatArrayOf(dashLineLength, dashGap),
-                                dashPhase
-                            )
-                        }
-
-                        drawIntoCanvas { canvas ->
-                            treeLayout.getClusterPolygons().forEach { (_, coords) ->
-                                val path = Path().apply {
-                                    moveTo(
-                                        coords.first().x,
-                                        coords.first().y
-                                    )
-                                    coords.drop(1).forEach { coord ->
-                                        lineTo(
-                                            coord.x,
-                                            coord.y
-                                        )
-                                    }
-
-                                    closePath()
-                                }
-
-                                canvas.nativeCanvas.drawPath(path, pathPaint)
-                            }
-                        }
+                        drawClusterOutline(dashLineLength, dashGap, dashPhase, treeLayout)
                     }
 
                     is ParallelReadableTreeLayout -> {
@@ -365,6 +323,62 @@ fun EpaLayoutCanvasRenderer(
         }
 
         drawZoomLine(canvasState, lodQuery)
+    }
+}
+
+private fun DrawScope.drawTimeCircles(treeLayout: TimeBasedRadialLayout) {
+    treeLayout
+        .map { node -> sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2)) }
+        .distinct()
+        .forEach { radius ->
+            drawCircle(
+                color = Color.Gray,
+                radius = radius,
+                center = Offset.Zero,
+                style = Stroke(width = 2f),
+                alpha = 0.05f
+            )
+        }
+}
+
+private fun DrawScope.drawClusterOutline(
+    dashLineLength: Float,
+    dashGap: Float,
+    dashPhase: Float,
+    treeLayout: ClusterLayout
+) {
+    val pathPaint = Paint().apply {
+        color = org.jetbrains.skia.Color.RED
+        mode = PaintMode.STROKE
+        isAntiAlias = true
+        strokeWidth = 5f
+        strokeCap = PaintStrokeCap.ROUND
+        strokeJoin = PaintStrokeJoin.ROUND
+        pathEffect = PathEffect.makeDash(
+            floatArrayOf(dashLineLength, dashGap),
+            dashPhase
+        )
+    }
+
+    drawIntoCanvas { canvas ->
+        treeLayout.getClusterPolygons().forEach { (_, coords) ->
+            val path = Path().apply {
+                moveTo(
+                    coords.first().x,
+                    coords.first().y
+                )
+                coords.drop(1).forEach { coord ->
+                    lineTo(
+                        coord.x,
+                        coord.y
+                    )
+                }
+
+                closePath()
+            }
+
+            canvas.nativeCanvas.drawPath(path, pathPaint)
+        }
     }
 }
 
@@ -410,12 +424,12 @@ fun DrawScope.drawTree(
     animationState: AnimationState
 ) {
     drawIntoCanvas { canvas ->
-
         val path = Path()
         val highlightedPaint = drawAtlas.highlightedPaint
+        val transitionModeForLayout = drawAtlas.getTransitionModeForLayout(layout)
 
         // Draw edges
-        if (drawAtlas.getTransitionModeForLayout(layout) != TransitionDrawMode.NONE) {
+        if (transitionModeForLayout != TransitionDrawMode.NONE) {
             visibleNodes
                 .forEach { (coordinate, state) ->
                     if (state is PrefixState) {
@@ -429,10 +443,11 @@ fun DrawScope.drawTree(
 
                         path.reset()
                         path.moveTo(start.x, start.y)
-                        if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.BEZIER) {
-                            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, 0.5f)
+
+                        if (transitionModeForLayout == TransitionDrawMode.BEZIER) {
+                            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, .3f)
                             path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y)
-                        } else if (drawAtlas.getTransitionModeForLayout(layout) == TransitionDrawMode.LINE) {
+                        } else if (transitionModeForLayout == TransitionDrawMode.LINE) {
                             path.lineTo(end.x, end.y)
                         }
 

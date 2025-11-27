@@ -12,12 +12,6 @@ import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 
-enum class TransitionDrawMode {
-    NONE,
-    BEZIER,
-    LINE;
-}
-
 class DrawAtlas(
     val stateSizeUntilLabelIsDrawn: Float
 ) {
