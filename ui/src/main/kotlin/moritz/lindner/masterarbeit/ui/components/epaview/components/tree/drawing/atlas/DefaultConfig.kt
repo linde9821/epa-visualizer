@@ -87,39 +87,33 @@ class DefaultConfig(
     ): Paint {
         val clampedValue = ((value - min) / (max - min)).coerceIn(0.0f, 1.0f)
 
-        val heatmapColors = intArrayOf(
-            Color.makeRGB(0, 0, 139),      // Dark blue (coldest)
-            Color.makeRGB(0, 0, 255),      // Blue
-            Color.makeRGB(0, 255, 255),    // Cyan
-            Color.makeRGB(0, 255, 0),      // Green
-            Color.makeRGB(255, 255, 0),    // Yellow
-            Color.makeRGB(255, 165, 0),    // Orange
-            Color.makeRGB(255, 0, 0),      // Red (hottest)
+        // inspired by Reds from seaborn https://python-graph-gallery.com/92-control-color-in-seaborn-heatmaps/
+        val redsColors = intArrayOf(
+            Color.makeRGB(254, 224, 210),  // Very light red
+            Color.makeRGB(252, 187, 161),  // Light red
+            Color.makeRGB(252, 146, 114),  // Light-medium red
+            Color.makeRGB(251, 106, 74),   // Medium red
+            Color.makeRGB(239, 59, 44),    // Medium-dark red
+            Color.makeRGB(203, 24, 29)     // Dark red
         )
 
-        val colorPositions = floatArrayOf(
-            0.0f,   // Dark blue at 0%
-            0.17f,  // Blue at 17%
-            0.33f,  // Cyan at 33%
-            0.5f,   // Green at 50%
-            0.67f,  // Yellow at 67%
-            0.83f,  // Orange at 83%
-            1.0f    // Red at 100%
-        )
+        val colorPositions = FloatArray(redsColors.size) { i ->
+            i.toFloat() / (redsColors.size - 1)
+        }
 
         for (i in 0 until colorPositions.size - 1) {
             if (clampedValue >= colorPositions[i] && clampedValue <= colorPositions[i + 1]) {
                 val range = colorPositions[i + 1] - colorPositions[i]
                 val factor = (clampedValue - colorPositions[i]) / range
 
-                val color = interpolateColor(heatmapColors[i], heatmapColors[i + 1], factor)
+                val color = interpolateColor(redsColors[i], redsColors[i + 1], factor)
                 return Paint().apply {
                     this.color = color
                 }
             }
         }
 
-        val color = heatmapColors.last()
+        val color = redsColors.last()
         return Paint().apply {
             this.color = color
         }

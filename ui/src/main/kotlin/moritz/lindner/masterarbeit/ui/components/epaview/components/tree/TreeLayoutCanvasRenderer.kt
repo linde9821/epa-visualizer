@@ -94,7 +94,6 @@ fun EpaLayoutCanvasRenderer(
     LaunchedEffect(tabState.locateState) {
         if (tabState.locateState != null) {
             val targetNode = treeLayout.getCoordinate(tabState.locateState)
-
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             canvasState.offset = screenCenter - targetNode.toOffset() * canvasState.scale
         }
