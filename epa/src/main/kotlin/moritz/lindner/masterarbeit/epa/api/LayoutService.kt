@@ -64,7 +64,7 @@ class LayoutService<T : Comparable<T>>(
             )
 
             is LayoutConfig.PRTLayoutConfig -> LayoutFactory.createLayout(layoutConfig, epa, backgroundDispatcher)
-            else -> LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root, epa)
+            else -> LayoutFactory.createTreeLayout(layoutConfig, treeVisitor.root, epa, backgroundDispatcher)
         }
     }
 }

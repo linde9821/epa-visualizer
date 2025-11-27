@@ -4,6 +4,7 @@ import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -19,14 +20,14 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import smile.manifold.umap
 import smile.math.MathEx
-import java.lang.Float.min
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.max
 
 class PartitionSimilarityRadialLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.PartitionSimilarityRadialLayoutConfig = LayoutConfig.PartitionSimilarityRadialLayoutConfig()
+    private val config: LayoutConfig.PartitionSimilarityRadialLayoutConfig = LayoutConfig.PartitionSimilarityRadialLayoutConfig(),
+    private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 
     private val logger = KotlinLogging.logger {  }
@@ -43,7 +44,8 @@ class PartitionSimilarityRadialLayout(
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             config = PartitionEmbedderConfig.from(config),
-            progressCallback = progressCallback
+            progressCallback = progressCallback,
+            backgroundDispatcher = backgroundDispatcher
         )
 
         progressCallback?.onProgress(0, 2, "Create Embedding")
@@ -98,8 +100,6 @@ class PartitionSimilarityRadialLayout(
         val preferredAngle = partitionToAngleMap[partition]!!
 
         val constrainedAngle = constrainAngleToWedge(preferredAngle, wedgeStart, wedgeEnd)
-
-        logger.info { "$state is mapped to constrainedAngle $constrainedAngle of preferredAngle $preferredAngle" }
 
         nodePlacementByState[state] = NodePlacement(
             coordinate = Coordinate.fromPolar(depth * config.layerSpace, constrainedAngle),

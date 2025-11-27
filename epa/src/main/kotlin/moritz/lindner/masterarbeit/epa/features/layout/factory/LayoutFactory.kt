@@ -28,7 +28,8 @@ object LayoutFactory {
     fun createTreeLayout(
         config: LayoutConfig,
         root: EPATreeNode,
-        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
+        backgroundDispatcher: ExecutorCoroutineDispatcher
     ): TreeLayout = when (config) {
         is LayoutConfig.WalkerConfig -> {
             WalkerTreeLayout(
@@ -66,7 +67,8 @@ object LayoutFactory {
         is LayoutConfig.PartitionSimilarityRadialLayoutConfig -> {
             PartitionSimilarityRadialLayout(
                 extendedPrefixAutomaton = extendedPrefixAutomaton,
-                config = config
+                config = config,
+                backgroundDispatcher = backgroundDispatcher,
             )
         }
 
@@ -100,7 +102,8 @@ object LayoutFactory {
             is LayoutConfig.PartitionClusteringLayoutConfig -> {
                 PartitionClusteringLayout(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
-                    config = layoutConfig
+                    config = layoutConfig,
+                    backgroundDispatcher = backgroundDispatcher,
                 )
             }
 

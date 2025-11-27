@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.clusteri
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -22,7 +23,8 @@ import smile.math.MathEx
 
 class PartitionClusteringLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.PartitionClusteringLayoutConfig = LayoutConfig.PartitionClusteringLayoutConfig()
+    private val config: LayoutConfig.PartitionClusteringLayoutConfig = LayoutConfig.PartitionClusteringLayoutConfig(),
+    private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : ClusterLayout {
 
     private var isBuiltFlag = false
@@ -36,7 +38,8 @@ class PartitionClusteringLayout(
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             config = PartitionEmbedderConfig.from(config),
-            progressCallback = progressCallback
+            progressCallback = progressCallback,
+            backgroundDispatcher = backgroundDispatcher,
         )
 
         progressCallback?.onProgress(0, 2, "Create Embeddings")
