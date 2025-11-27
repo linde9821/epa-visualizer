@@ -86,7 +86,11 @@ fun LayoutConfigUI(
                 }
 
                 is ParameterInfo.EnumParameterInfo<*> -> {
-                    var selectedIndex by remember { mutableStateOf(0) }
+                    var selectedIndex by remember {
+                        mutableStateOf(
+                            info.selectionOptions.indexOf(currentValue)
+                        )
+                    }
                     Text(info.name)
                     ListComboBox(
                         items = info.selectionOptions.map { it.name },
@@ -137,6 +141,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -149,6 +154,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -162,6 +168,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -176,6 +183,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -204,6 +212,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -221,6 +230,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -244,6 +254,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -266,6 +277,7 @@ private fun getCurrentConfigValue(
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }

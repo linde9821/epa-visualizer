@@ -51,7 +51,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCan
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.getControlPoints
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.TransitionDrawMode
+import moritz.lindner.masterarbeit.epa.features.layout.factory.TransitionDrawMode
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
@@ -426,7 +426,7 @@ fun DrawScope.drawTree(
     drawIntoCanvas { canvas ->
         val path = Path()
         val highlightedPaint = drawAtlas.highlightedPaint
-        val transitionModeForLayout = drawAtlas.getTransitionModeForLayout(layout)
+        val transitionModeForLayout = drawAtlas.transitionDrawMode
 
         // Draw edges
         if (transitionModeForLayout != TransitionDrawMode.NONE) {

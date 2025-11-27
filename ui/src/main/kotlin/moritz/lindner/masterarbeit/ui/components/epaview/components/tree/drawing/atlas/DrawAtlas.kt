@@ -4,16 +4,14 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
-import moritz.lindner.masterarbeit.epa.features.layout.Layout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree.ParallelReadableTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.factory.TransitionDrawMode
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 
 class DrawAtlas(
-    val stateSizeUntilLabelIsDrawn: Float
+    val stateSizeUntilLabelIsDrawn: Float,
+    val transitionDrawMode: TransitionDrawMode
 ) {
 
     val selectedStatePaint =
@@ -41,14 +39,6 @@ class DrawAtlas(
     val stateEntryByState = HashMap<State, StateAtlasEntry>()
     val transitionEntryByParentState = HashMap<State, TransitionAtlasEntry>()
 
-    fun getTransitionModeForLayout(layout: Layout): TransitionDrawMode {
-        return when (layout) {
-            is StateClusteringLayout, is PartitionClusteringLayout -> TransitionDrawMode.NONE
-            is ParallelReadableTreeLayout -> TransitionDrawMode.LINE
-            else -> TransitionDrawMode.BEZIER
-        }
-    }
-
     fun add(state: State, entry: StateAtlasEntry) {
         stateEntryByState[state] = entry
     }
@@ -72,9 +62,10 @@ class DrawAtlas(
             extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
             atlasConfig: AtlasConfig,
             stateSizeUntilLabelIsDrawn: Float,
-            progressCallback: EpaProgressCallback? = null
+            transitionDrawMode: TransitionDrawMode,
+            progressCallback: EpaProgressCallback? = null,
         ): DrawAtlas {
-            val atlas = DrawAtlas(stateSizeUntilLabelIsDrawn)
+            val atlas = DrawAtlas(stateSizeUntilLabelIsDrawn, transitionDrawMode)
 
             extendedPrefixAutomaton.states.forEachIndexed { index, state ->
                 progressCallback?.onProgress(

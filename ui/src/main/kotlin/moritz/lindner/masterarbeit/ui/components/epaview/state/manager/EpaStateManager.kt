@@ -330,8 +330,6 @@ class EpaStateManager(
         val drawAtlas = _drawAtlasByTabId.value[tabState.id]
         val config = _layoutAndConfigByTabId.value[tabState.id]!!.second
 
-//        if (drawAtlas != null && config == tabState.layoutConfig) return
-
         val epa = _epaByTabId.value[tabState.id]!!
 
         logger.info { "building atlas" }
@@ -354,8 +352,9 @@ class EpaStateManager(
                 maxTransitionSize = config.maxTransitionSize,
                 progressCallback = progressCallback
             ),
+            stateSizeUntilLabelIsDrawn = config.stateSizeUntilLabelIsDrawn,
+            transitionDrawMode = config.transitionDrawMode,
             progressCallback = progressCallback,
-            stateSizeUntilLabelIsDrawn = config.stateSizeUntilLabelIsDrawn
         )
         clearProgress(tabState.id)
         _drawAtlasByTabId.update { currentMap ->
