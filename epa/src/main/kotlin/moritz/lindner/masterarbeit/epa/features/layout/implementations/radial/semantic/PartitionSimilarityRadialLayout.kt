@@ -66,14 +66,7 @@ class PartitionSimilarityRadialLayout(
     }
 
     fun toAngle(coordinate: Coordinate, minRadius: Float = 0.1f): Float {
-        val r = coordinate.distanceTo(Coordinate(0f, 0f))
-
-        // Push points away from origin to stabilize angles
-        val adjustedR = max(r, minRadius)
-        val adjustedX = if (r > 0) coordinate.x * (adjustedR / r) else minRadius
-        val adjustedY = if (r > 0) coordinate.y * (adjustedR / r) else 0.0f
-
-        val angle = atan2(adjustedY, adjustedX)
+        val angle = atan2(coordinate.y, coordinate.x)
         return if (angle < 0) (angle + 2 * PI).toFloat() else angle
     }
 
