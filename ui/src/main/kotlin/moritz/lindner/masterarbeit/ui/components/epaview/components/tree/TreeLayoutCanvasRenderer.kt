@@ -203,7 +203,7 @@ fun EpaLayoutCanvasRenderer(
                 pivot = Offset.Zero,
             )
         }) {
-
+            canvasState.initializeCenter(size)
             try {
                 val visibleNodes = treeLayout
                     // check for coordinates in view
