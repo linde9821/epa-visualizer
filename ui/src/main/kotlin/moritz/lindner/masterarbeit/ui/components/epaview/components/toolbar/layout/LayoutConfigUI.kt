@@ -132,7 +132,7 @@ fun LayoutConfigUI(
                                     info.selectionOptions[index]
                                 )
                             },
-                            itemKeys = { index, item -> item }, // Required parameter
+                            itemKeys = { _, item -> item },
                             itemContent = { paletteName, isSelected, isActive ->
                                 Row(
                                     modifier = Modifier
@@ -141,10 +141,9 @@ fun LayoutConfigUI(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Gradient preview
                                     Box(
                                         modifier = Modifier
-                                            .width(60.dp)
+                                            .width(180.dp)
                                             .height(16.dp)
                                             .border(
                                                 Stroke.Alignment.Inside,
@@ -162,7 +161,6 @@ fun LayoutConfigUI(
                                             )
                                     )
 
-                                    // Palette name
                                     Text(
                                         text = paletteName,
                                         color = if (isSelected)

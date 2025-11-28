@@ -18,6 +18,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import org.jetbrains.skia.Paint
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sin
 
@@ -75,20 +76,22 @@ object TreeCanvasRenderingHelper {
                         (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
                     }
 
-                val fromCoord = layout.getCoordinate(timedState.state)
-                val toCoord = timedState.nextState?.let { layout.getCoordinate(it) }
+                val parentCoordinate = layout.getCoordinate(timedState.state)
+                val childCoordinate = timedState.nextState?.let { layout.getCoordinate(it) }
 
-                val tokenPosition = if (toCoord != null) {
-                    val (c1, c2) = getControlPoints(fromCoord, toCoord, 0.5f)
-                    interpolateBezier(
-                        start = Offset(fromCoord.x, fromCoord.y),
-                        c1 = Offset(c1.x, c1.y),
-                        c2 = Offset(c2.x, c2.y),
-                        end = Offset(toCoord.x, toCoord.y),
+                val tokenPosition = if (childCoordinate != null) {
+
+
+                    val controlPoint = getControlPoint(parentCoordinate, childCoordinate, .33f)
+
+                    interpolate(
+                        start = Offset(parentCoordinate.x, parentCoordinate.y),
+                        controlPoint = controlPoint,
+                        end = Offset(childCoordinate.x, childCoordinate.y),
                         t = progress,
                     )
                 } else {
-                    Offset(fromCoord.x, -fromCoord.y)
+                    Offset(parentCoordinate.x, -parentCoordinate.y)
                 }
 
                 // Spread tokens slightly if overlapping
@@ -127,40 +130,55 @@ object TreeCanvasRenderingHelper {
         ).firstOrNull()
     }
 
-    fun interpolateBezier(
+    fun interpolate(
         start: Offset,
-        c1: Offset,
-        c2: Offset,
+        controlPoint: Offset,
         end: Offset,
         t: Float,
     ): Offset {
         val u = 1 - t
-        return Offset(
-            x =
-                u.pow(3) * start.x +
-                        3 * u.pow(2) * t * c1.x +
-                        3 * u * t.pow(2) * c2.x +
-                        t.pow(3) * end.x,
-            y =
-                u.pow(3) * start.y +
-                        3 * u.pow(2) * t * c1.y +
-                        3 * u * t.pow(2) * c2.y +
-                        t.pow(3) * end.y,
-        )
+
+        val x =
+            u * u * start.x +
+                    2 * u * t * controlPoint.x +
+                    t * t * end.x
+
+        val y =
+            u * u * start.y +
+                    2 * u * t * controlPoint.y +
+                    t * t * end.y
+
+        return Offset(x, y)
     }
 
-    // TODO: maybe change computation
-    fun getControlPoints(
-        parentCoordinate: Coordinate,
-        coordinate: Coordinate,
+    fun getControlPoint(
+        parent: Coordinate,
+        child: Coordinate,
         curvature: Float = 0.5f,
-    ): Pair<Offset, Offset> {
-        val dy = coordinate.y - parentCoordinate.y
+    ): Offset {
+        val center = Offset.Zero
 
-        val c1 = Offset(parentCoordinate.x, parentCoordinate.y + dy * curvature)
-        val c2 = Offset(coordinate.x, coordinate.y - dy * curvature)
+        val dx = child.x - parent.x
+        val dy = child.y - parent.y
+        val length = hypot(dx, dy)
 
-        return Pair(c1, c2)
+        val mx = (parent.x + child.x) / 2f
+        val my = (parent.y + child.y) / 2f
+
+        var nx = -dy / length
+        var ny = dx / length
+
+        val toCenter = Offset(center.x - mx, center.y - my)
+        val dot = nx * toCenter.x + ny * toCenter.y
+
+        if (dot > 0) {
+            nx = -nx
+            ny = -ny
+        }
+
+        val offset = length * curvature
+
+        return Offset(mx + nx * offset, my + ny * offset)
     }
 
     fun DrawScope.drawDepthCircles(layout: RadialTreeLayout) {
