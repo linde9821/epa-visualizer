@@ -154,7 +154,6 @@ private fun runApplication() {
                         setupDesktopIntegration()
                     }
 
-                    // Your custom title bar (visual only, not functional)
                     Column {
                         Row(
                             modifier = Modifier
@@ -168,7 +167,6 @@ private fun runApplication() {
                             AppTitleWithLogo()
                             GitHubButton()
                         }
-
                         EPAVisualizerUi()
                     }
                 }
