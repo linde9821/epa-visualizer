@@ -1,11 +1,16 @@
 package moritz.lindner.masterarbeit.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -33,6 +38,7 @@ import org.jetbrains.jewel.intui.standalone.theme.createEditorTextStyle
 import org.jetbrains.jewel.intui.standalone.theme.default
 import org.jetbrains.jewel.intui.standalone.theme.light
 import org.jetbrains.jewel.intui.standalone.theme.lightThemeDefinition
+import org.jetbrains.jewel.intui.standalone.window.Window
 import org.jetbrains.jewel.intui.window.decoratedWindow
 import org.jetbrains.jewel.intui.window.styling.light
 import org.jetbrains.jewel.ui.ComponentStyling
@@ -130,33 +136,71 @@ private fun runApplication() {
             ),
             swingCompatMode = true
         ) {
-            DecoratedWindow(
-                onCloseRequest = ::exitApplication,
-                state = WindowState(
-                    placement = WindowPlacement.Maximized,
-                    isMinimized = false,
-                ),
-                title = APPLICATION_NAME,
-                icon = painterResource(Res.drawable.logo),
-            ) {
-                LaunchedEffect(Unit) {
-                    setupDesktopIntegration()
-                }
 
-                TitleBar(Modifier.newFullscreenControls()) {
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        AppTitleWithLogo()
+            val isLinux = System.getProperty("os.name").lowercase().contains("linux")
+
+            if (isLinux) {
+                // Standard window with system decorations
+                Window(
+                    onCloseRequest = ::exitApplication,
+                    state = WindowState(
+                        placement = WindowPlacement.Maximized,
+                        isMinimized = false,
+                    ),
+                    title = APPLICATION_NAME,
+                    icon = painterResource(Res.drawable.logo),
+                ) {
+                    LaunchedEffect(Unit) {
+                        setupDesktopIntegration()
                     }
 
-                    Row(Modifier.align(Alignment.End)) {
-                        GitHubButton()
+                    // Your custom title bar (visual only, not functional)
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(JewelTheme.globalColors.panelBackground)
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Spacer(Modifier.width(8.dp))
+                            AppTitleWithLogo()
+                            GitHubButton()
+                        }
+
+                        EPAVisualizerUi()
+                    }
+                }
+            } else {
+                DecoratedWindow(
+                    onCloseRequest = ::exitApplication,
+                    state = WindowState(
+                        placement = WindowPlacement.Maximized,
+                        isMinimized = false,
+                    ),
+                    title = APPLICATION_NAME,
+                    icon = painterResource(Res.drawable.logo),
+                ) {
+                    LaunchedEffect(Unit) {
+                        setupDesktopIntegration()
                     }
 
+                    TitleBar(Modifier.newFullscreenControls()) {
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AppTitleWithLogo()
+                        }
+
+                        Row(Modifier.align(Alignment.End)) {
+                            GitHubButton()
+                        }
+
+                    }
+                    EPAVisualizerUi()
                 }
-                EPAVisualizerUi()
             }
         }
     }
@@ -180,22 +224,6 @@ private fun setupMemoryMonitoring() {
             }
         }
     }, 30, 30, TimeUnit.SECONDS)
-}
-
-private fun setupShutdownHook(executor: java.util.concurrent.ExecutorService, dispatcher: ExecutorCoroutineDispatcher) {
-    Runtime.getRuntime().addShutdownHook(Thread {
-        logger.info { "Shutting down application..." }
-        try {
-            executor.shutdown()
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                executor.shutdownNow()
-            }
-            dispatcher.close()
-        } catch (e: Exception) {
-            logger.error(e) { "Error during shutdown" }
-        }
-        logger.info { "Shutdown complete" }
-    })
 }
 
 private fun setSystemProperties() {
