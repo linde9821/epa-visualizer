@@ -118,7 +118,7 @@ fun EpaLayoutCanvasRenderer(
     }
 
     val canvasModifier = Modifier
-        .background(Color.White)
+        .background(Color.LightGray)
         .onSizeChanged { size -> canvasSize = size }
         .fillMaxSize()
         .pointerInput(Unit) {
@@ -443,7 +443,7 @@ fun DrawScope.drawTree(
                         path.reset()
                         path.moveTo(start.x, start.y)
 
-                        if (transitionModeForLayout == TransitionDrawMode.BEZIER) {
+                        if (transitionModeForLayout == TransitionDrawMode.QUADRATIC_BEZIER) {
                             val controlPoint = getControlPoint(parentCoordinate, childCoordinate, .25f)
                             path.quadTo(controlPoint.x, controlPoint.y, end.x, end.y)
                         } else if (transitionModeForLayout == TransitionDrawMode.LINE) {
