@@ -93,19 +93,19 @@ compose.desktop {
                 iconFile.set(project.file("src/main/resources/logo.icns"))
                 bundleID = "moritz.lindner.masterarbeit"
                 dockName = "EPA Visualizer"
-                modules("jdk.unsupported")
+                modules("jdk.unsupported", "jdk.security.auth")
             }
 
             windows {
                 iconFile.set(project.file("src/main/resources/logo.ico"))
                 menuGroup = "EPA Visualizer"
-                modules("jdk.unsupported")
+                modules("jdk.unsupported", "jdk.security.auth")
             }
 
             linux {
                 menuGroup = "EPA Visualizer"
                 iconFile.set(project.file("src/main/resources/logo.png"))
-                modules("jdk.unsupported")
+                modules("jdk.unsupported", "jdk.security.auth")
             }
         }
     }
