@@ -342,6 +342,7 @@ class EpaStateManager(
                 stateSize = config.stateSize,
                 minTransitionSize = config.minTransitionSize,
                 maxTransitionSize = config.maxTransitionSize,
+                colorPalette = config.colorPalette,
                 progressCallback = progressCallback
             ),
             stateSizeUntilLabelIsDrawn = config.stateSizeUntilLabelIsDrawn,

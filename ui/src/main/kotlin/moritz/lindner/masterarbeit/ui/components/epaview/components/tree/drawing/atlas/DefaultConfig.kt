@@ -5,6 +5,7 @@ import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.features.layout.ColorPalettes
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -14,7 +15,8 @@ class DefaultConfig(
     private val stateSize: Float,
     private val minTransitionSize: Float,
     private val maxTransitionSize: Float,
-    private val progressCallback: EpaProgressCallback? = null
+    private val progressCallback: EpaProgressCallback? = null,
+    private val colorPalette: String
 ) : AtlasConfig {
 
     private val epaService = EpaService<Long>()
@@ -88,7 +90,9 @@ class DefaultConfig(
         val clampedValue = ((value - min) / (max - min)).coerceIn(0.0f, 1.0f)
 
         // rocket_r mako_r flare magma_r crest
-        val heatmap = ColorPalettes.colorPalette("mako_r")
+        val heatmap = ColorPalettes.colorPalette(colorPalette).map { rgb ->
+            Color.makeRGB((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
+        }.toIntArray()
 
         val colorPositions = FloatArray(heatmap.size) { i ->
             i.toFloat() / (heatmap.size - 1)
