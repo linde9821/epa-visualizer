@@ -5,7 +5,7 @@ sealed class ParameterInfo {
     data class ColorPaletteListParameterInfo(
         val name: String,
         val selectionOptions: List<String>
-    ): ParameterInfo()
+    ) : ParameterInfo()
 
     data class NumberParameterInfo<T : Number>(
         val name: String,

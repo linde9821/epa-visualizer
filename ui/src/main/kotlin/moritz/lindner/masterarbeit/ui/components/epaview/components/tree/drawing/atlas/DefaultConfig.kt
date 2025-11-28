@@ -89,7 +89,6 @@ class DefaultConfig(
     ): Paint {
         val clampedValue = ((value - min) / (max - min)).coerceIn(0.0f, 1.0f)
 
-        // rocket_r mako_r flare magma_r crest
         val heatmap = ColorPalettes.colorPalette(colorPalette).map { rgb ->
             Color.makeRGB((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
         }.toIntArray()

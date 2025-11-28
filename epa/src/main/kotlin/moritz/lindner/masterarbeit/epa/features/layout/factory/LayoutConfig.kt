@@ -589,7 +589,11 @@ sealed class LayoutConfig(val name: String) {
                 "transitionDrawMode" to ParameterInfo.EnumParameterInfo(
                     "transitionDrawMode",
                     TransitionDrawMode.entries
-                )
+                ),
+                "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo(
+                    "Color Palette",
+                    ColorPalettes.allPalettes()
+                ),
             )
         }
 

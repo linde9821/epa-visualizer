@@ -101,7 +101,7 @@ fun LayoutConfigUI(
                             info.selectionOptions.indexOf(currentValue)
                         )
                     }
-                    Text(info.name)
+                    Text("${info.name}:")
                     ListComboBox(
                         items = info.selectionOptions.map { it.name },
                         selectedIndex = selectedIndex,
@@ -120,7 +120,7 @@ fun LayoutConfigUI(
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(info.name)
+                        Text("${info.name}:")
 
                         ListComboBox(
                             items = info.selectionOptions,
