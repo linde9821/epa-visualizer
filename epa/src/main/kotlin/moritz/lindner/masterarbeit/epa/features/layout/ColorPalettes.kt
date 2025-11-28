@@ -1,7 +1,6 @@
-package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas
+package moritz.lindner.masterarbeit.epa.features.layout
 
 import kotlinx.serialization.json.Json
-import org.jetbrains.skia.Color
 
 object ColorPalettes {
 
@@ -9,10 +8,10 @@ object ColorPalettes {
         return heatmapByName[name]!!
     }
 
-    // inspired seaborn https://seaborn.pydata.org/tutorial/color_palettes.html
-    // and taken from seaborn by using seaborn_color_extractor.py to generate 64-samples of each color palette
-    private val heatmapByName: Map<String, IntArray> = buildMap {
+    fun allPalettes() = heatmapByName.keys.toList()
 
+    // Store as packed RGB integers instead of Skia Colors
+    private val heatmapByName: Map<String, IntArray> = buildMap {
         val json = Json { ignoreUnknownKeys = true }
 
         val jsonText = this::class.java.classLoader
@@ -24,10 +23,12 @@ object ColorPalettes {
         val data: Map<String, List<List<Int>>> = json.decodeFromString(jsonText)
 
         val colors = data.mapValues { (_, colors) ->
-            colors.map { rgb -> Color.makeRGB(rgb[0], rgb[1], rgb[2]) }.toIntArray()
+            // Pack RGB into a single Int: 0xRRGGBB
+            colors.map { rgb ->
+                (rgb[0] shl 16) or (rgb[1] shl 8) or rgb[2]
+            }.toIntArray()
         }
 
         putAll(colors)
     }
-
 }
