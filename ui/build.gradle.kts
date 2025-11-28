@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.gradle.buildconfig.plugin)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 group = "moritz.lindner.masterarbeit"
@@ -44,6 +45,7 @@ dependencies {
 
     implementation(libs.bundles.filekit)
     implementation(libs.bundles.lets.plot)
+    implementation(libs.bundles.serialization)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.junit.jupiter)
