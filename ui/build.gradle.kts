@@ -70,7 +70,7 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-Xmx14g",
+                "-Xmx8g",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",
