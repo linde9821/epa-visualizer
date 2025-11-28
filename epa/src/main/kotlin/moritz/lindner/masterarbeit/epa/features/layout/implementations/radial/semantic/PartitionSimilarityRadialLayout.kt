@@ -30,7 +30,7 @@ class PartitionSimilarityRadialLayout(
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 
-    private val logger = KotlinLogging.logger {  }
+    private val logger = KotlinLogging.logger { }
     private val epaService = EpaService<Long>()
     private var isBuiltFlag = false
     private val nodePlacementByState = HashMap<State, NodePlacement>(extendedPrefixAutomaton.states.size)
@@ -138,6 +138,7 @@ class PartitionSimilarityRadialLayout(
     private fun constrainAngleToWedge(angle: Float, wedgeStart: Float, wedgeEnd: Float): Float {
         return angle.coerceIn(wedgeStart, wedgeEnd)
     }
+
     private fun normalizeAngle(angle: Float): Float {
         var normalized = angle % (2 * PI).toFloat()
         if (normalized < 0) normalized += (2 * PI).toFloat()

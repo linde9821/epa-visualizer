@@ -20,7 +20,7 @@ class PartitionFeatureEmbedder(
     private val progressCallback: EpaProgressCallback?,
 ) {
 
-    private val logger = KotlinLogging.logger {  }
+    private val logger = KotlinLogging.logger { }
 
     fun computeEmbedding(): Map<Int, DoubleArray> {
         val epaService = EpaService<Long>()

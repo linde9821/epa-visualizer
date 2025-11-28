@@ -261,14 +261,6 @@ class EpaStateManager(
         }
     }
 
-    fun setSelectedState(tabId: String, selectedState: State) {
-        val highlight = _highlightingByTabId.value[tabId]!!
-        val newHighlight = highlight.selectedState(selectedState)
-        _highlightingByTabId.update { currentMap ->
-            currentMap + (tabId to newHighlight)
-        }
-    }
-
     fun buildHighlightingForTab(tabState: TabState) {
         if (_highlightingByTabId.value.containsKey(tabState.id)) {
             return
@@ -350,6 +342,7 @@ class EpaStateManager(
                 stateSize = config.stateSize,
                 minTransitionSize = config.minTransitionSize,
                 maxTransitionSize = config.maxTransitionSize,
+                colorPalette = config.colorPalette,
                 progressCallback = progressCallback
             ),
             stateSizeUntilLabelIsDrawn = config.stateSizeUntilLabelIsDrawn,

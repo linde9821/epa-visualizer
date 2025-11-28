@@ -45,7 +45,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-    environment(properties.filter { it.key == "selfie" }) // optional, see "Overwrite everything" below
+    environment(properties.filter { it.key == "selfie" })
     inputs.files(
         fileTree("src/test") {
             // optional, improves up-to-date checking

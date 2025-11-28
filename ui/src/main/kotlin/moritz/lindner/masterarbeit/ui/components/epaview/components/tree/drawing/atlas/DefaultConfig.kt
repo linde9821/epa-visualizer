@@ -5,6 +5,7 @@ import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
+import moritz.lindner.masterarbeit.epa.features.layout.ColorPalettes
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -14,7 +15,8 @@ class DefaultConfig(
     private val stateSize: Float,
     private val minTransitionSize: Float,
     private val maxTransitionSize: Float,
-    private val progressCallback: EpaProgressCallback? = null
+    private val progressCallback: EpaProgressCallback? = null,
+    private val colorPalette: String
 ) : AtlasConfig {
 
     private val epaService = EpaService<Long>()
@@ -87,18 +89,12 @@ class DefaultConfig(
     ): Paint {
         val clampedValue = ((value - min) / (max - min)).coerceIn(0.0f, 1.0f)
 
-        // inspired by Reds from seaborn https://python-graph-gallery.com/92-control-color-in-seaborn-heatmaps/
-        val redsColors = intArrayOf(
-            Color.makeRGB(254, 224, 210),  // Very light red
-            Color.makeRGB(252, 187, 161),  // Light red
-            Color.makeRGB(252, 146, 114),  // Light-medium red
-            Color.makeRGB(251, 106, 74),   // Medium red
-            Color.makeRGB(239, 59, 44),    // Medium-dark red
-            Color.makeRGB(203, 24, 29)     // Dark red
-        )
+        val heatmap = ColorPalettes.colorPalette(colorPalette).map { rgb ->
+            Color.makeRGB((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
+        }.toIntArray()
 
-        val colorPositions = FloatArray(redsColors.size) { i ->
-            i.toFloat() / (redsColors.size - 1)
+        val colorPositions = FloatArray(heatmap.size) { i ->
+            i.toFloat() / (heatmap.size - 1)
         }
 
         for (i in 0 until colorPositions.size - 1) {
@@ -106,14 +102,14 @@ class DefaultConfig(
                 val range = colorPositions[i + 1] - colorPositions[i]
                 val factor = (clampedValue - colorPositions[i]) / range
 
-                val color = interpolateColor(redsColors[i], redsColors[i + 1], factor)
+                val color = interpolateColor(heatmap[i], heatmap[i + 1], factor)
                 return Paint().apply {
                     this.color = color
                 }
             }
         }
 
-        val color = redsColors.last()
+        val color = heatmap.last()
         return Paint().apply {
             this.color = color
         }

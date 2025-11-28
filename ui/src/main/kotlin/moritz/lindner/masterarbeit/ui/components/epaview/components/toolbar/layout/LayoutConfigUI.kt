@@ -1,11 +1,17 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.layout
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.ParameterInfo
+import org.jetbrains.jewel.foundation.ExperimentalJewelApi
+import org.jetbrains.jewel.foundation.Stroke
+import org.jetbrains.jewel.foundation.modifier.border
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Checkbox
@@ -26,6 +35,7 @@ import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalJewelApi::class)
 @Composable
 fun LayoutConfigUI(
     config: LayoutConfig,
@@ -91,7 +101,7 @@ fun LayoutConfigUI(
                             info.selectionOptions.indexOf(currentValue)
                         )
                     }
-                    Text(info.name)
+                    Text("${info.name}:")
                     ListComboBox(
                         items = info.selectionOptions.map { it.name },
                         selectedIndex = selectedIndex,
@@ -100,6 +110,68 @@ fun LayoutConfigUI(
                             currentConfig = currentConfig.updateParameter(paramName, info.selectionOptions[index])
                         },
                     )
+                }
+
+                is ParameterInfo.ColorPaletteListParameterInfo -> {
+                    var selectedIndex by remember {
+                        mutableStateOf(
+                            info.selectionOptions.indexOf(currentValue)
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("${info.name}:")
+
+                        ListComboBox(
+                            items = info.selectionOptions,
+                            selectedIndex = selectedIndex,
+                            onSelectedItemChange = { index ->
+                                selectedIndex = index
+                                currentConfig = currentConfig.updateParameter(
+                                    paramName,
+                                    info.selectionOptions[index]
+                                )
+                            },
+                            itemKeys = { _, item -> item },
+                            itemContent = { paletteName, isSelected, isActive ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(180.dp)
+                                            .height(16.dp)
+                                            .border(
+                                                Stroke.Alignment.Inside,
+                                                1.dp,
+                                                if (isSelected)
+                                                    JewelTheme.globalColors.borders.focused
+                                                else
+                                                    JewelTheme.globalColors.borders.normal,
+                                                RoundedCornerShape(3.dp)
+                                            )
+                                            .padding(1.dp)
+                                            .background(
+                                                CreatePaletteBrush(paletteName),
+                                                RoundedCornerShape(2.dp)
+                                            )
+                                    )
+
+                                    Text(
+                                        text = paletteName,
+                                        color = if (isSelected)
+                                            JewelTheme.globalColors.text.selected
+                                        else
+                                            JewelTheme.globalColors.text.normal
+                                    )
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -142,6 +214,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -155,6 +228,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -169,6 +243,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -184,6 +259,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -213,6 +289,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -231,6 +308,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -255,6 +333,7 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
@@ -278,6 +357,8 @@ private fun getCurrentConfigValue(
         "maxTransitionSize" -> config.maxTransitionSize
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
+

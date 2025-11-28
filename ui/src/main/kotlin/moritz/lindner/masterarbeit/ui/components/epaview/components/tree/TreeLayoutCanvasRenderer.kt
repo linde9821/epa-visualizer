@@ -32,6 +32,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.factory.TransitionDrawMode
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
@@ -48,10 +49,9 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCan
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawDepthCircles
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawNodes
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.drawTokensWithSpreading
-import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.getControlPoints
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.getControlPoint
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.TreeCanvasRenderingHelper.toOffset
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.atlas.DrawAtlas
-import moritz.lindner.masterarbeit.epa.features.layout.factory.TransitionDrawMode
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.highlight.HighlightingAtlas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
@@ -118,7 +118,7 @@ fun EpaLayoutCanvasRenderer(
     }
 
     val canvasModifier = Modifier
-        .background(Color.White)
+        .background(Color.LightGray)
         .onSizeChanged { size -> canvasSize = size }
         .fillMaxSize()
         .pointerInput(Unit) {
@@ -321,7 +321,7 @@ fun EpaLayoutCanvasRenderer(
             }
         }
 
-        drawZoomLine(canvasState, lodQuery)
+        drawZoomLine(canvasState)
     }
 }
 
@@ -335,7 +335,7 @@ private fun DrawScope.drawTimeCircles(treeLayout: TimeBasedRadialLayout) {
                 radius = radius,
                 center = Offset.Zero,
                 style = Stroke(width = 2f),
-                alpha = 0.05f
+                alpha = 0.35f
             )
         }
 }
@@ -381,7 +381,7 @@ private fun DrawScope.drawClusterOutline(
     }
 }
 
-private fun DrawScope.drawZoomLine(canvasState: CanvasState, lodQuery: LODQuery) {
+private fun DrawScope.drawZoomLine(canvasState: CanvasState) {
     val padding = 20.dp.toPx()
     val lineLength = 180.dp.toPx()
     val lineHeight = 7.dp.toPx()
@@ -430,10 +430,10 @@ fun DrawScope.drawTree(
         // Draw edges
         if (transitionModeForLayout != TransitionDrawMode.NONE) {
             visibleNodes
-                .forEach { (coordinate, state) ->
+                .forEach { (childCoordinate, state) ->
                     if (state is PrefixState) {
-                        val cx = coordinate.x
-                        val cy = coordinate.y
+                        val cx = childCoordinate.x
+                        val cy = childCoordinate.y
                         val parentCoordinate = layout.getCoordinate(state.from)
                         val entry = drawAtlas.getTransitionEntryByParentState(state)
 
@@ -443,9 +443,9 @@ fun DrawScope.drawTree(
                         path.reset()
                         path.moveTo(start.x, start.y)
 
-                        if (transitionModeForLayout == TransitionDrawMode.BEZIER) {
-                            val (c1, c2) = getControlPoints(parentCoordinate, coordinate, .3f)
-                            path.cubicTo(c1.x, c1.y, c2.x, c2.y, end.x, end.y)
+                        if (transitionModeForLayout == TransitionDrawMode.QUADRATIC_BEZIER) {
+                            val controlPoint = getControlPoint(parentCoordinate, childCoordinate, .25f)
+                            path.quadTo(controlPoint.x, controlPoint.y, end.x, end.y)
                         } else if (transitionModeForLayout == TransitionDrawMode.LINE) {
                             path.lineTo(end.x, end.y)
                         }
