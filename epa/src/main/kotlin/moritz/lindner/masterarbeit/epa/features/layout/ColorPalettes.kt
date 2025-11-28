@@ -8,9 +8,8 @@ object ColorPalettes {
         return heatmapByName[name]!!
     }
 
-    fun allPalettes() = heatmapByName.keys.toList()
+    fun allPalettes() = heatmapByName.keys.sorted().toList()
 
-    // Store as packed RGB integers instead of Skia Colors
     private val heatmapByName: Map<String, IntArray> = buildMap {
         val json = Json { ignoreUnknownKeys = true }
 
@@ -25,10 +24,12 @@ object ColorPalettes {
         val colors = data.mapValues { (_, colors) ->
             // Pack RGB into a single Int: 0xRRGGBB
             colors.map { rgb ->
-                (rgb[0] shl 16) or (rgb[1] shl 8) or rgb[2]
+                packRgb(rgb)
             }.toIntArray()
         }
 
         putAll(colors)
     }
+
+    private fun packRgb(rgb: List<Int>): Int = (rgb[0] shl 16) or (rgb[1] shl 8) or rgb[2]
 }

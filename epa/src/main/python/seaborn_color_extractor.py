@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-# Get the rocket colormap
+# Get all colormaps
 all_cmaps = plt.colormaps()
 
 color_data = {}
-n_colors = 64
+n_colors = 128
 
 for palette_name in all_cmaps:
     try:
