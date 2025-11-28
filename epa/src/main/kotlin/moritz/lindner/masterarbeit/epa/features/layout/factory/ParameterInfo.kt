@@ -2,6 +2,11 @@ package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 sealed class ParameterInfo {
 
+    data class ColorPaletteListParameterInfo(
+        val name: String,
+        val selectionOptions: List<String>
+    ): ParameterInfo()
+
     data class NumberParameterInfo<T : Number>(
         val name: String,
         val min: T,

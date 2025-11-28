@@ -2,6 +2,12 @@ package moritz.lindner.masterarbeit.epa.features.layout.factory
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.features.layout.ColorPalettes
+
+enum class ColorMode {
+    FREQUENCY,
+    PARTITION_SIMILARITY
+}
 
 sealed class LayoutConfig(val name: String) {
 
@@ -13,6 +19,9 @@ sealed class LayoutConfig(val name: String) {
     abstract val maxTransitionSize: Float
     abstract val stateSizeUntilLabelIsDrawn: Float
     abstract val transitionDrawMode: TransitionDrawMode
+
+    abstract val colorPalette: String
+    abstract val colorMode: ColorMode
 
     abstract fun getParameters(): Map<String, ParameterInfo>
     abstract fun updateParameter(name: String, value: Any): LayoutConfig
@@ -27,6 +36,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
@@ -46,7 +57,8 @@ sealed class LayoutConfig(val name: String) {
                 100.0f,
                 1.0f
             ),
-            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries),
+            "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -59,6 +71,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
@@ -74,6 +87,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r",
     ) : LayoutConfig("Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
@@ -90,7 +105,8 @@ sealed class LayoutConfig(val name: String) {
                 100.0f,
                 1.0f
             ),
-            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries),
+            "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -104,6 +120,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
@@ -121,6 +138,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("Time-based Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -148,7 +167,8 @@ sealed class LayoutConfig(val name: String) {
                 100.0f,
                 1.0f
             ),
-            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries),
+            "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -163,6 +183,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
@@ -187,6 +208,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -243,6 +266,7 @@ sealed class LayoutConfig(val name: String) {
                 "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
                 "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
                 "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+                "colorPalette" -> copy(colorPalette = value as String)
                 else -> this
             }
         }
@@ -258,6 +282,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.BEZIER,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("Direct Angular Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
@@ -273,7 +299,8 @@ sealed class LayoutConfig(val name: String) {
                 100.0f,
                 1.0f
             ),
-            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries),
+            "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -286,6 +313,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
@@ -326,6 +354,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("State Clustering Layout") {
 
         override val lod: Boolean
@@ -365,7 +395,8 @@ sealed class LayoutConfig(val name: String) {
                 100.0f,
                 1.0f
             ),
-            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries),
+            "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -393,6 +424,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
@@ -417,6 +449,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("Partition Clustering Layout") {
 
         override val lod: Boolean
@@ -446,7 +480,8 @@ sealed class LayoutConfig(val name: String) {
                 100.0f,
                 1.0f
             ),
-            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries)
+            "transitionDrawMode" to ParameterInfo.EnumParameterInfo("transitionDrawMode", TransitionDrawMode.entries),
+            "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
         )
 
         override fun updateParameter(name: String, value: Any) = when (name) {
@@ -468,6 +503,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
@@ -494,6 +530,8 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
+        override val colorMode: ColorMode = ColorMode.FREQUENCY,
+        override val colorPalette: String = "mako_r"
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -573,6 +611,7 @@ sealed class LayoutConfig(val name: String) {
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
             "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
             "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+            "colorPalette" -> copy(colorPalette = value as String)
             else -> this
         }
     }
