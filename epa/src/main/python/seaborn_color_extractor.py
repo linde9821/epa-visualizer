@@ -8,7 +8,7 @@ import numpy as np
 all_cmaps = plt.colormaps()
 
 color_data = {}
-n_colors = 265
+n_colors = 64
 
 for palette_name in all_cmaps:
     try:
