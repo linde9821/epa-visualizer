@@ -134,6 +134,8 @@ class PartitionFeatureEmbedder(
                         }
 
                         c to result
+                    }.also {
+                        logger.info { "Finished chunk $chunk" }
                     }
                 }
             }.awaitAll().flatten().toMap()

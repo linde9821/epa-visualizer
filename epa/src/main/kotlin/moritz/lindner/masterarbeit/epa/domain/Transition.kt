@@ -9,6 +9,7 @@ package moritz.lindner.masterarbeit.epa.domain
  * @property end The destination [State] reached after the activity is
  *    executed.
  */
+// TODO: maybe interning with cache would decrease memory print
 data class Transition(
     val start: State,
     val activity: Activity,
