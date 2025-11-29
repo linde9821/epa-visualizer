@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -195,6 +196,76 @@ fun EpaLayoutCanvasRenderer(
         }.clipToBounds()
 
     Canvas(modifier = canvasModifier) {
+        val topLeft = TreeCanvasRenderingHelper.screenToWorld(
+            Offset.Zero,
+            canvasState.offset,
+            canvasState.scale
+        )
+        val bottomRight = TreeCanvasRenderingHelper.screenToWorld(
+            Offset(size.width, size.height),
+            canvasState.offset,
+            canvasState.scale
+        )
+
+        val blockSize = 150
+        val bitmap = org.jetbrains.skia.Bitmap()
+        val screenWidth = size.width.toInt()
+        val screenHeight = size.height.toInt()
+        bitmap.allocN32Pixels(screenWidth, screenHeight)
+        val skiaCanvas = org.jetbrains.skia.Canvas(bitmap)
+
+        val xStart = (topLeft.x / blockSize).toInt() * blockSize
+        val yStart = (topLeft.y / blockSize).toInt() * blockSize
+
+        var screenY = 0
+        var worldY = yStart.toFloat()
+
+        while (worldY < bottomRight.y && screenY < screenHeight) {
+            var screenX = 0
+            var worldX = xStart.toFloat()
+            while (worldX < bottomRight.x && screenX < screenWidth) {
+                val paint = calculateIDWColor(
+                    worldX + blockSize / 2f,
+                    worldY + blockSize / 2f,
+                    treeLayout,
+                    drawAtlas,
+                    maxDistance = 1800f,
+                )
+
+                val screenPos = TreeCanvasRenderingHelper.worldToScreen(
+                    Offset(worldX, worldY),
+                    canvasState.offset,
+                    canvasState.scale
+                )
+                val nextScreenPos = TreeCanvasRenderingHelper.worldToScreen(
+                    Offset(worldX + blockSize, worldY + blockSize),
+                    canvasState.offset,
+                    canvasState.scale
+                )
+
+                skiaCanvas.drawRect(
+                    org.jetbrains.skia.Rect.makeXYWH(
+                        screenPos.x,
+                        screenPos.y,
+                        nextScreenPos.x - screenPos.x,
+                        nextScreenPos.y - screenPos.y
+                    ),
+                    paint
+                )
+
+                worldX += blockSize
+                screenX = nextScreenPos.x.toInt()
+            }
+            worldY += blockSize
+            screenY = (TreeCanvasRenderingHelper.worldToScreen(
+                Offset(0f, worldY),
+                canvasState.offset,
+                canvasState.scale
+            ).y).toInt()
+        }
+
+        drawImage(bitmap.asComposeImageBitmap())
+
         withTransform({
             translate(canvasState.offset.x, canvasState.offset.y)
             scale(
@@ -322,6 +393,65 @@ fun EpaLayoutCanvasRenderer(
         }
 
         drawZoomLine(canvasState)
+    }
+}
+
+fun calculateIDWColor(
+    x: Float,
+    y: Float,
+    points: Layout,
+    drawAtlas: DrawAtlas,
+    power: Float = 4f,
+    maxDistance: Float = 200f,
+): Paint {
+    var weightedRed = 0f
+    var weightedGreen = 0f
+    var weightedBlue = 0f
+    var weightedAlpha = 0f
+    var totalWeight = 0f
+
+    for (placement in points) {
+        val paint = drawAtlas.getState(placement.state).paint
+        val point = placement.coordinate
+        val dx = x - point.x
+        val dy = y - point.y
+        val distance = sqrt(dx * dx + dy * dy)
+
+        if (distance < 0.01f) {
+            return paint
+        }
+
+        if (distance > maxDistance) continue
+
+        val weight = 1f / distance.pow(power)
+
+        // Extract ARGB components from Skia color
+        val color = paint.color
+        val a = ((color shr 24) and 0xFF) / 255f
+        val r = ((color shr 16) and 0xFF) / 255f
+        val g = ((color shr 8) and 0xFF) / 255f
+        val b = (color and 0xFF) / 255f
+
+        weightedRed += r * weight
+        weightedGreen += g * weight
+        weightedBlue += b * weight
+        weightedAlpha += a * weight
+        totalWeight += weight
+    }
+
+    return if (totalWeight > 0) {
+        Paint().apply {
+            color = org.jetbrains.skia.Color.makeARGB(
+                (weightedAlpha / totalWeight * 255).toInt(),
+                (weightedRed / totalWeight * 255).toInt(),
+                (weightedGreen / totalWeight * 255).toInt(),
+                (weightedBlue / totalWeight * 255).toInt()
+            )
+        }
+    } else {
+        Paint().apply {
+            color = org.jetbrains.skia.Color.TRANSPARENT
+        }
     }
 }
 
