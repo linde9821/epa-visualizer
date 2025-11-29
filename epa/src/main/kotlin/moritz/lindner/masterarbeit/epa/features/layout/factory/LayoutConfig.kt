@@ -117,11 +117,11 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class TimeBasedRadialConfig(
+    data class CycleTimeRadialLayoutConfig(
         val margin: Float = 5.0f,
         val rotation: Float = 0.0f,
-        val minEdgeLength: Float = 10.0f,
-        val maxEdgeLength: Float = 1000.0f,
+        val minTime: Float = 10.0f,
+        val maxTime: Float = 1000.0f,
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
         override val lod: Boolean = false,
@@ -131,20 +131,20 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "mako_r"
-    ) : LayoutConfig("Time-based Radial Walker Tree Layout") {
+    ) : LayoutConfig("Cycle-Time Radial Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "minEdgeLength" to ParameterInfo.NumberParameterInfo(
-                name = "minEdgeLength",
+                name = "min time length",
                 min = 0f,
                 max = 1000f,
                 steps = 10f
             ),
             "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
-                name = "maxEdgeLength",
+                name = "max time length",
                 min = 100f,
                 max = 3000f,
                 steps = 10f
@@ -167,8 +167,8 @@ sealed class LayoutConfig(val name: String) {
             "rotation" -> copy(rotation = value as Float)
             "enabled" -> copy(enabled = value as Boolean)
             "lod" -> copy(lod = value as Boolean)
-            "minEdgeLength" -> copy(minEdgeLength = value as Float)
-            "maxEdgeLength" -> copy(maxEdgeLength = value as Float)
+            "minEdgeLength" -> copy(minTime = value as Float)
+            "maxEdgeLength" -> copy(maxTime = value as Float)
             "stateSize" -> copy(stateSize = value as Float)
             "minTransitionSize" -> copy(minTransitionSize = value as Float)
             "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
@@ -230,7 +230,10 @@ sealed class LayoutConfig(val name: String) {
                     "transitionDrawMode",
                     TransitionDrawMode.entries
                 ),
-                "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
+                "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo(
+                    "Color Palette",
+                    ColorPalettes.allPalettes()
+                ),
             )
         }
 
@@ -246,6 +249,7 @@ sealed class LayoutConfig(val name: String) {
                 "lod" -> copy(lod = value as Boolean)
                 "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
                 "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
+                "useTotalTraceCount" -> copy(useTotalTraceCount = value as Boolean)
                 "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
                 "useSplittingFactor" -> copy(useSplittingFactor = value as Boolean)
                 "useHasRepetition" -> copy(useHasRepetition = value as Boolean)
@@ -480,6 +484,7 @@ sealed class LayoutConfig(val name: String) {
             "canvasHeight" -> copy(canvasHeight = value as Float)
             "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
             "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
+            "useTotalTraceCount" -> copy(useTotalTraceCount = value as Boolean)
             "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
             "useSplittingFactor" -> copy(useSplittingFactor = value as Boolean)
             "useHasRepetition" -> copy(useHasRepetition = value as Boolean)

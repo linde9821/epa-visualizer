@@ -35,8 +35,14 @@ class TabStateManager {
                     title = title,
                     filters = filters,
                     layoutConfig = layoutConfig,
-                    isActive = isFirstTab // Set active immediately if first tab
-                )
+
+                    )
+
+                // Set active immediately if first tab
+                if (isFirstTab) {
+                    setActiveTab(id)
+                }
+
                 currentTabs + newTab
             }
         }
@@ -90,11 +96,6 @@ class TabStateManager {
     /** Set the active tab */
     fun setActiveTab(tabId: String) {
         _activeTabId.value = tabId
-        _tabs.update { currentTabs ->
-            currentTabs.map { tab ->
-                tab.copy(isActive = tab.id == tabId)
-            }
-        }
     }
 
     fun locateState(state: State, tabId: String) {

@@ -10,8 +10,8 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.clusterin
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree.ParallelReadableTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.CycleTimeRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.TimeBasedRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
 
@@ -56,8 +56,8 @@ object LayoutFactory {
             )
         }
 
-        is LayoutConfig.TimeBasedRadialConfig -> {
-            TimeBasedRadialLayout(
+        is LayoutConfig.CycleTimeRadialLayoutConfig -> {
+            CycleTimeRadialLayout(
                 config = config,
                 extendedPrefixAutomaton = config.extendedPrefixAutomaton,
                 tree = root

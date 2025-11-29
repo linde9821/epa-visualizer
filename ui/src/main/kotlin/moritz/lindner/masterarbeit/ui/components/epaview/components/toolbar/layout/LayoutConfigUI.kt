@@ -247,13 +247,13 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
-    is LayoutConfig.TimeBasedRadialConfig -> when (paramName) {
+    is LayoutConfig.CycleTimeRadialLayoutConfig -> when (paramName) {
         "margin" -> config.margin
         "rotation" -> config.rotation
         "enabled" -> config.enabled
         "lod" -> config.lod
-        "minEdgeLength" -> config.minEdgeLength
-        "maxEdgeLength" -> config.maxEdgeLength
+        "minEdgeLength" -> config.minTime
+        "maxEdgeLength" -> config.maxTime
         "stateSize" -> config.stateSize
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize

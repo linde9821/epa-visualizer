@@ -1,14 +1,12 @@
 import json
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 
 # Get all colormaps
 all_cmaps = plt.colormaps()
 
 color_data = {}
-n_colors = 128
+n_colors = 256
 
 for palette_name in all_cmaps:
     try:

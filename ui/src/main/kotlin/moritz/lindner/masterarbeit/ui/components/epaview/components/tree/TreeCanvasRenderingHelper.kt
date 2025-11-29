@@ -19,7 +19,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import org.jetbrains.skia.Paint
 import kotlin.math.cos
 import kotlin.math.hypot
-import kotlin.math.pow
 import kotlin.math.sin
 
 object TreeCanvasRenderingHelper {
@@ -112,6 +111,10 @@ object TreeCanvasRenderingHelper {
 
     fun screenToWorld(screenPosition: Offset, offset: Offset, scale: Float): Offset =
         (screenPosition - offset) / scale
+
+    fun worldToScreen(worldPos: Offset, offset: Offset, scale: Float): Offset {
+        return worldPos * scale + offset
+    }
 
     fun findNodeAt(layout: Layout, worldPos: Offset): NodePlacement? {
         val searchWidth = 10f

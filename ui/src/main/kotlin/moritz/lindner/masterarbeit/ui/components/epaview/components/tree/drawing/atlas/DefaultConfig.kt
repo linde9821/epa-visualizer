@@ -9,6 +9,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.ColorPalettes
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
+import kotlin.math.log10
 
 class DefaultConfig(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -20,18 +21,49 @@ class DefaultConfig(
 ) : AtlasConfig {
 
     private val epaService = EpaService<Long>()
-    private val cycleTimeByState = epaService.computeAllCycleTimes(
-        extendedPrefixAutomaton = extendedPrefixAutomaton,
-        minus = Long::minus,
-        average = { cycleTimes ->
-            if (cycleTimes.isEmpty()) {
-                0f
-            } else cycleTimes.average().toFloat()
-        },
-        progressCallback = progressCallback
-    )
-    private val minCycleTime = cycleTimeByState.values.min()
-    private val maxCycleTime = cycleTimeByState.values.max()
+
+    val logarithmicNormalizedCycleTimeByState = buildMap {
+        val cycleTimes = epaService.computeAllCycleTimes(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            minus = Long::minus,
+            average = { cycleTimes ->
+                if (cycleTimes.isEmpty()) {
+                    0f
+                } else cycleTimes.average().toFloat()
+            },
+        )
+
+        val offset = 1.0f
+        val valuesWithoutRoot = cycleTimes
+            .filterKeys { it != State.Root }
+            .values
+            .map { it + offset }
+
+        val cumulativeMin = valuesWithoutRoot.minOrNull() ?: offset
+        val cumulativeMax = valuesWithoutRoot.maxOrNull() ?: offset
+
+        val logMin = log10(cumulativeMin)
+        val logMax = log10(cumulativeMax)
+
+        extendedPrefixAutomaton.states.forEach { state ->
+            when (state) {
+                is State.PrefixState -> {
+                    // 1. log scaling
+                    val rawValue = cycleTimes[state]!!
+                    val value = rawValue + offset
+                    val logValue = log10(value)
+
+                    // 2. min-max normalization
+                    val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+
+                    put(state, normalized)
+                }
+
+                State.Root -> put(state, 0f)
+            }
+        }
+    }
+
 
     private val normalizedStateFrequency = epaService
         .getNormalizedStateFrequency(
@@ -42,11 +74,7 @@ class DefaultConfig(
     override fun toStateAtlasEntry(state: State): StateAtlasEntry {
         return StateAtlasEntry(
             size = stateSize,
-            paint = toHeatmapPaint(
-                value = cycleTimeByState[state]!!,
-                min = minCycleTime,
-                max = maxCycleTime
-            )
+            paint = toHeatmapPaint(state)
         )
     }
 
@@ -83,11 +111,9 @@ class DefaultConfig(
     }
 
     fun toHeatmapPaint(
-        value: Float,
-        min: Float,
-        max: Float
+        state: State
     ): Paint {
-        val clampedValue = ((value - min) / (max - min)).coerceIn(0.0f, 1.0f)
+        val value = logarithmicNormalizedCycleTimeByState[state]!!
 
         val heatmap = ColorPalettes.colorPalette(colorPalette).map { rgb ->
             Color.makeRGB((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
@@ -98,9 +124,9 @@ class DefaultConfig(
         }
 
         for (i in 0 until colorPositions.size - 1) {
-            if (clampedValue >= colorPositions[i] && clampedValue <= colorPositions[i + 1]) {
+            if (value >= colorPositions[i] && value <= colorPositions[i + 1]) {
                 val range = colorPositions[i + 1] - colorPositions[i]
-                val factor = (clampedValue - colorPositions[i]) / range
+                val factor = (value - colorPositions[i]) / range
 
                 val color = interpolateColor(heatmap[i], heatmap[i + 1], factor)
                 return Paint().apply {
