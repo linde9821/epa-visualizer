@@ -117,7 +117,7 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class TimeBasedRadialConfig(
+    data class CycleTimeRadialLayoutConfig(
         val margin: Float = 5.0f,
         val rotation: Float = 0.0f,
         val minEdgeLength: Float = 10.0f,
@@ -131,7 +131,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "mako_r"
-    ) : LayoutConfig("Time-based Radial Walker Tree Layout") {
+    ) : LayoutConfig("Cycle-Time Radial Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),

@@ -247,7 +247,7 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
-    is LayoutConfig.TimeBasedRadialConfig -> when (paramName) {
+    is LayoutConfig.CycleTimeRadialLayoutConfig -> when (paramName) {
         "margin" -> config.margin
         "rotation" -> config.rotation
         "enabled" -> config.enabled

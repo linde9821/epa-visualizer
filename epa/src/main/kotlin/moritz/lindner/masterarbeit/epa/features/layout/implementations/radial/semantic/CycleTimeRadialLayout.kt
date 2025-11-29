@@ -23,10 +23,10 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-class TimeBasedRadialLayout(
+class CycleTimeRadialLayout(
     private val tree: EPATreeNode,
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.TimeBasedRadialConfig
+    private val config: LayoutConfig.CycleTimeRadialLayoutConfig
 ) : RadialTreeLayout {
 
     private val expectedCapacity = extendedPrefixAutomaton.states.size
