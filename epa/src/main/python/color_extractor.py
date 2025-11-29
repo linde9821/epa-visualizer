@@ -6,7 +6,7 @@ import seaborn as sns
 all_cmaps = plt.colormaps()
 
 color_data = {}
-n_colors = 128
+n_colors = 256
 
 for palette_name in all_cmaps:
     try:
