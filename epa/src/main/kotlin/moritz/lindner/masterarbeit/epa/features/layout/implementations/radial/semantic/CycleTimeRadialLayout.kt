@@ -43,7 +43,7 @@ class CycleTimeRadialLayout(
             .sum()
     }
 
-    val logarithmicNormalizedCycleTimeSumByState = buildMap {
+    val logarithmicNormalizedCycleTimeByState = buildMap {
         val cycleTimes = epaService.computeAllCycleTimes(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
@@ -54,15 +54,8 @@ class CycleTimeRadialLayout(
             },
         )
 
-        val cycleTimeSumByState = extendedPrefixAutomaton.states.associateWith { state ->
-            when (state) {
-                is State.PrefixState -> cycleTimeSum(state, cycleTimes)
-                State.Root -> 0f
-            }
-        }
-
         val offset = 1.0f
-        val cumulativeValuesWithoutRoot = cycleTimeSumByState
+        val cumulativeValuesWithoutRoot = cycleTimes
             .filterKeys { it != State.Root }
             .values
             .map { it + offset }
@@ -70,33 +63,36 @@ class CycleTimeRadialLayout(
         val cumulativeMin = cumulativeValuesWithoutRoot.minOrNull() ?: offset
         val cumulativeMax = cumulativeValuesWithoutRoot.maxOrNull() ?: offset
 
-        if ((cumulativeMax - cumulativeMin) < 0.0001f) {
-            extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }
-        } else {
-            val logMin = log10(cumulativeMin)
-            val logMax = log10(cumulativeMax)
+        val logMin = log10(cumulativeMin)
+        val logMax = log10(cumulativeMax)
 
-            extendedPrefixAutomaton.states.forEach { state ->
-                when (state) {
-                    is State.PrefixState -> {
-                        // 1. log scaling
-                        val rawValue = cycleTimeSumByState[state]!!
-                        val value = rawValue + offset
-                        val logValue = log10(value)
+        extendedPrefixAutomaton.states.forEach { state ->
+            when (state) {
+                is State.PrefixState -> {
+                    // 1. log scaling
+                    val rawValue = cycleTimes[state]!!
+                    val value = rawValue + offset
+                    val logValue = log10(value)
 
-                        // 2. min-max normalization
-                        val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+                    // 2. min-max normalization
+                    val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
 
-                        // TODO: maybe scale on each level and not in total
-                        val timeBasedDistance =
-                            config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
+                    // TODO: maybe scale on each level and not in total
+                    val timeBasedDistance = config.minTime + normalized * (config.maxTime - config.minTime)
 
-                        put(state, timeBasedDistance)
-                    }
-
-                    State.Root -> put(state, 0f)
+                    put(state, timeBasedDistance)
                 }
+
+                State.Root -> put(state, 0f)
             }
+        }
+
+    }
+
+    val combinedLogarithmicNormalizedCycleTimeByState = extendedPrefixAutomaton.states.associateWith {
+        when (it) {
+            is State.PrefixState -> cycleTimeSum(it, logarithmicNormalizedCycleTimeByState)
+            State.Root -> 0f
         }
     }
 
@@ -325,7 +321,7 @@ class CycleTimeRadialLayout(
         // let x(v) = prelim(v) + m
         val x = prelim[v]!! + m
         // let y(v) be the accumulated average cycle time of the path from v to root
-        val y = logarithmicNormalizedCycleTimeSumByState[v.state]!!
+        val y = combinedLogarithmicNormalizedCycleTimeByState[v.state]!!
 
         xMax = max(x, xMax)
         xMin = min(x, xMin)

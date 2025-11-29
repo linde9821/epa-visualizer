@@ -252,8 +252,8 @@ private fun getCurrentConfigValue(
         "rotation" -> config.rotation
         "enabled" -> config.enabled
         "lod" -> config.lod
-        "minEdgeLength" -> config.minEdgeLength
-        "maxEdgeLength" -> config.maxEdgeLength
+        "minEdgeLength" -> config.minTime
+        "maxEdgeLength" -> config.maxTime
         "stateSize" -> config.stateSize
         "minTransitionSize" -> config.minTransitionSize
         "maxTransitionSize" -> config.maxTransitionSize

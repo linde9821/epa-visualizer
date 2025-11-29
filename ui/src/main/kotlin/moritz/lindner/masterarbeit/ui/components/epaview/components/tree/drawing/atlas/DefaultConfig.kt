@@ -22,7 +22,7 @@ class DefaultConfig(
 
     private val epaService = EpaService<Long>()
 
-    val logarithmicNormalizedCycleTimeSumByState = buildMap {
+    val logarithmicNormalizedCycleTimeByState = buildMap {
         val cycleTimes = epaService.computeAllCycleTimes(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
@@ -113,7 +113,7 @@ class DefaultConfig(
     fun toHeatmapPaint(
         state: State
     ): Paint {
-        val value = logarithmicNormalizedCycleTimeSumByState[state]!!
+        val value = logarithmicNormalizedCycleTimeByState[state]!!
 
         val heatmap = ColorPalettes.colorPalette(colorPalette).map { rgb ->
             Color.makeRGB((rgb shr 16) and 0xFF, (rgb shr 8) and 0xFF, rgb and 0xFF)
