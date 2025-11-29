@@ -5,9 +5,7 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.Geometries
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -38,11 +36,10 @@ import kotlin.random.Random
 class ParallelReadableTreeLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.PRTLayoutConfig,
-    backgroundDispatcher: ExecutorCoroutineDispatcher,
+    private val backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) : Layout {
 
     private val logger = KotlinLogging.logger { }
-    private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
     private val random = Random(config.seed)
     private var isBuilt = false
     private val epaService = EpaService<Long>()
@@ -132,7 +129,6 @@ class ParallelReadableTreeLayout(
             progressCallback = progressCallback,
             desiredEdgeLengthByTransition = desiredEdgeLengthByTransition,
             iterations = config.iterations,
-            samples = min(40, (extendedPrefixAutomaton.states.size / 2.0f).roundToInt())
         ).forEach { (state, coordinate) ->
             coordinateByState[state] = NodePlacement(
                 coordinate = coordinate,
@@ -330,8 +326,8 @@ class ParallelReadableTreeLayout(
     private fun parallelForceDirectedImprovements(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         x: Map<State, Coordinate>,
-        batch: Int = 128,
-        samples: Int,
+        batchSize: Int = 512,
+        samples: Int = min(40, (extendedPrefixAutomaton.states.size / 2.0f).roundToInt()),
         iterations: Int = 50,
         progressCallback: EpaProgressCallback?,
         desiredEdgeLengthByTransition: Map<Transition, Float>
@@ -343,17 +339,18 @@ class ParallelReadableTreeLayout(
             val t = HashMap<State, Vector2D>()
             positions.keys.forEach { t[it] = Vector2D.zero() }
 
-            val batches = extendedPrefixAutomaton.states.chunked(batch)
+            val batches = extendedPrefixAutomaton.states.chunked(batchSize)
 
             val rTree = RTreeBuilder.build(positions.map {
                 NodePlacement(it.value, it.key)
             })
 
-            batches.forEach { batch ->
-                runBlocking {
-                    // for each node in parallel do
-                    val forces = batch.map { u ->
-                        scope.async {
+            runBlocking {
+                val forces = batches.mapIndexed { index, batch ->
+                    // for each node in parallel do -> adaption! for each batch in parallel do (no convergence but faster itration)
+                    async(backgroundDispatcher) {
+                        logger.info { "Computing chunk $index" }
+                        batch.map { u ->
                             var combinedForceU = Vector2D.zero()
 
                             if (config.LABEL_OVERLAP_FORCE_STRENGTH > 0.01f) {
@@ -389,17 +386,17 @@ class ParallelReadableTreeLayout(
 
                             u to combinedForceU
                         }
-                    }.awaitAll()
+                    }
+                }.awaitAll().flatten()
 
-                    for ((u, force) in forces) {
-                        if (force.magnitude() > 0.01) {
-                            // Add damping
-                            // Clamp force magnitude
-                            // Add a temperature schedule
-                            if (!introducesEdgeCrossing(u, force, positions)) {
-                                val p = positions[u]!!
-                                positions[u] = Coordinate(p.x + force.x, p.y + force.y)
-                            }
+                for ((u, force) in forces) {
+                    if (force.magnitude() > 0.01) {
+                        // Add damping
+                        // Clamp force magnitude
+                        // Add a temperature schedule
+                        if (!introducesEdgeCrossing(u, force, positions)) {
+                            val p = positions[u]!!
+                            positions[u] = Coordinate(p.x + force.x, p.y + force.y)
                         }
                     }
                 }
