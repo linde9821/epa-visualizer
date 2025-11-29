@@ -112,6 +112,10 @@ object TreeCanvasRenderingHelper {
     fun screenToWorld(screenPosition: Offset, offset: Offset, scale: Float): Offset =
         (screenPosition - offset) / scale
 
+    fun worldToScreen(worldPos: Offset, offset: Offset, scale: Float): Offset {
+        return worldPos * scale + offset
+    }
+
     fun findNodeAt(layout: Layout, worldPos: Offset): NodePlacement? {
         val searchWidth = 10f
 
