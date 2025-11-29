@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -188,9 +189,8 @@ class EpaStateManager(
                         try {
                             tabStateManager.tabs.value.forEach { tab ->
                                 buildEpaForTab(tab)
-                                buildLayoutForTab(tab)
+                                buildLayoutAndDrawAtlasForTab(tab)
                                 buildStateLabelsForTab(tab)
-                                buildDrawAtlasForTab(tab)
                                 buildStatisticForTab(tab)
                                 buildHighlightingForTab(tab)
                             }
@@ -208,18 +208,23 @@ class EpaStateManager(
             tabStateManager
                 .tabs
                 .collectLatest { tabs ->
+                    logger.info { "Collecting latest tabs" }
                     try {
-                        tabs.forEach { tab ->
+                        for (tab in tabs) {
                             buildEpaForTab(tab)
-                            buildLayoutForTab(tab)
-                            buildStateLabelsForTab(tab)
-                            buildDrawAtlasForTab(tab)
-                            buildStatisticForTab(tab)
-                            buildHighlightingForTab(tab)
+                            ensureActive()
+                            launch {
+                                buildLayoutAndDrawAtlasForTab(tab)
+                                ensureActive()
+                                buildStateLabelsForTab(tab)
+                                ensureActive()
+                                buildStatisticForTab(tab)
+                                ensureActive()
+                                buildHighlightingForTab(tab)
+                            }
                         }
                     } catch (e: CancellationException) {
                         logger.warn(e) { "canceling current tabs building" }
-                        e.printStackTrace()
                     } catch (e: Exception) {
                         // TODO: move try catch into functions and set error for tabs accordingly
                         logger.error(e) { "Error while building state" }
@@ -316,50 +321,11 @@ class EpaStateManager(
         }
     }
 
-    fun buildDrawAtlasForTab(
-        tabState: TabState
-    ) {
-        val drawAtlas = _drawAtlasByTabId.value[tabState.id]
-        val config = _layoutAndConfigByTabId.value[tabState.id]!!.second
-
-        val epa = _epaByTabId.value[tabState.id]!!
-
-        logger.info { "building atlas" }
-
-        val progressCallback = EpaProgressCallback { current, total, task ->
-            updateProgress(
-                tabId = tabState.id,
-                current = current,
-                total = total,
-                task = task
-            )
-        }
-
-        val atlas = DrawAtlas.build(
-            epa,
-            DefaultConfig(
-                extendedPrefixAutomaton = epa,
-                stateSize = config.stateSize,
-                minTransitionSize = config.minTransitionSize,
-                maxTransitionSize = config.maxTransitionSize,
-                colorPalette = config.colorPalette,
-                progressCallback = progressCallback
-            ),
-            stateSizeUntilLabelIsDrawn = config.stateSizeUntilLabelIsDrawn,
-            transitionDrawMode = config.transitionDrawMode,
-            progressCallback = progressCallback,
-        )
-        clearProgress(tabState.id)
-        _drawAtlasByTabId.update { currentMap ->
-            currentMap + (tabState.id to atlas)
-        }
-        logger.info { "atlas build" }
-    }
-
-    fun buildLayoutForTab(
+    fun buildLayoutAndDrawAtlasForTab(
         tabState: TabState
     ) {
         val layoutAndConfig = _layoutAndConfigByTabId.value[tabState.id]
+
         if (layoutAndConfig?.second == tabState.layoutConfig) {
             return
         }
@@ -374,11 +340,34 @@ class EpaStateManager(
         }
 
         val epa = _epaByTabId.value[tabState.id]!!
-        val layout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
+        val updatedLayout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
         _layoutAndConfigByTabId.update { currentMap ->
-            currentMap + (tabState.id to (layout to tabState.layoutConfig))
+            currentMap + (tabState.id to (updatedLayout to tabState.layoutConfig))
         }
         buildLodForTab(tabState, tabState.layoutConfig)
+
+        logger.info { "building atlas" }
+
+        val atlas = DrawAtlas.build(
+            epa,
+            DefaultConfig(
+                extendedPrefixAutomaton = epa,
+                stateSize = tabState.layoutConfig.stateSize,
+                minTransitionSize = tabState.layoutConfig.minTransitionSize,
+                maxTransitionSize = tabState.layoutConfig.maxTransitionSize,
+                colorPalette = tabState.layoutConfig.colorPalette,
+                progressCallback = progressCallback
+            ),
+            stateSizeUntilLabelIsDrawn = tabState.layoutConfig.stateSizeUntilLabelIsDrawn,
+            transitionDrawMode = tabState.layoutConfig.transitionDrawMode,
+            progressCallback = progressCallback,
+        )
+        clearProgress(tabState.id)
+        _drawAtlasByTabId.update { currentMap ->
+            currentMap + (tabState.id to atlas)
+        }
+        logger.info { "atlas build" }
+
         clearProgress(tabState.id)
     }
 
