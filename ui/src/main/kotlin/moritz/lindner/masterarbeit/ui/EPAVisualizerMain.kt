@@ -20,7 +20,6 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.buildconfig.BuildConfig
 import moritz.lindner.masterarbeit.ui.common.AboutPanel.showAboutDialog
 import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME

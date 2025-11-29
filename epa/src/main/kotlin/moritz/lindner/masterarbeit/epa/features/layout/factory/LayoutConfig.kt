@@ -230,7 +230,10 @@ sealed class LayoutConfig(val name: String) {
                     "transitionDrawMode",
                     TransitionDrawMode.entries
                 ),
-                "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo("Color Palette", ColorPalettes.allPalettes()),
+                "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo(
+                    "Color Palette",
+                    ColorPalettes.allPalettes()
+                ),
             )
         }
 

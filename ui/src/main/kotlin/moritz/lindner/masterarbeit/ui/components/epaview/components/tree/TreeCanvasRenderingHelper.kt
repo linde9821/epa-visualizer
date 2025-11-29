@@ -19,7 +19,6 @@ import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import org.jetbrains.skia.Paint
 import kotlin.math.cos
 import kotlin.math.hypot
-import kotlin.math.pow
 import kotlin.math.sin
 
 object TreeCanvasRenderingHelper {

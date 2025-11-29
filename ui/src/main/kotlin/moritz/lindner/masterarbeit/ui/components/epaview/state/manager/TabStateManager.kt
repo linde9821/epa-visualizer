@@ -36,7 +36,7 @@ class TabStateManager {
                     filters = filters,
                     layoutConfig = layoutConfig,
 
-                )
+                    )
 
                 // Set active immediately if first tab
                 if (isFirstTab) {

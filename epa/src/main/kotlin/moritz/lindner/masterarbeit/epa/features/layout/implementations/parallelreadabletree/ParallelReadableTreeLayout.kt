@@ -9,7 +9,6 @@ import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -26,7 +25,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.log
 import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
