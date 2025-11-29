@@ -8,7 +8,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 data class TabState(
     val id: String,
     val title: String,
-    val isActive: Boolean = false,
     val filters: List<EpaFilter<Long>> = emptyList(),
     val layoutConfig: LayoutConfig,
     val selectedState: State? = null,
