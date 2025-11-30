@@ -15,7 +15,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -27,8 +30,11 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
@@ -58,6 +64,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.PaintStrokeCap
@@ -70,6 +77,11 @@ import kotlin.math.sqrt
 
 const val minScale = 0.05f
 const val maxScale = 5f
+
+private data class HeatmapData(
+    val bitmap: Bitmap,
+    val bounds: Rect
+)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -97,6 +109,21 @@ fun EpaLayoutCanvasRenderer(
             val targetNode = treeLayout.getCoordinate(tabState.locateState)
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             canvasState.offset = screenCenter - targetNode.toOffset() * canvasState.scale
+        }
+    }
+
+    var heatmapBitmap by remember { mutableStateOf<HeatmapData?>(null) }
+
+    // Calculate heatmap in background when layout changes
+    LaunchedEffect(treeLayout, drawAtlas) {
+        withContext(Dispatchers.Default) {
+            heatmapBitmap = null
+            val bitmap = calculateHeatmapBitmap(
+                treeLayout,
+                drawAtlas,
+                blockSize = 20
+            )
+            heatmapBitmap = bitmap
         }
     }
 
@@ -196,76 +223,6 @@ fun EpaLayoutCanvasRenderer(
         }.clipToBounds()
 
     Canvas(modifier = canvasModifier) {
-        val topLeft = TreeCanvasRenderingHelper.screenToWorld(
-            Offset.Zero,
-            canvasState.offset,
-            canvasState.scale
-        )
-        val bottomRight = TreeCanvasRenderingHelper.screenToWorld(
-            Offset(size.width, size.height),
-            canvasState.offset,
-            canvasState.scale
-        )
-
-        val blockSize = 150
-        val bitmap = org.jetbrains.skia.Bitmap()
-        val screenWidth = size.width.toInt()
-        val screenHeight = size.height.toInt()
-        bitmap.allocN32Pixels(screenWidth, screenHeight)
-        val skiaCanvas = org.jetbrains.skia.Canvas(bitmap)
-
-        val xStart = (topLeft.x / blockSize).toInt() * blockSize
-        val yStart = (topLeft.y / blockSize).toInt() * blockSize
-
-        var screenY = 0
-        var worldY = yStart.toFloat()
-
-        while (worldY < bottomRight.y && screenY < screenHeight) {
-            var screenX = 0
-            var worldX = xStart.toFloat()
-            while (worldX < bottomRight.x && screenX < screenWidth) {
-                val paint = calculateIDWColor(
-                    worldX + blockSize / 2f,
-                    worldY + blockSize / 2f,
-                    treeLayout,
-                    drawAtlas,
-                    maxDistance = 1800f,
-                )
-
-                val screenPos = TreeCanvasRenderingHelper.worldToScreen(
-                    Offset(worldX, worldY),
-                    canvasState.offset,
-                    canvasState.scale
-                )
-                val nextScreenPos = TreeCanvasRenderingHelper.worldToScreen(
-                    Offset(worldX + blockSize, worldY + blockSize),
-                    canvasState.offset,
-                    canvasState.scale
-                )
-
-                skiaCanvas.drawRect(
-                    org.jetbrains.skia.Rect.makeXYWH(
-                        screenPos.x,
-                        screenPos.y,
-                        nextScreenPos.x - screenPos.x,
-                        nextScreenPos.y - screenPos.y
-                    ),
-                    paint
-                )
-
-                worldX += blockSize
-                screenX = nextScreenPos.x.toInt()
-            }
-            worldY += blockSize
-            screenY = (TreeCanvasRenderingHelper.worldToScreen(
-                Offset(0f, worldY),
-                canvasState.offset,
-                canvasState.scale
-            ).y).toInt()
-        }
-
-        drawImage(bitmap.asComposeImageBitmap())
-
         withTransform({
             translate(canvasState.offset.x, canvasState.offset.y)
             scale(
@@ -275,6 +232,22 @@ fun EpaLayoutCanvasRenderer(
             )
         }) {
             canvasState.initializeCenter(size)
+
+            heatmapBitmap?.let { (bitmap, bounds) ->
+                drawImage(
+                    image = bitmap.asComposeImageBitmap(),
+                    dstOffset = IntOffset(bounds.left.toInt(), bounds.top.toInt()),
+                    dstSize = IntSize(
+                        (bounds.right - bounds.left).toInt(),
+                        (bounds.bottom - bounds.top).toInt()
+                    ),
+                    alpha = 0.85f,
+                    blendMode = BlendMode.ColorBurn,
+                    filterQuality = FilterQuality.High
+                )
+            }
+
+
             try {
                 val visibleNodes = treeLayout
                     // check for coordinates in view
@@ -394,6 +367,71 @@ fun EpaLayoutCanvasRenderer(
 
         drawZoomLine(canvasState)
     }
+}
+
+private fun calculateHeatmapBitmap(
+    treeLayout: Layout,
+    drawAtlas: DrawAtlas,
+    blockSize: Int,
+): HeatmapData {
+    val minXCoord = treeLayout.minOf { it.coordinate.x } - 300f
+    val maxXCoord = treeLayout.maxOf { it.coordinate.x } + 300f
+    val minYCoord = treeLayout.minOf { it.coordinate.y } - 300f
+    val maxYCoord = treeLayout.maxOf { it.coordinate.y } + 300f
+
+    val minX = (minXCoord / blockSize).toInt() * blockSize
+    val minY = (minYCoord / blockSize).toInt() * blockSize
+    val maxX = ((maxXCoord / blockSize).toInt() + 1) * blockSize
+    val maxY = ((maxYCoord / blockSize).toInt() + 1) * blockSize
+
+    val width = ((maxX - minX) / blockSize).toInt()
+    val height = ((maxY - minY) / blockSize).toInt()
+
+    val bitmap = Bitmap()
+    bitmap.allocN32Pixels(width, height)
+    val skiaCanvas = org.jetbrains.skia.Canvas(bitmap)
+
+    var bitmapY = 0
+    var worldY = minY.toFloat()
+    while (worldY < maxY) {
+        var bitmapX = 0
+        var worldX = minX.toFloat()
+        while (worldX < maxX) {
+            val paint = calculateIDWColor(
+                worldX + blockSize / 2f,
+                worldY + blockSize / 2f,
+                treeLayout,
+                drawAtlas,
+                power = 7f,
+                maxDistance = 2000f,
+            )
+
+            skiaCanvas.drawRect(
+                org.jetbrains.skia.Rect.makeXYWH(
+                    bitmapX.toFloat(),
+                    bitmapY.toFloat(),
+                    1f,
+                    1f
+                ),
+                paint
+            )
+
+            worldX += blockSize
+            bitmapX++
+        }
+        worldY += blockSize
+        bitmapY++
+    }
+
+    return HeatmapData(
+        bitmap = bitmap,
+        bounds = Rect(
+            minX.toFloat(),
+            minY.toFloat(),
+            maxX.toFloat(),
+            maxY.toFloat()
+        )
+    )
 }
 
 fun calculateIDWColor(

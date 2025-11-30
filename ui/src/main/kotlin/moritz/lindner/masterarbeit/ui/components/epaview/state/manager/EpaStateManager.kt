@@ -209,8 +209,8 @@ class EpaStateManager(
                 .tabs
                 .collectLatest { tabs ->
                     logger.info { "Collecting latest tabs" }
-                    try {
-                        for (tab in tabs) {
+                    for (tab in tabs) {
+                        try {
                             buildEpaForTab(tab)
                             ensureActive()
                             launch {
@@ -222,13 +222,14 @@ class EpaStateManager(
                                 ensureActive()
                                 buildHighlightingForTab(tab)
                             }
+                        } catch (e: CancellationException) {
+                            logger.warn(e) { "canceling current tabs building" }
+                        } catch (e: Exception) {
+                            // TODO: move try catch into functions and set error for tabs accordingly
+                            logger.error(e) { "Error while building state" }
                         }
-                    } catch (e: CancellationException) {
-                        logger.warn(e) { "canceling current tabs building" }
-                    } catch (e: Exception) {
-                        // TODO: move try catch into functions and set error for tabs accordingly
-                        logger.error(e) { "Error while building state" }
                     }
+
                 }
         }
     }
