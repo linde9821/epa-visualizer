@@ -360,5 +360,30 @@ private fun getCurrentConfigValue(
         "colorPalette" -> config.colorPalette
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
+
+    is LayoutConfig.PartitionSimilarityFooRadialLayoutConfig -> when(paramName) {
+        "enabled" -> config.enabled
+        "umapK" -> config.umapK
+        "umapIterations" -> config.umapIterations
+        "lod" -> config.lod
+        "useTotalStateCount" -> config.useTotalStateCount
+        "useTotalEventCount" -> config.useTotalEventCount
+        "useTotalTraceCount" -> config.useTotalTraceCount
+        "useDeepestDepth" -> config.useDeepestDepth
+        "useSplittingFactor" -> config.useSplittingFactor
+        "useHasRepetition" -> config.useHasRepetition
+        "useCombinedCycleTime" -> config.useCombinedCycleTime
+        "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
+        "useLempelZivComplexity" -> config.useLempelZivComplexity
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
+        "minEdgeLength" -> config.minTime
+        "maxEdgeLength" -> config.maxTime
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
 }
 

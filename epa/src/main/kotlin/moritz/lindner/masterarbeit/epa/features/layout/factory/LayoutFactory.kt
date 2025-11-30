@@ -11,6 +11,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelr
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.CycleTimeRadialLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityFooRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
@@ -72,6 +73,15 @@ object LayoutFactory {
             )
         }
 
+        is LayoutConfig.PartitionSimilarityFooRadialLayoutConfig -> {
+            PartitionSimilarityFooRadialLayout(
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                config = config,
+                backgroundDispatcher = backgroundDispatcher
+            )
+        }
+
+
         else -> {
             throw IllegalStateException("Wrong layout config provided. This shouldn't happen")
         }
@@ -81,20 +91,20 @@ object LayoutFactory {
     fun Float.degreesToRadians() = this * PI.toFloat() / 180.0f
 
     fun createLayout(
-        layoutConfig: LayoutConfig,
+        config: LayoutConfig,
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         backgroundDispatcher: ExecutorCoroutineDispatcher
     ): Layout {
-        return when (layoutConfig) {
+        return when (config) {
             is LayoutConfig.StateClusteringLayoutConfig -> StateClusteringLayout(
                 extendedPrefixAutomaton,
-                config = layoutConfig
+                config = config
             )
 
             is LayoutConfig.PRTLayoutConfig -> {
                 ParallelReadableTreeLayout(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
-                    config = layoutConfig,
+                    config = config,
                     backgroundDispatcher = backgroundDispatcher,
                 )
             }
@@ -102,7 +112,7 @@ object LayoutFactory {
             is LayoutConfig.PartitionClusteringLayoutConfig -> {
                 PartitionClusteringLayout(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
-                    config = layoutConfig,
+                    config = config,
                     backgroundDispatcher = backgroundDispatcher,
                 )
             }

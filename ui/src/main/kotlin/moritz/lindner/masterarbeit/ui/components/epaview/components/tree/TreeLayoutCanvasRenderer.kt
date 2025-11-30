@@ -39,6 +39,7 @@ import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.TransitionDrawMode
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.WalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.PartitionClusteringLayout
@@ -47,6 +48,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelr
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.CycleTimeRadialLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityFooRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
@@ -247,7 +249,6 @@ fun EpaLayoutCanvasRenderer(
                 )
             }
 
-
             try {
                 val visibleNodes = treeLayout
                     // check for coordinates in view
@@ -303,7 +304,7 @@ fun EpaLayoutCanvasRenderer(
                         )
                     }
 
-                    is CycleTimeRadialLayout -> {
+                    is CycleTimeRadialLayout, is PartitionSimilarityFooRadialLayout -> {
                         drawTimeCircles(treeLayout)
                         drawTree(
                             drawAtlas,
@@ -493,7 +494,7 @@ fun calculateIDWColor(
     }
 }
 
-private fun DrawScope.drawTimeCircles(treeLayout: CycleTimeRadialLayout) {
+private fun DrawScope.drawTimeCircles(treeLayout: Layout) {
     treeLayout
         .map { node -> sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2)) }
         .distinct()

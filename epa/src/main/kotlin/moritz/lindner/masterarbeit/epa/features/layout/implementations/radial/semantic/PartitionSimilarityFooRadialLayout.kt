@@ -21,11 +21,11 @@ import smile.manifold.umap
 import smile.math.MathEx
 import kotlin.math.PI
 import kotlin.math.atan2
-import kotlin.math.max
+import kotlin.math.log10
 
-class PartitionSimilarityRadialLayout(
+class PartitionSimilarityFooRadialLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.PartitionSimilarityRadialLayoutConfig = LayoutConfig.PartitionSimilarityRadialLayoutConfig(),
+    private val config: LayoutConfig.PartitionSimilarityFooRadialLayoutConfig = LayoutConfig.PartitionSimilarityFooRadialLayoutConfig(),
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 
@@ -35,6 +35,64 @@ class PartitionSimilarityRadialLayout(
     private lateinit var rTree: RTree<NodePlacement, PointFloat>
 
     private var maxDepth = Int.MIN_VALUE
+
+    private fun cycleTimeSum(state: State.PrefixState, cycleTimes: Map<State, Float>): Float {
+        return epaService
+            .getPathFromRoot(state)
+            .map { stateOnPath -> cycleTimes[stateOnPath]!! }
+            .sum()
+    }
+
+    val logarithmicNormalizedCycleTimeByState = buildMap {
+        val cycleTimes = epaService.computeAllCycleTimes(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            minus = Long::minus,
+            average = { cycleTimes ->
+                if (cycleTimes.isEmpty()) {
+                    0f
+                } else cycleTimes.average().toFloat()
+            },
+        )
+
+        val offset = 1.0f
+        val cumulativeValuesWithoutRoot = cycleTimes
+            .filterKeys { it != State.Root }
+            .values
+            .map { it + offset }
+
+        val cumulativeMin = cumulativeValuesWithoutRoot.minOrNull() ?: offset
+        val cumulativeMax = cumulativeValuesWithoutRoot.maxOrNull() ?: offset
+
+        val logMin = log10(cumulativeMin)
+        val logMax = log10(cumulativeMax)
+
+        extendedPrefixAutomaton.states.forEach { state ->
+            when (state) {
+                is State.PrefixState -> {
+                    // 1. log scaling
+                    val rawValue = cycleTimes[state]!!
+                    val value = rawValue + offset
+                    val logValue = log10(value)
+
+                    // 2. min-max normalization
+                    val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+
+                    val timeBasedDistance = config.minTime + normalized * (config.maxTime - config.minTime)
+
+                    put(state, timeBasedDistance)
+                }
+
+                State.Root -> put(state, 0f)
+            }
+        }
+    }
+
+    val combinedLogarithmicNormalizedCycleTimeByState = extendedPrefixAutomaton.states.associateWith {
+        when (it) {
+            is State.PrefixState -> cycleTimeSum(it, logarithmicNormalizedCycleTimeByState)
+            State.Root -> 0f
+        }
+    }
 
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
@@ -76,7 +134,6 @@ class PartitionSimilarityRadialLayout(
     ) {
         placeNode(
             state = State.Root,
-            depth = 0,
             wedgeStart = 0f,
             wedgeEnd = (2 * PI).toFloat(),
             subtreeSizes = subtreeSizes,
@@ -86,21 +143,20 @@ class PartitionSimilarityRadialLayout(
 
     private fun placeNode(
         state: State,
-        depth: Int,
         wedgeStart: Float,
         wedgeEnd: Float,
         subtreeSizes: Map<State, Int>,
         partitionToAngleMap: Map<Int, Float>
     ) {
-        maxDepth = max(maxDepth, depth)
-
         val partition = extendedPrefixAutomaton.partition(state)
         val preferredAngle = partitionToAngleMap[partition]!!
 
         val constrainedAngle = constrainAngleToWedge(preferredAngle, wedgeStart, wedgeEnd)
 
+        val depth = combinedLogarithmicNormalizedCycleTimeByState[state]!!
+
         nodePlacementByState[state] = NodePlacement(
-            coordinate = Coordinate.fromPolar(depth * config.layerSpace, constrainedAngle),
+            coordinate = Coordinate.Companion.fromPolar(depth, constrainedAngle),
             state = state
         )
 
@@ -122,7 +178,6 @@ class PartitionSimilarityRadialLayout(
 
             placeNode(
                 state = child,
-                depth = depth + 1,
                 wedgeStart = currentAngle,
                 wedgeEnd = childWedgeEnd,
                 subtreeSizes = subtreeSizes,
@@ -156,7 +211,7 @@ class PartitionSimilarityRadialLayout(
     }
 
     override fun getCircleRadius(): Float {
-        return config.layerSpace
+        return 0f
     }
 
     override fun getMaxDepth(): Int {
@@ -180,5 +235,3 @@ class PartitionSimilarityRadialLayout(
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }
-
-

@@ -85,7 +85,6 @@ class CycleTimeRadialLayout(
                 State.Root -> put(state, 0f)
             }
         }
-
     }
 
     val combinedLogarithmicNormalizedCycleTimeByState = extendedPrefixAutomaton.states.associateWith {
