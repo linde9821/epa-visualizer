@@ -6,6 +6,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.layout.ColorPalettes
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.LogarithmicCycleTime
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
@@ -22,48 +23,12 @@ class DefaultConfig(
 
     private val epaService = EpaService<Long>()
 
-    val logarithmicNormalizedCycleTimeByState = buildMap {
-        val cycleTimes = epaService.computeAllCycleTimes(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            minus = Long::minus,
-            average = { cycleTimes ->
-                if (cycleTimes.isEmpty()) {
-                    0f
-                } else cycleTimes.average().toFloat()
-            },
-        )
-
-        val offset = 1.0f
-        val valuesWithoutRoot = cycleTimes
-            .filterKeys { it != State.Root }
-            .values
-            .map { it + offset }
-
-        val cumulativeMin = valuesWithoutRoot.minOrNull() ?: offset
-        val cumulativeMax = valuesWithoutRoot.maxOrNull() ?: offset
-
-        val logMin = log10(cumulativeMin)
-        val logMax = log10(cumulativeMax)
-
-        extendedPrefixAutomaton.states.forEach { state ->
-            when (state) {
-                is State.PrefixState -> {
-                    // 1. log scaling
-                    val rawValue = cycleTimes[state]!!
-                    val value = rawValue + offset
-                    val logValue = log10(value)
-
-                    // 2. min-max normalization
-                    val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-
-                    put(state, normalized)
-                }
-
-                State.Root -> put(state, 0f)
-            }
-        }
-    }
-
+    val logarithmicNormalizedCycleTimeByState = LogarithmicCycleTime.logarithmicMinMaxNormalizedCycleTimeByState(
+        extendedPrefixAutomaton = extendedPrefixAutomaton,
+        min = 0.0f,
+        max = 1.0f,
+        progressCallback = progressCallback
+    )
 
     private val normalizedStateFrequency = epaService
         .getNormalizedStateFrequency(

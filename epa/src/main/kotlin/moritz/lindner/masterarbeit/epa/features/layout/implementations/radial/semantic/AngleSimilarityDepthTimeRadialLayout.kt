@@ -36,66 +36,17 @@ class AngleSimilarityDepthTimeRadialLayout(
 
     private var maxDepth = Int.MIN_VALUE
 
-    private fun cycleTimeSum(state: State.PrefixState, cycleTimes: Map<State, Float>): Float {
-        return epaService
-            .getPathFromRoot(state)
-            .map { stateOnPath -> cycleTimes[stateOnPath]!! }
-            .sum()
-    }
-
-    val logarithmicNormalizedCycleTimeByState = buildMap {
-        val cycleTimes = epaService.computeAllCycleTimes(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            minus = Long::minus,
-            average = { cycleTimes ->
-                if (cycleTimes.isEmpty()) {
-                    0f
-                } else cycleTimes.average().toFloat()
-            },
-        )
-
-        val offset = 1.0f
-        val cumulativeValuesWithoutRoot = cycleTimes
-            .filterKeys { it != State.Root }
-            .values
-            .map { it + offset }
-
-        val cumulativeMin = cumulativeValuesWithoutRoot.minOrNull() ?: offset
-        val cumulativeMax = cumulativeValuesWithoutRoot.maxOrNull() ?: offset
-
-        val logMin = log10(cumulativeMin)
-        val logMax = log10(cumulativeMax)
-
-        extendedPrefixAutomaton.states.forEach { state ->
-            when (state) {
-                is State.PrefixState -> {
-                    // 1. log scaling
-                    val rawValue = cycleTimes[state]!!
-                    val value = rawValue + offset
-                    val logValue = log10(value)
-
-                    // 2. min-max normalization
-                    val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-
-                    val timeBasedDistance = config.minTime + normalized * (config.maxTime - config.minTime)
-
-                    put(state, timeBasedDistance)
-                }
-
-                State.Root -> put(state, 0f)
-            }
-        }
-    }
-
-    val combinedLogarithmicNormalizedCycleTimeByState = extendedPrefixAutomaton.states.associateWith {
-        when (it) {
-            is State.PrefixState -> cycleTimeSum(it, logarithmicNormalizedCycleTimeByState)
-            State.Root -> 0f
-        }
-    }
+    lateinit var combinedLogarithmicNormalizedCycleTimeByState: Map<State, Float>
 
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
+
+        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTime.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            min = config.minTime,
+            max = config.maxTime,
+            progressCallback = progressCallback
+        )
 
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
