@@ -78,12 +78,16 @@ class ParallelReadableTreeLayout(
 
         val offset = 1.0f
         // Add offset to handle zero values with logarithmic scaling
-        val valuesWithoutRoot = cycleTimes
-            .filterKeys { it != State.Root }
+        val valuesWithoutRootAndTerminating = cycleTimes
+            .filterKeys {
+                it != State.Root &&
+                        epaService.isTerminating(extendedPrefixAutomaton, it).not()
+            }
             .values
             .map { it + offset }
-        val min = valuesWithoutRoot.minOrNull() ?: offset
-        val max = valuesWithoutRoot.maxOrNull() ?: offset
+
+        val min = valuesWithoutRootAndTerminating.minOrNull() ?: offset
+        val max = valuesWithoutRootAndTerminating.maxOrNull() ?: offset
 
         val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
             // All values are essentially the same - use middle of range
