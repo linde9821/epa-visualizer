@@ -46,8 +46,8 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.clusterin
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree.ParallelReadableTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.CycleTimeRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.AngleSimilarityDepthTimeRadialLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.CycleTimeRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
@@ -87,7 +87,7 @@ private data class HeatmapData(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EpaLayoutCanvasRenderer(
-    treeLayout: Layout,
+    layout: Layout,
     stateLabels: StateLabels,
     highlightingAtlas: HighlightingAtlas,
     lodQuery: LODQuery = NoLOD(),
@@ -102,12 +102,12 @@ fun EpaLayoutCanvasRenderer(
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
 
-    var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
-    var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
+    var hoveredNode by remember(layout) { mutableStateOf<NodePlacement?>(null) }
+    var pressedNode by remember(layout) { mutableStateOf<NodePlacement?>(null) }
 
     LaunchedEffect(tabState.locateState) {
         if (tabState.locateState != null) {
-            val targetNode = treeLayout.getCoordinate(tabState.locateState)
+            val targetNode = layout.getCoordinate(tabState.locateState)
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             canvasState.offset = screenCenter - targetNode.toOffset() * canvasState.scale
         }
@@ -116,15 +116,21 @@ fun EpaLayoutCanvasRenderer(
     var heatmapBitmap by remember { mutableStateOf<HeatmapData?>(null) }
 
     // Calculate heatmap in background when layout changes
-    LaunchedEffect(treeLayout, drawAtlas) {
-        withContext(Dispatchers.Default) {
-            heatmapBitmap = null
-            val bitmap = calculateHeatmapBitmap(
-                treeLayout,
-                drawAtlas,
-                blockSize = 20
-            )
-            heatmapBitmap = bitmap
+    LaunchedEffect(layout, drawAtlas) {
+        when (layout) {
+            is AngleSimilarityDepthTimeRadialLayout -> {
+                if (layout.config.generateHeatmap) {
+                    withContext(Dispatchers.Default) {
+                        heatmapBitmap = null
+                        val bitmap = calculateHeatmapBitmap(
+                            layout,
+                            drawAtlas,
+                            blockSize = 20
+                        )
+                        heatmapBitmap = bitmap
+                    }
+                }
+            }
         }
     }
 
@@ -178,7 +184,7 @@ fun EpaLayoutCanvasRenderer(
                     }
                 }
             }
-        }.pointerInput(treeLayout) {
+        }.pointerInput(layout) {
             // Mouse hover detection
             awaitPointerEventScope {
                 while (true) {
@@ -189,7 +195,7 @@ fun EpaLayoutCanvasRenderer(
 
                         // Update hovered node if it changed
                         val newNode = TreeCanvasRenderingHelper.findNodeAt(
-                            treeLayout,
+                            layout,
                             TreeCanvasRenderingHelper.screenToWorld(
                                 screenPosition,
                                 canvasState.offset,
@@ -249,7 +255,7 @@ fun EpaLayoutCanvasRenderer(
             }
 
             try {
-                val visibleNodes = treeLayout
+                val visibleNodes = layout
                     // check for coordinates in view
                     .getCoordinatesInRectangle(
                         computeBoundingBox(
@@ -260,13 +266,13 @@ fun EpaLayoutCanvasRenderer(
                     // check that node is visible in lod
                     .filter { lodQuery.isVisible(it.state) }
 
-                when (treeLayout) {
+                when (layout) {
                     is RadialWalkerTreeLayout -> {
-                        drawDepthCircles(layout = treeLayout)
+                        drawDepthCircles(layout = layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -276,11 +282,11 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is PartitionSimilarityRadialLayout -> {
-                        drawDepthCircles(layout = treeLayout)
+                        drawDepthCircles(layout = layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -290,11 +296,11 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is DirectAngularPlacementTreeLayout -> {
-                        drawDepthCircles(layout = treeLayout)
+                        drawDepthCircles(layout = layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -304,11 +310,11 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is CycleTimeRadialLayout, is AngleSimilarityDepthTimeRadialLayout -> {
-                        drawTimeCircles(treeLayout)
+                        drawTimeCircles(layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -321,7 +327,7 @@ fun EpaLayoutCanvasRenderer(
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -334,7 +340,7 @@ fun EpaLayoutCanvasRenderer(
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -342,14 +348,14 @@ fun EpaLayoutCanvasRenderer(
                             animationState
                         )
 
-                        drawClusterOutline(dashLineLength, dashGap, dashPhase, treeLayout)
+                        drawClusterOutline(dashLineLength, dashGap, dashPhase, layout)
                     }
 
                     is ParallelReadableTreeLayout -> {
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,

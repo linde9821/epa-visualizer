@@ -194,13 +194,14 @@ sealed class LayoutConfig(val name: String) {
         val useLempelZivComplexity: Boolean = true,
         val minTime: Float = 10.0f,
         val maxTime: Float = 1000.0f,
+        val generateHeatmap: Boolean = false,
         override val lod: Boolean = false,
         override val stateSize: Float = 25f,
         override val minTransitionSize: Float = 2f,
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "rocket"
+        override val colorPalette: String = "rocket",
     ) : LayoutConfig("Angle-Similarity, Depth-Time RadialLayout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -211,6 +212,7 @@ sealed class LayoutConfig(val name: String) {
                 "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
                 "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
                 "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
+                "generateHeatmap" to ParameterInfo.BooleanParameterInfo("generateHeatmap"),
                 "useDeepestDepth" to ParameterInfo.BooleanParameterInfo("useDeepestDepth"),
                 "useSplittingFactor" to ParameterInfo.BooleanParameterInfo("useSplittingFactor"),
                 "useHasRepetition" to ParameterInfo.BooleanParameterInfo("useHasRepetition"),
@@ -270,6 +272,7 @@ sealed class LayoutConfig(val name: String) {
                 "useActivitySequenceEncoding" -> copy(useActivitySequenceEncoding = value as Boolean)
                 "useLempelZivComplexity" -> copy(useLempelZivComplexity = value as Boolean)
                 "stateSize" -> copy(stateSize = value as Float)
+                "generateHeatmap" -> copy(generateHeatmap = value as Boolean)
                 "minTransitionSize" -> copy(minTransitionSize = value as Float)
                 "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
                 "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
@@ -279,7 +282,6 @@ sealed class LayoutConfig(val name: String) {
             }
         }
     }
-
 
     data class PartitionSimilarityRadialLayoutConfig(
         override val enabled: Boolean = true,

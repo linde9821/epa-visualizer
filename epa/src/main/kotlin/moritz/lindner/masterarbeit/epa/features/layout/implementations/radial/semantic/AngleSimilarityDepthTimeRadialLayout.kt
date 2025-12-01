@@ -24,7 +24,7 @@ import kotlin.math.atan2
 
 class AngleSimilarityDepthTimeRadialLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig = LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
+    val config: LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig = LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 

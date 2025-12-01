@@ -118,7 +118,7 @@ class EpaStateManager(
                 )
             ) { _ ->
                 EpaLayoutCanvasRenderer(
-                    treeLayout = treeLayout,
+                    layout = treeLayout,
                     stateLabels = stateLabels,
                     drawAtlas = drawAtlas,
                     onStateHover = {},
