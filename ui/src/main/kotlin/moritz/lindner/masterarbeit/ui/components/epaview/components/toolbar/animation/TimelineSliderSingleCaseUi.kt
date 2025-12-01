@@ -34,7 +34,6 @@ fun TimelineSliderSingleCaseUi(
     var isLoading by remember { mutableStateOf(true) }
     var animation by remember { mutableStateOf<EventLogAnimation<Long>?>(null) }
     var sliderValue by remember { mutableFloatStateOf(0f) }
-    var currentEvent: Event<Long>? by remember { mutableStateOf(null) }
 
     LaunchedEffect(epa) {
         isLoading = true
