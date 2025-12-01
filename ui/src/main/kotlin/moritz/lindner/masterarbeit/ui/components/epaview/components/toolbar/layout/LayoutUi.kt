@@ -51,7 +51,7 @@ fun LayoutUi(
             LayoutConfig.PartitionSimilarityRadialLayoutConfig(),
             LayoutConfig.StateClusteringLayoutConfig(),
             LayoutConfig.PartitionClusteringLayoutConfig(),
-            LayoutConfig.PartitionSimilarityFooRadialLayoutConfig(),
+            LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
             currentEpa?.let {
                 LayoutConfig.CycleTimeRadialLayoutConfig(
                     extendedPrefixAutomaton = currentEpa

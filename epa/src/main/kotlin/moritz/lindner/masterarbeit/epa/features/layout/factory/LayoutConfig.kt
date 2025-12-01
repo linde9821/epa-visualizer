@@ -179,7 +179,7 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
-    data class PartitionSimilarityFooRadialLayoutConfig(
+    data class AngleSimilarityDepthTimeRadialLayoutConfig(
         override val enabled: Boolean = true,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
@@ -201,7 +201,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "mako_r"
-    ) : LayoutConfig("PartitionSimilarityFooRadialLayoutConfig") {
+    ) : LayoutConfig("Angle-Similarity, Depth-Time RadialLayout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),

@@ -28,7 +28,7 @@ data class PartitionEmbedderConfig(
             )
         }
 
-        fun from(c: LayoutConfig.PartitionSimilarityFooRadialLayoutConfig): PartitionEmbedderConfig {
+        fun from(c: LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig): PartitionEmbedderConfig {
             return PartitionEmbedderConfig(
                 useTotalStateCount = c.useTotalStateCount,
                 useTotalEventCount = c.useTotalEventCount,

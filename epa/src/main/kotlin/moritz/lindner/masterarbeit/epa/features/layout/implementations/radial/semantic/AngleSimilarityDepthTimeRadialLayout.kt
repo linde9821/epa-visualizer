@@ -23,9 +23,9 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.log10
 
-class PartitionSimilarityFooRadialLayout(
+class AngleSimilarityDepthTimeRadialLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.PartitionSimilarityFooRadialLayoutConfig = LayoutConfig.PartitionSimilarityFooRadialLayoutConfig(),
+    private val config: LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig = LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 
