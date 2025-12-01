@@ -22,12 +22,13 @@ class DefaultConfig(
 
     private val epaService = EpaService<Long>()
 
-    val logarithmicNormalizedCycleTimeByState = LogarithmicCycleTimeCalculator.logarithmicMinMaxNormalizedCycleTimeByState(
-        extendedPrefixAutomaton = extendedPrefixAutomaton,
-        min = 0.0f,
-        max = 1.0f,
-        progressCallback = progressCallback
-    )
+    val logarithmicNormalizedCycleTimeByState =
+        LogarithmicCycleTimeCalculator.logarithmicMinMaxNormalizedCycleTimeByState(
+            extendedPrefixAutomaton = extendedPrefixAutomaton,
+            min = 0.0f,
+            max = 1.0f,
+            progressCallback = progressCallback
+        )
 
     private val normalizedStateFrequency = epaService
         .getNormalizedStateFrequency(

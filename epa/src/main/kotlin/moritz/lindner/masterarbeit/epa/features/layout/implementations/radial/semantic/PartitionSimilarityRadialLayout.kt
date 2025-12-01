@@ -180,5 +180,3 @@ class PartitionSimilarityRadialLayout(
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
 }
-
-

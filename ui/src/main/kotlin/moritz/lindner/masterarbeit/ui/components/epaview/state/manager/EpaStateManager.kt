@@ -345,7 +345,7 @@ class EpaStateManager(
             extendedPrefixAutomaton = epa,
             backgroundDispatcher = backgroundDispatcher,
             progressCallback = progressCallback
-        ).also { it.build(progressCallback)}
+        ).also { it.build(progressCallback) }
 
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (updatedLayout to tabState.layoutConfig))

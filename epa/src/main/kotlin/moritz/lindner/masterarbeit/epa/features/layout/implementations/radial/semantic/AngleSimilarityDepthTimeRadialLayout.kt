@@ -40,12 +40,13 @@ class AngleSimilarityDepthTimeRadialLayout(
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
 
-        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            min = config.minTime,
-            max = config.maxTime,
-            progressCallback = progressCallback
-        )
+        combinedLogarithmicNormalizedCycleTimeByState =
+            LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                min = config.minTime,
+                max = config.maxTime,
+                progressCallback = progressCallback
+            )
 
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,

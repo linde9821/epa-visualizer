@@ -368,7 +368,7 @@ private fun getCurrentConfigValue(
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 
-    is LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig -> when(paramName) {
+    is LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig -> when (paramName) {
         "enabled" -> config.enabled
         "umapK" -> config.umapK
         "umapIterations" -> config.umapIterations

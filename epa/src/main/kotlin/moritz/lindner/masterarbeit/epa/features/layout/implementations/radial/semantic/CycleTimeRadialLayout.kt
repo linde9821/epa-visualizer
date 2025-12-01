@@ -303,12 +303,13 @@ class CycleTimeRadialLayout(
             changes[v] = 0.0f
         }
 
-        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            min = config.minTime,
-            max = config.maxTime,
-            progressCallback = progressCallback
-        )
+        combinedLogarithmicNormalizedCycleTimeByState =
+            LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                min = config.minTime,
+                max = config.maxTime,
+                progressCallback = progressCallback
+            )
 
         // let r be the root of T
         val r = tree
