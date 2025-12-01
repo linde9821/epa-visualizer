@@ -77,7 +77,6 @@ class ParallelReadableTreeLayout(
         )
 
         val offset = 1.0f
-        // TODO: adapt this for other time based layout
         // Add offset to handle zero values with logarithmic scaling
         val valuesWithoutRoot = cycleTimes
             .filterKeys { it != State.Root }
