@@ -125,7 +125,7 @@ fun EpaLayoutCanvasRenderer(
                         val bitmap = calculateHeatmapBitmap(
                             layout,
                             drawAtlas,
-                            blockSize = 20
+                            blockSize = 40
                         )
                         heatmapBitmap = bitmap
                     }
@@ -381,10 +381,10 @@ private fun calculateHeatmapBitmap(
     drawAtlas: DrawAtlas,
     blockSize: Int,
 ): HeatmapData {
-    val minXCoord = treeLayout.minOf { it.coordinate.x } - 300f
-    val maxXCoord = treeLayout.maxOf { it.coordinate.x } + 300f
-    val minYCoord = treeLayout.minOf { it.coordinate.y } - 300f
-    val maxYCoord = treeLayout.maxOf { it.coordinate.y } + 300f
+    val minXCoord = treeLayout.minOf { it.coordinate.x } - 450f
+    val maxXCoord = treeLayout.maxOf { it.coordinate.x } + 450f
+    val minYCoord = treeLayout.minOf { it.coordinate.y } - 450f
+    val maxYCoord = treeLayout.maxOf { it.coordinate.y } + 450f
 
     val minX = (minXCoord / blockSize).toInt() * blockSize
     val minY = (minYCoord / blockSize).toInt() * blockSize
@@ -409,8 +409,8 @@ private fun calculateHeatmapBitmap(
                 worldY + blockSize / 2f,
                 treeLayout,
                 drawAtlas,
-                power = 7f,
-                maxDistance = 2000f,
+                power = 10f,
+                maxDistance = 3000f,
             )
 
             skiaCanvas.drawRect(
