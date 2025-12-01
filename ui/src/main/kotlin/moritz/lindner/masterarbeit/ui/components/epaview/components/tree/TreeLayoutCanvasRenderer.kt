@@ -240,20 +240,6 @@ fun EpaLayoutCanvasRenderer(
         }) {
             canvasState.initializeCenter(size)
 
-            heatmapBitmap?.let { (bitmap, bounds) ->
-                drawImage(
-                    image = bitmap.asComposeImageBitmap(),
-                    dstOffset = IntOffset(bounds.left.toInt(), bounds.top.toInt()),
-                    dstSize = IntSize(
-                        (bounds.right - bounds.left).toInt(),
-                        (bounds.bottom - bounds.top).toInt()
-                    ),
-                    alpha = 0.85f,
-                    blendMode = BlendMode.ColorBurn,
-                    filterQuality = FilterQuality.High
-                )
-            }
-
             try {
                 val visibleNodes = layout
                     // check for coordinates in view
@@ -310,6 +296,21 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is CycleTimeRadialLayout, is AngleSimilarityDepthTimeRadialLayout -> {
+
+                        heatmapBitmap?.let { (bitmap, bounds) ->
+                            drawImage(
+                                image = bitmap.asComposeImageBitmap(),
+                                dstOffset = IntOffset(bounds.left.toInt(), bounds.top.toInt()),
+                                dstSize = IntSize(
+                                    (bounds.right - bounds.left).toInt(),
+                                    (bounds.bottom - bounds.top).toInt()
+                                ),
+                                alpha = 0.85f,
+                                blendMode = BlendMode.ColorBurn,
+                                filterQuality = FilterQuality.High
+                            )
+                        }
+
                         drawTimeCircles(layout)
                         drawTree(
                             drawAtlas,
