@@ -47,6 +47,13 @@ fun LayoutConfigUI(
         items(currentConfig.getParameters().toList()) { (paramName, info) ->
             val currentValue = getCurrentConfigValue(currentConfig, paramName)
 
+            Divider(
+                orientation = Orientation.Horizontal,
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = JewelTheme.contentColor.copy(alpha = 0.2f)
+            )
+
             when (info) {
                 is ParameterInfo.BooleanParameterInfo -> {
                     Row(
@@ -383,6 +390,7 @@ private fun getCurrentConfigValue(
         "colorPalette" -> config.colorPalette
         "minEdgeLength" -> config.minTime
         "maxEdgeLength" -> config.maxTime
+        "generateHeatmap" -> config.generateHeatmap
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }
