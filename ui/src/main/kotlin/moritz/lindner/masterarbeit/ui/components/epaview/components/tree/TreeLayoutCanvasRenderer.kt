@@ -15,8 +15,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -26,8 +30,11 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
 import moritz.lindner.masterarbeit.epa.features.layout.ClusterLayout
@@ -39,6 +46,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.implementations.clusterin
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.parallelreadabletree.ParallelReadableTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.DirectAngularPlacementTreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.RadialWalkerTreeLayout
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.AngleSimilarityDepthTimeRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.CycleTimeRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.PartitionSimilarityRadialLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
@@ -57,6 +65,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.PaintStrokeCap
@@ -70,10 +79,15 @@ import kotlin.math.sqrt
 const val minScale = 0.05f
 const val maxScale = 5f
 
+private data class HeatmapData(
+    val bitmap: Bitmap,
+    val bounds: Rect
+)
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EpaLayoutCanvasRenderer(
-    treeLayout: Layout,
+    layout: Layout,
     stateLabels: StateLabels,
     highlightingAtlas: HighlightingAtlas,
     lodQuery: LODQuery = NoLOD(),
@@ -88,14 +102,35 @@ fun EpaLayoutCanvasRenderer(
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
 
-    var hoveredNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
-    var pressedNode by remember(treeLayout) { mutableStateOf<NodePlacement?>(null) }
+    var hoveredNode by remember(layout) { mutableStateOf<NodePlacement?>(null) }
+    var pressedNode by remember(layout) { mutableStateOf<NodePlacement?>(null) }
 
     LaunchedEffect(tabState.locateState) {
         if (tabState.locateState != null) {
-            val targetNode = treeLayout.getCoordinate(tabState.locateState)
+            val targetNode = layout.getCoordinate(tabState.locateState)
             val screenCenter = Offset(canvasSize.width / 2f, canvasSize.height / 2f)
             canvasState.offset = screenCenter - targetNode.toOffset() * canvasState.scale
+        }
+    }
+
+    var heatmapBitmap by remember { mutableStateOf<HeatmapData?>(null) }
+
+    // Calculate heatmap in background when layout changes
+    LaunchedEffect(layout, drawAtlas) {
+        when (layout) {
+            is AngleSimilarityDepthTimeRadialLayout -> {
+                if (layout.config.generateHeatmap) {
+                    withContext(Dispatchers.Default) {
+                        heatmapBitmap = null
+                        val bitmap = calculateHeatmapBitmap(
+                            layout,
+                            drawAtlas,
+                            blockSize = 40
+                        )
+                        heatmapBitmap = bitmap
+                    }
+                }
+            }
         }
     }
 
@@ -149,7 +184,7 @@ fun EpaLayoutCanvasRenderer(
                     }
                 }
             }
-        }.pointerInput(treeLayout) {
+        }.pointerInput(layout) {
             // Mouse hover detection
             awaitPointerEventScope {
                 while (true) {
@@ -160,7 +195,7 @@ fun EpaLayoutCanvasRenderer(
 
                         // Update hovered node if it changed
                         val newNode = TreeCanvasRenderingHelper.findNodeAt(
-                            treeLayout,
+                            layout,
                             TreeCanvasRenderingHelper.screenToWorld(
                                 screenPosition,
                                 canvasState.offset,
@@ -204,8 +239,9 @@ fun EpaLayoutCanvasRenderer(
             )
         }) {
             canvasState.initializeCenter(size)
+
             try {
-                val visibleNodes = treeLayout
+                val visibleNodes = layout
                     // check for coordinates in view
                     .getCoordinatesInRectangle(
                         computeBoundingBox(
@@ -216,13 +252,13 @@ fun EpaLayoutCanvasRenderer(
                     // check that node is visible in lod
                     .filter { lodQuery.isVisible(it.state) }
 
-                when (treeLayout) {
+                when (layout) {
                     is RadialWalkerTreeLayout -> {
-                        drawDepthCircles(layout = treeLayout)
+                        drawDepthCircles(layout = layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -232,11 +268,11 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is PartitionSimilarityRadialLayout -> {
-                        drawDepthCircles(layout = treeLayout)
+                        drawDepthCircles(layout = layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -246,11 +282,11 @@ fun EpaLayoutCanvasRenderer(
                     }
 
                     is DirectAngularPlacementTreeLayout -> {
-                        drawDepthCircles(layout = treeLayout)
+                        drawDepthCircles(layout = layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -259,12 +295,27 @@ fun EpaLayoutCanvasRenderer(
                         )
                     }
 
-                    is CycleTimeRadialLayout -> {
-                        drawTimeCircles(treeLayout)
+                    is CycleTimeRadialLayout, is AngleSimilarityDepthTimeRadialLayout -> {
+
+                        heatmapBitmap?.let { (bitmap, bounds) ->
+                            drawImage(
+                                image = bitmap.asComposeImageBitmap(),
+                                dstOffset = IntOffset(bounds.left.toInt(), bounds.top.toInt()),
+                                dstSize = IntSize(
+                                    (bounds.right - bounds.left).toInt(),
+                                    (bounds.bottom - bounds.top).toInt()
+                                ),
+                                alpha = 0.85f,
+                                blendMode = BlendMode.ColorBurn,
+                                filterQuality = FilterQuality.High
+                            )
+                        }
+
+                        drawTimeCircles(layout)
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -277,7 +328,7 @@ fun EpaLayoutCanvasRenderer(
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -290,7 +341,7 @@ fun EpaLayoutCanvasRenderer(
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -298,14 +349,14 @@ fun EpaLayoutCanvasRenderer(
                             animationState
                         )
 
-                        drawClusterOutline(dashLineLength, dashGap, dashPhase, treeLayout)
+                        drawClusterOutline(dashLineLength, dashGap, dashPhase, layout)
                     }
 
                     is ParallelReadableTreeLayout -> {
                         drawTree(
                             drawAtlas,
                             visibleNodes,
-                            treeLayout,
+                            layout,
                             highlightingAtlas,
                             tabState,
                             canvasState.scale,
@@ -325,7 +376,131 @@ fun EpaLayoutCanvasRenderer(
     }
 }
 
-private fun DrawScope.drawTimeCircles(treeLayout: CycleTimeRadialLayout) {
+private fun calculateHeatmapBitmap(
+    treeLayout: Layout,
+    drawAtlas: DrawAtlas,
+    blockSize: Int,
+): HeatmapData {
+    val minXCoord = treeLayout.minOf { it.coordinate.x } - 450f
+    val maxXCoord = treeLayout.maxOf { it.coordinate.x } + 450f
+    val minYCoord = treeLayout.minOf { it.coordinate.y } - 450f
+    val maxYCoord = treeLayout.maxOf { it.coordinate.y } + 450f
+
+    val minX = (minXCoord / blockSize).toInt() * blockSize
+    val minY = (minYCoord / blockSize).toInt() * blockSize
+    val maxX = ((maxXCoord / blockSize).toInt() + 1) * blockSize
+    val maxY = ((maxYCoord / blockSize).toInt() + 1) * blockSize
+
+    val width = ((maxX - minX) / blockSize).toInt()
+    val height = ((maxY - minY) / blockSize).toInt()
+
+    val bitmap = Bitmap()
+    bitmap.allocN32Pixels(width, height)
+    val skiaCanvas = org.jetbrains.skia.Canvas(bitmap)
+
+    var bitmapY = 0
+    var worldY = minY.toFloat()
+    while (worldY < maxY) {
+        var bitmapX = 0
+        var worldX = minX.toFloat()
+        while (worldX < maxX) {
+            val paint = calculateIDWColor(
+                worldX + blockSize / 2f,
+                worldY + blockSize / 2f,
+                treeLayout,
+                drawAtlas,
+                power = 10f,
+                maxDistance = 3000f,
+            )
+
+            skiaCanvas.drawRect(
+                org.jetbrains.skia.Rect.makeXYWH(
+                    bitmapX.toFloat(),
+                    bitmapY.toFloat(),
+                    1f,
+                    1f
+                ),
+                paint
+            )
+
+            worldX += blockSize
+            bitmapX++
+        }
+        worldY += blockSize
+        bitmapY++
+    }
+
+    return HeatmapData(
+        bitmap = bitmap,
+        bounds = Rect(
+            minX.toFloat(),
+            minY.toFloat(),
+            maxX.toFloat(),
+            maxY.toFloat()
+        )
+    )
+}
+
+fun calculateIDWColor(
+    x: Float,
+    y: Float,
+    points: Layout,
+    drawAtlas: DrawAtlas,
+    power: Float = 4f,
+    maxDistance: Float = 200f,
+): Paint {
+    var weightedRed = 0f
+    var weightedGreen = 0f
+    var weightedBlue = 0f
+    var weightedAlpha = 0f
+    var totalWeight = 0f
+
+    for (placement in points) {
+        val paint = drawAtlas.getState(placement.state).paint
+        val point = placement.coordinate
+        val dx = x - point.x
+        val dy = y - point.y
+        val distance = sqrt(dx * dx + dy * dy)
+
+        if (distance < 0.01f) {
+            return paint
+        }
+
+        if (distance > maxDistance) continue
+
+        val weight = 1f / distance.pow(power)
+
+        // Extract ARGB components from Skia color
+        val color = paint.color
+        val a = ((color shr 24) and 0xFF) / 255f
+        val r = ((color shr 16) and 0xFF) / 255f
+        val g = ((color shr 8) and 0xFF) / 255f
+        val b = (color and 0xFF) / 255f
+
+        weightedRed += r * weight
+        weightedGreen += g * weight
+        weightedBlue += b * weight
+        weightedAlpha += a * weight
+        totalWeight += weight
+    }
+
+    return if (totalWeight > 0) {
+        Paint().apply {
+            color = org.jetbrains.skia.Color.makeARGB(
+                (weightedAlpha / totalWeight * 255).toInt(),
+                (weightedRed / totalWeight * 255).toInt(),
+                (weightedGreen / totalWeight * 255).toInt(),
+                (weightedBlue / totalWeight * 255).toInt()
+            )
+        }
+    } else {
+        Paint().apply {
+            color = org.jetbrains.skia.Color.TRANSPARENT
+        }
+    }
+}
+
+private fun DrawScope.drawTimeCircles(treeLayout: Layout) {
     treeLayout
         .map { node -> sqrt(node.coordinate.x.pow(2) + node.coordinate.y.pow(2)) }
         .distinct()

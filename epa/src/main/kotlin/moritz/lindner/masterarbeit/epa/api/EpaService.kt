@@ -112,6 +112,10 @@ class EpaService<T : Comparable<T>> {
         return (outgoing + incoming)
     }
 
+    fun isTerminating(epa: ExtendedPrefixAutomaton<T>, u: State): Boolean {
+        return outgoingTransitions(epa, u).isEmpty()
+    }
+
     fun outgoingTransitions(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         state: State

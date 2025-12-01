@@ -21,11 +21,10 @@ import smile.manifold.umap
 import smile.math.MathEx
 import kotlin.math.PI
 import kotlin.math.atan2
-import kotlin.math.max
 
-class PartitionSimilarityRadialLayout(
+class AngleSimilarityDepthTimeRadialLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.PartitionSimilarityRadialLayoutConfig = LayoutConfig.PartitionSimilarityRadialLayoutConfig(),
+    val config: LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig = LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 
@@ -36,8 +35,18 @@ class PartitionSimilarityRadialLayout(
 
     private var maxDepth = Int.MIN_VALUE
 
+    lateinit var combinedLogarithmicNormalizedCycleTimeByState: Map<State, Float>
+
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
+
+        combinedLogarithmicNormalizedCycleTimeByState =
+            LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                min = config.minTime,
+                max = config.maxTime,
+                progressCallback = progressCallback
+            )
 
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
@@ -76,7 +85,6 @@ class PartitionSimilarityRadialLayout(
     ) {
         placeNode(
             state = State.Root,
-            depth = 0,
             wedgeStart = 0f,
             wedgeEnd = (2 * PI).toFloat(),
             subtreeSizes = subtreeSizes,
@@ -86,21 +94,20 @@ class PartitionSimilarityRadialLayout(
 
     private fun placeNode(
         state: State,
-        depth: Int,
         wedgeStart: Float,
         wedgeEnd: Float,
         subtreeSizes: Map<State, Int>,
         partitionToAngleMap: Map<Int, Float>
     ) {
-        maxDepth = max(maxDepth, depth)
-
         val partition = extendedPrefixAutomaton.partition(state)
         val preferredAngle = partitionToAngleMap[partition]!!
 
         val constrainedAngle = constrainAngleToWedge(preferredAngle, wedgeStart, wedgeEnd)
 
+        val depth = combinedLogarithmicNormalizedCycleTimeByState[state]!!
+
         nodePlacementByState[state] = NodePlacement(
-            coordinate = Coordinate.fromPolar(depth * config.layerSpace, constrainedAngle),
+            coordinate = Coordinate.Companion.fromPolar(depth, constrainedAngle),
             state = state
         )
 
@@ -122,7 +129,6 @@ class PartitionSimilarityRadialLayout(
 
             placeNode(
                 state = child,
-                depth = depth + 1,
                 wedgeStart = currentAngle,
                 wedgeEnd = childWedgeEnd,
                 subtreeSizes = subtreeSizes,
@@ -156,7 +162,7 @@ class PartitionSimilarityRadialLayout(
     }
 
     override fun getCircleRadius(): Float {
-        return config.layerSpace
+        return 0f
     }
 
     override fun getMaxDepth(): Int {

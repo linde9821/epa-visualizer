@@ -22,13 +22,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
-import moritz.lindner.masterarbeit.epa.api.LayoutService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
@@ -56,7 +56,6 @@ class EpaStateManager(
     projectStateManager: ProjectStateManager
 ) {
     private val epaService = EpaService<Long>()
-    private val layoutService = LayoutService<Long>(backgroundDispatcher)
     private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
 
     private val _epaByTabId = MutableStateFlow<Map<String, ExtendedPrefixAutomaton<Long>>>(emptyMap())
@@ -119,7 +118,7 @@ class EpaStateManager(
                 )
             ) { _ ->
                 EpaLayoutCanvasRenderer(
-                    treeLayout = treeLayout,
+                    layout = treeLayout,
                     stateLabels = stateLabels,
                     drawAtlas = drawAtlas,
                     onStateHover = {},
@@ -209,8 +208,8 @@ class EpaStateManager(
                 .tabs
                 .collectLatest { tabs ->
                     logger.info { "Collecting latest tabs" }
-                    try {
-                        for (tab in tabs) {
+                    for (tab in tabs) {
+                        try {
                             buildEpaForTab(tab)
                             ensureActive()
                             launch {
@@ -222,13 +221,14 @@ class EpaStateManager(
                                 ensureActive()
                                 buildHighlightingForTab(tab)
                             }
+                        } catch (e: CancellationException) {
+                            logger.warn(e) { "canceling current tabs building" }
+                        } catch (e: Exception) {
+                            // TODO: move try catch into functions and set error for tabs accordingly
+                            logger.error(e) { "Error while building state" }
                         }
-                    } catch (e: CancellationException) {
-                        logger.warn(e) { "canceling current tabs building" }
-                    } catch (e: Exception) {
-                        // TODO: move try catch into functions and set error for tabs accordingly
-                        logger.error(e) { "Error while building state" }
                     }
+
                 }
         }
     }
@@ -340,7 +340,13 @@ class EpaStateManager(
         }
 
         val epa = _epaByTabId.value[tabState.id]!!
-        val updatedLayout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
+        val updatedLayout = LayoutFactory.createLayout(
+            config = tabState.layoutConfig,
+            extendedPrefixAutomaton = epa,
+            backgroundDispatcher = backgroundDispatcher,
+            progressCallback = progressCallback
+        ).also { it.build(progressCallback) }
+
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (updatedLayout to tabState.layoutConfig))
         }

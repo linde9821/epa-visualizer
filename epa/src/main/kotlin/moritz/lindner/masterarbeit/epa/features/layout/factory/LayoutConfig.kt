@@ -30,7 +30,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
@@ -80,7 +80,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r",
+        override val colorPalette: String = "rocket",
     ) : LayoutConfig("Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
@@ -130,7 +130,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Cycle-Time Radial Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -179,6 +179,110 @@ sealed class LayoutConfig(val name: String) {
         }
     }
 
+    data class AngleSimilarityDepthTimeRadialLayoutConfig(
+        override val enabled: Boolean = true,
+        val umapK: Int = 10,
+        val umapIterations: Int = 250,
+        val useTotalStateCount: Boolean = true,
+        val useTotalEventCount: Boolean = true,
+        val useTotalTraceCount: Boolean = true,
+        val useDeepestDepth: Boolean = true,
+        val useSplittingFactor: Boolean = true,
+        val useHasRepetition: Boolean = true,
+        val useCombinedCycleTime: Boolean = true,
+        val useActivitySequenceEncoding: Boolean = true,
+        val useLempelZivComplexity: Boolean = true,
+        val minTime: Float = 10.0f,
+        val maxTime: Float = 1000.0f,
+        val generateHeatmap: Boolean = false,
+        override val lod: Boolean = false,
+        override val stateSize: Float = 25f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 25f,
+        override val stateSizeUntilLabelIsDrawn: Float = 13f,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
+        override val colorPalette: String = "rocket",
+    ) : LayoutConfig("Angle-Similarity, Depth-Time RadialLayout") {
+        override fun getParameters(): Map<String, ParameterInfo> {
+            return mapOf(
+                "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 50),
+                "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 50),
+                "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
+                "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
+                "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
+                "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
+                "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
+                "generateHeatmap" to ParameterInfo.BooleanParameterInfo("generateHeatmap"),
+                "useDeepestDepth" to ParameterInfo.BooleanParameterInfo("useDeepestDepth"),
+                "useSplittingFactor" to ParameterInfo.BooleanParameterInfo("useSplittingFactor"),
+                "useHasRepetition" to ParameterInfo.BooleanParameterInfo("useHasRepetition"),
+                "useCombinedCycleTime" to ParameterInfo.BooleanParameterInfo("useCombinedCycleTime"),
+                "useActivitySequenceEncoding" to ParameterInfo.BooleanParameterInfo("useActivitySequenceEncoding"),
+                "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
+                "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
+                "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
+                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+                "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
+                    "stateSizeUntilLabelIsDrawn",
+                    1.0f,
+                    100.0f,
+                    1.0f
+                ),
+                "transitionDrawMode" to ParameterInfo.EnumParameterInfo(
+                    "transitionDrawMode",
+                    TransitionDrawMode.entries
+                ),
+                "colorPalette" to ParameterInfo.ColorPaletteListParameterInfo(
+                    "Color Palette",
+                    ColorPalettes.allPalettes()
+                ),
+                "minEdgeLength" to ParameterInfo.NumberParameterInfo(
+                    name = "min time length",
+                    min = 0f,
+                    max = 1000f,
+                    steps = 10f
+                ),
+                "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
+                    name = "max time length",
+                    min = 100f,
+                    max = 3000f,
+                    steps = 10f
+                ),
+            )
+        }
+
+        override fun updateParameter(
+            name: String,
+            value: Any
+        ): LayoutConfig {
+            return when (name) {
+                "umapK" -> copy(umapK = value as Int)
+                "umapIterations" -> copy(umapIterations = value as Int)
+                "enabled" -> copy(enabled = value as Boolean)
+                "lod" -> copy(lod = value as Boolean)
+                "useTotalStateCount" -> copy(useTotalStateCount = value as Boolean)
+                "useTotalEventCount" -> copy(useTotalEventCount = value as Boolean)
+                "minEdgeLength" -> copy(minTime = value as Float)
+                "maxEdgeLength" -> copy(maxTime = value as Float)
+                "useTotalTraceCount" -> copy(useTotalTraceCount = value as Boolean)
+                "useDeepestDepth" -> copy(useDeepestDepth = value as Boolean)
+                "useSplittingFactor" -> copy(useSplittingFactor = value as Boolean)
+                "useHasRepetition" -> copy(useHasRepetition = value as Boolean)
+                "useCombinedCycleTime" -> copy(useCombinedCycleTime = value as Boolean)
+                "useActivitySequenceEncoding" -> copy(useActivitySequenceEncoding = value as Boolean)
+                "useLempelZivComplexity" -> copy(useLempelZivComplexity = value as Boolean)
+                "stateSize" -> copy(stateSize = value as Float)
+                "generateHeatmap" -> copy(generateHeatmap = value as Boolean)
+                "minTransitionSize" -> copy(minTransitionSize = value as Float)
+                "maxTransitionSize" -> copy(maxTransitionSize = value as Float)
+                "stateSizeUntilLabelIsDrawn" -> copy(stateSizeUntilLabelIsDrawn = value as Float)
+                "transitionDrawMode" -> copy(transitionDrawMode = value as TransitionDrawMode)
+                "colorPalette" -> copy(colorPalette = value as String)
+                else -> this
+            }
+        }
+    }
+
     data class PartitionSimilarityRadialLayoutConfig(
         override val enabled: Boolean = true,
         val layerSpace: Float = 120.0f,
@@ -199,7 +303,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -277,7 +381,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Direct Angular Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
@@ -348,7 +452,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("State Clustering Layout") {
 
         override val lod: Boolean
@@ -442,7 +546,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Partition Clustering Layout") {
 
         override val lod: Boolean
@@ -523,7 +627,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(

@@ -5,7 +5,6 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -18,7 +17,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
-import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -34,66 +32,7 @@ class CycleTimeRadialLayout(
     private val logger = KotlinLogging.logger {}
 
     private val distance = 1.0f
-    val epaService = EpaService<Long>()
-
-    private fun cycleTimeSum(state: State.PrefixState, cycleTimes: Map<State, Float>): Float {
-        return epaService
-            .getPathFromRoot(state)
-            .map { stateOnPath -> cycleTimes[stateOnPath]!! }
-            .sum()
-    }
-
-    val logarithmicNormalizedCycleTimeByState = buildMap {
-        val cycleTimes = epaService.computeAllCycleTimes(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            minus = Long::minus,
-            average = { cycleTimes ->
-                if (cycleTimes.isEmpty()) {
-                    0f
-                } else cycleTimes.average().toFloat()
-            },
-        )
-
-        val offset = 1.0f
-        val cumulativeValuesWithoutRoot = cycleTimes
-            .filterKeys { it != State.Root }
-            .values
-            .map { it + offset }
-
-        val cumulativeMin = cumulativeValuesWithoutRoot.minOrNull() ?: offset
-        val cumulativeMax = cumulativeValuesWithoutRoot.maxOrNull() ?: offset
-
-        val logMin = log10(cumulativeMin)
-        val logMax = log10(cumulativeMax)
-
-        extendedPrefixAutomaton.states.forEach { state ->
-            when (state) {
-                is State.PrefixState -> {
-                    // 1. log scaling
-                    val rawValue = cycleTimes[state]!!
-                    val value = rawValue + offset
-                    val logValue = log10(value)
-
-                    // 2. min-max normalization
-                    val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-
-                    val timeBasedDistance = config.minTime + normalized * (config.maxTime - config.minTime)
-
-                    put(state, timeBasedDistance)
-                }
-
-                State.Root -> put(state, 0f)
-            }
-        }
-
-    }
-
-    val combinedLogarithmicNormalizedCycleTimeByState = extendedPrefixAutomaton.states.associateWith {
-        when (it) {
-            is State.PrefixState -> cycleTimeSum(it, logarithmicNormalizedCycleTimeByState)
-            State.Root -> 0f
-        }
-    }
+    private lateinit var combinedLogarithmicNormalizedCycleTimeByState: Map<State, Float>
 
     private val threads = HashMap<EPATreeNode, EPATreeNode?>(expectedCapacity)
     private val modifiers = HashMap<EPATreeNode, Float>(expectedCapacity)
@@ -363,6 +302,15 @@ class CycleTimeRadialLayout(
             shifts[v] = 0.0f
             changes[v] = 0.0f
         }
+
+        combinedLogarithmicNormalizedCycleTimeByState =
+            LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                min = config.minTime,
+                max = config.maxTime,
+                progressCallback = progressCallback
+            )
+
         // let r be the root of T
         val r = tree
 

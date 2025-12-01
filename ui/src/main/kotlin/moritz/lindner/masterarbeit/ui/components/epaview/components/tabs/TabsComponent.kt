@@ -176,7 +176,7 @@ fun TabsComponent(
                             val layout = currentLayoutAndConfig.first
 
                             EpaLayoutCanvasRenderer(
-                                treeLayout = layout,
+                                layout = layout,
                                 stateLabels = currentStateLabels,
                                 drawAtlas = currentDrawAtlas,
                                 onStateHover = {},

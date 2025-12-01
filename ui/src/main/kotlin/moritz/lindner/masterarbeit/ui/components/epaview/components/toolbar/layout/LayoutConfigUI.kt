@@ -47,6 +47,13 @@ fun LayoutConfigUI(
         items(currentConfig.getParameters().toList()) { (paramName, info) ->
             val currentValue = getCurrentConfigValue(currentConfig, paramName)
 
+            Divider(
+                orientation = Orientation.Horizontal,
+                modifier = Modifier.fillMaxWidth(),
+                thickness = 1.dp,
+                color = JewelTheme.contentColor.copy(alpha = 0.2f)
+            )
+
             when (info) {
                 is ParameterInfo.BooleanParameterInfo -> {
                     Row(
@@ -358,6 +365,32 @@ private fun getCurrentConfigValue(
         "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
         "transitionDrawMode" -> config.transitionDrawMode
         "colorPalette" -> config.colorPalette
+        else -> throw IllegalArgumentException("Unknown parameter $paramName")
+    }
+
+    is LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig -> when (paramName) {
+        "enabled" -> config.enabled
+        "umapK" -> config.umapK
+        "umapIterations" -> config.umapIterations
+        "lod" -> config.lod
+        "useTotalStateCount" -> config.useTotalStateCount
+        "useTotalEventCount" -> config.useTotalEventCount
+        "useTotalTraceCount" -> config.useTotalTraceCount
+        "useDeepestDepth" -> config.useDeepestDepth
+        "useSplittingFactor" -> config.useSplittingFactor
+        "useHasRepetition" -> config.useHasRepetition
+        "useCombinedCycleTime" -> config.useCombinedCycleTime
+        "useActivitySequenceEncoding" -> config.useActivitySequenceEncoding
+        "useLempelZivComplexity" -> config.useLempelZivComplexity
+        "stateSize" -> config.stateSize
+        "minTransitionSize" -> config.minTransitionSize
+        "maxTransitionSize" -> config.maxTransitionSize
+        "stateSizeUntilLabelIsDrawn" -> config.stateSizeUntilLabelIsDrawn
+        "transitionDrawMode" -> config.transitionDrawMode
+        "colorPalette" -> config.colorPalette
+        "minEdgeLength" -> config.minTime
+        "maxEdgeLength" -> config.maxTime
+        "generateHeatmap" -> config.generateHeatmap
         else -> throw IllegalArgumentException("Unknown parameter $paramName")
     }
 }

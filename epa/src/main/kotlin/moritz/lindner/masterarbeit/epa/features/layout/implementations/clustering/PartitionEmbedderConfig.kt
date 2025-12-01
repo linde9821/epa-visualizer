@@ -28,6 +28,20 @@ data class PartitionEmbedderConfig(
             )
         }
 
+        fun from(c: LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig): PartitionEmbedderConfig {
+            return PartitionEmbedderConfig(
+                useTotalStateCount = c.useTotalStateCount,
+                useTotalEventCount = c.useTotalEventCount,
+                useTotalTraceCount = c.useTotalTraceCount,
+                useDeepestDepth = c.useDeepestDepth,
+                useSplittingFactor = c.useSplittingFactor,
+                useHasRepetition = c.useHasRepetition,
+                useCombinedCycleTime = c.useCombinedCycleTime,
+                useActivitySequenceEncoding = c.useActivitySequenceEncoding,
+                useLempelZivComplexity = c.useLempelZivComplexity,
+            )
+        }
+
         fun from(c: LayoutConfig.PartitionSimilarityRadialLayoutConfig): PartitionEmbedderConfig {
             return PartitionEmbedderConfig(
                 useTotalStateCount = c.useTotalStateCount,
