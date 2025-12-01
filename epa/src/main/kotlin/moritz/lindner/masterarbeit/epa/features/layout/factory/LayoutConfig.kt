@@ -30,7 +30,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
@@ -80,7 +80,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r",
+        override val colorPalette: String = "rocket",
     ) : LayoutConfig("Radial Walker Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
@@ -130,7 +130,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Cycle-Time Radial Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -200,7 +200,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Angle-Similarity, Depth-Time RadialLayout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -301,7 +301,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -379,7 +379,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Direct Angular Tree Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
@@ -450,7 +450,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("State Clustering Layout") {
 
         override val lod: Boolean
@@ -544,7 +544,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("Partition Clustering Layout") {
 
         override val lod: Boolean
@@ -625,7 +625,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "mako_r"
+        override val colorPalette: String = "rocket"
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
