@@ -22,13 +22,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
-import moritz.lindner.masterarbeit.epa.api.LayoutService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
+import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import moritz.lindner.masterarbeit.epa.features.lod.LODQuery
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
 import moritz.lindner.masterarbeit.epa.features.lod.steiner.SteinerTreeLOD
@@ -56,7 +56,6 @@ class EpaStateManager(
     projectStateManager: ProjectStateManager
 ) {
     private val epaService = EpaService<Long>()
-    private val layoutService = LayoutService<Long>(backgroundDispatcher)
     private val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
 
     private val _epaByTabId = MutableStateFlow<Map<String, ExtendedPrefixAutomaton<Long>>>(emptyMap())
@@ -341,7 +340,13 @@ class EpaStateManager(
         }
 
         val epa = _epaByTabId.value[tabState.id]!!
-        val updatedLayout = layoutService.buildLayout(epa, tabState.layoutConfig, progressCallback)
+        val updatedLayout = LayoutFactory.createLayout(
+            config = tabState.layoutConfig,
+            extendedPrefixAutomaton = epa,
+            backgroundDispatcher = backgroundDispatcher,
+            progressCallback = progressCallback
+        ).also { it.build(progressCallback)}
+
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (updatedLayout to tabState.layoutConfig))
         }
