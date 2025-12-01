@@ -21,7 +21,6 @@ import smile.manifold.umap
 import smile.math.MathEx
 import kotlin.math.PI
 import kotlin.math.atan2
-import kotlin.math.log10
 
 class AngleSimilarityDepthTimeRadialLayout(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -41,7 +40,7 @@ class AngleSimilarityDepthTimeRadialLayout(
     override fun build(progressCallback: EpaProgressCallback?) {
         MathEx.setSeed(42);
 
-        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTime.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             min = config.minTime,
             max = config.maxTime,

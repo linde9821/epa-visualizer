@@ -6,11 +6,10 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.features.layout.ColorPalettes
-import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.LogarithmicCycleTime
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.LogarithmicCycleTimeCalculator
 import org.jetbrains.skia.Color
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.PaintMode
-import kotlin.math.log10
 
 class DefaultConfig(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -23,7 +22,7 @@ class DefaultConfig(
 
     private val epaService = EpaService<Long>()
 
-    val logarithmicNormalizedCycleTimeByState = LogarithmicCycleTime.logarithmicMinMaxNormalizedCycleTimeByState(
+    val logarithmicNormalizedCycleTimeByState = LogarithmicCycleTimeCalculator.logarithmicMinMaxNormalizedCycleTimeByState(
         extendedPrefixAutomaton = extendedPrefixAutomaton,
         min = 0.0f,
         max = 1.0f,

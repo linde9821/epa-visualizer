@@ -5,7 +5,6 @@ import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -18,7 +17,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
 import moritz.lindner.masterarbeit.epa.features.layout.tree.EPATreeNode
 import kotlin.math.PI
-import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -305,7 +303,7 @@ class CycleTimeRadialLayout(
             changes[v] = 0.0f
         }
 
-        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTime.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+        combinedLogarithmicNormalizedCycleTimeByState = LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             min = config.minTime,
             max = config.maxTime,

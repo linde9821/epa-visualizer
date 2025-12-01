@@ -6,7 +6,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
 import kotlin.math.log10
 
-object LogarithmicCycleTime {
+object LogarithmicCycleTimeCalculator {
 
     private val epaService = EpaService<Long>()
 
@@ -29,18 +29,18 @@ object LogarithmicCycleTime {
             )
 
             val offset = 1.0f
-            val cumulativeValuesWithoutRoot = cycleTimes
+            val valuesWithoutRootAndTerminating = cycleTimes
                 .filterKeys {
                     it != State.Root && epaService.isTerminating(extendedPrefixAutomaton, it).not()
                 }
                 .values
                 .map { it + offset }
 
-            val cumulativeMin = cumulativeValuesWithoutRoot.minOrNull() ?: offset
-            val cumulativeMax = cumulativeValuesWithoutRoot.maxOrNull() ?: offset
+            val rawMin = valuesWithoutRootAndTerminating.minOrNull() ?: offset
+            val rawMax = valuesWithoutRootAndTerminating.maxOrNull() ?: offset
 
-            val logMin = log10(cumulativeMin)
-            val logMax = log10(cumulativeMax)
+            val logMin = log10(rawMin)
+            val logMax = log10(rawMax)
 
             extendedPrefixAutomaton.states.forEach { state ->
                 when (state) {
