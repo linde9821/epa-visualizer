@@ -31,7 +31,7 @@ object LogarithmicCycleTimeCalculator {
             val offset = 1.0f
             val valuesWithoutRootAndTerminating = cycleTimes
                 .filterKeys {
-                    it != State.Root && epaService.isTerminating(extendedPrefixAutomaton, it).not()
+                    it != State.Root && epaService.isFinalState(extendedPrefixAutomaton, it).not()
                 }
                 .values
                 .map { it + offset }
