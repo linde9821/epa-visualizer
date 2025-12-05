@@ -12,7 +12,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  * [ExtendedPrefixAutomaton].
  *
  * The frequency is calculated as the number of events observed in each
- * partition divided by the total number of events across all partitions.
+ * partition divided by the total number of events across all partitions and there parent partitions.
  * The result is a value in [0.0, 1.0].
  *
  * This visitor must be run using
@@ -24,46 +24,44 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 class NormalizedPartitionFrequencyVisitor<T : Comparable<T>>(
     private val progressCallback: EpaProgressCallback? = null
 ) : AutomatonVisitor<T> {
-    private val relativeFrequencyByPartition = HashMap<Int, Float>()
+    lateinit var relativeFrequencyByPartition: Map<Int, Float>
     private var allEvents = 0
 
     private val epaService = EpaService<T>()
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-
-
         val terminatingStatesByPartition = extendedPrefixAutomaton
             .states
             .groupBy(extendedPrefixAutomaton::partition)
             .mapValues { (partition, states) ->
-
                 // Edge Case: Undefined partition of root
                 if (partition == 0) {
                     State.Root
                 } else {
                     val terminatingStateOfPartitionOrRoot = states.filter { state ->
-                        epaService.isTerminating(extendedPrefixAutomaton, state)                }
+                        epaService.isFinalState(extendedPrefixAutomaton, state)
+                    }
 
-                    assert(terminatingStateOfPartitionOrRoot.size == 1) {
-                        ""
+                    require(terminatingStateOfPartitionOrRoot.size == 1) {
+                        "There can only be one final state for each partition but $terminatingStateOfPartitionOrRoot are found for partition $partition"
                     }
 
                     terminatingStateOfPartitionOrRoot.first()
                 }
             }
 
-        val frequencyByPartition = terminatingStatesByPartition
+        val eventCountByPartition = terminatingStatesByPartition
             .mapValues { (_, state) ->
                 epaService.getPathToRoot(state).sumOf { stateOnPath ->
                     extendedPrefixAutomaton.sequence(stateOnPath).size
                 }
             }
 
-        relativeFrequencyByPartition.putAll(
-            frequencyByPartition.mapValues { (_, frequency) ->
-                frequency.toFloat() / allEvents
-            },
-        )
+        val frequencyByPartition = eventCountByPartition.mapValues { (_, eventCount) ->
+            eventCount.toFloat() / allEvents
+        }
+
+        relativeFrequencyByPartition = frequencyByPartition
     }
 
     override fun visit(
@@ -79,8 +77,6 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>>(
     }
 
     fun build(): NormalizedPartitionFrequency {
-
-
         return NormalizedPartitionFrequency(relativeFrequencyByPartition)
     }
 }
