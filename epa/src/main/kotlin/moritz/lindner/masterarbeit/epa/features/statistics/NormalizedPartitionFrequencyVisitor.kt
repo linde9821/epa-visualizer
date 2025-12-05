@@ -1,8 +1,10 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
+import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
@@ -25,14 +27,36 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>>(
     private val relativeFrequencyByPartition = HashMap<Int, Float>()
     private var allEvents = 0
 
+    private val epaService = EpaService<T>()
+
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val statesByPartition = extendedPrefixAutomaton
+
+
+        val terminatingStatesByPartition = extendedPrefixAutomaton
             .states
             .groupBy(extendedPrefixAutomaton::partition)
+            .mapValues { (partition, states) ->
 
-        val frequencyByPartition = statesByPartition
-            .mapValues { (_, states) ->
-                states.sumOf { state -> extendedPrefixAutomaton.sequence(state).size }
+                // Edge Case: Undefined partition of root
+                if (partition == 0) {
+                    State.Root
+                } else {
+                    val terminatingStateOfPartitionOrRoot = states.filter { state ->
+                        epaService.isTerminating(extendedPrefixAutomaton, state)                }
+
+                    assert(terminatingStateOfPartitionOrRoot.size == 1) {
+                        ""
+                    }
+
+                    terminatingStateOfPartitionOrRoot.first()
+                }
+            }
+
+        val frequencyByPartition = terminatingStatesByPartition
+            .mapValues { (_, state) ->
+                epaService.getPathToRoot(state).sumOf { stateOnPath ->
+                    extendedPrefixAutomaton.sequence(stateOnPath).size
+                }
             }
 
         relativeFrequencyByPartition.putAll(
@@ -55,6 +79,8 @@ class NormalizedPartitionFrequencyVisitor<T : Comparable<T>>(
     }
 
     fun build(): NormalizedPartitionFrequency {
+
+
         return NormalizedPartitionFrequency(relativeFrequencyByPartition)
     }
 }
