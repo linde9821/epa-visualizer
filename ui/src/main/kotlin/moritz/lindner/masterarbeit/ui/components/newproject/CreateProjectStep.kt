@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.DefaultButton
@@ -28,7 +28,7 @@ fun CreateProjectStep(
     projectName: String,
     projectDescription: String,
     xesFile: File?,
-    selectedMapper: EventLogMapper<Long>?,
+    selectedMapper: XESEventLogMapper<Long>?,
     projectFolder: File?,
     isCreating: Boolean,
     errorMessage: String?,

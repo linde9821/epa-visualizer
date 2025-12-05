@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.DefaultButton
 import org.jetbrains.jewel.ui.component.Icon
@@ -30,9 +30,9 @@ import org.jetbrains.jewel.ui.typography
 
 @Composable
 fun ChooseMapperStep(
-    mappers: List<EventLogMapper<Long>>,
-    selectedMapper: EventLogMapper<Long>?,
-    onMapperSelect: (EventLogMapper<Long>) -> Unit,
+    mappers: List<XESEventLogMapper<Long>>,
+    selectedMapper: XESEventLogMapper<Long>?,
+    onMapperSelect: (XESEventLogMapper<Long>) -> Unit,
     onNext: () -> Unit,
     onPrevious: () -> Unit
 ) {

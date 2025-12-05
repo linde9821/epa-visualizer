@@ -7,7 +7,7 @@ import org.deckfour.xes.model.XTrace
 import org.deckfour.xes.model.impl.XAttributeLiteralImpl
 import org.deckfour.xes.model.impl.XAttributeTimestampImpl
 
-class BPI2017ChallengeEventMapper : EventLogMapper<Long>("Challenge 2017") {
+class BPI2017ChallengeEventMapper : XESEventLogMapper<Long>("Challenge 2017") {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -19,7 +19,7 @@ class BPI2017ChallengeEventMapper : EventLogMapper<Long>("Challenge 2017") {
         )
 }
 
-class BPI2017OfferChallengeEventMapper : EventLogMapper<Long>("Challenge Offer 2017") {
+class BPI2017OfferChallengeEventMapper : XESEventLogMapper<Long>("Challenge Offer 2017") {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -31,7 +31,7 @@ class BPI2017OfferChallengeEventMapper : EventLogMapper<Long>("Challenge Offer 2
         )
 }
 
-class BPI2018ChallengeMapper : EventLogMapper<Long>("Challenge 2018") {
+class BPI2018ChallengeMapper : XESEventLogMapper<Long>("Challenge 2018") {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -47,7 +47,7 @@ class BPI2018ChallengeMapper : EventLogMapper<Long>("Challenge 2018") {
         )
 }
 
-class SampleEventMapper : EventLogMapper<Long>("Sample") {
+class SampleEventMapper : XESEventLogMapper<Long>("Sample") {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace,
@@ -60,7 +60,7 @@ class SampleEventMapper : EventLogMapper<Long>("Sample") {
 }
 
 object Mappers {
-    fun getMappers(): List<EventLogMapper<Long>> {
+    fun getMappers(): List<XESEventLogMapper<Long>> {
         return listOf(
             SampleEventMapper(),
             BPI2017OfferChallengeEventMapper(),

@@ -17,10 +17,10 @@ import org.deckfour.xes.model.XTrace
  * @param T The type used for timestamps (e.g., [Long],
  *    [java.time.LocalDateTime]), which must be [Comparable].
  */
-abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
+abstract class XESEventLogMapper<T : Comparable<T>>(val name: String) {
     /**
      * Converts an iterable collection of [XTrace] objects into a
-     * chronologically sorted list of [Event]s.
+     * chronologically sorted list of [Event]s (plain eventlog).
      *
      * Each event is mapped using [map], and index based predecessor, successor
      * relationships are established so that each event knows its immediate
@@ -32,14 +32,13 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
      * @return A list of [Event]s sorted by their [Event.timestamp], each with
      *    a reference to its predecessor.
      */
-    fun build(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
+    fun buildPlainEventlog(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
         val logSize = log.toList().size.toLong()
 
         return log
-            .toList()
             .flatMapIndexed { index, trace ->
                 parseTrace(
-                    trace = trace,
+                    xTrace = trace,
                     index = index,
                     logSize = logSize,
                     progressCallback = progressCallback
@@ -48,13 +47,13 @@ abstract class EventLogMapper<T : Comparable<T>>(val name: String) {
     }
 
     private fun parseTrace(
-        trace: XTrace,
+        xTrace: XTrace,
         index: Int,
         logSize: Long,
         progressCallback: EpaProgressCallback?,
     ): List<Event<T>> {
-        return trace
-            .map { event -> map(event, trace) }
+        return xTrace
+            .map { xEvent -> map(xEvent, xTrace) }
             .sortedBy(Event<T>::timestamp)
             .also {
                 progressCallback?.onProgress(

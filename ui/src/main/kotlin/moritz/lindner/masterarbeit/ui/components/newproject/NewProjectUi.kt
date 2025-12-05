@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.Mappers
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.logger
@@ -47,7 +47,7 @@ fun NewProjectUi(onAbort: () -> Unit, onProjectCreated: (Project) -> Unit) {
     var projectName by remember { mutableStateOf("") }
     var projectDescription by remember { mutableStateOf("") }
     var selectedXesFile by remember { mutableStateOf<File?>(null) }
-    var selectedMapper by remember { mutableStateOf<EventLogMapper<Long>?>(null) }
+    var selectedMapper by remember { mutableStateOf<XESEventLogMapper<Long>?>(null) }
     var selectedProjectFolder by remember { mutableStateOf<File?>(null) }
     var isCreating by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
