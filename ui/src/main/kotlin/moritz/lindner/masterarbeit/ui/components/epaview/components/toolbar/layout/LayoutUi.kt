@@ -87,13 +87,22 @@ fun LayoutUi(
         )
 
         GroupHeader("Settings for ${currentLayoutConfig?.name}:")
-        LayoutConfigUI(currentLayoutConfig!!) { configUpdate ->
-            if (configUpdate != currentTab?.layoutConfig) {
-                tabStateManager.updateLayout(
+        LayoutConfigUI(
+            config = currentLayoutConfig!!,
+            onImageRequested = {
+                tabStateManager.exportImage(
                     activeTabId!!,
-                    configUpdate
+                    true
                 )
-            }
-        }
+            },
+            onConfigChange = { configUpdate ->
+                if (configUpdate != currentTab?.layoutConfig) {
+                    tabStateManager.updateLayout(
+                        activeTabId!!,
+                        configUpdate
+                    )
+                }
+            },
+        )
     }
 }

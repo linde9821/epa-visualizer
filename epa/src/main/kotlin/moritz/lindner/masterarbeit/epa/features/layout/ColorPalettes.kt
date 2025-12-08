@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.layout
 
 import kotlinx.serialization.json.Json
+import java.io.BufferedReader
 
 object ColorPalettes {
 
@@ -16,10 +17,14 @@ object ColorPalettes {
         val jsonText = this::class.java.classLoader
             .getResourceAsStream("colormaps.json")
             ?.bufferedReader()
-            ?.use { it.readText() }
+            ?.use(BufferedReader::readText)
             ?: throw IllegalStateException("colormaps.json not found in resources")
 
-        val data: Map<String, List<List<Int>>> = json.decodeFromString(jsonText)
+        val data = json
+            .decodeFromString<Map<String, List<List<Int>>>>(jsonText) + Pair(
+            "Black",
+            listOf(listOf(0, 0, 0), listOf(0, 0, 0), listOf(0, 0, 0))
+        )
 
         val colors = data.mapValues { (_, colors) ->
             // Pack RGB into a single Int: 0xRRGGBB

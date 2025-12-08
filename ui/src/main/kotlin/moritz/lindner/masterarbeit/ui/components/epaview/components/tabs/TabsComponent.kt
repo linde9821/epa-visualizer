@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asSkiaBitmap
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -31,11 +34,20 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.PopupPositionProvider
+import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
+import io.github.vinceglb.filekit.write
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import moritz.lindner.masterarbeit.epa.features.lod.NoLOD
+import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.CapturableCanvas
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.EpaLayoutCanvasRenderer
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.rememberCanvasState
+import moritz.lindner.masterarbeit.ui.components.epaview.state.TabState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
+import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Icon
@@ -46,6 +58,8 @@ import org.jetbrains.jewel.ui.component.TabStrip
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
+import org.jetbrains.skia.EncodedImageFormat
+import org.jetbrains.skia.Image
 import java.util.UUID
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -54,7 +68,9 @@ fun TabsComponent(
     tabStateManager: TabStateManager,
     epaStateManager: EpaStateManager,
     modifier: Modifier = Modifier.Companion,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
 ) {
+    val scope = CoroutineScope(backgroundDispatcher + SupervisorJob())
     val tabsState by tabStateManager.tabs.collectAsState()
     val activeTabId by tabStateManager.activeTabId.collectAsState()
     val epaByTabId by epaStateManager.epaByTabId.collectAsState()
@@ -84,7 +100,7 @@ fun TabsComponent(
     var showContextMenu by remember { mutableStateOf(false) }
     var componentPosition by remember { mutableStateOf(IntOffset.Zero) }
     var mousePosition by remember { mutableStateOf(IntOffset.Zero) }
-    var selectedEpaTab: moritz.lindner.masterarbeit.ui.components.epaview.state.TabState? by remember {
+    var selectedEpaTab: TabState? by remember {
         mutableStateOf(
             null
         )
@@ -175,24 +191,62 @@ fun TabsComponent(
                         if (currentLayoutAndConfig.first.isBuilt() && currentLayoutAndConfig.second.enabled) {
                             val layout = currentLayoutAndConfig.first
 
-                            EpaLayoutCanvasRenderer(
-                                layout = layout,
-                                stateLabels = currentStateLabels,
-                                drawAtlas = currentDrawAtlas,
-                                onStateHover = {},
-                                onRightClickState = { state ->
-                                    if (state != null) {
-                                        tabStateManager.setSelectedStateForCurrentTab(state)
-                                        epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                            var capturedBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
+                            val fileSaver = rememberFileSaverLauncher(
+                            ) { file ->
+                                logger.info { "exporting image" }
+                                if (file != null && capturedBitmap != null) {
+                                    scope.launch {
+                                        if (capturedBitmap != null) {
+                                            val skiaImage = Image.makeFromBitmap(capturedBitmap!!.asSkiaBitmap())
+                                            val pngEncoded = skiaImage.encodeToData(EncodedImageFormat.PNG)?.bytes
+                                                ?: throw IllegalStateException("Failed to encode image to PNG")
+
+                                            file.write(pngEncoded)
+                                            capturedBitmap = null
+                                            tabStateManager.exportImage(activeTabId!!, false)
+                                        }
                                     }
+                                }
+                            }
+
+                            LaunchedEffect(capturedBitmap) {
+                                if (capturedBitmap != null && currentTab.exportImage) {
+                                    fileSaver.launch(
+                                        suggestedName = "epa-${currentTab.title}",
+                                        extension = "png",
+                                    )
+                                }
+                            }
+
+                            CapturableCanvas(
+                                modifier = Modifier.fillMaxSize(),
+                                onCapture = { image ->
+                                    capturedBitmap = image
                                 },
-                                onLeftClickState = {},
-                                tabState = currentTab,
-                                highlightingAtlas = currentHighlightingAtlas,
-                                animationState = animationState,
-                                canvasState = canvasState,
-                                lodQuery = currentLod ?: NoLOD()
-                            )
+                                scope = scope,
+                                shouldCapture = currentTab.exportImage,
+                            ) {
+                                EpaLayoutCanvasRenderer(
+                                    layout = layout,
+                                    stateLabels = currentStateLabels,
+                                    drawAtlas = currentDrawAtlas,
+                                    onStateHover = {},
+                                    onRightClickState = { state ->
+                                        if (state != null) {
+                                            tabStateManager.setSelectedStateForCurrentTab(state)
+                                            epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                                        }
+                                    },
+                                    onLeftClickState = {},
+                                    tabState = currentTab,
+                                    highlightingAtlas = currentHighlightingAtlas,
+                                    animationState = animationState,
+                                    canvasState = canvasState,
+                                    lodQuery = currentLod ?: NoLOD()
+                                )
+                            }
                         } else {
                             Box(
                                 modifier = modifier.fillMaxSize().background(Color.White),

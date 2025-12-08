@@ -11,5 +11,6 @@ data class TabState(
     val filters: List<EpaFilter<Long>> = emptyList(),
     val layoutConfig: LayoutConfig,
     val selectedState: State? = null,
-    val locateState: State? = null
+    val locateState: State? = null,
+    val exportImage: Boolean = false
 )

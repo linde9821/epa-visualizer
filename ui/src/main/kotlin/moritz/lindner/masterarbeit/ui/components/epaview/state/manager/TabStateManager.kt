@@ -121,4 +121,16 @@ class TabStateManager {
             _tabs.value.find { it.id == activeId }
         }
     }
+
+    fun exportImage(activeTabId: String, value: Boolean) {
+        _tabs.update { currentTabs ->
+            currentTabs.map { tab ->
+                if (tab.id == activeTabId) {
+                    tab.copy(exportImage = value)
+                } else {
+                    tab
+                }
+            }
+        }
+    }
 }

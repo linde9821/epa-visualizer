@@ -39,6 +39,7 @@ import kotlin.math.roundToInt
 @Composable
 fun LayoutConfigUI(
     config: LayoutConfig,
+    onImageRequested: () -> Unit,
     onConfigChange: (LayoutConfig) -> Unit,
 ) {
     var currentConfig by remember(config) { mutableStateOf(config) }
@@ -192,9 +193,18 @@ fun LayoutConfigUI(
             )
 
             Row(
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp, top = 5.dp)
             ) {
+
+                DefaultButton(
+                    onClick = {
+                        onImageRequested()
+                    },
+                ) {
+                    Text("Export visualization as PNG")
+                }
+
                 DefaultButton(
                     onClick = {
                         onConfigChange(currentConfig)
