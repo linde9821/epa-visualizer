@@ -22,7 +22,7 @@ composeHotReload = "1.0.0"
 filekit = "0.12.0"
 kotlinx-serialization = "1.9.0"
 let-plot-compose = "3.0.1"
-let-plot-common = "4.8.1"
+let-plot-multiplatform = "4.8.1"
 let-plot-kernel = "4.12.0"
 deeplearning4j = "1.0.0-M2.1"
 smile = "4.4.2"
@@ -54,7 +54,9 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 lets-plot-kotlin-kernel = { module = "org.jetbrains.lets-plot:lets-plot-kotlin-kernel", version.ref = "let-plot-kernel" }
-lets-plot-kotlin-common = { module = "org.jetbrains.lets-plot:lets-plot-common", version.ref = "let-plot-common" }
+lets-plot-kotlin-common = { module = "org.jetbrains.lets-plot:lets-plot-common", version.ref = "let-plot-multiplatform" }
+lets-plot-kotlin-canvas = { module = "org.jetbrains.lets-plot:canvas", version.ref = "let-plot-multiplatform" }
+lets-plot-kotlin-plot-raster = { module = "org.jetbrains.lets-plot:plot-raster", version.ref = "let-plot-multiplatform" }
 lets-plot-kotlin-compose = { module = "org.jetbrains.lets-plot:lets-plot-compose", version.ref = "let-plot-compose" }
 deeplearning4j-core = { module = "org.deeplearning4j:deeplearning4j-core", version.ref = "deeplearning4j" }
 deeplearning4j-graph = { module = "org.deeplearning4j:deeplearning4j-graph", version.ref = "deeplearning4j" }
@@ -74,7 +76,9 @@ serialization = ["kotlinx-serialization-core", "kotlinx-serialization-json"]
 lets-plot = [
     "lets-plot-kotlin-kernel",
     "lets-plot-kotlin-common",
-    "lets-plot-kotlin-compose"
+    "lets-plot-kotlin-compose",
+    "lets-plot-kotlin-canvas",
+    "lets-plot-kotlin-plot-raster",
 ]
 dl4j = [
     "deeplearning4j-core",
