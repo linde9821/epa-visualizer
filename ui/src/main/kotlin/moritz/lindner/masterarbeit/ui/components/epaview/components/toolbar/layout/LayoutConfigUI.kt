@@ -193,7 +193,7 @@ fun LayoutConfigUI(
             )
 
             Row(
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp, top = 5.dp)
             ) {
 
@@ -202,9 +202,8 @@ fun LayoutConfigUI(
                         onImageRequested()
                     },
                 ) {
-                    Text("Export Image")
+                    Text("Export visualization as PNG")
                 }
-
 
                 DefaultButton(
                     onClick = {
