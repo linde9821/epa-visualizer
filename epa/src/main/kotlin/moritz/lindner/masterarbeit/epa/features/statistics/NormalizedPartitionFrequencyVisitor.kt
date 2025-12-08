@@ -7,18 +7,15 @@ import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
- * Computes the normalized frequency of traces per
- * [moritz.lindner.masterarbeit.epa.domain.State] in an
+ * Computes the normalized frequency of traces per Partition in an
  * [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton].
  *
- * The root state ([moritz.lindner.masterarbeit.epa.domain.State.Root]) is
- * always assigned a frequency of 1.0. This visitor must be applied via
- * [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton.acceptDepthFirst]
- * or [acceptBreadthFirst] before accessing any frequencies.
+ * The root partition (0)  is always assigned a frequency of 1.0.
+ *
+ * The other partitions are calculated by calculating the amount of traces ending in a given partition.
+ * As all states are accepting states it doesn't matter where the state is in relation to the partition.
  *
  * @param T The timestamp type used in the automaton's events.
- *
- * TODO: add description
  */
 class NormalizedPartitionFrequencyVisitor<T>(
     traceAccessIndex: TraceAccessIndex<T>,
