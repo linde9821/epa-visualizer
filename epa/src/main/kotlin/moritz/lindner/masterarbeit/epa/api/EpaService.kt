@@ -92,7 +92,10 @@ class EpaService<T : Comparable<T>> {
      * @param epa The Extended Prefix Automaton to analyze.
      * @return Normalized partition frequency data.
      */
-    fun getNormalizedPartitionFrequency(epa: ExtendedPrefixAutomaton<T>, progressCallback: EpaProgressCallback?): NormalizedPartitionFrequency {
+    fun getNormalizedPartitionFrequency(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback? = null
+    ): NormalizedPartitionFrequency {
         val traceAccessIndex = TraceAccessIndex<T>(progressCallback)
         epa.acceptDepthFirst(traceAccessIndex)
 

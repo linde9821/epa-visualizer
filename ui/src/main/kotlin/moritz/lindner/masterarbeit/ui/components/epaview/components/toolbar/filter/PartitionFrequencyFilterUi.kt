@@ -80,7 +80,7 @@ fun PartitionFrequencyFilterUi(
         isLoading = true
         withContext(dispatcher) {
             logger.info { "building partition filter" }
-            normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa, progressCallback)
+            normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa)
         }
         isLoading = false
     }

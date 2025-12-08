@@ -41,24 +41,26 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         progressCallback: EpaProgressCallback?
     ): ExtendedPrefixAutomaton<T> {
         val normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa, progressCallback)
-
-
         val partitionsAboveThreshold = epa
             .getAllPartitions()
             .associateWith(normalizedPartitionFrequency::frequencyByPartition)
             .filter { (partition, frequency) -> frequency >= threshold || partition == 0 }
             .keys
 
-        val filteredStates = epa.states
+        val statesInPartitionsAboveThreshold = epa.states
             .filterIndexed { index, state ->
                 progressCallback?.onProgress(index, epa.states.size, "${name}: Filter states")
                 val partition = epa.partition(state)
                 partition in partitionsAboveThreshold
             }.toSet()
 
+        val statesInPartitionWithParents = statesInPartitionsAboveThreshold.flatMap { state ->
+            epaService.getPathToRoot(state)
+        }.toSet()
+
         val epaBuilder = EpaFromComponentsBuilder<T>()
             .fromExisting(epa)
-            .setStates(filteredStates)
+            .setStates(statesInPartitionWithParents)
             .pruneStatesUnreachableByTransitions(withPruning)
             .setProgressCallback(progressCallback)
             .setEventLogName(epa.eventLogName + " $name with threshold >= $threshold")
