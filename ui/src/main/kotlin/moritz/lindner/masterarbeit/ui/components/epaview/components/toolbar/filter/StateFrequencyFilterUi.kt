@@ -110,9 +110,7 @@ fun StateFrequencyFilterUi(
                         }
                     }
                 }
-
             }
-
         } else {
             CircularProgressIndicatorBig(
                 modifier = Modifier.size(50.dp),

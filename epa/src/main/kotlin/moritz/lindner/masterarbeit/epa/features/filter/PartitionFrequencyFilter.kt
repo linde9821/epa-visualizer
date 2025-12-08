@@ -10,8 +10,9 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
  * transitions that belong to partitions with a normalized frequency below
  * a given [threshold].
  *
- * A state may remain, even when his partition is below the threshold, when it's a parent to a partition
- * with a higher frequency and this partition would be removed otherwise due to the unreachability which would be
+ * A state may remain, even when his partition is below the threshold, when
+ * it's a parent to a partition with a higher frequency and this partition
+ * would be removed otherwise due to the unreachability which would be
  * introduced otherwise.
  *
  * Partitions are evaluated using a

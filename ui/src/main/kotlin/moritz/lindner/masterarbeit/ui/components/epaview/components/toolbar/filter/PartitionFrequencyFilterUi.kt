@@ -129,7 +129,6 @@ fun PartitionFrequencyFilterUi(
                         }
                     }
                 }
-
             }
         } else {
             CircularProgressIndicatorBig(
