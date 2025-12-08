@@ -52,4 +52,19 @@ class ComplexFilterTest {
 
         assertThat(combined.getAllPartitions().size).isEqualTo(onlyPartition.getAllPartitions().size)
     }
+
+    @Test
+    fun `partition filter must not remove state if its a parent of remaining partition`() {
+        val epa =
+            EpaFromXesBuilder<Long>()
+                .setFile(File("./src/test/resources/partition_complex_scenario.xes"))
+                .setEventLogMapper(SampleEventMapper())
+                .build()
+        val epaService = EpaService<Long>()
+
+        val partitionFrequencyFilter = PartitionFrequencyFilter<Long>(threshold = 0.41f) // removes partition 1
+        val actual = epaService.applyFilters(epa, listOf(partitionFrequencyFilter))
+
+        expectSelfie(actual.toString()).toMatchDisk()
+    }
 }
