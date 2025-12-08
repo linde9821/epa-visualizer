@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.unit.toIntSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import moritz.lindner.masterarbeit.ui.logger
 
 @Composable
 fun CapturableCanvas(
@@ -41,15 +42,13 @@ fun CapturableCanvas(
 
                     if (width > 0 && height > 0) {
                         try {
-                            // Convert graphics layer to bitmap
                             scope.launch {
                                 val bitmap = graphicsLayer.toImageBitmap()
                                 hasCaptured = true
                                 onCapture(bitmap)
                             }
                         } catch (e: Exception) {
-                            // Handle capture errors
-                            e.printStackTrace()
+                            logger.error(e) { "Error while creating bitmap from canvas" }
                         }
                     }
                 }
