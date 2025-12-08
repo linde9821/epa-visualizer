@@ -1,5 +1,5 @@
-╔═ partition filter doesnt remove state if its a parent of staying partition ═╗
-partition_bug_scenerio.xes Partition Frequency Filter with threshold >= 0.41
+╔═ partition filter must not remove state if its a parent of remaining partition ═╗
+partition_complex_scenario.xes Partition Frequency Filter with threshold >= 0.41
 States:
 [a] -> c,[root] -> a,root
 Activities:
