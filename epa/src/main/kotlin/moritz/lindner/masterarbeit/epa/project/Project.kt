@@ -5,8 +5,8 @@ import kotlinx.serialization.json.Json
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption

@@ -107,7 +107,7 @@ fun PartitionFrequencyFilterUi(
                     prunedPartitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending().count {
                         normalizedPartitionFrequency!!.frequencyByPartition(it) < threshold
                     }
-                    onFilter(PartitionFrequencyFilter(threshold),)
+                    onFilter(PartitionFrequencyFilter(threshold))
                 },
                 valueRange = 0f..1f,
             )

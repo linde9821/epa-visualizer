@@ -1,6 +1,5 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
-import com.diffplug.selfie.Selfie
 import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder

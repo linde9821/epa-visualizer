@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.Mappers
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import moritz.lindner.masterarbeit.epa.project.Project
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme

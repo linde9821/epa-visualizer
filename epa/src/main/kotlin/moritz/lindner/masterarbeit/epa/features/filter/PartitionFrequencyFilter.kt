@@ -10,9 +10,10 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
  * transitions that belong to partitions with a normalized frequency below
  * a given [threshold].
  *
- * Partitions are evaluated using a [moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor],
- * and only those with frequency >= [threshold] (or
- * partition 0, which is always retained) are kept.
+ * Partitions are evaluated using a
+ * [moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor],
+ * and only those with frequency >= [threshold] (or partition 0, which is
+ * always retained) are kept.
  *
  * @param T The timestamp type used in the automaton's events.
  * @property threshold The minimum normalized frequency a partition must

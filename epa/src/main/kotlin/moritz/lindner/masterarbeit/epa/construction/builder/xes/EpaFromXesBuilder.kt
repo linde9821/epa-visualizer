@@ -16,8 +16,9 @@ import java.io.File
  * from an XES event log file.
  *
  * This builder takes care of parsing the XES file, mapping it to
- * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using a
- * provided [XESEventLogMapper], and building the extended prefix automaton.
+ * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using
+ * a provided [XESEventLogMapper], and building the extended prefix
+ * automaton.
  *
  * @param T The timestamp type used in the event log, which must be
  *    [Comparable].
