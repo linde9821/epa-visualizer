@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.features.statistics
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
-import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.traces.TraceIndexingVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
@@ -10,10 +9,11 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  * Computes the normalized frequency of traces per Partition in an
  * [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton].
  *
- * The root partition (0)  is always assigned a frequency of 1.0.
+ * The root partition (0) is always assigned a frequency of 1.0.
  *
- * The other partitions are calculated by calculating the amount of traces ending in a given partition.
- * As all states are accepting states it doesn't matter where the state is in relation to the partition.
+ * The other partitions are calculated by calculating the amount of traces
+ * ending in a given partition. As all states are accepting states it
+ * doesn't matter where the state is in relation to the partition.
  *
  * @param T The timestamp type used in the automaton's events.
  */
@@ -23,7 +23,7 @@ class NormalizedPartitionFrequencyVisitor<T>(
 ) : AutomatonVisitor<T> where T : Comparable<T> {
 
     private val countOfTracesEndingInPartition = HashMap<Int, Int>()
-    private val lastEvents = traceIndexingVisitor.getAllTraces().map { caseIdentifier ->
+    private val allLastEventForEachTrace = traceIndexingVisitor.getAllTraces().map { caseIdentifier ->
         traceIndexingVisitor.getTraceByCaseIdentifierSortedByTimestamp(caseIdentifier).last()
     }.toSet()
 
@@ -40,31 +40,33 @@ class NormalizedPartitionFrequencyVisitor<T>(
     }
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
-        val totalTraces = lastEvents.size.toFloat()
-
-        relativeFrequencyByPartition = buildMap {
-            countOfTracesEndingInPartition.forEach { (c, count) ->
-                // we always need the partition of Root
-                if (c == 0) {
-                    put(0, 1.0f)
-                } else {
-                    val p = count.toFloat() / totalTraces
-                    put(c, p)
+        // needed for faster computation
+        val partitionByEvent = buildMap {
+            extendedPrefixAutomaton.states.forEach { state ->
+                val partition = extendedPrefixAutomaton.partition(state)
+                val seq = extendedPrefixAutomaton.sequence(state)
+                seq.forEach { event ->
+                    put(event, partition)
                 }
             }
         }
-    }
 
-    override fun visit(
-        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        state: State,
-        depth: Int
-    ) {
-        val seq = extendedPrefixAutomaton.sequence(state)
-        val partition = extendedPrefixAutomaton.partition(state)
-        lastEvents.forEach { event ->
-            if (event in seq) {
-                countOfTracesEndingInPartition.merge(partition, 1) { a, b -> a + b }
+        // count traces ending in each partition
+        allLastEventForEachTrace.forEach { event ->
+            partitionByEvent[event]?.let { partition ->
+                countOfTracesEndingInPartition[partition] =
+                    (countOfTracesEndingInPartition[partition] ?: 0) + 1
+            }
+        }
+
+        val totalTraces = allLastEventForEachTrace.size.toFloat()
+        relativeFrequencyByPartition = buildMap {
+            countOfTracesEndingInPartition.forEach { (c, count) ->
+                if (c == 0) {
+                    put(0, 1.0f)
+                } else {
+                    put(c, count.toFloat() / totalTraces)
+                }
             }
         }
     }
