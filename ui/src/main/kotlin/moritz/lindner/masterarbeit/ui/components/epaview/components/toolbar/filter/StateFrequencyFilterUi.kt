@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -27,11 +28,9 @@ import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
-import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.Tooltip
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import kotlin.math.max
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -69,9 +68,9 @@ fun StateFrequencyFilterUi(
             val maxFreq = max(rawMaxFreq, minFreq * 10f)
 
             Column {
-                Text("min=$minFreq")
-                Text("max=$maxFreq")
-                Text("threshold=${"%.4f".format(threshold * 100)}%")
+                ValueRow("Min", minFreq)
+                ValueRow("Max", maxFreq)
+                ValueRow("Threshold", threshold)
             }
 
             Slider(
@@ -98,16 +97,15 @@ fun StateFrequencyFilterUi(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (frequency < threshold) {
-                                Icon(
-                                    key = AllIconsKeys.General.Note,
-                                    contentDescription = "Below threshold",
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Text("${state.name.take(15)}:")
-                            Spacer(modifier = Modifier.weight(1f))
+                            val decorator = if (frequency < threshold) {
+                                TextDecoration.LineThrough
+                            } else TextDecoration.None
 
+                            Text(
+                                text = "${state.name.take(15)}:",
+                                textDecoration = decorator
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
                             Text("${"%.4f".format(frequency * 100)}%")
                         }
                     }
