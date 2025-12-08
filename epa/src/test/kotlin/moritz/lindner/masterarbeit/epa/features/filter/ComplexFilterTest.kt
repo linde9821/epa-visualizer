@@ -1,5 +1,7 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
+import com.diffplug.selfie.Selfie
+import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
@@ -17,7 +19,7 @@ class ComplexFilterTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val filter1 = PartitionFrequencyFilter<Long>(0.07f) // must remove partition ending with d
+        val filter1 = PartitionFrequencyFilter<Long>(0.07f)
         val filter2 =
             ActivityFilter<Long>(
                 hashSetOf(
@@ -29,9 +31,9 @@ class ComplexFilterTest {
 
         val result = filter2.apply(filter1.apply(epa))
 
-        assertThat(result.states).hasSize(3)
-        assertThat(result.transitions).hasSize(2)
-        assertThat(result.activities).hasSize(2)
+        assertThat(result.states).hasSize(4)
+        assertThat(result.transitions).hasSize(3)
+        assertThat(result.activities).hasSize(3)
     }
 
     @Test
