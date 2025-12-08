@@ -4,6 +4,8 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 
 /**
  * Filters an [ExtendedPrefixAutomaton] by removing all states and
@@ -38,9 +40,12 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         epa: ExtendedPrefixAutomaton<T>,
         progressCallback: EpaProgressCallback?
     ): ExtendedPrefixAutomaton<T> {
-        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>(progressCallback)
-        epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
-        val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
+        val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>(progressCallback)
+        epa.acceptDepthFirst(normalizedStateFrequencyVisitor)
+        val foo = normalizedStateFrequencyVisitor.build()
+
+        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
+        val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build(epa, foo)
 
         val partitionsAboveThreshold = epa
             .getAllPartitions()

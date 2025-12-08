@@ -39,7 +39,9 @@ class NormalizedStateFrequencyVisitor<T : Comparable<T>>(
                     relativeFrequencyByState[state] = tracesSeen.toFloat() / totalTraces
                 }
 
-                is State.Root -> relativeFrequencyByState[state] = 1f
+                is State.Root -> {
+                    relativeFrequencyByState[state] = 1f
+                }
             }
         }
     }

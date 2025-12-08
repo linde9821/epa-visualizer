@@ -93,9 +93,12 @@ class EpaService<T : Comparable<T>> {
      * @return Normalized partition frequency data.
      */
     fun getNormalizedPartitionFrequency(epa: ExtendedPrefixAutomaton<T>): NormalizedPartitionFrequency {
+
+        val foo = getNormalizedStateFrequency(epa)
+
+
         val visitor = NormalizedPartitionFrequencyVisitor<T>()
-        epa.acceptDepthFirst(visitor)
-        return visitor.build()
+        return visitor.build(epa, foo)
     }
 
     fun filterNames(filters: List<EpaFilter<T>>): String {
