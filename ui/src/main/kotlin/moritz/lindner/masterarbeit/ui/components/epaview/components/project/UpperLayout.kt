@@ -40,6 +40,7 @@ fun UpperLayout(
             TabsComponent(
                 tabStateManager = tabStateManager,
                 epaStateManager = epaStateManager,
+                backgroundDispatcher = backgroundDispatcher
             )
         },
         modifier = Modifier.fillMaxWidth(),
