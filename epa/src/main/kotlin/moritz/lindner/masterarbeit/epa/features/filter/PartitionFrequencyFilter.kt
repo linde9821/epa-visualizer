@@ -4,14 +4,13 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitorV2
 
 /**
  * Filters an [ExtendedPrefixAutomaton] by removing all states and
  * transitions that belong to partitions with a normalized frequency below
  * a given [threshold].
  *
- * Partitions are evaluated using a [moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitorV2],
+ * Partitions are evaluated using a [moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor],
  * and only those with frequency >= [threshold] (or
  * partition 0, which is always retained) are kept.
  *

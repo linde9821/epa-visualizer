@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.visitor.statistics
 import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitorV2
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -16,7 +16,7 @@ class NormalizedPartitionFrequencyVisitorTest {
                 .setEventLogMapper(SampleEventMapper())
                 .build()
 
-        val frequencyVisitor = NormalizedPartitionFrequencyVisitorV2<Long>()
+        val frequencyVisitor = NormalizedPartitionFrequencyVisitor<Long>()
 
         epa.acceptDepthFirst(frequencyVisitor)
 

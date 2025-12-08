@@ -11,7 +11,7 @@ import moritz.lindner.masterarbeit.epa.features.animation.EventsByCasesCollector
 import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTimes
 import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequency
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitorV2
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
 import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
@@ -97,7 +97,7 @@ class EpaService<T : Comparable<T>> {
         epa.acceptDepthFirst(traceAccessIndex)
 
 
-        val visitor = NormalizedPartitionFrequencyVisitorV2<T>(traceAccessIndex, progressCallback)
+        val visitor = NormalizedPartitionFrequencyVisitor<T>(traceAccessIndex, progressCallback)
         epa.acceptDepthFirst(visitor)
         return visitor.build()
     }

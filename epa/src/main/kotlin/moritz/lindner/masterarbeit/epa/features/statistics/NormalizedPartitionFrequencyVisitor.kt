@@ -20,7 +20,7 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  *
  * TODO: add description
  */
-class NormalizedPartitionFrequencyVisitorV2<T>(
+class NormalizedPartitionFrequencyVisitor<T>(
     traceAccessIndex: TraceAccessIndex<T>,
     private val progressCallback: EpaProgressCallback? = null
 ) : AutomatonVisitor<T> where T : Comparable<T> {
