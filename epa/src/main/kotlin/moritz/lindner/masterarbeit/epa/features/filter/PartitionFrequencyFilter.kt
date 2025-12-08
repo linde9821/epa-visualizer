@@ -1,18 +1,17 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequency
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFrequencyVisitor
+import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitorV2
 
 /**
  * Filters an [ExtendedPrefixAutomaton] by removing all states and
  * transitions that belong to partitions with a normalized frequency below
  * a given [threshold].
  *
- * Partitions are evaluated using a [NormalizedPartitionFrequencyVisitor],
+ * Partitions are evaluated using a [moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitorV2],
  * and only those with frequency >= [threshold] (or
  * partition 0, which is always retained) are kept.
  *
@@ -24,6 +23,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
     private val withPruning: Boolean = true
 ) : EpaFilter<T> {
+
+    private val epaService = EpaService<T>()
 
     override val name: String
         get() = "Partition Frequency Filter"
@@ -40,12 +41,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         epa: ExtendedPrefixAutomaton<T>,
         progressCallback: EpaProgressCallback?
     ): ExtendedPrefixAutomaton<T> {
-        val normalizedStateFrequencyVisitor = NormalizedStateFrequencyVisitor<T>(progressCallback)
-        epa.acceptDepthFirst(normalizedStateFrequencyVisitor)
-        val foo = normalizedStateFrequencyVisitor.build()
+        val normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa, progressCallback)
 
-        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>()
-        val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build(epa, foo)
 
         val partitionsAboveThreshold = epa
             .getAllPartitions()

@@ -10,7 +10,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
  * Filters an [ExtendedPrefixAutomaton] by removing all states whose
  * normalized visit frequency is below a given [threshold].
  *
- * The frequency is determined using a [NormalizedStateFrequencyVisitor],
+ * The frequency is determined using a [NormalizedStateFrequencyVisitorV2],
  * and only states meeting the threshold (or the [State.Root]) are
  * retained. Orphaned states with missing predecessors are also removed.
  *
