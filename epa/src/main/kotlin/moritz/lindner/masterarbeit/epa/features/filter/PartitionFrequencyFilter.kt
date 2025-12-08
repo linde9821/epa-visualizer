@@ -48,9 +48,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         val normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa, progressCallback)
         val partitionsAboveThreshold = epa
             .getAllPartitions()
-            .associateWith(normalizedPartitionFrequency::frequencyByPartition)
-            .filter { (partition, frequency) -> frequency >= threshold || partition == 0 }
-            .keys
+            .filter { c -> normalizedPartitionFrequency.frequencyByPartition(c) >= threshold }
+            .toSet()
 
         val statesInPartitionsAboveThreshold = epa.states
             .filterIndexed { index, state ->

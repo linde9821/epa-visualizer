@@ -74,7 +74,6 @@ fun PartitionFrequencyFilterUi(
     var threshold by remember(epa) { mutableFloatStateOf(0.0f) }
     var isLoading by remember { mutableStateOf(true) }
     var normalizedPartitionFrequency: NormalizedPartitionFrequency? by remember(epa) { mutableStateOf(null) }
-    var prunedPartitions by remember { mutableStateOf(0) }
 
     LaunchedEffect(epa) {
         isLoading = true
@@ -96,7 +95,7 @@ fun PartitionFrequencyFilterUi(
             Column {
                 Text("min=$minFreq")
                 Text("max=$maxFreq")
-                Text("threshold=${"%.4f".format(threshold)} (removing ${prunedPartitions - 1} of ${epa.getAllPartitions().size})")
+                Text("threshold=${"%.4f".format(threshold)}")
             }
 
             Slider(
@@ -104,9 +103,6 @@ fun PartitionFrequencyFilterUi(
                 onValueChange = { value ->
                     sliderValue = value
                     threshold = sliderToThreshold(sliderValue, minFreq, maxFreq)
-                    prunedPartitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending().count {
-                        normalizedPartitionFrequency!!.frequencyByPartition(it) < threshold
-                    }
                     onFilter(PartitionFrequencyFilter(threshold))
                 },
                 valueRange = 0f..1f,

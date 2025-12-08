@@ -6,7 +6,7 @@ import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 
-class TraceAccessIndex<T>(
+class TraceIndexingVisitor<T>(
     private val progressCallback: EpaProgressCallback? = null
 ) : AutomatonVisitor<T> where T : Comparable<T> {
 
@@ -14,7 +14,7 @@ class TraceAccessIndex<T>(
 
     private lateinit var traceByCaseId: Map<String, List<Event<T>>>
 
-    fun getTraceByCaseIdentifier(caseIdentifier: String): List<Event<T>> {
+    fun getTraceByCaseIdentifierSortedByTimestamp(caseIdentifier: String): List<Event<T>> {
         return traceByCaseId[caseIdentifier]!!
     }
 

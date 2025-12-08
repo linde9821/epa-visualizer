@@ -184,7 +184,7 @@ fun FilterUi(
                         onClick = {
                             val epaService = EpaService<Long>()
                             val filters = currentTab.filters + newFilters
-                            val name = epaService.filterNames(filters)
+                            val name = epaService.filterAsNames(filters)
                             // add new tab and so on
                             val id = UUID.randomUUID().toString()
                             tabStateManager.addTab(

@@ -3,7 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.statistics
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
+import moritz.lindner.masterarbeit.epa.features.traces.TraceIndexingVisitor
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 /**
@@ -18,13 +18,13 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  * @param T The timestamp type used in the automaton's events.
  */
 class NormalizedPartitionFrequencyVisitor<T>(
-    traceAccessIndex: TraceAccessIndex<T>,
+    traceIndexingVisitor: TraceIndexingVisitor<T>,
     private val progressCallback: EpaProgressCallback? = null
 ) : AutomatonVisitor<T> where T : Comparable<T> {
 
     private val countOfTracesEndingInPartition = HashMap<Int, Int>()
-    private val lastEvents = traceAccessIndex.getAllTraces().map { caseIdentifier ->
-        traceAccessIndex.getTraceByCaseIdentifier(caseIdentifier).last()
+    private val lastEvents = traceIndexingVisitor.getAllTraces().map { caseIdentifier ->
+        traceIndexingVisitor.getTraceByCaseIdentifierSortedByTimestamp(caseIdentifier).last()
     }.toSet()
 
     private lateinit var relativeFrequencyByPartition: Map<Int, Float>
@@ -44,6 +44,7 @@ class NormalizedPartitionFrequencyVisitor<T>(
 
         relativeFrequencyByPartition = buildMap {
             countOfTracesEndingInPartition.forEach { (c, count) ->
+                // we always need the partition of Root
                 if (c == 0) {
                     put(0, 1.0f)
                 } else {
