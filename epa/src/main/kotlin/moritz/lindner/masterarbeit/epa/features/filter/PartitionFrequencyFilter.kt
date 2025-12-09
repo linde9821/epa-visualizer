@@ -1,18 +1,24 @@
 package moritz.lindner.masterarbeit.epa.features.filter
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
-import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor
 
 /**
  * Filters an [ExtendedPrefixAutomaton] by removing all states and
  * transitions that belong to partitions with a normalized frequency below
  * a given [threshold].
  *
- * Partitions are evaluated using a [NormalizedPartitionFrequencyVisitor],
- * and only those with frequency >= [threshold] (or
- * partition 0, which is always retained) are kept.
+ * A state may remain, even when his partition is below the threshold, when
+ * it's a parent to a partition with a higher frequency and this partition
+ * would be removed otherwise due to the unreachability which would be
+ * introduced otherwise.
+ *
+ * Partitions are evaluated using a
+ * [moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFrequencyVisitor],
+ * and only those with frequency >= [threshold] (or partition 0, which is
+ * always retained) are kept.
  *
  * @param T The timestamp type used in the automaton's events.
  * @property threshold The minimum normalized frequency a partition must
@@ -22,6 +28,8 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
     private val threshold: Float,
     private val withPruning: Boolean = true
 ) : EpaFilter<T> {
+
+    private val epaService = EpaService<T>()
 
     override val name: String
         get() = "Partition Frequency Filter"
@@ -38,30 +46,29 @@ class PartitionFrequencyFilter<T : Comparable<T>>(
         epa: ExtendedPrefixAutomaton<T>,
         progressCallback: EpaProgressCallback?
     ): ExtendedPrefixAutomaton<T> {
-        val normalizedPartitionFrequencyVisitor = NormalizedPartitionFrequencyVisitor<T>(progressCallback)
-        epa.acceptDepthFirst(normalizedPartitionFrequencyVisitor)
-        val normalizedPartitionFrequency = normalizedPartitionFrequencyVisitor.build()
-
+        val normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa, progressCallback)
         val partitionsAboveThreshold = epa
             .getAllPartitions()
-            .associateWith(normalizedPartitionFrequency::frequencyByPartition)
-            .filter { (a, b) -> b >= threshold || a == 0 }
-            .keys
-            .toList()
+            .filter { c -> normalizedPartitionFrequency.frequencyByPartition(c) >= threshold }
+            .toSet()
 
-        val filteredStates = epa.states
+        val statesInPartitionsAboveThreshold = epa.states
             .filterIndexed { index, state ->
                 progressCallback?.onProgress(index, epa.states.size, "${name}: Filter states")
                 val partition = epa.partition(state)
                 partition in partitionsAboveThreshold
             }.toSet()
 
+        val statesInPartitionWithParents = statesInPartitionsAboveThreshold.flatMap { state ->
+            epaService.getPathToRoot(state)
+        }.toSet()
+
         val epaBuilder = EpaFromComponentsBuilder<T>()
             .fromExisting(epa)
-            .setStates(filteredStates)
+            .setStates(statesInPartitionWithParents)
             .pruneStatesUnreachableByTransitions(withPruning)
             .setProgressCallback(progressCallback)
-            .setEventLogName(epa.eventLogName + " $name with threshold ${threshold}f")
+            .setEventLogName(epa.eventLogName + " $name with threshold >= $threshold")
 
         return epaBuilder.build()
     }

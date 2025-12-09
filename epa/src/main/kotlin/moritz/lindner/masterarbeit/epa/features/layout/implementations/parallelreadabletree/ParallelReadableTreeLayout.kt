@@ -81,7 +81,7 @@ class ParallelReadableTreeLayout(
         val valuesWithoutRootAndTerminating = cycleTimes
             .filterKeys {
                 it != State.Root &&
-                        epaService.isTerminating(extendedPrefixAutomaton, it).not()
+                        epaService.isFinalState(extendedPrefixAutomaton, it).not()
             }
             .values
             .map { it + offset }

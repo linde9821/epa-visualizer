@@ -24,7 +24,7 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
@@ -173,7 +173,7 @@ class EpaStateManager(
 
         scope.launch {
             projectFlow
-                .map { project -> project.getMapper() as? EventLogMapper<Long> }
+                .map { project -> project.getMapper() as? XESEventLogMapper<Long> }
                 .distinctUntilChanged()
                 .drop(1)
                 .collect { _ ->
@@ -406,7 +406,7 @@ class EpaStateManager(
             // Build the EPA with progress tracking
             val builder = EpaFromXesBuilder<Long>()
                 .setFile(projectFlow.value.getXesFilePath().toFile())
-                .setEventLogMapper(projectFlow.value.getMapper() as EventLogMapper<Long>)
+                .setEventLogMapper(projectFlow.value.getMapper() as XESEventLogMapper<Long>)
                 .setProgressCallback(progressCallback)
 
             val originalEpa = builder.build()

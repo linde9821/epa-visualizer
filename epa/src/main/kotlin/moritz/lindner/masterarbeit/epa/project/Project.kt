@@ -5,8 +5,8 @@ import kotlinx.serialization.json.Json
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.EventLogMapper
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -49,7 +49,7 @@ data class Project(
             name: String,
             projectFolder: String,
             xesFilePath: String,
-            mapper: EventLogMapper<*>
+            mapper: XESEventLogMapper<*>
         ): Project {
             val now = LocalDateTime.now().toString()
             val projectRoot = Path.of(projectFolder).toAbsolutePath().normalize()
@@ -142,7 +142,7 @@ data class Project(
     fun withXesFilePath(newXesFilePath: String): Project = copy(xesFilePath = newXesFilePath)
 
     /** Gets the mapper name for this project */
-    fun getMapper(): EventLogMapper<*> {
+    fun getMapper(): XESEventLogMapper<*> {
         val mappers = listOf(
             BPI2017ChallengeEventMapper(),
             BPI2017OfferChallengeEventMapper(),
@@ -153,5 +153,5 @@ data class Project(
         return mappers[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
     }
 
-    fun withMapper(mapper: EventLogMapper<*>): Project = copy(mapperName = mapper.name)
+    fun withMapper(mapper: XESEventLogMapper<*>): Project = copy(mapperName = mapper.name)
 }

@@ -29,7 +29,7 @@ sealed class LayoutConfig(val name: String) {
         override val minTransitionSize: Float = 2f,
         override val maxTransitionSize: Float = 25f,
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
-        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "rocket"
     ) : LayoutConfig("Walker Tree Layout") {
         override fun getParameters() = mapOf(

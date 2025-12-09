@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -29,11 +30,9 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedPartitionFr
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
-import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.Slider
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.Tooltip
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import kotlin.math.max
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -87,15 +86,15 @@ fun PartitionFrequencyFilterUi(
     Column {
         if (!isLoading) {
             val rawMinFreq = normalizedPartitionFrequency!!.min()
-            val rawMaxFreq = normalizedPartitionFrequency!!.max() + 0.1f
+            val rawMaxFreq = normalizedPartitionFrequency!!.max()
 
             val minFreq = max(rawMinFreq, 1e-6f)
             val maxFreq = max(rawMaxFreq, minFreq * 10f)
 
             Column {
-                Text("min=$minFreq")
-                Text("max=$maxFreq")
-                Text("threshold=${"%.4f".format(threshold)}")
+                ValueRow("Min", minFreq)
+                ValueRow("Max", maxFreq)
+                ValueRow("Threshold", threshold)
             }
 
             Slider(
@@ -103,9 +102,7 @@ fun PartitionFrequencyFilterUi(
                 onValueChange = { value ->
                     sliderValue = value
                     threshold = sliderToThreshold(sliderValue, minFreq, maxFreq)
-                    onFilter(
-                        PartitionFrequencyFilter(threshold),
-                    )
+                    onFilter(PartitionFrequencyFilter(threshold))
                 },
                 valueRange = 0f..1f,
             )
@@ -115,25 +112,23 @@ fun PartitionFrequencyFilterUi(
                 LazyColumn {
                     val partitions = normalizedPartitionFrequency!!.getPartitionsSortedByFrequencyDescending()
                     items(partitions) { partition ->
+                        val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val frequency = normalizedPartitionFrequency!!.frequencyByPartition(partition)
-                            if (frequency < threshold) {
-                                Icon(
-                                    key = AllIconsKeys.General.Note,
-                                    contentDescription = "Below threshold",
-                                )
-                            }
-                            Text("Partition $partition:")
+                            val decorator = if (frequency < threshold) {
+                                TextDecoration.LineThrough
+                            } else TextDecoration.None
+                            Text(
+                                text = "Partition $partition:",
+                                textDecoration = decorator
+                            )
                             Spacer(modifier = Modifier.weight(1f))
-
-                            Text("${"%.4f".format(frequency)}%")
+                            Text("${"%.2f".format(frequency * 100)}%")
                         }
                     }
                 }
-
             }
         } else {
             CircularProgressIndicatorBig(

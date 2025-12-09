@@ -17,7 +17,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
 import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.features.subtree.SubtreeSizeVisitor
-import moritz.lindner.masterarbeit.epa.features.traces.TraceAccessIndex
+import moritz.lindner.masterarbeit.epa.features.traces.TraceIndexingVisitor
 
 /**
  * Service for analyzing and manipulating Extended Prefix Automatons.
@@ -92,14 +92,19 @@ class EpaService<T : Comparable<T>> {
      * @param epa The Extended Prefix Automaton to analyze.
      * @return Normalized partition frequency data.
      */
-    fun getNormalizedPartitionFrequency(epa: ExtendedPrefixAutomaton<T>): NormalizedPartitionFrequency {
-        val visitor = NormalizedPartitionFrequencyVisitor<T>()
+    fun getNormalizedPartitionFrequency(
+        epa: ExtendedPrefixAutomaton<T>,
+        progressCallback: EpaProgressCallback? = null
+    ): NormalizedPartitionFrequency {
+        val traceIndexingVisitor = TraceIndexingVisitor<T>(progressCallback)
+        epa.acceptDepthFirst(traceIndexingVisitor)
+        val visitor = NormalizedPartitionFrequencyVisitor<T>(traceIndexingVisitor, progressCallback)
         epa.acceptDepthFirst(visitor)
         return visitor.build()
     }
 
-    fun filterNames(filters: List<EpaFilter<T>>): String {
-        return filters.joinToString { it.name }
+    fun filterAsNames(filters: List<EpaFilter<T>>): String {
+        return filters.joinToString(transform = EpaFilter<T>::name)
     }
 
     fun allTransitions(
@@ -112,7 +117,7 @@ class EpaService<T : Comparable<T>> {
         return (outgoing + incoming)
     }
 
-    fun isTerminating(epa: ExtendedPrefixAutomaton<T>, u: State): Boolean {
+    fun isFinalState(epa: ExtendedPrefixAutomaton<T>, u: State): Boolean {
         return outgoingTransitions(epa, u).isEmpty()
     }
 
@@ -166,7 +171,7 @@ class EpaService<T : Comparable<T>> {
     ): Set<List<Event<T>>> {
         val seq = extendedPrefixAutomaton.sequence(state)
 
-        val traces = TraceAccessIndex<T>()
+        val traces = TraceIndexingVisitor<T>()
         extendedPrefixAutomaton.acceptDepthFirst(traces)
 
         return seq.map { event -> traces.getTraceByEvent(event) }.toSet()
@@ -240,4 +245,3 @@ class EpaService<T : Comparable<T>> {
         return (incoming + outgoing).toSet()
     }
 }
-

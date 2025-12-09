@@ -16,14 +16,15 @@ import java.io.File
  * from an XES event log file.
  *
  * This builder takes care of parsing the XES file, mapping it to
- * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using a
- * provided [EventLogMapper], and building the extended prefix automaton.
+ * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s using
+ * a provided [XESEventLogMapper], and building the extended prefix
+ * automaton.
  *
  * @param T The timestamp type used in the event log, which must be
  *    [Comparable].
  */
 class EpaFromXesBuilder<T : Comparable<T>> {
-    private var eventLogMapper: EventLogMapper<T>? = null
+    private var XESEventLogMapper: XESEventLogMapper<T>? = null
     private var file: File? = null
     private var progressCallback: EpaProgressCallback? = null
     private val parser: XesXmlParser = EPAXesParser()
@@ -31,14 +32,14 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     private var nextPartition = 1
 
     /**
-     * Sets the [EventLogMapper] used to convert XES [XEvent]s into
+     * Sets the [XESEventLogMapper] used to convert XES [XEvent]s into
      * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s.
      *
-     * @param mapper The implementation of [EventLogMapper] to be used.
+     * @param mapper The implementation of [XESEventLogMapper] to be used.
      * @return This builder instance for chaining.
      */
-    fun setEventLogMapper(mapper: EventLogMapper<T>): EpaFromXesBuilder<T> {
-        eventLogMapper = mapper
+    fun setEventLogMapper(mapper: XESEventLogMapper<T>): EpaFromXesBuilder<T> {
+        XESEventLogMapper = mapper
         return this
     }
 
@@ -65,7 +66,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
      *
      * This method performs several steps:
      * - Parses the XES file
-     * - Maps each event using the configured [EventLogMapper]
+     * - Maps each event using the configured [XESEventLogMapper]
      * - constructs extended prefix automaton
      *
      * @return A fully constructed
@@ -74,7 +75,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
      *    the file cannot be parsed.
      */
     fun build(): ExtendedPrefixAutomaton<T> {
-        require(eventLogMapper != null) { "plainEventLog cannot be null" }
+        require(XESEventLogMapper != null) { "plainEventLog cannot be null" }
         require(file != null) { "file cannot be null" }
         require(file!!.exists()) { "file ${file?.absolutePath} must exist" }
         require(parser.canParse(file!!)) { "file can't be parsed" }
@@ -87,15 +88,14 @@ class EpaFromXesBuilder<T : Comparable<T>> {
             }
         )
         val log = parser.parse(progressInputStream).first()
-
-        val plainEventLog = eventLogMapper!!.build(log, progressCallback)
+        val plainEventLog = XESEventLogMapper!!.buildPlainEventlog(log, progressCallback)
 
         val states: MutableSet<State> = hashSetOf(State.Root)
         val transitions: MutableSet<Transition> = hashSetOf()
         val activities: MutableSet<Activity> = hashSetOf()
         val sequences: MutableMap<State, MutableSet<Event<T>>> = hashMapOf(State.Root to hashSetOf())
         val partitionByState: MutableMap<State, Int> = hashMapOf(State.Root to 0)
-        val lastActivityByState: MutableMap<String, State> = hashMapOf()
+        val lastStateByCase: MutableMap<String, State> = hashMapOf()
         val transitionByPredecessorStateAndActivity = hashMapOf<Pair<State, Activity>, Transition>()
         val transitionByPredecessorState = hashMapOf<State, Transition>()
 
@@ -106,7 +106,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
                     total = plainEventLog.size.toLong(),
                     task = "Constructing EPA"
                 )
-                val predecessorState = lastActivityByState[event.caseIdentifier] ?: State.Root
+                val predecessorState = lastStateByCase[event.caseIdentifier] ?: State.Root
 
                 val currentActivity: State?
 
@@ -131,7 +131,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
                 }
 
                 sequences.computeIfAbsent(currentActivity) { mutableSetOf() }.add(event)
-                lastActivityByState[event.caseIdentifier] = currentActivity
+                lastStateByCase[event.caseIdentifier] = currentActivity
             }
 
         return ExtendedPrefixAutomaton(

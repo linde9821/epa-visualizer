@@ -8,7 +8,7 @@ package moritz.lindner.masterarbeit.epa.features.statistics
  *    normalized frequencies.
  */
 class NormalizedPartitionFrequency(
-    private val relativeFrequencyByPartition: HashMap<Int, Float>
+    private val relativeFrequencyByPartition: Map<Int, Float>
 ) {
     /**
      * Returns the normalized frequency of events for the given partition.
