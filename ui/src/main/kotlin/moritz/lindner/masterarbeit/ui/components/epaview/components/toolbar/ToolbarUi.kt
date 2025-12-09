@@ -1,13 +1,11 @@
 package moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewLowerState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.EpaViewUpperState
@@ -21,46 +19,8 @@ import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.Divider
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
-import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.component.Tooltip
-import org.jetbrains.jewel.ui.icon.IntelliJIconKey
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ToolbarButton(
-    iconKey: IntelliJIconKey,
-    contentDescription: String,
-    isSelected: Boolean,
-    tooltip: String? = null,
-    onClick: () -> Unit,
-) {
-    val button: @Composable () -> Unit = {
-        IconButton(onClick = onClick) {
-            Icon(
-                key = iconKey,
-                contentDescription = contentDescription,
-                tint = if (isSelected) {
-                    JewelTheme.defaultTabStyle.colors.underlineSelected
-                } else {
-                    Color.Unspecified
-                },
-                modifier = Modifier.size(23.dp)
-            )
-        }
-    }
-
-    if (tooltip != null) {
-        Tooltip(
-            tooltip = { Text(tooltip) }
-        ) {
-            button()
-        }
-    } else {
-        button()
-    }
-}
 
 @Composable
 fun ToolbarUi(
@@ -106,7 +66,7 @@ fun ToolbarUi(
 
             ToolbarButton(
                 iconKey = AllIconsKeys.General.Note,
-                contentDescription = "Details",
+                contentDescription = "State-Details",
                 isSelected = upperState == Details,
                 tooltip = "View details of a selected state in the EPA.",
                 onClick = { onUpperStateChange(if (upperState != Details) Details else None) }

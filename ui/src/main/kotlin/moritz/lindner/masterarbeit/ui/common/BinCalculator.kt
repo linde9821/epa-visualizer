@@ -88,7 +88,6 @@ object BinCalculator {
     }
 
     // Helper functions
-
     private fun standardDeviation(data: List<Long>): Double {
         val mean = data.average()
         val variance = data.map { (it - mean).pow(2) }.average()

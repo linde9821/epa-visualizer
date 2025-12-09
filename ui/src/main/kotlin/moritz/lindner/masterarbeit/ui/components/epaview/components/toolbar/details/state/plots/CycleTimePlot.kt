@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
-import moritz.lindner.masterarbeit.epa.features.cycletime.CycleTimes
 import moritz.lindner.masterarbeit.ui.common.BinCalculator
+import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.letsPlot.compose.PlotPanel
 import org.jetbrains.letsPlot.geom.geomHistogram
@@ -20,17 +20,16 @@ import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.label.labs
 import org.jetbrains.letsPlot.letsPlot
 import java.time.Duration
+import kotlin.math.floor
 
 @Composable
 fun CycleTimePlot(
     state: State,
-    cycleTimes: CycleTimes<Long>,
+    cycleTimesOfState: List<Long>,
     modifier: Modifier = Modifier.Companion
 ) {
-    val cycleTimeOfState = cycleTimes.cycleTimesOfState(state, Long::minus)
-
     val plot = createCycleTimeHistogram(
-        cycleTimes = cycleTimeOfState,
+        cycleTimesOfState = cycleTimesOfState,
     )
 
     Column(
@@ -56,22 +55,26 @@ fun CycleTimePlot(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem(label = "Min", value = Duration.ofMillis(cycleTimeOfState.minOrNull() ?: 0).toString())
-            StatItem(label = "Average", value = Duration.ofMillis(cycleTimeOfState.average().toLong()).toString())
-            StatItem(label = "Max", value = Duration.ofMillis(cycleTimeOfState.maxOrNull() ?: 0).toString())
+            StatItem(label = "Min", value = Duration.ofMillis(cycleTimesOfState.minOrNull() ?: 0).toContextual())
+            StatItem(
+                label = "Average",
+                value = Duration.ofMillis(floor(cycleTimesOfState.average()).toLong()).toContextual()
+            )
+            StatItem(label = "Max", value = Duration.ofMillis(cycleTimesOfState.maxOrNull() ?: 0).toContextual())
         }
     }
 }
 
 private fun createCycleTimeHistogram(
-    cycleTimes: List<Long>,
-    xLabel: String = "Cycle Time (in Hours)",
-    yLabel: String = "Frequency"
+    cycleTimesOfState: List<Long>,
+    xLabel: String = "Cycle Times (in full Hours)",
+    yLabel: String = "Frequency of cycle time bin"
 ): Plot {
-    val bins = BinCalculator.autoBins(cycleTimes)
-    val data = mapOf("cycleTime" to cycleTimes.map { Duration.ofMillis(it).toHours() })
+    val cycleTimesInHours = cycleTimesOfState.map { millis -> Duration.ofMillis(millis).toHours() }
+    val bins = BinCalculator.autoBins(cycleTimesInHours)
+    val data = mapOf("cycleTime" to cycleTimesInHours)
 
-    val plot = letsPlot(data) +
+    return letsPlot(data) +
             geomHistogram(
                 bins = bins,
                 fill = "#4A90E2",
@@ -79,7 +82,6 @@ private fun createCycleTimeHistogram(
                 alpha = 0.7
             ) {
                 x = "cycleTime"
-            } + labs(x = xLabel, y = yLabel)
-
-    return plot
+            } +
+            labs(x = xLabel, y = yLabel)
 }

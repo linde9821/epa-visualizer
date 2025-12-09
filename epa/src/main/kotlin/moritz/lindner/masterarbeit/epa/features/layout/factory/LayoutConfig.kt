@@ -138,13 +138,13 @@ sealed class LayoutConfig(val name: String) {
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
             "minEdgeLength" to ParameterInfo.NumberParameterInfo(
-                name = "min time length",
+                name = "min radius between connected states",
                 min = 0f,
                 max = 1000f,
                 steps = 10f
             ),
             "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
-                name = "max time length",
+                name = "max radius between connected states",
                 min = 100f,
                 max = 3000f,
                 steps = 10f
@@ -237,13 +237,13 @@ sealed class LayoutConfig(val name: String) {
                     ColorPalettes.allPalettes()
                 ),
                 "minEdgeLength" to ParameterInfo.NumberParameterInfo(
-                    name = "min time length",
+                    name = "min radius between connected states",
                     min = 0f,
                     max = 1000f,
                     steps = 10f
                 ),
                 "maxEdgeLength" to ParameterInfo.NumberParameterInfo(
-                    name = "max time length",
+                    name = "max radius between connected states",
                     min = 100f,
                     max = 3000f,
                     steps = 10f

@@ -11,10 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.Event
+import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.logger
+import org.jetbrains.letsPlot.Stat
 import org.jetbrains.letsPlot.compose.PlotPanel
 import org.jetbrains.letsPlot.geom.geomLine
 import org.jetbrains.letsPlot.ggsize
+import org.jetbrains.letsPlot.intern.layer.StatOptions
 import org.jetbrains.letsPlot.label.xlab
 import org.jetbrains.letsPlot.label.ylab
 import org.jetbrains.letsPlot.letsPlot
@@ -44,10 +47,10 @@ fun CumulativeEventsPlot(
             x = "timestamp"
             y = "cumulative"
         } +
-                geomLine(size = 2.0, color = "#2196F3") +
+                geomLine(size = 2.0, color = "#2196F3", ) +
                 scaleXDateTime(format = "%Y-%m-%d") +
-                xlab("Time") +
-                ylab("Cumulative Count") +
+                xlab("occurrence of event") +
+                ylab("Cumulative count of events at state") +
                 ggsize(800, 400) +
                 theme(
                     axisTextX = elementText(angle = 45, hjust = 1.0, vjust = 1.0)
@@ -72,12 +75,12 @@ fun CumulativeEventsPlot(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatItem(label = "Total Events", value = sortedEvents.size.toString())
+            StatItem(label = "total events at state", value = sortedEvents.size.toString())
             StatItem(
-                label = "Time Span",
+                label = "total timespan",
                 value = Duration.ofMillis(
                     (sortedEvents.lastOrNull()?.timestamp ?: 0L) - (sortedEvents.firstOrNull()?.timestamp ?: 0L)
-                ).toString()
+                ).toContextual()
             )
         }
     }

@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -191,8 +190,8 @@ class EpaService<T : Comparable<T>> {
         return extendedPrefixAutomaton.states.associateWith { state ->
             progressCallback?.onProgress(current, total, "Compute cycle times")
             current++
-            val ct = cycleTimes.cycleTimesOfState(state, minus)
-            average(ct)
+            val cycleTimesOfState = cycleTimes.cycleTimesForward(state, minus)
+            average(cycleTimesOfState)
         }
     }
 
@@ -211,20 +210,6 @@ class EpaService<T : Comparable<T>> {
             .flatMap { (key, values) ->
                 values.map { value -> value to key }
             }.toMap()
-    }
-
-    fun buildSubEpa(
-        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        states: List<State>
-    ): ExtendedPrefixAutomaton<T> {
-        val remainingStates = states.flatMap { state ->
-            getPathFromRoot(state)
-        }.toSet()
-
-        return EpaFromComponentsBuilder<T>()
-            .fromExisting(extendedPrefixAutomaton)
-            .setStates(remainingStates)
-            .build()
     }
 
     fun subtreeSizeByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
