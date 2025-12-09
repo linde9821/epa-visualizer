@@ -247,16 +247,6 @@ fun StateInfo(
         }
 
         ClosableGroup(
-            "Time to reach state from root"
-        ) {
-            Text("Currently disabled")
-//            TimeToReachPlot(
-//                state = selectedState,
-//                extendedPrefixAutomaton = extendedPrefixAutomaton,
-//            )
-        }
-
-        ClosableGroup(
             "Cycle Time Histogram"
         ) {
             CycleTimePlot(
