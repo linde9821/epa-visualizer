@@ -2,7 +2,6 @@ package moritz.lindner.masterarbeit.epa.api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.construction.builder.EpaFromComponentsBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -191,7 +190,7 @@ class EpaService<T : Comparable<T>> {
         return extendedPrefixAutomaton.states.associateWith { state ->
             progressCallback?.onProgress(current, total, "Compute cycle times")
             current++
-            val cycleTimesOfState = cycleTimes.cycleTimesOfState(state, minus)
+            val cycleTimesOfState = cycleTimes.cycleTimesForward(state, minus)
             average(cycleTimesOfState)
         }
     }
