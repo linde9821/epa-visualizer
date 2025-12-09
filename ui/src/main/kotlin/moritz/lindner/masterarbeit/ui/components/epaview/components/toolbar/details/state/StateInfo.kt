@@ -102,7 +102,6 @@ fun StateInfo(
             )
         }
 
-        // Metrics Section
         ClosableGroup(
             "Details"
         ) {
@@ -132,7 +131,6 @@ fun StateInfo(
             )
         }
 
-        // Transitions Section
         ClosableGroup("Transitions") {
             if (incomingTransitions.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -222,7 +220,6 @@ fun StateInfo(
             }
         }
 
-        // Traces
         ClosableGroup(
             "Traces"
         ) {

@@ -67,8 +67,8 @@ fun CycleTimePlot(
 
 private fun createCycleTimeHistogram(
     cycleTimesOfState: List<Long>,
-    xLabel: String = "Cycle Time (full Hours)",
-    yLabel: String = "Frequency"
+    xLabel: String = "Cycle Times (in full Hours)",
+    yLabel: String = "Frequency of cycle time bin"
 ): Plot {
     val cycleTimesInHours = cycleTimesOfState.map { millis -> Duration.ofMillis(millis).toHours() }
     val bins = BinCalculator.autoBins(cycleTimesInHours)
