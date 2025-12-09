@@ -51,7 +51,7 @@ object LogarithmicCycleTimeCalculator {
                         val logValue = log10(value)
 
                         // 2. normalization
-                        val normalized = normalized(logValue, logMin, logMax)
+                        val normalized = normalized(logValue, logMin, logMax, min, max)
 
                         // 3. min-max
                         val minMaxNormalized = min + normalized * (max - min)
@@ -67,9 +67,9 @@ object LogarithmicCycleTimeCalculator {
         }
     }
 
-    private fun normalized(logValue: Float, logMin: Float, logMax: Float): Float {
+    private fun normalized(logValue: Float, logMin: Float, logMax: Float, min: Float, max: Float): Float {
         return when {
-            logMax == logMin -> logValue
+            logMax == logMin -> (min + max) / 2
             else -> ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
         }
     }
