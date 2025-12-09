@@ -213,20 +213,6 @@ class EpaService<T : Comparable<T>> {
             }.toMap()
     }
 
-    fun buildSubEpa(
-        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
-        states: List<State>
-    ): ExtendedPrefixAutomaton<T> {
-        val remainingStates = states.flatMap { state ->
-            getPathFromRoot(state)
-        }.toSet()
-
-        return EpaFromComponentsBuilder<T>()
-            .fromExisting(extendedPrefixAutomaton)
-            .setStates(remainingStates)
-            .build()
-    }
-
     fun subtreeSizeByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
         val subtreeSizeVisitor = SubtreeSizeVisitor()
         extendedPrefixAutomaton.acceptDepthFirst(subtreeSizeVisitor)
