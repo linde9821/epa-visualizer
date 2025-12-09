@@ -8,6 +8,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.deta
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.ui.component.InfoText
+import org.jetbrains.jewel.ui.component.Text
 
 @Composable
 fun DetailsUi(
@@ -37,6 +38,6 @@ fun DetailsUi(
             }
         )
     } else {
-        InfoText("No state selected")
+        Text("No state selected.\nTo view details select a state in the visualization by left-clicking it.")
     }
 }
