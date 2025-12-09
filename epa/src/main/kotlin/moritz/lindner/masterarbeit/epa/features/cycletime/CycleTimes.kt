@@ -38,16 +38,21 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
     fun cycleTimesForward(state: State, minus: (T, T) -> T): List<T> {
         val seq = extendedPrefixAutomaton.sequence(state)
 
-        return seq.map {
-            it to traceByCaseId[it.caseIdentifier]!!
-        }.mapNotNull { (it, trace) ->
-            val earlier = getEarlierEventInTraceAtDifferentState(
-                current = it,
+        val seqWithoutChains = seq
+            .groupBy { event -> event.caseIdentifier }
+            .mapValues { (_, events) ->
+                // get last Event if chain
+                events.maxBy(Event<T>::timestamp)
+            }.values.filterNotNull()
+
+        return seqWithoutChains.mapNotNull { event ->
+            val earlier = getPreviousEventInTraceAtDifferentState(
+                current = event,
                 state = state
             )
 
             if (earlier != null) {
-                minus(it.timestamp, earlier.timestamp)
+                minus(event.timestamp, earlier.timestamp)
             } else {
                 null
             }
@@ -95,7 +100,7 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
         } else nextEvent
     }
 
-    tailrec fun getEarlierEventInTraceAtDifferentState(current: Event<T>, state: State): Event<T>? {
+    tailrec fun getPreviousEventInTraceAtDifferentState(current: Event<T>, state: State): Event<T>? {
         val trace = traceByCaseId[current.caseIdentifier]!!
         val index = indexOfEventInTraceByEvent[current]!!
 
@@ -104,7 +109,7 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
         val eventBefore = trace[index - 1]
 
         return if (eventBefore in extendedPrefixAutomaton.sequence(state)) {
-            getEarlierEventInTraceAtDifferentState(eventBefore, state)
+            getPreviousEventInTraceAtDifferentState(eventBefore, state)
         } else eventBefore
     }
 
