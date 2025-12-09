@@ -17,9 +17,6 @@ jobs:
           distribution: 'jetbrains'
           java-version: '21'
           cache: 'gradle'
-          cache-dependency-path: |
-            sub-project/*.gradle*
-            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Grant execute permission for gradlew
@@ -39,9 +36,6 @@ jobs:
           distribution: 'jetbrains'
           java-version: '21'
           cache: 'gradle'
-          cache-dependency-path: |
-            sub-project/*.gradle*
-            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Grant execute permission for gradlew
@@ -63,9 +57,6 @@ jobs:
           distribution: 'jetbrains'
           java-version: '21'
           cache: 'gradle'
-          cache-dependency-path: |
-            sub-project/*.gradle*
-            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Grant execute permission for gradlew
@@ -87,9 +78,6 @@ jobs:
           distribution: 'jetbrains'
           java-version: '21'
           cache: 'gradle'
-          cache-dependency-path: |
-            sub-project/*.gradle*
-            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Grant execute permission for gradlew
