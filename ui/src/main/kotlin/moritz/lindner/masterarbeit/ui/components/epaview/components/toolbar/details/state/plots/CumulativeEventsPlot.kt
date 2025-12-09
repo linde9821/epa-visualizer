@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.Event
+import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.letsPlot.Stat
 import org.jetbrains.letsPlot.compose.PlotPanel

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CumulativeEventsPlot
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CycleTimePlot
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -36,6 +37,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.text.DecimalFormat
 import java.time.Duration
+import kotlin.math.floor
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -56,12 +58,7 @@ fun StateInfo(
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
     val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton)
-    val cycleTime = cycleTimes.cycleTimesOfState(selectedState, Long::minus)
-        .let { times ->
-            if (times.isEmpty()) {
-                Duration.ZERO
-            } else Duration.ofMillis(times.average().toLong())
-        }
+    val cycleTimesOfState = cycleTimes.cycleTimesOfState(selectedState, Long::minus)
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
     val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)
@@ -130,7 +127,7 @@ fun StateInfo(
             )
             InfoRow(
                 label = "Cycle Time",
-                value = cycleTime.toString(),
+                value = Duration.ofMillis(floor(cycleTimesOfState.average()).toLong()).toContextual(),
                 hintText = "Average time it takes traces to get from this state to a next"
             )
         }
@@ -264,7 +261,7 @@ fun StateInfo(
         ) {
             CycleTimePlot(
                 state = selectedState,
-                cycleTimes = cycleTimes
+                cycleTimesOfState = cycleTimesOfState
             )
         }
     }
