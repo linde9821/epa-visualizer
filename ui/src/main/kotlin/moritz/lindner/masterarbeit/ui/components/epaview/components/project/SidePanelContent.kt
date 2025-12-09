@@ -61,7 +61,7 @@ fun SidePanelContent(
         }
 
         Details -> PanelMenu(
-            title = "Details",
+            title = "State-Details",
             modifier = Modifier.Companion.padding(8.dp),
             onClose = { onClose() }
         ) {

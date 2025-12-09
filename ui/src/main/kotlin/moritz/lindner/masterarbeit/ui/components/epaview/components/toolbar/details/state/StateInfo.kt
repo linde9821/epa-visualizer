@@ -31,6 +31,7 @@ import org.jetbrains.jewel.ui.component.Chip
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.text.DecimalFormat
@@ -87,14 +88,21 @@ fun StateInfo(
                 )
             }
 
-            IconButton(
-                onClick = { locate(selectedState) },
-            ) {
-                Icon(
-                    key = AllIconsKeys.General.Locate,
-                    contentDescription = "Locate",
-                )
-            }
+            Tooltip(
+                tooltip = {
+                    Text("Click to jump to the state in the visualization.")
+                },
+                content = {
+                    IconButton(
+                        onClick = { locate(selectedState) },
+                    ) {
+                        Icon(
+                            key = AllIconsKeys.General.Locate,
+                            contentDescription = "Locate",
+                        )
+                    }
+                }
+            )
         }
 
         // Metrics Section
