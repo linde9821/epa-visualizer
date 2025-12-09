@@ -137,7 +137,7 @@ sealed class LayoutConfig(val name: String) {
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
-            "min radius between connected states" to ParameterInfo.NumberParameterInfo(
+            "minEdgeLength" to ParameterInfo.NumberParameterInfo(
                 name = "min radius between connected states",
                 min = 0f,
                 max = 1000f,
