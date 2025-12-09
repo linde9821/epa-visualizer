@@ -16,17 +16,12 @@ jobs:
         with:
           distribution: 'jetbrains'
           java-version: '25'
+          cache: 'gradle'
+          cache-dependency-path: |
+            sub-project/*.gradle*
+            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       - name: epa tests
@@ -43,17 +38,12 @@ jobs:
         with:
           distribution: 'jetbrains'
           java-version: '25'
+          cache: 'gradle'
+          cache-dependency-path: |
+            sub-project/*.gradle*
+            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       - name: Build Linux distributable
@@ -72,17 +62,12 @@ jobs:
         with:
           distribution: 'jetbrains'
           java-version: '25'
+          cache: 'gradle'
+          cache-dependency-path: |
+            sub-project/*.gradle*
+            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       - name: Build Windows distributable
@@ -101,17 +86,12 @@ jobs:
         with:
           distribution: 'jetbrains'
           java-version: '25'
+          cache: 'gradle'
+          cache-dependency-path: |
+            sub-project/*.gradle*
+            sub-project/**/gradle-wrapper.properties
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       - name: Build macOs distributable
