@@ -58,7 +58,7 @@ fun StateInfo(
     val partition = extendedPrefixAutomaton.partition(selectedState)
     val depth = epaService.getDepth(selectedState)
     val cycleTimes = epaService.computeCycleTimes(extendedPrefixAutomaton)
-    val cycleTimesOfState = cycleTimes.cycleTimesOfState(selectedState, Long::minus)
+    val cycleTimesOfState = cycleTimes.cycleTimesForward(selectedState, Long::minus)
     val outgoingTransitions = epaService.outgoingTransitions(extendedPrefixAutomaton, selectedState)
     val incomingTransitions = epaService.incomingTransitions(extendedPrefixAutomaton, selectedState)
     val traces = epaService.getTracesByState(extendedPrefixAutomaton, selectedState)

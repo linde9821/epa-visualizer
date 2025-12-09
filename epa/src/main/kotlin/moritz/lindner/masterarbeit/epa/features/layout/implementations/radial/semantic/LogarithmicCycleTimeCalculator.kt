@@ -30,11 +30,11 @@ object LogarithmicCycleTimeCalculator {
 
             val offset = 1.0f
             val valuesWithoutRootAndTerminating = cycleTimes
-                .filterKeys {
-                    it != State.Root && epaService.isFinalState(extendedPrefixAutomaton, it).not()
+                .filterKeys { state ->
+                    state != State.Root && epaService.isFinalState(extendedPrefixAutomaton, state).not()
                 }
                 .values
-                .map { it + offset }
+                .map { cycleTime -> cycleTime + offset }
 
             val rawMin = valuesWithoutRootAndTerminating.minOrNull() ?: offset
             val rawMax = valuesWithoutRootAndTerminating.maxOrNull() ?: offset
@@ -51,7 +51,7 @@ object LogarithmicCycleTimeCalculator {
                         val logValue = log10(value)
 
                         // 2. normalization
-                        val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+                        val normalized = normalized(logValue, logMin, logMax)
 
                         // 3. min-max
                         val minMaxNormalized = min + normalized * (max - min)
@@ -67,6 +67,12 @@ object LogarithmicCycleTimeCalculator {
         }
     }
 
+    private fun normalized(logValue: Float, logMin: Float, logMax: Float): Float {
+        return when {
+            logMax == logMin -> logValue
+            else -> ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
+        }
+    }
 
     fun combinedLogarithmicMinMaxNormalizedCycleTimeByState(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
@@ -81,9 +87,9 @@ object LogarithmicCycleTimeCalculator {
             progressCallback,
         )
 
-        return extendedPrefixAutomaton.states.associateWith {
-            when (it) {
-                is State.PrefixState -> cycleTimeSum(it, logarithmicNormalizedCycleTimeByState)
+        return extendedPrefixAutomaton.states.associateWith { state ->
+            when (state) {
+                is State.PrefixState -> cycleTimeSum(state, logarithmicNormalizedCycleTimeByState)
                 State.Root -> 0f
             }
         }
