@@ -43,7 +43,7 @@ fun ToolbarUi(
             ToolbarButton(
                 iconKey = AllIconsKeys.Actions.ProjectDirectory,
                 contentDescription = "Project",
-                tooltip = "Configure project settings like the mapper.",
+                tooltip = "Configure project settings.",
                 isSelected = upperState == Project,
                 onClick = { onUpperStateChange(if (upperState != Project) Project else None) }
             )
@@ -51,7 +51,7 @@ fun ToolbarUi(
             ToolbarButton(
                 iconKey = AllIconsKeys.General.Filter,
                 contentDescription = "Filter",
-                tooltip = "Apply filters to the EPA for the current tab.",
+                tooltip = "Apply filters to the EPA of the current tab.",
                 isSelected = upperState == Filter,
                 onClick = { onUpperStateChange(if (upperState != Filter) Filter else None) }
             )
@@ -59,7 +59,7 @@ fun ToolbarUi(
             ToolbarButton(
                 iconKey = AllIconsKeys.Debugger.RestoreLayout,
                 contentDescription = "Layout",
-                tooltip = "Change or configure the layout of the EPA visualization for the current tab",
+                tooltip = "Change or configure the layout of the EPA visualization of the current tab.",
                 isSelected = upperState == Layout,
                 onClick = { onUpperStateChange(if (upperState != Layout) Layout else None) }
             )
@@ -68,7 +68,7 @@ fun ToolbarUi(
                 iconKey = AllIconsKeys.General.Note,
                 contentDescription = "State-Details",
                 isSelected = upperState == Details,
-                tooltip = "View details of a selected state in the EPA.",
+                tooltip = "View details of the in the visualization selected state.",
                 onClick = { onUpperStateChange(if (upperState != Details) Details else None) }
             )
         }
@@ -85,7 +85,7 @@ fun ToolbarUi(
             ToolbarButton(
                 iconKey = AllIconsKeys.Actions.ProjectWideAnalysisOff,
                 contentDescription = "Statistics",
-                tooltip = "Show details of the root EPA and the EPA in currently open tab.",
+                tooltip = "Show statistics between the root EPA and the EPA in the currently open tab.",
                 isSelected = lowerState == EpaViewLowerState.Statistics,
                 onClick = { onLowerStateChange(if (lowerState != EpaViewLowerState.Statistics) EpaViewLowerState.Statistics else EpaViewLowerState.None) }
             )
