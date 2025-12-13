@@ -57,7 +57,7 @@ fun FilterUi(
         tabsState.find { it.id == activeTabId }
     }
 
-    val activeAppliedFilters = remember(tabsState, activeTabId) {
+    val currentlyAppliedFilters = remember(tabsState, activeTabId) {
         currentTab?.filters
     }
 
@@ -68,7 +68,7 @@ fun FilterUi(
     var currentEditingFilter by remember(currentTab) { mutableStateOf<EpaFilter<Long>?>(null) }
     val newFilters = remember(currentTab) { mutableStateListOf<EpaFilter<Long>>() }
 
-    if (currentTab == null || activeAppliedFilters == null || epa == null) {
+    if (currentTab == null || currentlyAppliedFilters == null || epa == null) {
         CircularProgressIndicatorBig()
     } else {
         var showActiveFilters by remember { mutableStateOf(true) }
@@ -78,13 +78,13 @@ fun FilterUi(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             FilterHeaderSection(
-                title = "Active Filters (${currentTab.filters.size})",
+                title = "Active filters (${currentTab.filters.size})",
                 show = showActiveFilters,
                 onIconClicked = { showActiveFilters = !showActiveFilters }
             )
 
             if (showActiveFilters) {
-                FilterOverview(activeAppliedFilters)
+                FilterOverview(currentlyAppliedFilters)
             }
 
             Divider(
@@ -95,7 +95,7 @@ fun FilterUi(
             )
 
             FilterHeaderSection(
-                title = "New Filters (${newFilters.size})",
+                title = "New filters (${newFilters.size})",
                 show = showNewFilters,
                 onIconClicked = { showNewFilters = !showNewFilters }
             )
@@ -185,7 +185,6 @@ fun FilterUi(
                             val epaService = EpaService<Long>()
                             val filters = currentTab.filters + newFilters
                             val name = epaService.filterAsNames(filters)
-                            // add new tab and so on
                             val id = UUID.randomUUID().toString()
                             tabStateManager.addTab(
                                 id = id,

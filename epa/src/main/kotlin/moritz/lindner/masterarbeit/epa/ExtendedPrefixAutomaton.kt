@@ -37,7 +37,6 @@ class ExtendedPrefixAutomaton<T : Comparable<T>>(
     private val partitionByState: Map<State, Int>,
     private val sequenceByState: Map<State, Set<Event<T>>>,
 ) {
-    // Cached grouping of transitions by their source state
     val outgoingTransitionsByState by lazy { transitions.groupBy { it.start } }
     val incomingTransitionsByState by lazy { transitions.groupBy { it.end } }
 

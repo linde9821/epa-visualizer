@@ -85,7 +85,7 @@ fun ToolbarUi(
             ToolbarButton(
                 iconKey = AllIconsKeys.Actions.ProjectWideAnalysisOff,
                 contentDescription = "Statistics",
-                tooltip = "Show statistics between the root EPA and the EPA in the currently open tab.",
+                tooltip = "Show statistics between the complete EPA and the EPA in the currently open tab.",
                 isSelected = lowerState == EpaViewLowerState.Statistics,
                 onClick = { onLowerStateChange(if (lowerState != EpaViewLowerState.Statistics) EpaViewLowerState.Statistics else EpaViewLowerState.None) }
             )

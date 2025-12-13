@@ -98,7 +98,6 @@ fun EpaLayoutCanvasRenderer(
     onStateHover: (State?) -> Unit,
     onRightClickState: (State?) -> Unit,
     onLeftClickState: (State?) -> Unit,
-//    onMultiSelect: (List<State>) -> Unit
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
 
