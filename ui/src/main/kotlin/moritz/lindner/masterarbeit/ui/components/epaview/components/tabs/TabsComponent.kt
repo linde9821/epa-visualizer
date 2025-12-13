@@ -299,7 +299,6 @@ fun TabsComponent(
                 }
             }
 
-
             selectableItem(
                 selected = false,
                 onClick = {
@@ -307,7 +306,7 @@ fun TabsComponent(
                     val id = UUID.randomUUID().toString()
                     tabStateManager.addTab(
                         id = id,
-                        title = selectedEpaTab?.title + " copy",
+                        title = "${selectedEpaTab?.title} copy",
                         filters = selectedEpaTab!!.filters,
                         layoutConfig = selectedEpaTab!!.layoutConfig
                     )
@@ -319,7 +318,7 @@ fun TabsComponent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(AllIconsKeys.General.Copy, "Copy")
-                    Text("Copy Tab")
+                    Text("Copy tab")
                 }
             }
 
@@ -338,7 +337,7 @@ fun TabsComponent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(AllIconsKeys.General.Close, "Close")
-                    Text("Close Tab")
+                    Text("Close tab")
                 }
             }
         }

@@ -57,7 +57,7 @@ fun ProjectUi(
     LaunchedEffect(Unit) {
         tabsStateManager.addTab(
             id = UUID.randomUUID().toString(),
-            title = "root",
+            title = "Complete EPA",
             filters = emptyList(),
             layoutConfig = LayoutConfig.RadialWalkerConfig()
         )
