@@ -340,12 +340,22 @@ class EpaStateManager(
         }
 
         val epa = _epaByTabId.value[tabState.id]!!
-        val updatedLayout = LayoutFactory.createLayout(
-            config = tabState.layoutConfig,
-            extendedPrefixAutomaton = epa,
-            backgroundDispatcher = backgroundDispatcher,
-            progressCallback = progressCallback
-        ).also { it.build(progressCallback) }
+        val updatedLayout = try {
+            LayoutFactory.createLayout(
+                config = tabState.layoutConfig,
+                extendedPrefixAutomaton = epa,
+                backgroundDispatcher = backgroundDispatcher,
+                progressCallback = progressCallback
+            ).also { it.build(progressCallback) }
+        } catch (e: Exception) {
+            updateProgress(
+                tabId = tabState.id,
+                current = 0,
+                total = 1,
+                task = "Error while constructing layout (please check your parameters): ${e.message}"
+            )
+            throw e
+        }
 
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (updatedLayout to tabState.layoutConfig))
