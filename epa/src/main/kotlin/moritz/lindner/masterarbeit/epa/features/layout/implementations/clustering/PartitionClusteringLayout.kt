@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.layout.implementations.clusteri
 import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -27,6 +28,7 @@ class PartitionClusteringLayout(
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : ClusterLayout {
 
+    private val logger = KotlinLogging.logger {  }
     private var isBuiltFlag = false
 
     private val coordinateByState = mutableMapOf<State, Coordinate>()
@@ -74,6 +76,11 @@ class PartitionClusteringLayout(
     ): Map<Int, Coordinate> {
         val partitions = embeddings.keys.toList()
         val matrix = partitions.map { embeddings[it]!! }.toTypedArray()
+
+        if (embeddings.size <= config.umapK) {
+            logger.warn { "Not enough data for UMAP reduction. Needed ${config.umapK} embeddings and ${embeddings.size} are available" }
+            throw IllegalStateException("Not enough data for UMAP reduction. Needed ${config.umapK} embeddings and ${embeddings.size} are available")
+        }
 
         val coordinates2D = umap(
             data = matrix,
