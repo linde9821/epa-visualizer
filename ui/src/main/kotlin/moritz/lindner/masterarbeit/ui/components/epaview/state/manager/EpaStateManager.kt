@@ -195,7 +195,6 @@ class EpaStateManager(
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
-                            throw e
                         } catch (e: Exception) {
                             logger.error(e) { "Error while building state" }
                         }
@@ -213,13 +212,17 @@ class EpaStateManager(
                             buildEpaForTab(tab)
                             ensureActive()
                             launch {
-                                buildLayoutAndDrawAtlasForTab(tab)
-                                ensureActive()
-                                buildStateLabelsForTab(tab)
-                                ensureActive()
-                                buildStatisticForTab(tab)
-                                ensureActive()
-                                buildHighlightingForTab(tab)
+                                try {
+                                    buildLayoutAndDrawAtlasForTab(tab)
+                                    ensureActive()
+                                    buildStateLabelsForTab(tab)
+                                    ensureActive()
+                                    buildStatisticForTab(tab)
+                                    ensureActive()
+                                    buildHighlightingForTab(tab)
+                                }catch (e: Exception) {
+                                    logger.error(e) { "Tab state building failed" }
+                                }
                             }
                         } catch (e: CancellationException) {
                             logger.warn(e) { "canceling current tabs building" }
