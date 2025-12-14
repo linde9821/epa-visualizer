@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.TrayState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -76,6 +77,7 @@ import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
+import kotlin.time.measureTime
 
 const val minScale = 0.05f
 const val maxScale = 5f
@@ -241,135 +243,141 @@ fun EpaLayoutCanvasRenderer(
         }) {
             canvasState.initializeCenter(size)
 
-            try {
-                val visibleNodes = layout
-                    // check for coordinates in view
-                    .getCoordinatesInRectangle(
-                        computeBoundingBox(
-                            canvasState.offset,
-                            canvasState.scale
+            val time = measureTime {
+                try {
+                    val visibleNodes = layout
+                        // check for coordinates in view
+                        .getCoordinatesInRectangle(
+                            computeBoundingBox(
+                                canvasState.offset,
+                                canvasState.scale
+                            )
                         )
-                    )
-                    // check that node is visible in lod
-                    .filter { lodQuery.isVisible(it.state) }
+                        // check that node is visible in lod
+                        .filter { lodQuery.isVisible(it.state) }
 
-                when (layout) {
-                    is RadialWalkerTreeLayout -> {
-                        drawDepthCircles(layout = layout)
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
-                    }
-
-                    is PartitionSimilarityRadialLayout -> {
-                        drawDepthCircles(layout = layout)
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
-                    }
-
-                    is DirectAngularPlacementTreeLayout -> {
-                        drawDepthCircles(layout = layout)
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
-                    }
-
-                    is CycleTimeRadialLayout, is AngleSimilarityDepthTimeRadialLayout -> {
-
-                        heatmapBitmap?.let { (bitmap, bounds) ->
-                            drawImage(
-                                image = bitmap.asComposeImageBitmap(),
-                                dstOffset = IntOffset(bounds.left.toInt(), bounds.top.toInt()),
-                                dstSize = IntSize(
-                                    (bounds.right - bounds.left).toInt(),
-                                    (bounds.bottom - bounds.top).toInt()
-                                ),
-                                alpha = 0.85f,
-                                blendMode = BlendMode.ColorBurn,
-                                filterQuality = FilterQuality.High
+                    when (layout) {
+                        is RadialWalkerTreeLayout -> {
+                            drawDepthCircles(layout = layout)
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
                             )
                         }
 
-                        drawTimeCircles(layout)
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
+                        is PartitionSimilarityRadialLayout -> {
+                            drawDepthCircles(layout = layout)
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
+                            )
+                        }
+
+                        is DirectAngularPlacementTreeLayout -> {
+                            drawDepthCircles(layout = layout)
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
+                            )
+                        }
+
+                        is CycleTimeRadialLayout, is AngleSimilarityDepthTimeRadialLayout -> {
+
+                            heatmapBitmap?.let { (bitmap, bounds) ->
+                                drawImage(
+                                    image = bitmap.asComposeImageBitmap(),
+                                    dstOffset = IntOffset(bounds.left.toInt(), bounds.top.toInt()),
+                                    dstSize = IntSize(
+                                        (bounds.right - bounds.left).toInt(),
+                                        (bounds.bottom - bounds.top).toInt()
+                                    ),
+                                    alpha = 0.85f,
+                                    blendMode = BlendMode.ColorBurn,
+                                    filterQuality = FilterQuality.High
+                                )
+                            }
+
+                            drawTimeCircles(layout)
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
+                            )
+                        }
+
+                        is WalkerTreeLayout -> {
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
+                            )
+                        }
+
+                        is StateClusteringLayout, is PartitionClusteringLayout -> {
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
+                            )
+
+                            drawClusterOutline(dashLineLength, dashGap, dashPhase, layout)
+                        }
+
+                        is ParallelReadableTreeLayout -> {
+                            drawTree(
+                                drawAtlas,
+                                visibleNodes,
+                                layout,
+                                highlightingAtlas,
+                                tabState,
+                                canvasState.scale,
+                                stateLabels,
+                                animationState
+                            )
+                        }
+
+                        else -> throw IllegalStateException("Expected layout to be known")
                     }
-
-                    is WalkerTreeLayout -> {
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
-                    }
-
-                    is StateClusteringLayout, is PartitionClusteringLayout -> {
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
-
-                        drawClusterOutline(dashLineLength, dashGap, dashPhase, layout)
-                    }
-
-                    is ParallelReadableTreeLayout -> {
-                        drawTree(
-                            drawAtlas,
-                            visibleNodes,
-                            layout,
-                            highlightingAtlas,
-                            tabState,
-                            canvasState.scale,
-                            stateLabels,
-                            animationState
-                        )
-                    }
-
-                    else -> throw IllegalStateException("Expected layout to be known")
+                } catch (e: Exception) {
+                    logger.error(e) { "error while drawing: $e" }
                 }
-            } catch (e: Exception) {
-                logger.error(e) { "error while drawing: $e" }
+            }
+
+            if (time.inWholeMilliseconds > 50) {
+                logger.warn { "rendering time is slow: ${time.inWholeMilliseconds}ms" }
             }
         }
 
