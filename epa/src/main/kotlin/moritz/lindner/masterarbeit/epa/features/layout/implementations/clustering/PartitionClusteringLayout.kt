@@ -28,7 +28,7 @@ class PartitionClusteringLayout(
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : ClusterLayout {
 
-    private val logger = KotlinLogging.logger {  }
+    private val logger = KotlinLogging.logger { }
     private var isBuiltFlag = false
 
     private val coordinateByState = mutableMapOf<State, Coordinate>()

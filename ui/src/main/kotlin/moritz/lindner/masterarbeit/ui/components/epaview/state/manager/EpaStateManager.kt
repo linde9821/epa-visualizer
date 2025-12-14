@@ -221,7 +221,7 @@ class EpaStateManager(
                                     buildStatisticForTab(tab)
                                     ensureActive()
                                     buildHighlightingForTab(tab)
-                                }catch (e: Exception) {
+                                } catch (e: Exception) {
                                     logger.error(e) { "Tab state building failed" }
                                 }
                             }

@@ -13,11 +13,9 @@ import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.logger
-import org.jetbrains.letsPlot.Stat
 import org.jetbrains.letsPlot.compose.PlotPanel
 import org.jetbrains.letsPlot.geom.geomLine
 import org.jetbrains.letsPlot.ggsize
-import org.jetbrains.letsPlot.intern.layer.StatOptions
 import org.jetbrains.letsPlot.label.xlab
 import org.jetbrains.letsPlot.label.ylab
 import org.jetbrains.letsPlot.letsPlot
@@ -47,7 +45,7 @@ fun CumulativeEventsPlot(
             x = "timestamp"
             y = "cumulative"
         } +
-                geomLine(size = 2.0, color = "#2196F3", ) +
+                geomLine(size = 2.0, color = "#2196F3") +
                 scaleXDateTime(format = "%Y-%m-%d") +
                 xlab("occurrence of event") +
                 ylab("Cumulative count of events at state") +

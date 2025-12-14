@@ -29,7 +29,7 @@ class AngleSimilarityDepthTimeRadialLayout(
     private val backgroundDispatcher: ExecutorCoroutineDispatcher
 ) : RadialTreeLayout {
 
-    private val logger = KotlinLogging.logger {  }
+    private val logger = KotlinLogging.logger { }
     private val epaService = EpaService<Long>()
     private var isBuiltFlag = false
     private val nodePlacementByState = HashMap<State, NodePlacement>(extendedPrefixAutomaton.states.size)

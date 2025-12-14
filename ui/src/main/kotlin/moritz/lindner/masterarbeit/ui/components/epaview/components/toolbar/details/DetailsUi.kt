@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.StateInfo
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
-import org.jetbrains.jewel.ui.component.InfoText
 import org.jetbrains.jewel.ui.component.Text
 
 @Composable
