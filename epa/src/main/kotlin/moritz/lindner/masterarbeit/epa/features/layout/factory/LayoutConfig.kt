@@ -480,8 +480,6 @@ sealed class LayoutConfig(val name: String) {
             "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
             "Iterations" to ParameterInfo.NumberParameterInfo("Iterations", 0, 100, 100),
             // Layout parameters
-            "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
-            "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
@@ -556,8 +554,6 @@ sealed class LayoutConfig(val name: String) {
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
             "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
             "umapIterations" to ParameterInfo.NumberParameterInfo("UMAP Iterations", 50, 500, 1),
-            "canvasWidth" to ParameterInfo.NumberParameterInfo("Canvas Width", 500.0f, 5000.0f, 100.0f),
-            "canvasHeight" to ParameterInfo.NumberParameterInfo("Canvas Height", 500.0f, 5000.0f, 100.0f),
             "useTotalStateCount" to ParameterInfo.BooleanParameterInfo("useTotalStateCount"),
             "useTotalEventCount" to ParameterInfo.BooleanParameterInfo("useTotalEventCount"),
             "useTotalTraceCount" to ParameterInfo.BooleanParameterInfo("useTotalTraceCount"),
