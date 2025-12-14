@@ -245,16 +245,14 @@ fun EpaLayoutCanvasRenderer(
 
             val time = measureTime {
                 try {
+                    val rectangle = computeBoundingBox(
+                        canvasState.offset,
+                        canvasState.scale
+                    )
+
                     val visibleNodes = layout
-                        // check for coordinates in view
-                        .getCoordinatesInRectangle(
-                            computeBoundingBox(
-                                canvasState.offset,
-                                canvasState.scale
-                            )
-                        )
-                        // check that node is visible in lod
-                        .filter { lodQuery.isVisible(it.state) }
+                        .getCoordinatesInRectangle(rectangle)
+                        .filter { node -> lodQuery.isVisible(node.state) }
 
                     when (layout) {
                         is RadialWalkerTreeLayout -> {
@@ -300,7 +298,6 @@ fun EpaLayoutCanvasRenderer(
                         }
 
                         is CycleTimeRadialLayout, is AngleSimilarityDepthTimeRadialLayout -> {
-
                             heatmapBitmap?.let { (bitmap, bounds) ->
                                 drawImage(
                                     image = bitmap.asComposeImageBitmap(),
