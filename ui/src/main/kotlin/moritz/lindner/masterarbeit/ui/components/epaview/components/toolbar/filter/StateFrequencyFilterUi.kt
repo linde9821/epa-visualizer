@@ -37,7 +37,7 @@ import kotlin.math.max
 @Composable
 fun StateFrequencyFilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
-    dispatcher: CoroutineDispatcher,
+    backgroundDispatcher: CoroutineDispatcher,
     onFilter: (EpaFilter<Long>) -> Unit,
 ) {
 
@@ -52,7 +52,7 @@ fun StateFrequencyFilterUi(
 
     LaunchedEffect(epa) {
         isLoading = true
-        withContext(dispatcher) {
+        withContext(backgroundDispatcher) {
             logger.info { "building state filter" }
             normalizedStateFrequency = epaService.getNormalizedStateFrequency(epa)
         }

@@ -63,7 +63,7 @@ fun ChainCompressionFilterUi(onFilter: (EpaFilter<Long>) -> Unit) {
 @Composable
 fun PartitionFrequencyFilterUi(
     epa: ExtendedPrefixAutomaton<Long>,
-    dispatcher: CoroutineDispatcher,
+    backgroundDispatcher: CoroutineDispatcher,
     onFilter: (EpaFilter<Long>) -> Unit,
 ) {
 
@@ -76,7 +76,7 @@ fun PartitionFrequencyFilterUi(
 
     LaunchedEffect(epa) {
         isLoading = true
-        withContext(dispatcher) {
+        withContext(backgroundDispatcher) {
             logger.info { "building partition filter" }
             normalizedPartitionFrequency = epaService.getNormalizedPartitionFrequency(epa)
         }

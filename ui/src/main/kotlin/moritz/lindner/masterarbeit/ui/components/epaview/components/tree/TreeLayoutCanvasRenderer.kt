@@ -33,7 +33,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.State.PrefixState
@@ -72,6 +72,7 @@ import org.jetbrains.skia.PaintStrokeCap
 import org.jetbrains.skia.PaintStrokeJoin
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.PathEffect
+import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -119,7 +120,7 @@ fun EpaLayoutCanvasRenderer(
         when (layout) {
             is AngleSimilarityDepthTimeRadialLayout -> {
                 if (layout.config.generateHeatmap) {
-                    withContext(Dispatchers.Default) {
+                    withContext(backgroundDispatcher) {
                         heatmapBitmap = null
                         val bitmap = calculateHeatmapBitmap(
                             layout,

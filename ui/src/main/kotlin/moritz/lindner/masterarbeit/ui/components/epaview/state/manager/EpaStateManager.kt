@@ -128,7 +128,8 @@ class EpaStateManager(
                     highlightingAtlas = highlightingAtlas,
                     animationState = _animationState.value,
                     canvasState = rememberCanvasState(),
-                    lodQuery = _lodByTabId.value[tabId] ?: NoLOD()
+                    lodQuery = _lodByTabId.value[tabId] ?: NoLOD(),
+                    backgroundDispatcher = backgroundDispatcher
                 )
             }
         }

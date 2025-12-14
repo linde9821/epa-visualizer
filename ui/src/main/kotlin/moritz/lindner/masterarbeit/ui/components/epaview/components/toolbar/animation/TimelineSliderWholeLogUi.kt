@@ -22,7 +22,7 @@ import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 fun TimelineSliderWholeLogUi(
     extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     epaStateManager: EpaStateManager,
-    dispatcher: ExecutorCoroutineDispatcher,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
     onClose: () -> Unit,
 ) {
     val animationService = AnimationService<Long>()
@@ -39,7 +39,7 @@ fun TimelineSliderWholeLogUi(
         isLoading = true
         isPlaying = false
         epaStateManager.updateAnimation(AnimationState.Empty)
-        withContext(dispatcher) {
+        withContext(backgroundDispatcher) {
             eventLogAnimation = animationService.createFullLogAnimation(
                 extendedPrefixAutomaton,
                 10L,
