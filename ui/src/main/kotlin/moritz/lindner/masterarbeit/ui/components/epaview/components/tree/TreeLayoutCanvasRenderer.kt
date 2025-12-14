@@ -634,7 +634,6 @@ fun DrawScope.drawTree(
                         if (highlightingAtlas.highlightedStates.contains(state)) {
                             val strokePaint = highlightedPaint.apply {
                                 mode = PaintMode.STROKE
-                                strokeWidth = entry.paint.strokeWidth + 5f
                             }
                             canvas.nativeCanvas.drawPath(path, strokePaint)
                         }
