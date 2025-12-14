@@ -96,6 +96,7 @@ fun EpaLayoutCanvasRenderer(
     drawAtlas: DrawAtlas,
     canvasState: CanvasState,
     tabState: TabState,
+    backgroundDispatcher: CoroutineDispatcher,
     onStateHover: (State?) -> Unit,
     onRightClickState: (State?) -> Unit,
     onLeftClickState: (State?) -> Unit,
@@ -386,13 +387,13 @@ private fun calculateHeatmapBitmap(
     val minYCoord = treeLayout.minOf { it.coordinate.y } - 450f
     val maxYCoord = treeLayout.maxOf { it.coordinate.y } + 450f
 
-    val minX = (minXCoord / blockSize).toInt() * blockSize
-    val minY = (minYCoord / blockSize).toInt() * blockSize
-    val maxX = ((maxXCoord / blockSize).toInt() + 1) * blockSize
-    val maxY = ((maxYCoord / blockSize).toInt() + 1) * blockSize
+    val minX = floor((minXCoord / blockSize)).toInt() * blockSize
+    val minY = floor((minYCoord / blockSize)).toInt() * blockSize
+    val maxX = floor((maxXCoord / blockSize) + 1).toInt() * blockSize
+    val maxY = floor((maxYCoord / blockSize) + 1).toInt() * blockSize
 
-    val width = ((maxX - minX) / blockSize).toInt()
-    val height = ((maxY - minY) / blockSize).toInt()
+    val width = floor((maxX - minX).toFloat() / blockSize).toInt()
+    val height = floor((maxY - minY).toFloat() / blockSize).toInt()
 
     val bitmap = Bitmap()
     bitmap.allocN32Pixels(width, height)
