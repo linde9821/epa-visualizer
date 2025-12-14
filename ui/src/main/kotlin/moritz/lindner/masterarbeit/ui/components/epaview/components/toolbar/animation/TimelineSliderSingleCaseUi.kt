@@ -24,7 +24,7 @@ import kotlin.math.roundToInt
 @Composable
 fun TimelineSliderSingleCaseUi(
     epa: ExtendedPrefixAutomaton<Long>,
-    dispatcher: ExecutorCoroutineDispatcher,
+    backgroundDispatcher: ExecutorCoroutineDispatcher,
     epaStateManager: EpaStateManager,
     caseId: String,
 ) {
@@ -36,7 +36,7 @@ fun TimelineSliderSingleCaseUi(
 
     LaunchedEffect(epa) {
         isLoading = true
-        withContext(dispatcher) {
+        withContext(backgroundDispatcher) {
             animation = animationService.createCaseAnimation(
                 epa,
                 caseId

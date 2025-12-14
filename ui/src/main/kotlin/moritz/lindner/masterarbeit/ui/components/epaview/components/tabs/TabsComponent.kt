@@ -244,7 +244,8 @@ fun TabsComponent(
                                     highlightingAtlas = currentHighlightingAtlas,
                                     animationState = animationState,
                                     canvasState = canvasState,
-                                    lodQuery = currentLod ?: NoLOD()
+                                    lodQuery = currentLod ?: NoLOD(),
+                                    backgroundDispatcher = backgroundDispatcher
                                 )
                             }
                         } else {

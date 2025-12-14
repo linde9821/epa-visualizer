@@ -128,7 +128,8 @@ class EpaStateManager(
                     highlightingAtlas = highlightingAtlas,
                     animationState = _animationState.value,
                     canvasState = rememberCanvasState(),
-                    lodQuery = _lodByTabId.value[tabId] ?: NoLOD()
+                    lodQuery = _lodByTabId.value[tabId] ?: NoLOD(),
+                    backgroundDispatcher = backgroundDispatcher
                 )
             }
         }
@@ -195,7 +196,6 @@ class EpaStateManager(
                             }
                         } catch (e: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
-                            throw e
                         } catch (e: Exception) {
                             logger.error(e) { "Error while building state" }
                         }
@@ -213,13 +213,17 @@ class EpaStateManager(
                             buildEpaForTab(tab)
                             ensureActive()
                             launch {
-                                buildLayoutAndDrawAtlasForTab(tab)
-                                ensureActive()
-                                buildStateLabelsForTab(tab)
-                                ensureActive()
-                                buildStatisticForTab(tab)
-                                ensureActive()
-                                buildHighlightingForTab(tab)
+                                try {
+                                    buildLayoutAndDrawAtlasForTab(tab)
+                                    ensureActive()
+                                    buildStateLabelsForTab(tab)
+                                    ensureActive()
+                                    buildStatisticForTab(tab)
+                                    ensureActive()
+                                    buildHighlightingForTab(tab)
+                                } catch (e: Exception) {
+                                    logger.error(e) { "Tab state building failed" }
+                                }
                             }
                         } catch (e: CancellationException) {
                             logger.warn(e) { "canceling current tabs building" }
@@ -340,12 +344,22 @@ class EpaStateManager(
         }
 
         val epa = _epaByTabId.value[tabState.id]!!
-        val updatedLayout = LayoutFactory.createLayout(
-            config = tabState.layoutConfig,
-            extendedPrefixAutomaton = epa,
-            backgroundDispatcher = backgroundDispatcher,
-            progressCallback = progressCallback
-        ).also { it.build(progressCallback) }
+        val updatedLayout = try {
+            LayoutFactory.createLayout(
+                config = tabState.layoutConfig,
+                extendedPrefixAutomaton = epa,
+                backgroundDispatcher = backgroundDispatcher,
+                progressCallback = progressCallback
+            ).also { it.build(progressCallback) }
+        } catch (e: Exception) {
+            updateProgress(
+                tabId = tabState.id,
+                current = 0,
+                total = 1,
+                task = "Error while constructing layout (please check your parameters): ${e.message}"
+            )
+            throw e
+        }
 
         _layoutAndConfigByTabId.update { currentMap ->
             currentMap + (tabState.id to (updatedLayout to tabState.layoutConfig))
