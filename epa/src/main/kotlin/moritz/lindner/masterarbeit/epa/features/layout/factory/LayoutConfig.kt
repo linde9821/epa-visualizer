@@ -31,7 +31,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "rocket"
-    ) : LayoutConfig("Walker Tree Layout") {
+    ) : LayoutConfig("Walker Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
             "layerSpace" to ParameterInfo.NumberParameterInfo("LayerSpace", 1.0f, 500.0f, 5.0f),
@@ -81,7 +81,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "rocket",
-    ) : LayoutConfig("Radial Walker Tree Layout") {
+    ) : LayoutConfig("Radial Walker Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
             "margin" to ParameterInfo.NumberParameterInfo("Margin (in Degrees)", 0.0f, 360.0f, 0.1f),
@@ -202,7 +202,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "rocket",
-    ) : LayoutConfig("Angle-Similarity, Depth-Time RadialLayout") {
+    ) : LayoutConfig("Angle-Similarity, Depth-Time Radial-Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
@@ -304,7 +304,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "rocket"
-    ) : LayoutConfig("Partition-Similarity-based Radial Tree Layout") {
+    ) : LayoutConfig("Partition-Similarity-based Radial Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
                 "umapK" to ParameterInfo.NumberParameterInfo("UMAP K", 2, 50, 1),
@@ -382,7 +382,7 @@ sealed class LayoutConfig(val name: String) {
         override val stateSizeUntilLabelIsDrawn: Float = 13f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "rocket"
-    ) : LayoutConfig("Direct Angular Tree Layout") {
+    ) : LayoutConfig("Direct Angular Placement (Radial Layout)") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
             "rotation" to ParameterInfo.NumberParameterInfo("Rotation", 0.0f, 360.0f, 1.0f),
