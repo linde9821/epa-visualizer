@@ -1,12 +1,12 @@
-# EPA Visualizer
+# EPA Visualizer: Compact visualization of prefix trees
 
-🎓 _HU Masterarbeit — Moritz Lindner_
+🎓 _Master's thesis — Moritz Lindner @ [Humboldt-Universität zu Berlin](https://www.hu-berlin.de/)_ in the area of Process Mining
 
 [![Gradle Build & Test](https://github.com/linde9821/epa-visualizer/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/linde9821/epa-visualizer/actions/workflows/gradle.yml)
 
 ## 🔍 Overview
 
-**EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from event logs.
+**EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from raw [XES event logs](https://www.tf-pm.org/resources/xes-standard/about-xes/event-logs).
 
 ![Screenshot.png](images/Screenshot.png)
 
@@ -21,15 +21,24 @@ variants within the process.
 The tool helps users understand process complexity and behavior through:
 
 - variant-based views of the process
-- structural insights into common prefixes and branching points
-- flexible filtering options to explore and manage large or deep EPAs
+- showing details for all states present in an EPA
+  Structural insights into common prefixes and branching points, as well as multiple options for hierarchical and semantic layouts
+- flexible filtering options to explore and manage large and complex EPA
 - statistics and animations of events flowing through an EPA
 
-Key capabilities include advanced filtering, playback of process cases, and statistical summaries. The tool supports
-event logs in `.xes` and `.xes.gz` formats.
+The tool supports event logs in `.xes` and `.xes.gz` formats. 
+
+Currently only some event-logs are supported (due to the requirement of a mapper for trace id, activity):
+- [BPI Challenge 2017 - Offer log](https://data.4tu.nl/articles/dataset/BPI_Challenge_2017_-_Offer_log/12705737)
+- [BPI Challenge 2017](https://data.4tu.nl/articles/dataset/BPI_Challenge_2017/12696884)
+- [BPI Challenge 2018](https://data.4tu.nl/articles/dataset/BPI_Challenge_2018/12688355)
+- some sample logs
+
+All logs are available under [data/eventlogs/*](./data/eventlogs)
 
 ---
 
+Contiue
 ## ✨ Features
 
 - **Event Log Import**:
