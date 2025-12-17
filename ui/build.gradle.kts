@@ -10,24 +10,13 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.14.5"
+version = "1.14.6"
 
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
-
-repositories {
-    google()
-    mavenCentral()
-    maven("https://packages.jetbrains.team/maven/p/kpm/public/")
-    maven("https://www.jetbrains.com/intellij-repository/releases/")
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    maven("https://raw.githubusercontent.com/apromore/ApromoreCore_SupportLibs/master/mvn-repo/")
-    maven("https://jitpack.io")
-}
-
 dependencies {
     implementation(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")
@@ -63,14 +52,14 @@ compose.desktop {
         javaHome =
             javaToolchains
                 .launcherFor {
-                    languageVersion.set(JavaLanguageVersion.of(25))
+                    languageVersion.set(JavaLanguageVersion.of(21))
                     vendor.set(JvmVendorSpec.JETBRAINS)
                 }.get()
                 .metadata.installationPath.asFile.absolutePath
 
         jvmArgs +=
             listOf(
-                "-Xmx8g",
+                "-XX:MaxRAMPercentage=75",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",
@@ -78,6 +67,7 @@ compose.desktop {
 
         buildTypes.release.proguard {
             isEnabled = false
+            optimize = true
         }
 
         nativeDistributions {

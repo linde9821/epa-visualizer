@@ -20,7 +20,7 @@ import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.label.labs
 import org.jetbrains.letsPlot.letsPlot
 import java.time.Duration
-import kotlin.math.floor
+import kotlin.math.roundToLong
 
 @Composable
 fun CycleTimePlot(
@@ -58,7 +58,7 @@ fun CycleTimePlot(
             StatItem(label = "Min", value = Duration.ofMillis(cycleTimesOfState.minOrNull() ?: 0).toContextual())
             StatItem(
                 label = "Average",
-                value = Duration.ofMillis(floor(cycleTimesOfState.average()).toLong()).toContextual()
+                value = Duration.ofMillis(cycleTimesOfState.average().roundToLong()).toContextual()
             )
             StatItem(label = "Max", value = Duration.ofMillis(cycleTimesOfState.maxOrNull() ?: 0).toContextual())
         }
