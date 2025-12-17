@@ -190,7 +190,7 @@ class EpaService<T : Comparable<T>> {
         return extendedPrefixAutomaton.states.associateWith { state ->
             progressCallback?.onProgress(current, total, "Compute cycle times")
             current++
-            val cycleTimesOfState = cycleTimes.cycleTimesForward(state, minus)
+            val cycleTimesOfState = cycleTimes.cycleTimesOfState(state, minus)
             average(cycleTimesOfState)
         }
     }

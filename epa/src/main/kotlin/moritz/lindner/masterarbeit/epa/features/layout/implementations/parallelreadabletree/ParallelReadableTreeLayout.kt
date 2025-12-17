@@ -97,7 +97,7 @@ class ParallelReadableTreeLayout(
             val logMax = log10(max)
 
             extendedPrefixAutomaton.transitions.associateWith { transition ->
-                val rawValue = cycleTimes[transition.end] ?: 0.0f
+                val rawValue = cycleTimes[transition.end]!!
                 val value = rawValue + offset
                 val logValue = log10(value)
                 val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
