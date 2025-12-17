@@ -13,15 +13,14 @@ object AboutPanel {
         $APPLICATION_NAME
         Version: ${BuildConfig.APP_VERSION}
         
-        Interactive Visualization of Extended Prefix Automaton Using Radial Trees
+        Interactive Visualization of Extended Prefix Automaton
         
         A tool for analyzing trace variants in large, complex event logs using 
-        Extended Prefix Automata (EPA) and radial tidy tree layouts. This 
-        visualization approach encodes thousands of trace variants while 
-        minimizing visual clutter and supporting interactive filtering.
+        Extended Prefix Automata (EPA) and different semantic and hierarchical tree layouts.
+        This visualization approach encodes thousands of trace variants while 
+        minimizing visual clutter, supporting interactive filtering and analysis.
         
-        Built as part of a Master's Thesis and Study Project (Studienarbeit) at 
-        Humboldt-Universität zu Berlin.
+        Built as part of a Master's Thesis at Humboldt-Universität zu Berlin.
         
         This application and the master thesis is currently under development and not finished.
         
