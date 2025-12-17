@@ -67,6 +67,7 @@ compose.desktop {
 
         buildTypes.release.proguard {
             isEnabled = false
+            optimize = true
         }
 
         nativeDistributions {
