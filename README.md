@@ -1,12 +1,14 @@
 # EPA Visualizer: Compact visualization of prefix trees
 
-🎓 _Master's thesis — Moritz Lindner @ [Humboldt-Universität zu Berlin](https://www.hu-berlin.de/)_ in the area of Process Mining
+🎓 _Master's thesis — Moritz Lindner @ [Humboldt-Universität zu Berlin](https://www.hu-berlin.de/)_ in the area of
+Process Mining
 
 [![Gradle Build & Test](https://github.com/linde9821/epa-visualizer/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/linde9821/epa-visualizer/actions/workflows/gradle.yml)
 
 ## 🔍 Overview
 
-**EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from raw [XES event logs](https://www.tf-pm.org/resources/xes-standard/about-xes/event-logs).
+**EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from
+raw [XES event logs](https://www.tf-pm.org/resources/xes-standard/about-xes/event-logs).
 
 ![Screenshot.png](images/Screenshot.png)
 
@@ -22,13 +24,15 @@ The tool helps users understand process complexity and behavior through:
 
 - variant-based views of the process
 - showing details for all states present in an EPA
-  Structural insights into common prefixes and branching points, as well as multiple options for hierarchical and semantic layouts
+  Structural insights into common prefixes and branching points, as well as multiple options for hierarchical and
+  semantic layouts
 - flexible filtering options to explore and manage large and complex EPA
 - statistics and animations of events flowing through an EPA
 
-The tool supports event logs in `.xes` and `.xes.gz` formats. 
+The tool supports event logs in `.xes` and `.xes.gz` formats.
 
 Currently only some event-logs are supported (due to the requirement of a mapper for trace id, activity):
+
 - [BPI Challenge 2017 - Offer log](https://data.4tu.nl/articles/dataset/BPI_Challenge_2017_-_Offer_log/12705737)
 - [BPI Challenge 2017](https://data.4tu.nl/articles/dataset/BPI_Challenge_2017/12696884)
 - [BPI Challenge 2018](https://data.4tu.nl/articles/dataset/BPI_Challenge_2018/12688355)
@@ -38,7 +42,6 @@ All logs are available under [data/eventlogs/*](./data/eventlogs)
 
 ---
 
-Contiue
 ## ✨ Features
 
 - **Event Log Import**:
@@ -47,68 +50,29 @@ Contiue
     - Automatic generation of an Extended Prefix Automaton from event logs
 - **Visualization**:
     - Multiple graph layout algorithms
+        - semantic layouts
+        - hierarchical layouts
+        - Clustering / Similarity based Layouts
     - Zoom, scroll, and interactive navigation
     - Animated playback of complete logs or individual cases
-    - Flexible filter combinations for tailored analysis
 - **Statistics**:
     - Events per node
     - Case counts
     - Activity frequencies
     - Time intervals
     - Partition-based statistics
-
----
-
-## 📝 Planned Features and Known Issues
-
-### Layouts
-
-- **New Layout:** *Weighted Direct Angular Placement*  
-  → Take the number of nodes in a node's subtree into account when calculating the arc assigned to each subtree
-
-- **New Layout:** *Time-Radius-Semantic*  
-  → Make the depth (radius) of a nodes placement dependent on a time component — e.g., maybe also in animation based on
-  cycle time in a time window
-
-- **New Layout:** *Probability Semantic*  
-  → Add a value representing the probability of each partition and visualize it
-
-### Filters
-
-- **New Filter:** *Chain Pruning*  
-  → Many long "chains" exist in the EPA (subgraphs with only one incoming edge and one outgoing edge).  
-  These chains could be collapsed into a single new state for more compact visualization.
-
-- **New Filter:** *Depth Interval*  
-  → Filter the visualization to only show nodes within a given radius (depth) interval.
-
-- **New Filter:** *Normalized Entropy Partition Filter*  
-  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process
-  complexity of event sequences and models discovered by process mining).
-
-- **New Filter:** *Normalized Entropy Variant Filter*  
-  → Based on normalized entropy measures (see Augusto, Mendling, Vidgof, & Wurm (2022) — The connection between process
-  complexity of event sequences and models discovered by process mining).
-
-### Visualization
-
-- **State Properties**  
-  → States could have visual properties (color, size, etc.) mapped to various attributes — also changing dynamically
-  during animation.
-  (Differentiate edge thickness or color based on event count, the ideas are endless)
-
-- **Case Properties**  
-  → Each case in the animation could display various properties, with the ability to track a selected case during the
-  animation.
-
-- **Event Properties**  
-  → Each event in the animation could display various properties (visualized per event instance).
-
-### Others
-
-- The tree layout algorithm is fairly general and could be provided as a standalone library for others to use.
-
-- The `epa` module could be packaged and provided as a separate library — reusable in other projects.
+- **Filters**:
+    - Activity based
+    - State Frequency
+    - Partition Frequency
+    - Chain Compression
+- **State Details**:
+    - Details for each state:
+        - Transitions
+        - Path from root
+        - Traces at state
+        - Cumulative Events
+        - Cycle Time Histogram
 
 ### Potential Improvements
 
@@ -116,19 +80,7 @@ Contiue
   _(similar to how labels are currently rendered in the tree); rerender only when necessary (e.g., after filtering)_
 
 - Core data structures in EPA construction are optimized, but some data structures and algorithms in
-  animation/statistics
-  and others are not optimal — can be improved for better performance
-
-### Known Bugs
-
-- Component state (Filter, Animation, etc.) is lost on recomposition  
-  → _TODO: fix_
-
-- Slider in Animation UI for full log animation cannot be moved while animation is running  
-  → _TODO: fix_
-
-- View Model usage state bugs (e.g., stopping the animation results in no events being drawn for full log animation)  
-  → _TODO: fix_
+  animation/statistics and others are not optimal — can be improved for better performance
 
 ---
 
@@ -146,22 +98,23 @@ The project consists of two modules:
 ### Prerequisites
 
 - JetBrains Runtime **25+** (it must be a jetbrains JDK due to the usage
-  of [jewels](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel), and smile)
+  of [jewels](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel))
 - Kotlin **2.2.21+**
 - Gradle (or use the included Gradle wrapper)
 
 ### Run the App
 
 > **_NOTE:_**  The application requires a [JetbrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) to run.
+> It Should be downloaded automatically when running Gradle command through Foojay.
 
-```bash
+```shell
 ./gradlew run
 ```
 
 ### Custom `EventLogMapper`
 
-To support additional event log formats, you can implement a custom EventLogMapper and plug it into the application.
-Out-of-the-box, the project provides mappers for logs included in the resources folder.
+To support additional event logs, you can implement a custom EventLogMapper and plug it into the application.
+Out-of-the-box, the project provides mappers for event logs included in [data/eventlogs/*](./data/eventlogs).
 
 ### Writing code
 
@@ -176,23 +129,23 @@ natural extension point for new features or experiments.
 - **Kotlin** Gradle project
 - **Kotlin Compose Desktop**
 - **OpenXES**
+- **Jewels**
 
 ---
 
 ## 📚 Background
 
-This software is part of a university Studienarbeit (pre-master thesis project) exploring new visualization techniques
-for process mining.
+This software is part of a university Master's thesis exploring new visualization techniques for process mining.
 
 Based on concepts from (but not limited to):
 
 - Augusto, Mendling, Vidgof, & Wurm (2022) – The connection between process complexity of event sequences and models
   discovered by process mining
 - Visualization: Radial tidy tree with optimizations from Buchheim et al. (2002)
-- TODO: add all references
+- TODO: add further main refrences
 
 ## 🙋‍♂️ Author
 
 Moritz Lindner
-Senior DevOps Engineer & Informatik M.Sc. Student
+Senior DevOps Engineer & computer science M.Sc. Student
 Berlin, Germany
