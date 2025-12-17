@@ -3,18 +3,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-repositories {
-    mavenCentral()
-    maven("https://raw.githubusercontent.com/apromore/ApromoreCore_SupportLibs/master/mvn-repo/")
-    maven("https://jitpack.io")
-}
-
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
-
 dependencies {
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
@@ -48,7 +41,6 @@ tasks.test {
     environment(properties.filter { it.key == "selfie" })
     inputs.files(
         fileTree("src/test") {
-            // optional, improves up-to-date checking
             include("**/*.ss")
         },
     )
