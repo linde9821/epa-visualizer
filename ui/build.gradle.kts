@@ -52,7 +52,7 @@ compose.desktop {
         javaHome =
             javaToolchains
                 .launcherFor {
-                    languageVersion.set(JavaLanguageVersion.of(25))
+                    languageVersion.set(JavaLanguageVersion.of(21))
                     vendor.set(JvmVendorSpec.JETBRAINS)
                 }.get()
                 .metadata.installationPath.asFile.absolutePath
