@@ -33,7 +33,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.TrayState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -73,9 +72,9 @@ import org.jetbrains.skia.PaintStrokeCap
 import org.jetbrains.skia.PaintStrokeJoin
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.PathEffect
-import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.time.measureTime
 
@@ -392,13 +391,13 @@ private fun calculateHeatmapBitmap(
     val minYCoord = treeLayout.minOf { it.coordinate.y } - 450f
     val maxYCoord = treeLayout.maxOf { it.coordinate.y } + 450f
 
-    val minX = floor((minXCoord / blockSize)).toInt() * blockSize
-    val minY = floor((minYCoord / blockSize)).toInt() * blockSize
-    val maxX = floor((maxXCoord / blockSize) + 1).toInt() * blockSize
-    val maxY = floor((maxYCoord / blockSize) + 1).toInt() * blockSize
+    val minX = (minXCoord / blockSize).roundToInt() * blockSize
+    val minY = (minYCoord / blockSize).roundToInt() * blockSize
+    val maxX = ((maxXCoord / blockSize) + 1).roundToInt() * blockSize
+    val maxY = ((maxYCoord / blockSize) + 1).roundToInt() * blockSize
 
-    val width = floor((maxX - minX).toFloat() / blockSize).toInt()
-    val height = floor((maxY - minY).toFloat() / blockSize).toInt()
+    val width = ((maxX - minX).toFloat() / blockSize).roundToInt()
+    val height = ((maxY - minY).toFloat() / blockSize).roundToInt()
 
     val bitmap = Bitmap()
     bitmap.allocN32Pixels(width, height)

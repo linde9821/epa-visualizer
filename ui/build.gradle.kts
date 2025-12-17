@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.14.5"
+version = "1.14.6"
 
 kotlin {
     jvmToolchain {
