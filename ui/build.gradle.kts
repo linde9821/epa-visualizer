@@ -59,7 +59,7 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-Xmx8g",
+                "-XX:MaxRAMPercentage=75",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",
