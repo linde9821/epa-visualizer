@@ -42,6 +42,7 @@ fun CapturableCanvas(
 
                     if (width > 0 && height > 0) {
                         try {
+                            logger.info { "creating bitmap from canvas" }
                             scope.launch {
                                 val bitmap = graphicsLayer.toImageBitmap()
                                 hasCaptured = true
