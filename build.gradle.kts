@@ -15,7 +15,7 @@ subprojects {
             jvmTarget = JvmTarget.JVM_21
             freeCompilerArgs.addAll(
                 listOf(
-                    "-Xjvm-default=all",
+                    "jvm-default=all",
                     "-Xinline-classes",
                 ),
             )
