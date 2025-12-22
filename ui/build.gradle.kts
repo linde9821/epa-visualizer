@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -10,7 +11,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.14.6"
+version = "1.14.7"
 
 kotlin {
     jvmToolchain {
@@ -43,6 +44,18 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+composeCompiler {
+    featureFlags.set(
+        setOf(
+            ComposeFeatureFlag.OptimizeNonSkippingGroups
+        )
+    )
+    stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose-stability.conf"))
+
+    // metricsDestination.set(layout.buildDirectory.dir("compose_metrics"))
+    // reportsDestination.set(layout.buildDirectory.dir("compose_reports"))
 }
 
 compose.desktop {
