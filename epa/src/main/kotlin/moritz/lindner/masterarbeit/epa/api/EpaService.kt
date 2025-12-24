@@ -195,7 +195,7 @@ class EpaService<T : Comparable<T>> {
                 val cycleTimesByTransitions = cycleTimes.cycleTimeOfAllTransition(state, transitions, minus).mapValues {
                     average(it.value)
                 }
-                putAll (cycleTimesByTransitions)
+                putAll(cycleTimesByTransitions)
             }
         }
     }

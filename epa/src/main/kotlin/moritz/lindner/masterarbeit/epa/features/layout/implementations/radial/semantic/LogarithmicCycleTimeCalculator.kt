@@ -164,6 +164,7 @@ object LogarithmicCycleTimeCalculator {
                         val incoming = extendedPrefixAutomaton.incomingTransitionsByState[state]!!.first()
                         transitionCycleTimeByTransition[incoming]!!
                     }
+
                     State.Root -> 0.0f
                 }
             }.sum()

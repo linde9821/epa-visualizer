@@ -38,7 +38,6 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.text.DecimalFormat
 import java.time.Duration
-import kotlin.math.roundToLong
 
 
 @OptIn(ExperimentalFoundationApi::class)
