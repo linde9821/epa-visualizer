@@ -26,30 +26,28 @@ jobs:
       - name: ui tests
         run: xvfb-run ./gradlew ui:test
 
-  build-linux:
+  build:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
-        with:
-          distribution: 'jetbrains'
-          java-version: '21'
-          cache: 'gradle'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-      - name: Build Linux distributable
-        run: ./gradlew packageReleaseDistributionForCurrentOS
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-distributables
-          path: ui/build/compose/binaries/main-release/deb/*.deb
+    strategy:
+      matrix:
+        include:
+          # macOS
+          - os: macos-latest
+            arch: arm64
+          - os: macos-13    # Intel-based runner
+            arch: x64
+          # Windows
+          - os: windows-latest
+            arch: x64
+          - os: windows-11-arm
+            arch: arm64
+          # Linux
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
 
-  build-windows:
-    if: github.ref == 'refs/heads/main'
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
@@ -57,34 +55,16 @@ jobs:
           distribution: 'jetbrains'
           java-version: '21'
           cache: 'gradle'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-      - name: Build Windows distributable
-        run: ./gradlew packageMsi
-      - uses: actions/upload-artifact@v4
-        with:
-          name: windows-distributables
-          path: ui\build\compose\binaries\main\msi\*.msi
+          architecture: ${{ matrix.arch }} # Ensures the JDK matches the runner
 
-  build-macOs:
-    if: github.ref == 'refs/heads/main'
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
-        with:
-          distribution: 'jetbrains'
-          java-version: '21'
-          cache: 'gradle'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-      - name: Build macOs distributable
+      - name: Build Distributable
         run: ./gradlew packageReleaseDistributionForCurrentOS
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: macOs-distributables
-          path: ui/build/compose/binaries/main-release/dmg/*.dmg
+          name: distributables-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            ui/build/compose/binaries/main-release/deb/*.deb
+            ui/build/compose/binaries/main-release/dmg/*.dmg
+            ui/build/compose/binaries/main/msi/*.msi
