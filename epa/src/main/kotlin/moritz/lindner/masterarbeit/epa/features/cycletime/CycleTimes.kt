@@ -1,7 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.cycletime
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
-import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
@@ -46,7 +45,7 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
                     state = state
                 )
 
-                event to successor
+                Pair(event, successor)
             }.filter { (_, successor) ->
                 successor != null
             }.map { (event, successor) ->
