@@ -71,3 +71,4 @@ jobs:
             ui/build/compose/binaries/main-release/deb/*.deb
             ui/build/compose/binaries/main-release/dmg/*.dmg
             ui/build/compose/binaries/main-release/msi/*.msi
+            ui/build/compose/binaries/main-release/exe/*.exe
