@@ -35,7 +35,7 @@ jobs:
           # macOS
           - os: macos-latest
             arch: arm64
-          - os: macos-13    # Intel-based runner
+          - os: macos-15-intel
             arch: x64
           # Windows
           - os: windows-latest
