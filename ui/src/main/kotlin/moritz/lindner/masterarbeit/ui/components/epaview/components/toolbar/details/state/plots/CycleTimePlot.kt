@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.ui.common.BinCalculator
+import moritz.lindner.masterarbeit.ui.common.Formatting.roundToLongSafe
 import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.letsPlot.compose.PlotPanel
@@ -20,7 +21,6 @@ import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.label.labs
 import org.jetbrains.letsPlot.letsPlot
 import java.time.Duration
-import kotlin.math.roundToLong
 
 @Composable
 fun CycleTimePlot(
@@ -56,9 +56,10 @@ fun CycleTimePlot(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             StatItem(label = "Min", value = Duration.ofMillis(cycleTimesOfState.minOrNull() ?: 0).toContextual())
+            val average = cycleTimesOfState.average()
             StatItem(
                 label = "Average",
-                value = Duration.ofMillis(cycleTimesOfState.average().roundToLong()).toContextual()
+                value = Duration.ofMillis(average.roundToLongSafe()).toContextual()
             )
             StatItem(label = "Max", value = Duration.ofMillis(cycleTimesOfState.maxOrNull() ?: 0).toContextual())
         }

@@ -43,10 +43,10 @@ class AngleSimilarityDepthTimeRadialLayout(
         MathEx.setSeed(42);
 
         combinedLogarithmicNormalizedCycleTimeByState =
-            LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedCycleTimeByState(
+            LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedTransitionCycleTimeByState(
                 extendedPrefixAutomaton = extendedPrefixAutomaton,
-                min = config.minTime,
-                max = config.maxTime,
+                configMin = config.minTime,
+                configMax = config.maxTime,
                 progressCallback = progressCallback
             )
 

@@ -176,7 +176,32 @@ class EpaService<T : Comparable<T>> {
         return seq.map { event -> traces.getTraceByEvent(event) }.toSet()
     }
 
-    fun <C> computeAllCycleTimes(
+    fun <C> computeStateTransitionCycleTimesOfAllStates(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        minus: (T, T) -> T,
+        average: (List<T>) -> C,
+        progressCallback: EpaProgressCallback? = null
+    ): Map<Transition, C> {
+        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton)
+
+        val total = extendedPrefixAutomaton.states.size
+        var current = 0
+
+        return buildMap {
+            extendedPrefixAutomaton.states.forEach { state ->
+                progressCallback?.onProgress(current, total, "Compute state-transition cycle times")
+                current++
+                val transitions = extendedPrefixAutomaton.outgoingTransitionsByState[state] ?: emptyList()
+                val cycleTimesByTransitions =
+                    cycleTimes.cycleTimeOfTransition(state, transitions, minus).mapValues { (_, timeDeltas) ->
+                        average(timeDeltas)
+                    }
+                putAll(cycleTimesByTransitions)
+            }
+        }
+    }
+
+    fun <C> computeAverageStateCycleTimesOfAllStates(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         minus: (T, T) -> T,
         average: (List<T>) -> C,
@@ -188,9 +213,9 @@ class EpaService<T : Comparable<T>> {
         var current = 0
 
         return extendedPrefixAutomaton.states.associateWith { state ->
-            progressCallback?.onProgress(current, total, "Compute cycle times")
+            progressCallback?.onProgress(current, total, "Compute average state cycle times")
             current++
-            val cycleTimesOfState = cycleTimes.cycleTimesForward(state, minus)
+            val cycleTimesOfState = cycleTimes.averageCycleTimesOfState(state, minus)
             average(cycleTimesOfState)
         }
     }

@@ -5,6 +5,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToLong
 
 object Formatting {
     fun Long.asFormattedLocalDateTime(): String {
@@ -16,6 +17,11 @@ object Formatting {
         val formattedDate = localDateTime.format(formatter)
 
         return formattedDate
+    }
+
+    fun Double.roundToLongSafe(): Long {
+        return if (this.isNaN()) 0L
+        else this.roundToLong()
     }
 
     fun Duration.toContextual(): String {

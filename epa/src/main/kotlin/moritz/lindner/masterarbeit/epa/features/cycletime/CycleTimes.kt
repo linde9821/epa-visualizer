@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.features.cycletime
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.epa.domain.Transition
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
 class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
@@ -31,62 +32,57 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         traceByCaseId = allEvents
-            .groupBy { it.caseIdentifier }
+            .groupBy(Event<T>::caseIdentifier)
             .mapValues { (_, events) -> events.sortedBy(Event<T>::timestamp) }
     }
 
-    fun cycleTimesForward(state: State, minus: (T, T) -> T): List<T> {
+    fun cycleTimeOfTransition(
+        state: State,
+        transitions: List<Transition>,
+        minus: (T, T) -> T
+    ): Map<Transition, List<T>> {
+        require(transitions.all { it.start == state })
+
         val seq = extendedPrefixAutomaton.sequence(state)
 
-        val seqWithoutChains = seq
-            .groupBy { event -> event.caseIdentifier }
-            .mapValues { (_, events) ->
-                // get last Event if chain
-                events.maxBy(Event<T>::timestamp)
-            }.values.filterNotNull()
+        return buildMap {
+            transitions.forEach { transition ->
+                val cts = seq.map { event ->
+                    val nextEventInTraceAtSpecificState = getNextEventInTraceAtSpecificState(
+                        current = event,
+                        state = state,
+                        targetState = transition.end
+                    )
+                    Pair(event, nextEventInTraceAtSpecificState)
+                }.filter { (_, successor) -> successor != null }
+                    .map { (event, successor) ->
+                        minus(successor!!.timestamp, event.timestamp)
+                    }
 
-        return seqWithoutChains.mapNotNull { event ->
-            val earlier = getPreviousEventInTraceAtDifferentState(
-                current = event,
-                state = state
-            )
-
-            if (earlier != null) {
-                minus(event.timestamp, earlier.timestamp)
-            } else {
-                null
+                put(transition, cts)
             }
         }
     }
 
-    fun cycleTimesBackwards(state: State, minus: (T, T) -> T): List<T> {
+    fun averageCycleTimesOfState(state: State, minus: (T, T) -> T): List<T> {
         val seq = extendedPrefixAutomaton.sequence(state)
 
-        val seqWithoutChains = seq
-            .groupBy { event -> event.caseIdentifier }
-            .mapValues { (_, events) ->
-                // get first Event accept when last event of chain is terminating (cant be filtered in the other pass)
-                val lastEvent = events.maxByOrNull { it.timestamp }!!
-                if (traceByCaseId[lastEvent.caseIdentifier]?.last() == lastEvent) null
-                else events.minBy(Event<T>::timestamp)
-            }.values.filterNotNull()
-
-        return seqWithoutChains.mapNotNull { event ->
-            durationBetweenCurrentEventAndEventAtNextStateInSameTrace(event, state, minus)
-        }
-    }
-
-    fun durationBetweenCurrentEventAndEventAtNextStateInSameTrace(
-        current: Event<T>,
-        state: State,
-        minus: (T, T) -> T
-    ): T? {
-        val next = getNextEventInTraceAtDifferentState(current, state) ?: return null
-        return minus(next.timestamp, current.timestamp)
+        return seq
+            .map { event ->
+                val successor = getNextEventInTraceAtDifferentState(
+                    current = event,
+                    state = state
+                )
+                Pair(event, successor)
+            }.filter { (_, successor) ->
+                successor != null
+            }.map { (event, successor) ->
+                minus(successor!!.timestamp, event.timestamp)
+            }
     }
 
     /*
-    Returns the next event in the given trace which is occuring at a state different to the state provided in the parameter
+    Returns the next event in the given trace which is occurring at a state different to the state provided in the parameter
      */
     tailrec fun getNextEventInTraceAtDifferentState(current: Event<T>, state: State): Event<T>? {
         val trace = traceByCaseId[current.caseIdentifier]!!
@@ -100,17 +96,16 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
         } else nextEvent
     }
 
-    tailrec fun getPreviousEventInTraceAtDifferentState(current: Event<T>, state: State): Event<T>? {
+    tailrec fun getNextEventInTraceAtSpecificState(current: Event<T>, state: State, targetState: State): Event<T>? {
         val trace = traceByCaseId[current.caseIdentifier]!!
         val index = indexOfEventInTraceByEvent[current]!!
 
-        if ((index - 1) < 0) return null
+        if (index + 1 >= trace.size) return null
 
-        val eventBefore = trace[index - 1]
+        val nextEvent = trace[index + 1]
 
-        return if (eventBefore in extendedPrefixAutomaton.sequence(state)) {
-            getPreviousEventInTraceAtDifferentState(eventBefore, state)
-        } else eventBefore
+        return if (nextEvent in extendedPrefixAutomaton.sequence(targetState)) {
+            nextEvent
+        } else getNextEventInTraceAtSpecificState(nextEvent, state, targetState)
     }
-
 }

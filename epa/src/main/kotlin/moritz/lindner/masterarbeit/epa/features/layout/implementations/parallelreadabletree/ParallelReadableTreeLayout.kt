@@ -18,6 +18,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.RTreeBuilder.toRTreeRectangle
+import moritz.lindner.masterarbeit.epa.features.layout.implementations.radial.semantic.LogarithmicCycleTimeCalculator
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.NodePlacement
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -25,7 +26,6 @@ import moritz.lindner.masterarbeit.epa.features.layout.placement.Vector2D
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -65,46 +65,13 @@ class ParallelReadableTreeLayout(
     }
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        val cycleTimes = epaService.computeAllCycleTimes(
-            extendedPrefixAutomaton = extendedPrefixAutomaton,
-            minus = Long::minus,
-            average = { cycleTimes ->
-                if (cycleTimes.isEmpty()) {
-                    0f
-                } else cycleTimes.average().toFloat()
-            },
-            progressCallback = progressCallback
-        )
-
-        val offset = 1.0f
-        // Add offset to handle zero values with logarithmic scaling
-        val valuesWithoutRootAndTerminating = cycleTimes
-            .filterKeys {
-                it != State.Root &&
-                        epaService.isFinalState(extendedPrefixAutomaton, it).not()
-            }
-            .values
-            .map { it + offset }
-
-        val min = valuesWithoutRootAndTerminating.minOrNull() ?: offset
-        val max = valuesWithoutRootAndTerminating.maxOrNull() ?: offset
-
-        val desiredEdgeLengthByTransition: Map<Transition, Float> = if ((max - min) < 0.0001f) {
-            // All values are essentially the same - use middle of range
-            extendedPrefixAutomaton.transitions.associateWith { (config.minEdgeLength + config.maxEdgeLength) / 2 }
-        } else {
-            val logMin = log10(min)
-            val logMax = log10(max)
-
-            extendedPrefixAutomaton.transitions.associateWith { transition ->
-                val rawValue = cycleTimes[transition.end] ?: 0.0f
-                val value = rawValue + offset
-                val logValue = log10(value)
-                val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)
-
-                config.minEdgeLength + normalized * (config.maxEdgeLength - config.minEdgeLength)
-            }
-        }
+        val desiredEdgeLengthByTransition =
+            LogarithmicCycleTimeCalculator.logarithmicMinMaxNormalizedTransitionCycleTimeByTransition(
+                extendedPrefixAutomaton = extendedPrefixAutomaton,
+                configMin = config.minEdgeLength,
+                configMax = config.maxEdgeLength,
+                progressCallback = progressCallback
+            )
 
         val initialLayout = when (config.initializer) {
             LayoutConfig.PRTInitialLayout.Compact -> {
