@@ -126,9 +126,9 @@ fun StateInfo(
                     |compared to the total amount of traces in the whole EPA.""".trimMargin()
             )
             InfoRow(
-                label = "Cycle Time",
+                label = "Average State Cycle Time",
                 value = Duration.ofMillis(cycleTimesOfState.average().roundToLongSafe()).toContextual(),
-                hintText = "Average time it takes traces to get from this state to a next"
+                hintText = "Average time it takes traces to get from this state to any next state. 0 if its a last state."
             )
         }
 
