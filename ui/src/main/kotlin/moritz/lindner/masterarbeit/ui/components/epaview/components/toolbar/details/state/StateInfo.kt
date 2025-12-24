@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.domain.State
+import moritz.lindner.masterarbeit.ui.common.Formatting.roundToLongSafe
 import moritz.lindner.masterarbeit.ui.common.Formatting.toContextual
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CumulativeEventsPlot
 import moritz.lindner.masterarbeit.ui.components.epaview.components.toolbar.details.state.plots.CycleTimePlot
@@ -126,7 +127,7 @@ fun StateInfo(
             )
             InfoRow(
                 label = "Cycle Time",
-                value = Duration.ofMillis(cycleTimesOfState.average().roundToLong()).toContextual(),
+                value = Duration.ofMillis(cycleTimesOfState.average().roundToLongSafe()).toContextual(),
                 hintText = "Average time it takes traces to get from this state to a next"
             )
         }
