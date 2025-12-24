@@ -89,16 +89,16 @@ object LogarithmicCycleTimeCalculator {
 
         return extendedPrefixAutomaton.states.associateWith { state ->
             when (state) {
-                is State.PrefixState -> cycleTimeSum(state, logarithmicNormalizedCycleTimeByState)
+                is State.PrefixState -> cycleTimeSumUpToState(state, logarithmicNormalizedCycleTimeByState)
                 State.Root -> 0f
             }
         }
     }
 
-
-    private fun cycleTimeSum(state: State.PrefixState, cycleTimes: Map<State, Float>): Float {
+    private fun cycleTimeSumUpToState(state: State.PrefixState, cycleTimes: Map<State, Float>): Float {
         return epaService
             .getPathFromRoot(state)
+            .dropLast(1)
             .map { stateOnPath -> cycleTimes[stateOnPath]!! }
             .sum()
     }
