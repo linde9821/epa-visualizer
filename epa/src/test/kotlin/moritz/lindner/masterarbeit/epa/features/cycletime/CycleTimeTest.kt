@@ -71,8 +71,10 @@ class CycleTimeTest {
         val state = epa.states.first { it.name == "b" && (it as? State.PrefixState)?.from?.name == "a" }
         val event = epa.sequence(state).first()
 
-        val ct = sut.durationBetweenCurrentEventAndEventAtNextStateInSameTrace(event, state, Long::minus)
+        val next = sut.getNextEventInTraceAtDifferentState(event, state)
+        val ct = (next?.timestamp ?: Long.MAX_VALUE) - event.timestamp
 
+        assertThat(next).isNotNull
         assertThat(ct).isEqualTo(1L * 60 * 1000)
     }
 }
