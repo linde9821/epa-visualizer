@@ -204,17 +204,17 @@ fun TabsComponent(
                                                 ?: throw IllegalStateException("Failed to encode image to PNG")
 
                                             file.write(pngEncoded)
-                                            capturedBitmap = null
-                                            tabStateManager.exportImage(activeTabId!!, false)
                                         }
                                     }
                                 }
+                                tabStateManager.exportImage(activeTabId!!, false)
+                                capturedBitmap = null
                             }
 
                             LaunchedEffect(capturedBitmap) {
                                 if (capturedBitmap != null && currentTab.exportImage) {
                                     fileSaver.launch(
-                                        suggestedName = "epa-${currentTab.title}",
+                                        suggestedName = "epa-${currentTab.title}-${currentTab.layoutConfig.name}",
                                         extension = "png",
                                     )
                                 }

@@ -37,7 +37,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.typography
 import java.text.DecimalFormat
 import java.time.Duration
-import kotlin.math.floor
+import kotlin.math.roundToLong
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -126,7 +126,7 @@ fun StateInfo(
             )
             InfoRow(
                 label = "Cycle Time",
-                value = Duration.ofMillis(floor(cycleTimesOfState.average()).toLong()).toContextual(),
+                value = Duration.ofMillis(cycleTimesOfState.average().roundToLong()).toContextual(),
                 hintText = "Average time it takes traces to get from this state to a next"
             )
         }

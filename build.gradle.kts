@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
@@ -10,12 +11,11 @@ plugins {
 }
 
 subprojects {
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    tasks.withType<KotlinCompile> {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_21
             freeCompilerArgs.addAll(
                 listOf(
-                    "-Xjvm-default=all",
                     "-Xinline-classes",
                 ),
             )
