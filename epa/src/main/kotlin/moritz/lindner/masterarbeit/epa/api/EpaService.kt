@@ -176,6 +176,30 @@ class EpaService<T : Comparable<T>> {
         return seq.map { event -> traces.getTraceByEvent(event) }.toSet()
     }
 
+    fun <C> computeStateTransitionCycleTimesOfAllStates(
+        extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
+        minus: (T, T) -> T,
+        average: (List<T>) -> C,
+        progressCallback: EpaProgressCallback? = null
+    ): Map<Transition, C> {
+        val cycleTimes = computeCycleTimes(extendedPrefixAutomaton)
+
+        val total = extendedPrefixAutomaton.states.size
+        var current = 0
+
+        return buildMap {
+            extendedPrefixAutomaton.states.forEach { state ->
+                progressCallback?.onProgress(current, total, "Compute cycle times")
+                current++
+                val transitions = extendedPrefixAutomaton.outgoingTransitionsByState[state] ?: emptyList()
+                val cycleTimesByTransitions = cycleTimes.cycleTimeOfAllTransition(state, transitions, minus).mapValues {
+                    average(it.value)
+                }
+                putAll (cycleTimesByTransitions)
+            }
+        }
+    }
+
     fun <C> computeAverageStateCycleTimesOfAllStates(
         extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>,
         minus: (T, T) -> T,

@@ -65,7 +65,7 @@ class ParallelReadableTreeLayout(
     }
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        val cycleTimes = epaService.computeAverageStateCycleTimesOfAllStates(
+        val cycleTimes = epaService.computeStateTransitionCycleTimesOfAllStates(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
             average = { cycleTimes ->
@@ -80,8 +80,8 @@ class ParallelReadableTreeLayout(
         // Add offset to handle zero values with logarithmic scaling
         val valuesWithoutRootAndTerminating = cycleTimes
             .filterKeys {
-                it != State.Root &&
-                        epaService.isFinalState(extendedPrefixAutomaton, it).not()
+                it.start != State.Root &&
+                        epaService.isFinalState(extendedPrefixAutomaton, it.start).not()
             }
             .values
             .map { it + offset }
@@ -97,7 +97,7 @@ class ParallelReadableTreeLayout(
             val logMax = log10(max)
 
             extendedPrefixAutomaton.transitions.associateWith { transition ->
-                val rawValue = cycleTimes[transition.end]!!
+                val rawValue = cycleTimes[transition]!!
                 val value = rawValue + offset
                 val logValue = log10(value)
                 val normalized = ((logValue - logMin) / (logMax - logMin)).coerceIn(0.0f, 1.0f)

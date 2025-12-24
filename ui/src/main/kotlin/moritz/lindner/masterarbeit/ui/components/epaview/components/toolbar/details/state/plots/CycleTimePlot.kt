@@ -56,9 +56,10 @@ fun CycleTimePlot(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             StatItem(label = "Min", value = Duration.ofMillis(cycleTimesOfState.minOrNull() ?: 0).toContextual())
+            val average = cycleTimesOfState.average()
             StatItem(
                 label = "Average",
-                value = Duration.ofMillis(cycleTimesOfState.average().roundToLong()).toContextual()
+                value = if (average.isNaN().not()) Duration.ofMillis(average.roundToLong()).toContextual() else "NaN"
             )
             StatItem(label = "Max", value = Duration.ofMillis(cycleTimesOfState.maxOrNull() ?: 0).toContextual())
         }
