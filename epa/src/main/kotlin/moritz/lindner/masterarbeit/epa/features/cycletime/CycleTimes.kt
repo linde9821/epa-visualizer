@@ -36,7 +36,7 @@ class CycleTimes<T : Comparable<T>> : AutomatonVisitor<T> {
             .mapValues { (_, events) -> events.sortedBy(Event<T>::timestamp) }
     }
 
-    fun cycleTimeOfAllTransition(
+    fun cycleTimeOfTransition(
         state: State,
         transitions: List<Transition>,
         minus: (T, T) -> T

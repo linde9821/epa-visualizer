@@ -192,8 +192,8 @@ class EpaService<T : Comparable<T>> {
                 progressCallback?.onProgress(current, total, "Compute state-transition cycle times")
                 current++
                 val transitions = extendedPrefixAutomaton.outgoingTransitionsByState[state] ?: emptyList()
-                val cycleTimesByTransitions = cycleTimes.cycleTimeOfAllTransition(state, transitions, minus).mapValues {
-                    average(it.value)
+                val cycleTimesByTransitions = cycleTimes.cycleTimeOfTransition(state, transitions, minus).mapValues { (_, timeDeltas) ->
+                    average(timeDeltas)
                 }
                 putAll(cycleTimesByTransitions)
             }
