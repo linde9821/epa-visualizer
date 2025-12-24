@@ -135,69 +135,33 @@ private fun runApplication() {
             ),
             swingCompatMode = true
         ) {
-
-            val isLinux = System.getProperty("os.name").lowercase().contains("linux")
-
-            if (isLinux) {
-                // Standard window with system decorations
-                Window(
-                    onCloseRequest = ::exitApplication,
-                    state = WindowState(
-                        placement = WindowPlacement.Maximized,
-                        isMinimized = false,
-                    ),
-                    title = APPLICATION_NAME,
-                    icon = painterResource(Res.drawable.logo),
-                ) {
-                    LaunchedEffect(Unit) {
-                        setupDesktopIntegration()
-                    }
-
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(JewelTheme.globalColors.panelBackground)
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Spacer(Modifier.width(8.dp))
-                            AppTitleWithLogo()
-                            GitHubButton()
-                        }
-                        EPAVisualizerUi()
-                    }
+            DecoratedWindow(
+                onCloseRequest = ::exitApplication,
+                state = WindowState(
+                    placement = WindowPlacement.Maximized,
+                    isMinimized = false,
+                ),
+                title = APPLICATION_NAME,
+                icon = painterResource(Res.drawable.logo),
+            ) {
+                LaunchedEffect(Unit) {
+                    setupDesktopIntegration()
                 }
-            } else {
-                DecoratedWindow(
-                    onCloseRequest = ::exitApplication,
-                    state = WindowState(
-                        placement = WindowPlacement.Maximized,
-                        isMinimized = false,
-                    ),
-                    title = APPLICATION_NAME,
-                    icon = painterResource(Res.drawable.logo),
-                ) {
-                    LaunchedEffect(Unit) {
-                        setupDesktopIntegration()
+
+                TitleBar(Modifier.newFullscreenControls()) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AppTitleWithLogo()
                     }
 
-                    TitleBar(Modifier.newFullscreenControls()) {
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            AppTitleWithLogo()
-                        }
-
-                        Row(Modifier.align(Alignment.End)) {
-                            GitHubButton()
-                        }
-
+                    Row(Modifier.align(Alignment.End)) {
+                        GitHubButton()
                     }
-                    EPAVisualizerUi()
+
                 }
+                EPAVisualizerUi()
             }
         }
     }
