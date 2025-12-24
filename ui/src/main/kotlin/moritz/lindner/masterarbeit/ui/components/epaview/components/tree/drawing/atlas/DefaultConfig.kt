@@ -23,7 +23,7 @@ class DefaultConfig(
     private val epaService = EpaService<Long>()
 
     val logarithmicNormalizedCycleTimeByState =
-        LogarithmicCycleTimeCalculator.logarithmicMinMaxNormalizedCycleTimeByState(
+        LogarithmicCycleTimeCalculator.logarithmicMinMaxNormalizedAverageCycleTimeByState(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             min = 0.0f,
             max = 1.0f,
