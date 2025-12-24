@@ -29,6 +29,7 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main'
     strategy:
+      fail-fast: false
       matrix:
         include:
           # macOS
@@ -55,7 +56,9 @@ jobs:
           distribution: 'jetbrains'
           java-version: '21'
           cache: 'gradle'
-          architecture: ${{ matrix.arch }} # Ensures the JDK matches the runner
+          architecture: ${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Distributable
         run: ./gradlew packageReleaseDistributionForCurrentOS
