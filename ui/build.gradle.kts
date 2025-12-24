@@ -11,6 +11,7 @@ plugins {
 
 group = "moritz.lindner.masterarbeit"
 version = "1.14.9"
+val createMetrics = false
 
 kotlin {
     jvmToolchain {
@@ -48,8 +49,10 @@ tasks.test {
 composeCompiler {
     stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose-stability.conf"))
 
-    // metricsDestination.set(layout.buildDirectory.dir("compose_metrics"))
-    // reportsDestination.set(layout.buildDirectory.dir("compose_reports"))
+    if (createMetrics) {
+        metricsDestination.set(layout.buildDirectory.dir("compose_metrics"))
+        reportsDestination.set(layout.buildDirectory.dir("compose_reports"))
+    }
 }
 
 compose.desktop {
