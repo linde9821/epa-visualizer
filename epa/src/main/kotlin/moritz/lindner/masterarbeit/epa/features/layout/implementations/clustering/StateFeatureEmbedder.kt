@@ -15,7 +15,7 @@ class StateFeatureEmbedder(
 
     fun computeEmbeddings(): Map<State, DoubleArray> {
         val allActivities = extendedPrefixAutomaton.activities.toList()
-        val cycleTimeByState = epaService.computeAllCycleTimes(
+        val cycleTimeByState = epaService.computeAverageStateCycleTimesOfAllStates(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
             average = { cycleTimes ->

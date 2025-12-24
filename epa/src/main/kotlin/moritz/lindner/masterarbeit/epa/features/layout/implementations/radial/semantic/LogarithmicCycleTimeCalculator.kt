@@ -17,7 +17,7 @@ object LogarithmicCycleTimeCalculator {
         progressCallback: EpaProgressCallback? = null
     ): Map<State, Float> {
         return buildMap {
-            val cycleTimes = epaService.computeAllCycleTimes(
+            val cycleTimes = epaService.computeAverageStateCycleTimesOfAllStates(
                 extendedPrefixAutomaton = extendedPrefixAutomaton,
                 minus = Long::minus,
                 average = { cycleTimes ->

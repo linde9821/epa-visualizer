@@ -65,7 +65,7 @@ class ParallelReadableTreeLayout(
     }
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        val cycleTimes = epaService.computeAllCycleTimes(
+        val cycleTimes = epaService.computeAverageStateCycleTimesOfAllStates(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
             average = { cycleTimes ->

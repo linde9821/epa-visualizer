@@ -27,7 +27,7 @@ class PartitionFeatureEmbedder(
         val partitionCombiner = PartitionCombiner<Long>()
         extendedPrefixAutomaton.acceptDepthFirst(partitionCombiner)
         val statePartitions: StatePartitionsCollection<Long> = partitionCombiner.getStatePartitions()
-        val cycleTimes = epaService.computeAllCycleTimes(
+        val cycleTimes = epaService.computeAverageStateCycleTimesOfAllStates(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             minus = Long::minus,
             average = { cycleTimes ->
