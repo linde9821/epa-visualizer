@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -47,11 +46,6 @@ tasks.test {
 }
 
 composeCompiler {
-    featureFlags.set(
-        setOf(
-            ComposeFeatureFlag.OptimizeNonSkippingGroups
-        )
-    )
     stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose-stability.conf"))
 
     // metricsDestination.set(layout.buildDirectory.dir("compose_metrics"))
