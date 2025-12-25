@@ -61,7 +61,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Distributable
-        run: ./gradlew packageReleaseDistributionForCurrentOS
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            ./gradlew packageReleaseMsi
+          else
+            ./gradlew packageReleaseDistributionForCurrentOS
+          fi
+        shell: bash
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -71,4 +77,3 @@ jobs:
             ui/build/compose/binaries/main-release/deb/*.deb
             ui/build/compose/binaries/main-release/dmg/*.dmg
             ui/build/compose/binaries/main-release/msi/*.msi
-            ui/build/compose/binaries/main-release/exe/*.exe
