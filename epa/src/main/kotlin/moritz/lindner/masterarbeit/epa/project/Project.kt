@@ -2,10 +2,7 @@ package moritz.lindner.masterarbeit.epa.project
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017OfferChallengeEventMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018ChallengeMapper
-import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.Mappers
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
 import java.nio.file.Files
 import java.nio.file.Path
@@ -143,14 +140,7 @@ data class Project(
 
     /** Gets the mapper name for this project */
     fun getMapper(): XESEventLogMapper<*> {
-        val mappers = listOf(
-            BPI2017ChallengeEventMapper(),
-            BPI2017OfferChallengeEventMapper(),
-            BPI2018ChallengeMapper(),
-            SampleEventMapper()
-        ).associateBy { it.name }
-
-        return mappers[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
+        return Mappers.getMappersByName()[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
     }
 
     fun withMapper(mapper: XESEventLogMapper<*>): Project = copy(mapperName = mapper.name)

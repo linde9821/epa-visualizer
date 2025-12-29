@@ -59,13 +59,33 @@ class SampleEventMapper : XESEventLogMapper<Long>("Sample") {
         )
 }
 
-object Mappers {
-    fun getMappers(): List<XESEventLogMapper<Long>> {
-        return listOf(
-            SampleEventMapper(),
-            BPI2017OfferChallengeEventMapper(),
-            BPI2017ChallengeEventMapper(),
-            BPI2018ChallengeMapper(),
+class BPI2020: XESEventLogMapper<Long>("BPI 2020") {
+    override fun map(
+        xEvent: XEvent,
+        xTrace: XTrace
+    ): Event<Long> {
+        return Event(
+            activity = Activity((xEvent.attributes["concept:name"] as XAttributeLiteralImpl).value),
+            timestamp = (xEvent.attributes["time:timestamp"] as XAttributeTimestampImpl).value.time,
+            caseIdentifier = (xTrace.attributes["id"] as XAttributeLiteralImpl).value,
         )
     }
+}
+
+object Mappers {
+    private val mappers = listOf(
+        SampleEventMapper(),
+        BPI2017OfferChallengeEventMapper(),
+        BPI2017ChallengeEventMapper(),
+        BPI2018ChallengeMapper(),
+        BPI2020()
+    )
+
+    private val mappersByName = Mappers.getMappers().associateBy { it.name }
+
+    fun getMappers(): List<XESEventLogMapper<Long>> {
+        return mappers
+    }
+
+    fun getMappersByName() = mappersByName
 }
