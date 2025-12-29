@@ -37,8 +37,10 @@ object TreeCanvasRenderingHelper {
             val cx = coordinate.x
             val cy = coordinate.y
 
-            if (highlightingAtlas.highlightedStates.contains(state)) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.highlightedPaint)
+            if (highlightingAtlas.pathFromRootStates.contains(state)) {
+                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.pathFromRootPaint)
+            } else if (highlightingAtlas.outgoingPathsState.contains(state)) {
+                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.outgoingPathsPaint)
             }
 
             canvas.nativeCanvas.drawCircle(cx, cy, entry.size, paint)

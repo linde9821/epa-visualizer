@@ -243,7 +243,7 @@ class EpaService<T : Comparable<T>> {
         return subtreeSizeVisitor.sizeByState
     }
 
-    fun hopsFromRootByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
+    fun depthFromRootByState(extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>): Map<State, Int> {
         return extendedPrefixAutomaton.states.associateWith { state ->
             getDepth(state)
         }
@@ -253,5 +253,26 @@ class EpaService<T : Comparable<T>> {
         val incoming = epa.incomingTransitionsByState[u].orEmpty().map { it.start }
         val outgoing = epa.outgoingTransitionsByState[u].orEmpty().map { it.end }
         return (incoming + outgoing).toSet()
+    }
+
+    fun getOutgoingPaths(epa: ExtendedPrefixAutomaton<Long>, state: State): List<List<State>> {
+        val results = mutableListOf<List<State>>()
+
+        fun dfs(current: State, currentPath: List<State>) {
+            val outgoing = epa.outgoingTransitionsByState[current] ?: emptyList()
+
+            if (outgoing.isEmpty()) {
+                results.add(currentPath)
+            } else {
+                outgoing.forEach { transition ->
+                    val nextState = transition.end
+                    dfs(nextState, currentPath + nextState)
+                }
+            }
+        }
+
+        dfs(state, listOf(state))
+
+        return results
     }
 }

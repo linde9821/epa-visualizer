@@ -78,7 +78,7 @@ class ParallelReadableTreeLayout(
                 compactInitialization(
                     extendedPrefixAutomaton = extendedPrefixAutomaton,
                     subtreeSizeByState = epaService.subtreeSizeByState(extendedPrefixAutomaton),
-                    hopsFromRootByState = epaService.hopsFromRootByState(extendedPrefixAutomaton),
+                    hopsFromRootByState = epaService.depthFromRootByState(extendedPrefixAutomaton),
                     progressCallback = progressCallback
                 )
             }

@@ -604,7 +604,8 @@ fun DrawScope.drawTree(
 ) {
     drawIntoCanvas { canvas ->
         val path = Path()
-        val highlightedPaint = drawAtlas.highlightedPaint
+        val highlightedIncomingPath = drawAtlas.pathFromRootPaint
+        val highlightedOutgoingPath = drawAtlas.outgoingPathsPaint
         val transitionModeForLayout = drawAtlas.transitionDrawMode
 
         // Draw edges
@@ -630,14 +631,19 @@ fun DrawScope.drawTree(
                             path.lineTo(end.x, end.y)
                         }
 
-                        if (highlightingAtlas.highlightedStates.contains(state)) {
-                            val strokePaint = highlightedPaint.apply {
+                        if (highlightingAtlas.pathFromRootStates.contains(state)) {
+                            val strokePaint = highlightedIncomingPath.apply {
                                 mode = PaintMode.STROKE
                             }
                             canvas.nativeCanvas.drawPath(path, strokePaint)
+                        } else if (highlightingAtlas.outgoingPathsState.contains(state)) {
+                            val strokePaint = highlightedOutgoingPath.apply {
+                                mode = PaintMode.STROKE
+                            }
+                            canvas.nativeCanvas.drawPath(path, strokePaint)
+                        } else {
+                            canvas.nativeCanvas.drawPath(path, entry.paint)
                         }
-
-                        canvas.nativeCanvas.drawPath(path, entry.paint)
                     }
                 }
         }
