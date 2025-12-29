@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.features.subtree.SubtreeSizeVisitor
 import moritz.lindner.masterarbeit.epa.features.traces.TraceIndexingVisitor
+import kotlin.math.tan
 
 /**
  * Service for analyzing and manipulating Extended Prefix Automatons.
@@ -253,5 +254,26 @@ class EpaService<T : Comparable<T>> {
         val incoming = epa.incomingTransitionsByState[u].orEmpty().map { it.start }
         val outgoing = epa.outgoingTransitionsByState[u].orEmpty().map { it.end }
         return (incoming + outgoing).toSet()
+    }
+
+    fun getOutgoingPaths(epa: ExtendedPrefixAutomaton<Long>, state: State): List<List<State>> {
+        val results = mutableListOf<List<State>>()
+
+        fun dfs(current: State, currentPath: List<State>) {
+            val outgoing = epa.outgoingTransitionsByState[current] ?: emptyList()
+
+            if (outgoing.isEmpty()) {
+                results.add(currentPath)
+            } else {
+                outgoing.forEach { transition ->
+                    val nextState = transition.end
+                    dfs(nextState, currentPath + nextState)
+                }
+            }
+        }
+
+        dfs(state, listOf(state))
+
+        return results
     }
 }
