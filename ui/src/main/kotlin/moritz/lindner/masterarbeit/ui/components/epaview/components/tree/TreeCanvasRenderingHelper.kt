@@ -39,7 +39,7 @@ object TreeCanvasRenderingHelper {
 
             if (highlightingAtlas.pathFromRootStates.contains(state)) {
                 canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.pathFromRootPaint)
-            }else if (highlightingAtlas.outgoingPathsState.contains(state)) {
+            } else if (highlightingAtlas.outgoingPathsState.contains(state)) {
                 canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.outgoingPathsPaint)
             }
 

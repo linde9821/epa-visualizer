@@ -17,7 +17,6 @@ import moritz.lindner.masterarbeit.epa.features.statistics.Statistics
 import moritz.lindner.masterarbeit.epa.features.statistics.StatisticsVisitor
 import moritz.lindner.masterarbeit.epa.features.subtree.SubtreeSizeVisitor
 import moritz.lindner.masterarbeit.epa.features.traces.TraceIndexingVisitor
-import kotlin.math.tan
 
 /**
  * Service for analyzing and manipulating Extended Prefix Automatons.
