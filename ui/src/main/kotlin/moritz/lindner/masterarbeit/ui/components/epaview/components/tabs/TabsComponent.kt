@@ -236,7 +236,7 @@ fun TabsComponent(
                                     onRightClickState = { state ->
                                         if (state != null) {
                                             tabStateManager.setSelectedStateForCurrentTab(state)
-                                            epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                                            epaStateManager.highlightPathsForState(currentTab.id, state, currentEpa)
                                         }
                                     },
                                     onLeftClickState = {},

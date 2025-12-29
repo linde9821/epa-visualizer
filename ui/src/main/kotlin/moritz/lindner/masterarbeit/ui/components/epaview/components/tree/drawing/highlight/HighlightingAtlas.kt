@@ -3,9 +3,10 @@ package moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawin
 import moritz.lindner.masterarbeit.epa.domain.State
 
 data class HighlightingAtlas(
-    val highlightedStates: Set<State> = emptySet(),
+    val pathFromRootStates: Set<State> = emptySet(),
     val selectedState: State? = null,
+    val outgoingPathsState: Set<State> = emptySet(),
 ) {
-    fun withHighlightedState(states: Set<State>) = copy(highlightedStates = states)
-    fun selectedState(state: State) = copy(selectedState = state)
+    fun withPathFromRootStates(states: Set<State>) = copy(pathFromRootStates = states)
+    fun withOutgoingPathsStates(states: Set<State>) = copy(outgoingPathsState = states)
 }

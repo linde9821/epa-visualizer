@@ -30,7 +30,7 @@ fun DetailsUi(
             extendedPrefixAutomaton = currentEpa,
             onStateSelected = { state ->
                 tabStateManager.setSelectedStateForCurrentTab(state)
-                epaStateManager.highlightPathFromRootForState(currentTab.id, state)
+                epaStateManager.highlightPathsForState(currentTab.id, state, currentEpa)
             },
             locate = { state ->
                 tabStateManager.locateState(state, activeTabId!!)

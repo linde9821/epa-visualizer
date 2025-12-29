@@ -261,10 +261,14 @@ class EpaStateManager(
         }
     }
 
-    fun highlightPathFromRootForState(tabId: String, state: State) {
+    fun highlightPathsForState(tabId: String, state: State, epa: ExtendedPrefixAutomaton<Long>) {
         val highlight = _highlightingByTabId.value[tabId]!!
         val pathFromRoot = epaService.getPathFromRoot(state)
-        val newHighlight = highlight.withHighlightedState(pathFromRoot.toSet())
+        val outgoingPaths = epaService.getOutgoingPaths(epa, state)
+
+        val newHighlight = highlight
+            .withPathFromRootStates(pathFromRoot.toSet())
+            .withOutgoingPathsStates(outgoingPaths.flatten().toSet())
         _highlightingByTabId.update { currentMap ->
             currentMap + (tabId to newHighlight)
         }

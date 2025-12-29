@@ -22,8 +22,15 @@ class DrawAtlas(
             strokeWidth = 5f
         }
 
-    val highlightedPaint = Paint().apply {
+    val pathFromRootPaint = Paint().apply {
         color = Color.CYAN
+        mode = PaintMode.STROKE
+        isAntiAlias = true
+        strokeWidth = 5f
+    }
+
+    val outgoingPathsPaint = Paint().apply {
+        color = Color.MAGENTA
         mode = PaintMode.STROKE
         isAntiAlias = true
         strokeWidth = 5f
