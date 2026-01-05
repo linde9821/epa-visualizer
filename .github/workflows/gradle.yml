@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'jetbrains'
-          java-version: '21'
+          java-version: '25'
           cache: 'gradle'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'jetbrains'
-          java-version: '21'
+          java-version: '25'
           cache: 'gradle'
           architecture: ${{ matrix.arch }}
         env:
