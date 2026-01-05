@@ -634,11 +634,13 @@ fun DrawScope.drawTree(
                         if (highlightingAtlas.pathFromRootStates.contains(state)) {
                             val strokePaint = highlightedIncomingPath.apply {
                                 mode = PaintMode.STROKE
+                                strokeWidth = entry.paint.strokeWidth
                             }
                             canvas.nativeCanvas.drawPath(path, strokePaint)
                         } else if (highlightingAtlas.outgoingPathsState.contains(state)) {
                             val strokePaint = highlightedOutgoingPath.apply {
                                 mode = PaintMode.STROKE
+                                strokeWidth = entry.paint.strokeWidth
                             }
                             canvas.nativeCanvas.drawPath(path, strokePaint)
                         } else {
