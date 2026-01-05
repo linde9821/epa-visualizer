@@ -5,9 +5,10 @@ plugins {
 
 kotlin {
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
+
 dependencies {
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
