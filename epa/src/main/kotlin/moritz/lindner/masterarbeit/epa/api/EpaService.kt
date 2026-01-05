@@ -3,6 +3,7 @@ package moritz.lindner.masterarbeit.epa.api
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
+import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.domain.Event
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.domain.Transition
@@ -274,5 +275,14 @@ class EpaService<T : Comparable<T>> {
         dfs(state, listOf(state))
 
         return results
+    }
+
+    fun countStateWithActivity(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>, via: Activity): Int {
+        return extendedPrefixAutomaton.states.count { state ->
+            when (state) {
+                is State.PrefixState -> state.via == via
+                State.Root -> false
+            }
+        }
     }
 }

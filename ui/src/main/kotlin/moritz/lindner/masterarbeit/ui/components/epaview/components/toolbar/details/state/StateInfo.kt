@@ -108,6 +108,12 @@ fun StateInfo(
             if (selectedState is State.PrefixState) {
                 InfoRow(label = "Activity", value = selectedState.via.name)
             }
+            if (selectedState is State.PrefixState) {
+                InfoRow(
+                    label = "Amount of other states with the same activity",
+                    value = epaService.countStateWithActivity(extendedPrefixAutomaton, selectedState.via).toString()
+                )
+            }
             InfoRow(label = "Partition", value = formatter.format(partition))
             InfoRow(label = "Depth", value = formatter.format(depth))
             InfoRow(
