@@ -13,7 +13,7 @@ plugins {
 subprojects {
     tasks.withType<KotlinCompile> {
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_21
+            jvmTarget = JvmTarget.JVM_25
             freeCompilerArgs.addAll(
                 listOf(
                     "-Xinline-classes",
