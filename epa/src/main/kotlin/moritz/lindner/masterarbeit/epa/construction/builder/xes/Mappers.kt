@@ -59,7 +59,7 @@ class SampleEventMapper : XESEventLogMapper<Long>("Sample") {
         )
 }
 
-class BPI2020: XESEventLogMapper<Long>("BPI 2020") {
+class BPI2020 : XESEventLogMapper<Long>("BPI 2020") {
     override fun map(
         xEvent: XEvent,
         xTrace: XTrace

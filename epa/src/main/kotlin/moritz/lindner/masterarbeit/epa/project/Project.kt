@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.epa.project
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.Mappers
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
@@ -17,21 +18,18 @@ import java.time.LocalDateTime
  * - epas/unfiltered.json (unfiltered EPA)
  *
  * @param name The display name of the project
- * @param projectFolder Optional description of the project
  * @param createdAt When the project was created
  * @param xesFilePath Path to the XES file (can be anywhere on the
  *    filesystem)
- * @param unfilteredEpaPath Path to the unfiltered EPA json file (relative
- *    to project root)
  */
 @Serializable
 data class Project(
+    @Transient
+    val location: Path = Path.of("/"),
     val name: String,
-    val projectFolder: String,
     val createdAt: String,
     val xesFilePath: String,
     val mapperName: String,
-    val unfilteredEpaPath: String = "epas/unfiltered.json.gz",
 ) {
 
     companion object {
@@ -68,8 +66,8 @@ data class Project(
 
             // Create project with relative path to copied XES file
             val project = Project(
+                location = projectRoot,
                 name = name,
-                projectFolder = projectFolder,
                 createdAt = now,
                 xesFilePath = "$SOURCE_DIR/$originalName",
                 mapperName = mapper.name
@@ -82,15 +80,17 @@ data class Project(
         }
 
         /** Loads a project from its folder by reading project.json */
-        fun loadFromFolder(projectRoot: Path): Project {
-            val metadataPath = projectRoot.resolve(PROJECT_METADATA_FILE)
+        fun loadFromDirectory(location: Path): Project {
+            val metadataPath = location.resolve(PROJECT_METADATA_FILE)
             if (!Files.exists(metadataPath)) {
-                throw IllegalArgumentException("No project.json found in $projectRoot.")
+                throw IllegalArgumentException("No project.json found in $location.")
             }
 
             val json = Json { ignoreUnknownKeys = true }
             val jsonContent = Files.readString(metadataPath)
-            val project = json.decodeFromString<Project>(jsonContent)
+            val project = json.decodeFromString<Project>(jsonContent).copy(
+                location = location
+            )
 
             if (!Files.exists(project.getXesFilePath())) {
                 throw IllegalArgumentException("Source event log not found: ${project.getXesFilePath()}")
@@ -110,9 +110,6 @@ data class Project(
         Files.writeString(getMetadataPath(projectRoot), jsonContent)
     }
 
-    /** Returns the creation date as LocalDateTime */
-    fun getCreatedAt(): LocalDateTime = LocalDateTime.parse(createdAt)
-
     /** Gets the XES file path (absolute) */
     fun getXesFilePath(): Path {
         val xesPath = Path.of(xesFilePath)
@@ -124,23 +121,15 @@ data class Project(
     }
 
     /** Gets the project root as a Path */
-    fun getProjectRoot(): Path = Path.of(projectFolder)
-
-    /** Gets the full path to the unfiltered EPA file within the project */
-    fun getUnfilteredEpaPath(): Path = getProjectRoot().resolve(unfilteredEpaPath)
+    fun getProjectRoot(): Path = location
 
     /** Gets the full path to the project metadata file */
     fun getMetadataPath(projectRoot: Path): Path = projectRoot.resolve(PROJECT_METADATA_FILE)
 
-    /** Creates a copy of this project with updated name */
-    fun withName(newName: String): Project = copy(name = newName)
-
-    /** Creates a copy of this project with updated XES file path */
-    fun withXesFilePath(newXesFilePath: String): Project = copy(xesFilePath = newXesFilePath)
-
     /** Gets the mapper name for this project */
     fun getMapper(): XESEventLogMapper<*> {
-        return Mappers.getMappersByName()[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
+        return Mappers.getMappersByName()[mapperName]
+            ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
     }
 
     fun withMapper(mapper: XESEventLogMapper<*>): Project = copy(mapperName = mapper.name)
