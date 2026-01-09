@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.17.1"
+version = "1.17.2"
 val createMetrics = false
 
 kotlin {
@@ -69,7 +69,7 @@ compose.desktop {
 
         jvmArgs +=
             listOf(
-                "-XX:MaxRAMPercentage=75",
+                "-XX:MaxRAMPercentage=85",
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",

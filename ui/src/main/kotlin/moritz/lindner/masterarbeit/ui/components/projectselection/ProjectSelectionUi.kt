@@ -38,7 +38,7 @@ fun ProjectSelectionUi(
     val openProjectLauncher = rememberDirectoryPickerLauncher { directory ->
         directory?.let { projectPath ->
             try {
-                val project = Project.loadFromFolder(Path(projectPath.file.absolutePath))
+                val project = Project.loadFromDirectory(Path(projectPath.file.absolutePath))
                 onProjectOpen(project)
             } catch (e: Exception) {
                 logger.error(e) { "Couldn't load project" }
