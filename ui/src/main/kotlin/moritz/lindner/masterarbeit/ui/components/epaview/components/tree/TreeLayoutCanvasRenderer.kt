@@ -123,6 +123,7 @@ fun EpaLayoutCanvasRenderer(
             is AngleSimilarityDepthTimeRadialLayout -> {
                 if (layout.config.generateHeatmap) {
                     withContext(backgroundDispatcher) {
+                        logger.info { "creating background heatmap" }
                         heatmapBitmap = null
                         val bitmap = calculateHeatmapBitmap(
                             layout,
@@ -130,6 +131,7 @@ fun EpaLayoutCanvasRenderer(
                             blockSize = 40
                         )
                         heatmapBitmap = bitmap
+                        logger.info { "heatmap created" }
                     }
                 }
             }
