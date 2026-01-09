@@ -128,7 +128,8 @@ data class Project(
 
     /** Gets the mapper name for this project */
     fun getMapper(): XESEventLogMapper<*> {
-        return Mappers.getMappersByName()[mapperName] ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
+        return Mappers.getMappersByName()[mapperName]
+            ?: throw IllegalArgumentException("Unknown mapper name: $mapperName")
     }
 
     fun withMapper(mapper: XESEventLogMapper<*>): Project = copy(mapperName = mapper.name)
