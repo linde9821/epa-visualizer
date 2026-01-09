@@ -194,7 +194,7 @@ sealed class LayoutConfig(val name: String) {
         val useLempelZivComplexity: Boolean = true,
         val minTime: Float = 100.0f,
         val maxTime: Float = 400.0f,
-        val generateHeatmap: Boolean = false,
+        val generateHeatmap: Boolean = true,
         override val lod: Boolean = false,
         override val stateSize: Float = 25f,
         override val minTransitionSize: Float = 4f,
