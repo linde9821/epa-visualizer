@@ -63,13 +63,13 @@ jobs:
       - name: Build Distributable
         run: |
           if [ "${{ runner.os }}" == "Windows" ]; then
-            ./gradlew packageReleaseMsi
+            ./gradlew packageReleaseMsi createReleaseDistributable
           else
-            ./gradlew packageReleaseDistributionForCurrentOS
+            ./gradlew packageReleaseDistributionForCurrentOS createReleaseDistributable
           fi
         shell: bash
 
-      - name: Upload Artifacts
+      - name: Upload distributables Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: distributables-${{ matrix.os }}-${{ matrix.arch }}
@@ -77,3 +77,4 @@ jobs:
             ui/build/compose/binaries/main-release/deb/*.deb
             ui/build/compose/binaries/main-release/dmg/*.dmg
             ui/build/compose/binaries/main-release/msi/*.msi
+            ui/build/compose/binaries/main-release/app/
