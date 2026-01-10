@@ -61,12 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Distributable
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            ./gradlew packageReleaseMsi createReleaseDistributable
-          else
-            ./gradlew packageReleaseDistributionForCurrentOS createReleaseDistributable
-          fi
+        run: ./gradlew createReleaseDistributable
         shell: bash
 
       - name: Upload distributables Artifacts
