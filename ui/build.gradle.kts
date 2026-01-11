@@ -95,9 +95,10 @@ compose.desktop {
                 bundleID = "moritz.lindner.masterarbeit"
                 dockName = "EPA Visualizer"
                 modules(
+                    "java.management",
                     "jdk.unsupported",
                     "jdk.security.auth",
-                    "java.management"
+                    "java.naming",
                 )
             }
 
@@ -105,19 +106,22 @@ compose.desktop {
                 iconFile.set(project.file("src/main/resources/logo.ico"))
                 menuGroup = "EPA Visualizer"
                 modules(
+                    "java.management",
                     "jdk.unsupported",
                     "jdk.security.auth",
-                    "java.management"
+                    "java.naming",
                 )
             }
 
             linux {
+                shortcut = true
                 menuGroup = "EPA Visualizer"
                 iconFile.set(project.file("src/main/resources/logo.png"))
                 modules(
+                    "java.management",
                     "jdk.unsupported",
                     "jdk.security.auth",
-                    "java.management"
+                    "java.naming",
                 )
             }
         }
