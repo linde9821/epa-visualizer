@@ -66,12 +66,8 @@ jobs:
         run: ./gradlew createReleaseDistributable
         shell: bash
 
-      - name: Upload distributables Artifacts
+      - name: Upload distributable artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: distributables-${{ matrix.os }}-${{ matrix.arch }}
-          path: |
-            ui/build/compose/binaries/main-release/deb/*.deb
-            ui/build/compose/binaries/main-release/dmg/*.dmg
-            ui/build/compose/binaries/main-release/msi/*.msi
-            ui/build/compose/binaries/main-release/app/EPA Visualizer/
+          name: distributable-${{ matrix.os }}-${{ matrix.arch }}
+          path: ui/build/compose/binaries/main-release/app/EPA Visualizer/
