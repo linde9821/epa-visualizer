@@ -20,6 +20,13 @@ object ColorPalettes {
             ?.use(BufferedReader::readText)
             ?: throw IllegalStateException("colormaps.json not found in resources")
 
+        if (jsonText.startsWith("version https://git-lfs")) {
+            throw IllegalStateException(
+                "Detected Git LFS pointer instead of actual file. " +
+                        "Ensure 'git lfs pull' was run and LFS is correctly configured in CI."
+            )
+        }
+
         val data = json
             .decodeFromString<Map<String, List<List<Int>>>>(jsonText) + Pair(
             "Black",
