@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.17.3"
+version = "1.17.4"
 val createMetrics = false
 
 kotlin {
