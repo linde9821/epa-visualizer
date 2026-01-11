@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "moritz.lindner.masterarbeit"
-version = "1.17.2"
+version = "1.17.3"
 val createMetrics = false
 
 kotlin {
@@ -73,6 +73,7 @@ compose.desktop {
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",
+                "--enable-native-access=ALL-UNNAMED"
             )
 
         buildTypes.release.proguard {
@@ -93,19 +94,35 @@ compose.desktop {
                 iconFile.set(project.file("src/main/resources/logo.icns"))
                 bundleID = "moritz.lindner.masterarbeit"
                 dockName = "EPA Visualizer"
-                modules("jdk.unsupported", "jdk.security.auth")
+                modules(
+                    "java.management",
+                    "jdk.unsupported",
+                    "jdk.security.auth",
+                    "java.naming",
+                )
             }
 
             windows {
                 iconFile.set(project.file("src/main/resources/logo.ico"))
                 menuGroup = "EPA Visualizer"
-                modules("jdk.unsupported", "jdk.security.auth")
+                modules(
+                    "java.management",
+                    "jdk.unsupported",
+                    "jdk.security.auth",
+                    "java.naming",
+                )
             }
 
             linux {
+                shortcut = true
                 menuGroup = "EPA Visualizer"
                 iconFile.set(project.file("src/main/resources/logo.png"))
-                modules("jdk.unsupported", "jdk.security.auth")
+                modules(
+                    "java.management",
+                    "jdk.unsupported",
+                    "jdk.security.auth",
+                    "java.naming",
+                )
             }
         }
     }
