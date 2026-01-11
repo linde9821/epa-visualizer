@@ -56,7 +56,7 @@ val logger = KotlinLogging.logger {}
 @ExperimentalJewelApi
 fun main() {
     try {
-        logger.info { "Starting EPA-Visualizer" }
+        logger.info { "Starting EPA-Visualizer ${BuildConfig.APP_VERSION}" }
         setSystemProperties()
         setupMemoryMonitoring()
         runApplication()
