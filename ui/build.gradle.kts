@@ -73,6 +73,7 @@ compose.desktop {
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",
+                "--enable-native-access=ALL-UNNAMED"
             )
 
         buildTypes.release.proguard {
@@ -93,19 +94,31 @@ compose.desktop {
                 iconFile.set(project.file("src/main/resources/logo.icns"))
                 bundleID = "moritz.lindner.masterarbeit"
                 dockName = "EPA Visualizer"
-                modules("jdk.unsupported", "jdk.security.auth")
+                modules(
+                    "jdk.unsupported",
+                    "jdk.security.auth",
+                    "java.management"
+                )
             }
 
             windows {
                 iconFile.set(project.file("src/main/resources/logo.ico"))
                 menuGroup = "EPA Visualizer"
-                modules("jdk.unsupported", "jdk.security.auth")
+                modules(
+                    "jdk.unsupported",
+                    "jdk.security.auth",
+                    "java.management"
+                )
             }
 
             linux {
                 menuGroup = "EPA Visualizer"
                 iconFile.set(project.file("src/main/resources/logo.png"))
-                modules("jdk.unsupported", "jdk.security.auth")
+                modules(
+                    "jdk.unsupported",
+                    "jdk.security.auth",
+                    "java.management"
+                )
             }
         }
     }
