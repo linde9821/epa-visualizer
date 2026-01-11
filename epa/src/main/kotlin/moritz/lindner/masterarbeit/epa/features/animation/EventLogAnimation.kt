@@ -78,8 +78,7 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @throws IllegalStateException if the animation contains no states.
      */
     fun getLast(): Pair<T, TimedState<T>> {
-        val last =
-            sortedStates.maxByOrNull { it.endTime ?: it.startTime }
+        val last = sortedStates.lastOrNull()
                 ?: throw IllegalStateException("No states in animation")
         val endTimestamp = last.endTime ?: last.startTime
         return endTimestamp to last
