@@ -72,13 +72,27 @@ class BPI2020 : XESEventLogMapper<Long>("BPI 2020") {
     }
 }
 
+class Sepsis : XESEventLogMapper<Long>("Sepsis") {
+    override fun map(
+        xEvent: XEvent,
+        xTrace: XTrace
+    ): Event<Long> {
+        return Event(
+            activity = Activity((xEvent.attributes["concept:name"] as XAttributeLiteralImpl).value),
+            timestamp = (xEvent.attributes["time:timestamp"] as XAttributeTimestampImpl).value.time,
+            caseIdentifier = (xTrace.attributes["concept:name"] as XAttributeLiteralImpl).value,
+        )
+    }
+}
+
 object Mappers {
     private val mappers = listOf(
         SampleEventMapper(),
         BPI2017OfferChallengeEventMapper(),
         BPI2017ChallengeEventMapper(),
         BPI2018ChallengeMapper(),
-        BPI2020()
+        BPI2020(),
+        Sepsis()
     )
 
     private val mappersByName = Mappers.getMappers().associateBy { it.name }

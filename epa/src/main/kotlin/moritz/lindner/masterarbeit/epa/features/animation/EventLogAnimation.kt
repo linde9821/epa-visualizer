@@ -79,7 +79,7 @@ data class EventLogAnimation<T : Comparable<T>>(
      */
     fun getLast(): Pair<T, TimedState<T>> {
         val last = sortedStates.lastOrNull()
-                ?: throw IllegalStateException("No states in animation")
+            ?: throw IllegalStateException("No states in animation")
         val endTimestamp = last.endTime ?: last.startTime
         return endTimestamp to last
     }
