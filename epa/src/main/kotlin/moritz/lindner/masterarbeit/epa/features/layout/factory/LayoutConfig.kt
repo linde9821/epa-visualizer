@@ -79,7 +79,7 @@ sealed class LayoutConfig(val name: String) {
         override val minTransitionSize: Float = 2f,
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
-        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
+        override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "Blues",
     ) : LayoutConfig("Radial Walker Layout") {
         override fun getParameters() = mapOf(
