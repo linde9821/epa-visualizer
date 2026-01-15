@@ -14,6 +14,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.intui.standalone.styling.fullWidth
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Divider
@@ -53,7 +54,7 @@ fun LayoutUi(
         )
     }
 
-    if (currentLayoutConfig == null && activeTabId != null && currentTab != null) {z
+    if (currentLayoutConfig == null && activeTabId != null && currentTab != null) {
         CircularProgressIndicatorBig()
     } else {
         var layoutSelectionIndex by remember(currentLayoutConfig) {
@@ -66,6 +67,7 @@ fun LayoutUi(
 
         GroupHeader("Layout algorithm:")
         ListComboBox(
+            modifier = Modifier.fillMaxWidth(),
             items = availableLayouts.map(LayoutConfig::name),
             selectedIndex = layoutSelectionIndex,
             onSelectedItemChange = { index ->
