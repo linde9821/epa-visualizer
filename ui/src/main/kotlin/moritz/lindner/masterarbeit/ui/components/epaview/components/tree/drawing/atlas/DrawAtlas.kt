@@ -26,18 +26,18 @@ class DrawAtlas(
         color = Color.CYAN
         mode = PaintMode.STROKE
         isAntiAlias = true
-        strokeWidth = 5f
+        strokeWidth = 4f
     }
 
     val outgoingPathsPaint = Paint().apply {
         color = Color.MAGENTA
         mode = PaintMode.STROKE
         isAntiAlias = true
-        strokeWidth = 5f
+        strokeWidth = 4f
     }
 
     val tokenPaint = Paint().apply {
-        color = Color.MAGENTA
+        color = Color.RED
         mode = PaintMode.FILL
         isAntiAlias = true
         strokeWidth = 5f

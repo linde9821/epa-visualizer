@@ -45,7 +45,6 @@ class DefaultConfig(
 
     override fun toTransitionAtlasEntry(transition: Transition): TransitionAtlasEntry {
         val freq = normalizedStateFrequency.frequencyByState(transition.end)
-
         val width = linearProjectClamped(
             freq,
             normalizedStateFrequency.min(),
