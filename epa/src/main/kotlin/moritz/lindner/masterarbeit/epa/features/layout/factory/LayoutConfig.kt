@@ -25,10 +25,10 @@ sealed class LayoutConfig(val name: String) {
         val layerSpace: Float = 200.0f,
         override val enabled: Boolean = true,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("Walker Layout") {
@@ -43,7 +43,7 @@ sealed class LayoutConfig(val name: String) {
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo("Label drawn after", 1.0f, 100.0f, 1.0f),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                 "stateSizeUntilLabelIsDrawn",
                 1.0f,
@@ -70,15 +70,15 @@ sealed class LayoutConfig(val name: String) {
     }
 
     data class RadialWalkerConfig(
-        val layerSpace: Float = 150.0f,
+        val layerSpace: Float = 200.0f,
         val margin: Float = 4.0f,
         val rotation: Float = 90.0f,
         override val enabled: Boolean = true,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "Blues",
     ) : LayoutConfig("Radial Walker Layout") {
@@ -90,7 +90,7 @@ sealed class LayoutConfig(val name: String) {
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                 "stateSizeUntilLabelIsDrawn",
                 1.0f,
@@ -125,10 +125,10 @@ sealed class LayoutConfig(val name: String) {
         val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
         override val enabled: Boolean = true,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("Cycle-Time Radial Layout") {
@@ -151,7 +151,7 @@ sealed class LayoutConfig(val name: String) {
             ),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                 "stateSizeUntilLabelIsDrawn",
                 1.0f,
@@ -196,10 +196,10 @@ sealed class LayoutConfig(val name: String) {
         val maxTime: Float = 400.0f,
         val generateHeatmap: Boolean = true,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "Blues",
     ) : LayoutConfig("Angle-Similarity, Depth-Time Radial-Layout") {
@@ -221,7 +221,7 @@ sealed class LayoutConfig(val name: String) {
                 "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
                 "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
                 "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
                 "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                     "stateSizeUntilLabelIsDrawn",
                     1.0f,
@@ -285,7 +285,7 @@ sealed class LayoutConfig(val name: String) {
 
     data class PartitionSimilarityRadialLayoutConfig(
         override val enabled: Boolean = true,
-        val layerSpace: Float = 120.0f,
+        val layerSpace: Float = 200.0f,
         val umapK: Int = 10,
         val umapIterations: Int = 250,
         val useTotalStateCount: Boolean = true,
@@ -298,10 +298,10 @@ sealed class LayoutConfig(val name: String) {
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("Partition-Similarity-based Radial Layout") {
@@ -323,7 +323,7 @@ sealed class LayoutConfig(val name: String) {
                 "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
                 "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
                 "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
                 "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                     "stateSizeUntilLabelIsDrawn",
                     1.0f,
@@ -372,14 +372,14 @@ sealed class LayoutConfig(val name: String) {
     }
 
     data class DirectAngularConfig(
-        val layerSpace: Float = 120.0f,
+        val layerSpace: Float = 200.0f,
         val rotation: Float = 0.0f,
         override val enabled: Boolean = true,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("Direct Angular Placement (Radial Layout)") {
@@ -390,7 +390,7 @@ sealed class LayoutConfig(val name: String) {
             "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                 "stateSizeUntilLabelIsDrawn",
                 1.0f,
@@ -447,10 +447,10 @@ sealed class LayoutConfig(val name: String) {
 
         override val enabled: Boolean = true,
 
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("State Clustering Layout") {
@@ -483,7 +483,7 @@ sealed class LayoutConfig(val name: String) {
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                 "stateSizeUntilLabelIsDrawn",
                 1.0f,
@@ -539,10 +539,10 @@ sealed class LayoutConfig(val name: String) {
         val useCombinedCycleTime: Boolean = true,
         val useActivitySequenceEncoding: Boolean = true,
         val useLempelZivComplexity: Boolean = true,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("Partition Clustering Layout") {
@@ -565,7 +565,7 @@ sealed class LayoutConfig(val name: String) {
             "useLempelZivComplexity" to ParameterInfo.BooleanParameterInfo("useLempelZivComplexity"),
             "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
             "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+            "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
             "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                 "stateSizeUntilLabelIsDrawn",
                 1.0f,
@@ -618,10 +618,10 @@ sealed class LayoutConfig(val name: String) {
         val EDGE_LENGTH_FORCE_STRENGTH: Float = 1.0f,
         val DISTRIBUTION_FORCE_STRENGTH: Float = 0.1f,
         override val lod: Boolean = false,
-        override val stateSize: Float = 25f,
-        override val minTransitionSize: Float = 4f,
-        override val maxTransitionSize: Float = 25f,
-        override val stateSizeUntilLabelIsDrawn: Float = 17f,
+        override val stateSize: Float = 20f,
+        override val minTransitionSize: Float = 2f,
+        override val maxTransitionSize: Float = 80f,
+        override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
         override val colorPalette: String = "Blues"
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
@@ -671,7 +671,7 @@ sealed class LayoutConfig(val name: String) {
                 "lod" to ParameterInfo.BooleanParameterInfo("Level of Detail"),
                 "stateSize" to ParameterInfo.NumberParameterInfo("stateSize", 1.0f, 100.0f, 1.0f),
                 "minTransitionSize" to ParameterInfo.NumberParameterInfo("minTransitionSize", 1.0f, 100.0f, 1.0f),
-                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 100.0f, 1.0f),
+                "maxTransitionSize" to ParameterInfo.NumberParameterInfo("maxTransitionSize", 1.0f, 150.0f, 1.0f),
                 "stateSizeUntilLabelIsDrawn" to ParameterInfo.NumberParameterInfo(
                     "stateSizeUntilLabelIsDrawn",
                     1.0f,
