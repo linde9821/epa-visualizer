@@ -14,6 +14,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.intui.standalone.styling.fullWidth
 import org.jetbrains.jewel.ui.Orientation
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
 import org.jetbrains.jewel.ui.component.Divider
@@ -32,36 +33,30 @@ fun LayoutUi(
     val currentTab = remember(tabsState, activeTabId) {
         tabsState.find { it.id == activeTabId }
     }
-    val currentLabels by remember(currentTab) {
-        mutableStateOf(stateLabelsByTabId[currentTab?.id])
-    }
+    val currentLabels = stateLabelsByTabId[currentTab?.id]
     var currentLayoutConfig by remember(currentTab) {
         mutableStateOf(currentTab?.layoutConfig)
     }
 
     val currentEpa = activeTabId?.let { epaByTabId[it] }
 
-    if (currentLayoutConfig == null && activeTabId != null && currentTab != null) {
-        CircularProgressIndicatorBig()
-    } else {
-        val availableLayouts = listOfNotNull(
+    val availableLayouts = remember(currentLabels, currentEpa) {
+        listOfNotNull(
             LayoutConfig.RadialWalkerConfig(),
+            LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
+            currentLabels?.let { labels -> LayoutConfig.PRTLayoutConfig(labelSizeByState = labels.getLabelSizeMap()) },
+            currentEpa?.let { epa -> LayoutConfig.CycleTimeRadialLayoutConfig(extendedPrefixAutomaton = epa) },
             LayoutConfig.WalkerConfig(),
             LayoutConfig.DirectAngularConfig(),
             LayoutConfig.PartitionSimilarityRadialLayoutConfig(),
             LayoutConfig.StateClusteringLayoutConfig(),
             LayoutConfig.PartitionClusteringLayoutConfig(),
-            LayoutConfig.AngleSimilarityDepthTimeRadialLayoutConfig(),
-            currentEpa?.let {
-                LayoutConfig.CycleTimeRadialLayoutConfig(
-                    extendedPrefixAutomaton = currentEpa
-                )
-            },
-            currentLabels?.let {
-                LayoutConfig.PRTLayoutConfig(labelSizeByState = currentLabels!!.getLabelSizeMap())
-            },
         )
+    }
 
+    if (currentLayoutConfig == null && activeTabId != null && currentTab != null) {
+        CircularProgressIndicatorBig()
+    } else {
         var layoutSelectionIndex by remember(currentLayoutConfig) {
             if (currentLayoutConfig != null) {
                 mutableIntStateOf(availableLayouts.indexOfFirst { it.name == currentLayoutConfig?.name })
@@ -72,6 +67,7 @@ fun LayoutUi(
 
         GroupHeader("Layout algorithm:")
         ListComboBox(
+            modifier = Modifier.fillMaxWidth(),
             items = availableLayouts.map(LayoutConfig::name),
             selectedIndex = layoutSelectionIndex,
             onSelectedItemChange = { index ->
