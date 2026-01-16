@@ -265,10 +265,13 @@ class EpaStateManager(
         val highlight = _highlightingByTabId.value[tabId]!!
         val pathFromRoot = epaService.getPathFromRoot(state)
         val outgoingPaths = epaService.getOutgoingPaths(epa, state)
+        val sameActivityStates = epaService.getStatesWithSameActivityAs(epa, state)
 
         val newHighlight = highlight
             .withPathFromRootStates(pathFromRoot.toSet())
             .withOutgoingPathsStates(outgoingPaths.flatten().toSet())
+            .withSameActivityStates(sameActivityStates.toSet())
+
         _highlightingByTabId.update { currentMap ->
             currentMap + (tabId to newHighlight)
         }

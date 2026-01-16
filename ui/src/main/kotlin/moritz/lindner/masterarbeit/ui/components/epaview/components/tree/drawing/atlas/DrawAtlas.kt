@@ -36,6 +36,13 @@ class DrawAtlas(
         strokeWidth = 4f
     }
 
+    val sameActivityPaint = Paint().apply {
+        color = Color.GREEN
+        mode = PaintMode.STROKE
+        isAntiAlias = true
+        strokeWidth = 8f
+    }
+
     val tokenPaint = Paint().apply {
         color = Color.RED
         mode = PaintMode.FILL

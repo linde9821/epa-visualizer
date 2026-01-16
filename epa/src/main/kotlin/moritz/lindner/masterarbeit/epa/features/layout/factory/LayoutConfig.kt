@@ -30,7 +30,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("Walker Layout") {
         override fun getParameters() = mapOf(
             "distance" to ParameterInfo.NumberParameterInfo("Distance", 1f, 500.0f, 5.0f),
@@ -80,7 +80,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "Blues",
+        override val colorPalette: String = "Reds",
     ) : LayoutConfig("Radial Walker Layout") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 300.0f, 5.0f),
@@ -130,7 +130,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("Cycle-Time Radial Layout") {
         override fun getParameters() = mapOf(
             "enabled" to ParameterInfo.BooleanParameterInfo("Enabled"),
@@ -201,7 +201,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "Blues",
+        override val colorPalette: String = "Reds",
     ) : LayoutConfig("Angle-Similarity, Depth-Time Radial-Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -303,7 +303,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("Partition-Similarity-based Radial Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(
@@ -381,7 +381,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.QUADRATIC_BEZIER,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("Direct Angular Placement (Radial Layout)") {
         override fun getParameters() = mapOf(
             "layerSpace" to ParameterInfo.NumberParameterInfo("Layer Space", 10.0f, 200.0f, 5.0f),
@@ -452,7 +452,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("State Clustering Layout") {
 
         override val lod: Boolean
@@ -544,7 +544,7 @@ sealed class LayoutConfig(val name: String) {
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.NONE,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("Partition Clustering Layout") {
 
         override val lod: Boolean
@@ -612,18 +612,18 @@ sealed class LayoutConfig(val name: String) {
         val labelSizeByState: Map<State, Pair<Float, Float>>,
         val iterations: Int = 5,
         val seed: Int = 42,
-        val minEdgeLength: Float = 100.0f,
-        val maxEdgeLength: Float = 500.0f,
-        val LABEL_OVERLAP_FORCE_STRENGTH: Float = 1.0f,
+        val minEdgeLength: Float = 40.0f,
+        val maxEdgeLength: Float = 1000.0f,
+        val LABEL_OVERLAP_FORCE_STRENGTH: Float = .0f,
         val EDGE_LENGTH_FORCE_STRENGTH: Float = 1.0f,
-        val DISTRIBUTION_FORCE_STRENGTH: Float = 0.1f,
+        val DISTRIBUTION_FORCE_STRENGTH: Float = .8f,
         override val lod: Boolean = false,
         override val stateSize: Float = 20f,
         override val minTransitionSize: Float = 2f,
         override val maxTransitionSize: Float = 80f,
         override val stateSizeUntilLabelIsDrawn: Float = 30f,
         override val transitionDrawMode: TransitionDrawMode = TransitionDrawMode.LINE,
-        override val colorPalette: String = "Blues"
+        override val colorPalette: String = "Reds"
     ) : LayoutConfig("(Parallel) Readable Tree Layout") {
         override fun getParameters(): Map<String, ParameterInfo> {
             return mapOf(

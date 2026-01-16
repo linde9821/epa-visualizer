@@ -47,11 +47,23 @@ object TreeCanvasRenderingHelper {
 
             if (entry.size * scale >= drawAtlas.stateSizeUntilLabelIsDrawn) {
                 val label = stateLabels.getLabelForState(state)
-                canvas.nativeCanvas.drawImage(
-                    label,
-                    cx + entry.size + 5f,
-                    cy - label.height / 2f,
-                )
+                val x = cx + entry.size + 5f
+                val y = cy - label.height / 2f
+
+                if (highlightingAtlas.sameActivityStates.contains(state)) {
+                    val padding = 6f
+                    val rrect = org.jetbrains.skia.RRect.makeXYWH(
+                        x - padding,
+                        y - padding,
+                        label.width + (padding * 2),
+                        label.height + (padding * 2),
+                        8f
+                    )
+
+                    canvas.nativeCanvas.drawRRect(rrect, drawAtlas.sameActivityPaint)
+                }
+
+                canvas.nativeCanvas.drawImage(label, x, y)
             }
         }
     }

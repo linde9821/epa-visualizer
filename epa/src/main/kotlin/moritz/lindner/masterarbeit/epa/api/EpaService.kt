@@ -285,4 +285,17 @@ class EpaService<T : Comparable<T>> {
             }
         }
     }
+
+    fun getStatesWithSameActivityAs(epa: ExtendedPrefixAutomaton<Long>, state: State): List<State> {
+        return when (state) {
+            is State.PrefixState -> epa.states.filter { currentState ->
+                when (currentState) {
+                    is State.PrefixState -> currentState.via == state.via
+                    State.Root -> false
+                }
+            }
+
+            State.Root -> emptyList<State>()
+        }
+    }
 }

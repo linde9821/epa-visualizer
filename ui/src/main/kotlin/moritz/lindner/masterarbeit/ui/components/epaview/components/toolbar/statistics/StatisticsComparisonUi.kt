@@ -59,16 +59,19 @@ fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: Ep
         ) {
             if (statisticsState != null) {
                 StatisticsElement(
-                    title = "Root EPA",
+                    title = "Complete EPA",
                     statistics = statisticsState.fullEpa,
                     modifier = Modifier.weight(1f),
                 )
-                if (statisticsState.filteredEpa != null) {
+
+                if (statisticsState.filteredEpa != null && statisticsState.filteredEpa != statisticsState.fullEpa) {
                     StatisticsElement(
                         title = "${currentTab?.title} EPA",
                         statistics = statisticsState.filteredEpa,
                         modifier = Modifier.weight(1f),
                     )
+                } else if (statisticsState.filteredEpa != null && statisticsState.filteredEpa == statisticsState.fullEpa) {
+                    Unit
                 } else CircularProgressIndicatorBig()
             } else {
                 CircularProgressIndicatorBig()

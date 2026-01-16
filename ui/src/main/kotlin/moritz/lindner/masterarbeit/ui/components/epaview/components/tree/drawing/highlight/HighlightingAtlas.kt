@@ -6,7 +6,9 @@ data class HighlightingAtlas(
     val pathFromRootStates: Set<State> = emptySet(),
     val selectedState: State? = null,
     val outgoingPathsState: Set<State> = emptySet(),
+    val sameActivityStates: Set<State> = emptySet(),
 ) {
     fun withPathFromRootStates(states: Set<State>) = copy(pathFromRootStates = states)
     fun withOutgoingPathsStates(states: Set<State>) = copy(outgoingPathsState = states)
+    fun withSameActivityStates(states: Set<State>) = copy(sameActivityStates = states)
 }
