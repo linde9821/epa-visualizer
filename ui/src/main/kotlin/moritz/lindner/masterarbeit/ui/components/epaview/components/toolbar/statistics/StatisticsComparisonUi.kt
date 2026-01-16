@@ -12,13 +12,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragData
 import androidx.compose.ui.unit.dp
 import moritz.lindner.masterarbeit.ui.components.epaview.state.StatisticsState
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.EpaStateManager
 import moritz.lindner.masterarbeit.ui.components.epaview.state.manager.TabStateManager
 import org.jetbrains.jewel.ui.component.CircularProgressIndicatorBig
-import org.jetbrains.jewel.ui.component.Text
 
 @Composable
 fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: EpaStateManager) {
@@ -72,7 +70,7 @@ fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: Ep
                         statistics = statisticsState.filteredEpa,
                         modifier = Modifier.weight(1f),
                     )
-                } else if(statisticsState.filteredEpa != null && statisticsState.filteredEpa == statisticsState.fullEpa) {
+                } else if (statisticsState.filteredEpa != null && statisticsState.filteredEpa == statisticsState.fullEpa) {
                     Unit
                 } else CircularProgressIndicatorBig()
             } else {

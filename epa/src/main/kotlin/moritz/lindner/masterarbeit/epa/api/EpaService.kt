@@ -294,6 +294,7 @@ class EpaService<T : Comparable<T>> {
                     State.Root -> false
                 }
             }
+
             State.Root -> emptyList<State>()
         }
     }
