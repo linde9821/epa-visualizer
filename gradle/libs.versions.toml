@@ -14,11 +14,10 @@ csv-jvm = "1.10.0"
 selfie = "2.5.5"
 kotlin = "2.3.0"
 gradle-buildconfig = "6.0.7"
-compose-version = "1.9.3"
+compose-version = "1.10.0"
 jewel = "0.33.0-253.29795"
 intelliJPlatformBuild = "253.29346.379"
 jna = "5.18.1"
-composeHotReload = "1.0.0"
 filekit = "0.12.0"
 kotlinx-serialization = "1.9.0"
 let-plot-compose = "3.0.2"
@@ -96,5 +95,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 compose = { id = "org.jetbrains.compose", version.ref = "compose-version" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gradle-buildconfig-plugin = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
-composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
 
