@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.kotlin.plugin.compose) apply false
     alias(libs.plugins.gradle.buildconfig.plugin) apply false
-    alias(libs.plugins.composeHotReload) apply false
     alias(libs.plugins.kotlin.serialization) apply false
 }
 
