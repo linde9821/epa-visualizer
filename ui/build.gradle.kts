@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.gradle.buildconfig.plugin)
-    alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlin.serialization)
 }
 
