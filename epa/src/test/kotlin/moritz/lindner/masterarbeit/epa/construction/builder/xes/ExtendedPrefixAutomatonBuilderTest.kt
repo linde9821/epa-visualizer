@@ -18,6 +18,17 @@ class ExtendedPrefixAutomatonBuilderTest {
     }
 
     @Test
+    fun `must create expected large epa`() {
+        val sut =
+            EpaFromXesBuilder<Long>()
+                .setFile(File("./src/test/resources/large/BPI Challenge 2017 - Offer log.xes.gz"))
+                .setEventLogMapper(BPI2017OfferChallengeEventMapper())
+                .build()
+
+        expectSelfie(sut.toString()).toMatchDisk()
+    }
+
+    @Test
     fun `EPAs constructed from logs with same events but intertwined times create a structurally equivalent epa`() {
         val b1 =
             EpaFromXesBuilder<Long>()

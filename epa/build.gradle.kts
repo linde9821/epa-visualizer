@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
@@ -38,6 +40,8 @@ dependencies {
 }
 
 tasks.test {
+    jvmArgs("-Xss4m")
+    maxHeapSize = "2g"
     useJUnitPlatform()
     environment(properties.filter { it.key == "selfie" })
     inputs.files(
@@ -45,4 +49,9 @@ tasks.test {
             include("**/*.ss")
         },
     )
+    testLogging {
+        events("passed", "skipped", "failed", "standardOut", "standardError")
+        showExceptions = true
+        exceptionFormat = FULL
+    }
 }
