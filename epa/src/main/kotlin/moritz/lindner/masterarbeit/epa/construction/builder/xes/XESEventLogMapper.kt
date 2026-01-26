@@ -20,7 +20,7 @@ import org.deckfour.xes.model.XTrace
 abstract class XESEventLogMapper<T : Comparable<T>>(val name: String) {
     /**
      * Converts an iterable collection of [XTrace] objects into a
-     * chronologically sorted list of [Event]s (plain eventlog).
+     * chronologically sorted list of [Event]s (plain event log).
      *
      * Each event is mapped using [map], and index based predecessor, successor
      * relationships are established so that each event knows its immediate
@@ -32,7 +32,7 @@ abstract class XESEventLogMapper<T : Comparable<T>>(val name: String) {
      * @return A list of [Event]s sorted by their [Event.timestamp], each with
      *    a reference to its predecessor.
      */
-    fun buildPlainEventlog(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
+    fun buildPlainEventLog(log: Iterable<XTrace>, progressCallback: EpaProgressCallback? = null): List<Event<T>> {
         val logSize = log.toList().size.toLong()
 
         return log
@@ -43,7 +43,7 @@ abstract class XESEventLogMapper<T : Comparable<T>>(val name: String) {
                     logSize = logSize,
                     progressCallback = progressCallback
                 )
-            }.sortedBy { it.timestamp }
+            }.sortedBy(Event<T>::timestamp)
     }
 
     private fun parseTrace(
@@ -54,7 +54,6 @@ abstract class XESEventLogMapper<T : Comparable<T>>(val name: String) {
     ): List<Event<T>> {
         return xTrace
             .map { xEvent -> map(xEvent, xTrace) }
-            .sortedBy(Event<T>::timestamp)
             .also {
                 progressCallback?.onProgress(
                     current = (index + 1).toLong(),

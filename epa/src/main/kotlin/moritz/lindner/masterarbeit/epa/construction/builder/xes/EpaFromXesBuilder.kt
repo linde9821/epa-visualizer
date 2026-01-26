@@ -88,7 +88,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
             }
         )
         val log = parser.parse(progressInputStream).first()
-        val plainEventLog = XESEventLogMapper!!.buildPlainEventlog(log, progressCallback)
+        val plainEventLog = XESEventLogMapper!!.buildPlainEventLog(log, progressCallback)
 
         val states: MutableSet<State> = hashSetOf(State.Root)
         val transitions: MutableSet<Transition> = hashSetOf()
