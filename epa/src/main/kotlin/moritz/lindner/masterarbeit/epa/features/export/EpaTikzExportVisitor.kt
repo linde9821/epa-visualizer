@@ -14,21 +14,59 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
         tikz = buildString {
-            appendLine("% IMPORTANT: Compile with LuaLaTeX")
-            appendLine("\\usepackage{tikz}")
-            appendLine("\\usetikzlibrary{graphs, graphdrawing, arrows.meta, fit, backgrounds}")
-            appendLine("\\usegdlibrary{layered} % Or 'trees'")
+            appendLine(
+                """
+                % IMPORTANT: Compile with LuaLaTeX
+                % add to preamble
+                \usepackage{tikz}
+                \usetikzlibrary{
+                    shapes.geometric, 
+                    positioning, 
+                    graphs,
+                    graphdrawing,
+                    arrows.meta,
+                    fit,
+                    backgrounds,
+                    quotes,
+                    babel
+                }
+                \usegdlibrary{trees} % Or 'layered'
+                %%%%%%%%%%%%%%
+            """.trimIndent()
+            )
             appendLine("")
-            appendLine("\\begin{tikzpicture}")
-            appendLine("  \\graph [layered layout, nodes={draw, rounded corners, font=\\scriptsize, fill=white, align=center}, ")
-            appendLine("          edge quotes={font=\\tiny, inner sep=2pt}, sibling distance=2cm, layer distance=3cm] {")
 
+            appendLine(
+                """
+        \begin{tikzpicture}
+            \graph [
+                tree layout,
+                nodes={
+                    draw,
+                    grow=right,
+                    rounded corners,
+                    font=\scriptsize,
+                    fill=white,
+                    align=center
+                },
+                edge quotes={
+                    font=\scriptsize,
+                    inner sep=2pt,
+                    auto,
+                    sloped,
+                    pos=0.4
+                },
+                sibling distance=2.5cm,
+                layer distance=2.2cm
+            ] {
+            """.trimIndent()
+            )
             // 1. Define nodes and their labels
             val allStates = statesByPartition.values.flatten()
             allStates.forEach { state ->
                 val id = if (state is State.Root) "root" else "s${state.hashCode().toString().replace("-", "n")}"
                 val label = getTikzLabel(extendedPrefixAutomaton, state)
-                appendLine("    $id [as={$label}]" + (if(state is State.Root) ", circle" else "") + ";")
+                appendLine("        $id [as={$label}];")
             }
 
             appendLine("")
@@ -63,8 +101,11 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
     }
 
     override fun visit(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>, transition: Transition, depth: Int) {
-        val s = if (transition.start is State.Root) "root" else "s${transition.start.hashCode().toString().replace("-", "n")}"
-        val e = if (transition.end is State.Root) "root" else "s${transition.end.hashCode().toString().replace("-", "n")}"
+        val s = if (transition.start is State.Root) "root" else "s${
+            transition.start.hashCode().toString().replace("-", "n")
+        }"
+        val e =
+            if (transition.end is State.Root) "root" else "s${transition.end.hashCode().toString().replace("-", "n")}"
         val act = transition.activity.name
         transitions.add("    $s ->[\"$act\"] $e;")
     }
