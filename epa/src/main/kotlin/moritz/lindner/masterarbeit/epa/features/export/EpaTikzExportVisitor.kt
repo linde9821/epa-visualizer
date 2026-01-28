@@ -74,43 +74,40 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
             transitions.forEach { appendLine("    $it") }
             appendLine("  };")
 
-// 3. Partitions (Irregular Hulls)
+            // 3. Partitions (Irregular Hulls)
             appendLine(
                 """
             \begin{scope}[on background layer,
                 hull/.style={
-                    line width=1.4cm, % Adjust for tightness
+                    line width=1.95cm, % Adjust for tightness
                     line cap=round,
                     line join=round,
-                    opacity=0.2
+                    opacity=0.4
                 }]
         """.trimIndent()
             )
 
-            val colors = listOf("blue", "orange", "green", "red", "purple", "cyan")
+            val colors = listOf("blue", "red", "green", "cyan")
+
             statesByPartition.entries.forEachIndexed { index, (pIdx, states) ->
                 if (states.isEmpty()) return@forEachIndexed
-
                 val color = colors[index % colors.size]
-
                 // Generate path: (node1.center) -- (node2.center) -- ...
                 val path = states.joinToString(" -- ") {
                     "(${if (it is State.Root) "root" else "s${it.hashCode().toString().replace("-", "n")}"}.center)"
                 }
-
-                // If it's only one node, a 'fit' is still better; if multiple, use the draw path.
                 if (states.size > 1) {
                     appendLine("        \\draw[hull, $color] $path;")
                     // Label at the last node of the path
                     val lastNodeId = if (states.last() is State.Root) "root" else "s${
                         states.last().hashCode().toString().replace("-", "n")
                     }"
-                    appendLine("        \\node[text=$color, anchor=west] at ($lastNodeId.east) {P$pIdx};")
+                    appendLine("        \\node[anchor=west] at ($lastNodeId.east) {Partition $pIdx};")
                 } else {
                     val singleId = if (states.first() is State.Root) "root" else "s${
                         states.first().hashCode().toString().replace("-", "n")
                     }"
-                    appendLine("        \\node[draw=$color!50, fill=$color!10, dashed, rounded corners, fit=($singleId), label=above:P$pIdx] {};")
+                    appendLine("        \\node[draw=$color!50, fill=$color!10, rounded corners, fit=($singleId), label=above:Partition $pIdx] {};")
                 }
             }
             appendLine("    \\end{scope}")
