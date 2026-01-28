@@ -3,11 +3,11 @@ package moritz.lindner.masterarbeit.epa.visitor.dot
 import com.diffplug.selfie.Selfie.expectSelfie
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.features.dot.DotExport
+import moritz.lindner.masterarbeit.epa.features.export.EpaDotExportVisitor
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class DotExportVisitorTest {
+class EpaDotExportVisitorVisitorTest {
     @Test
     fun `must create correct dot export`() {
         val builder = EpaFromXesBuilder<Long>()
@@ -17,7 +17,7 @@ class DotExportVisitorTest {
 
         val epa = builder.build()
 
-        val sut = DotExport<Long>()
+        val sut = EpaDotExportVisitor<Long>()
 
         epa.acceptDepthFirst(sut)
 
@@ -35,7 +35,7 @@ class DotExportVisitorTest {
 
         val epa = builder.build()
 
-        val sut = DotExport<Long>()
+        val sut = EpaDotExportVisitor<Long>()
 
         epa.acceptBreadthFirst(sut)
 
