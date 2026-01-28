@@ -6,7 +6,7 @@ import moritz.lindner.masterarbeit.epa.features.export.EpaTikzExporter
 import java.io.File
 
 fun main() {
-    val sample = File("./data/eventlogs/sample.xes") to SampleEventMapper()
+    val sample = File("./data/eventlogs/ma_sample.xes") to SampleEventMapper()
     val (file, mapper) = sample
     val epa =
         EpaFromXesBuilder<Long>()

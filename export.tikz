@@ -37,33 +37,19 @@
         layer distance=2.2cm
     ] {
         root [as={root}];
-        s448734952 [as={$a_{1}$\\$a_{2}$\\$a_{3}$\\$a_{4}$}];
-        s1025881722 [as={$b_{1}$\\$b_{4}$}];
-        s1737562409 [as={$c_{1}$\\$c_{4}$}];
-        sn1970140069 [as={$d_{1}$\\$d_{4}$}];
-        sn944799893 [as={$f_{1}$}];
-        s775974490 [as={$e_{1}$}];
-        sn944799894 [as={$e_{4}$}];
-        s1025881723 [as={$c_{2}$\\$c_{3}$}];
-        s1737562439 [as={$b_{2}$\\$b_{3}$}];
-        sn1970139139 [as={$d_{2}$\\$d_{3}$}];
-        sn944771063 [as={$f_{2}$}];
-        s776868220 [as={$e_{2}$}];
-        sn944771064 [as={$e_{3}$}];
+        sn359985048 [as={$received_{1}$\\$received_{2}$\\$received_{3}$\\$received_{4}$\\$received_{5}$}];
+        sn1827288001 [as={$checked_{1}$\\$checked_{2}$\\$checked_{3}$\\$checked_{4}$\\$checked_{5}$}];
+        s373891672 [as={$approved_{1}$\\$approved_{4}$\\$approved_{5}$}];
+        sn69039288 [as={$checked_{2}$}];
+        sn954973073 [as={$approved_{2}$}];
+        sn1419849697 [as={$rejected_{3}$}];
 
-        root ->["a"] s448734952;
-        s448734952 ->["b"] s1025881722;
-        s448734952 ->["c"] s1025881723;
-        s1025881722 ->["c"] s1737562409;
-        s1737562409 ->["d"] sn1970140069;
-        sn1970140069 ->["f"] sn944799893;
-        sn1970140069 ->["e"] sn944799894;
-        sn944799893 ->["e"] s775974490;
-        s1025881723 ->["b"] s1737562439;
-        s1737562439 ->["d"] sn1970139139;
-        sn1970139139 ->["f"] sn944771063;
-        sn1970139139 ->["e"] sn944771064;
-        sn944771063 ->["e"] s776868220;
+        root ->["received"] sn359985048;
+        sn359985048 ->["checked"] sn1827288001;
+        sn1827288001 ->["checked"] sn69039288;
+        sn1827288001 ->["approved"] s373891672;
+        sn1827288001 ->["rejected"] sn1419849697;
+        sn69039288 ->["approved"] sn954973073;
   };
 \begin{scope}[on background layer,
     hull/.style={
@@ -73,11 +59,10 @@
         opacity=0.4
     }]
         \node[draw=blue!50, fill=blue!10, rounded corners, fit=(root), label=above:Partition 0] {};
-        \draw[hull, red] (s448734952.center) -- (s1025881722.center) -- (s1737562409.center) -- (sn1970140069.center) -- (sn944799893.center) -- (s775974490.center);
-        \node[anchor=west] at (s775974490.east) {Partition 1};
-        \node[draw=green!50, fill=green!10, rounded corners, fit=(sn944799894), label=above:Partition 4] {};
-        \draw[hull, cyan] (s1025881723.center) -- (s1737562439.center) -- (sn1970139139.center) -- (sn944771063.center) -- (s776868220.center);
-        \node[anchor=west] at (s776868220.east) {Partition 2};
-        \node[draw=blue!50, fill=blue!10, rounded corners, fit=(sn944771064), label=above:Partition 3] {};
+        \draw[hull, red] (sn359985048.center) -- (sn1827288001.center) -- (s373891672.center);
+        \node[anchor=west] at (s373891672.east) {Partition 1};
+        \draw[hull, green] (sn69039288.center) -- (sn954973073.center);
+        \node[anchor=west] at (sn954973073.east) {Partition 2};
+        \node[draw=cyan!50, fill=cyan!10, rounded corners, fit=(sn1419849697), label=above:Partition 3] {};
     \end{scope}
 \end{tikzpicture}

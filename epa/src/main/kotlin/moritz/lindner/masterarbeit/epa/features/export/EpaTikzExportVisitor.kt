@@ -89,7 +89,9 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
 
             val colors = listOf("blue", "red", "green", "cyan")
 
-            statesByPartition.entries.forEachIndexed { index, (pIdx, states) ->
+            statesByPartition
+                .entries
+                .forEachIndexed { index, (c, states) ->
                 if (states.isEmpty()) return@forEachIndexed
                 val color = colors[index % colors.size]
                 // Generate path: (node1.center) -- (node2.center) -- ...
@@ -102,12 +104,12 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                     val lastNodeId = if (states.last() is State.Root) "root" else "s${
                         states.last().hashCode().toString().replace("-", "n")
                     }"
-                    appendLine("        \\node[anchor=west] at ($lastNodeId.east) {Partition $pIdx};")
+                    appendLine("        \\node[anchor=west] at ($lastNodeId.east) {Partition $c};")
                 } else {
                     val singleId = if (states.first() is State.Root) "root" else "s${
                         states.first().hashCode().toString().replace("-", "n")
                     }"
-                    appendLine("        \\node[draw=$color!50, fill=$color!10, rounded corners, fit=($singleId), label=above:Partition $pIdx] {};")
+                    appendLine("        \\node[draw=$color!50, fill=$color!10, rounded corners, fit=($singleId), label=above:Partition $c] {};")
                 }
             }
             appendLine("    \\end{scope}")
