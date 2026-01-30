@@ -28,7 +28,8 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                     fit,
                     backgrounds,
                     quotes,
-                    babel
+                    babel,
+                    matrix
                 }
                 \usegdlibrary{trees} % Or 'layered'
                 %%%%%%%%%%%%%%
@@ -54,10 +55,10 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                     inner sep=2pt,
                     auto,
                     sloped,
-                    pos=0.4
+                    pos=0.5
                 },
-                sibling distance=2.5cm,
-                layer distance=2.2cm
+                sibling distance=3.2cm,
+                layer distance=3.3cm
             ] {
             """.trimIndent()
             )
@@ -79,7 +80,7 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                 """
             \begin{scope}[on background layer,
                 hull/.style={
-                    line width=1.95cm, % Adjust for tightness
+                    line width=2.0cm, 
                     line cap=round,
                     line join=round,
                     opacity=0.4
@@ -87,32 +88,51 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
         """.trimIndent()
             )
 
-            val colors = listOf("blue", "red", "green", "cyan")
+            val colors = listOf("magenta", "cyan", "red", "green", "lime")
+            val legendEntries = mutableListOf<String>()
 
-            statesByPartition
-                .entries
-                .forEachIndexed { index, (c, states) ->
-                if (states.isEmpty()) return@forEachIndexed
+            statesByPartition.entries.forEachIndexed { index, (c, statesSet) ->
+                if (statesSet.isEmpty()) return@forEachIndexed
+                val states = statesSet.toList() // Convert to list to access middle element
                 val color = colors[index % colors.size]
-                // Generate path: (node1.center) -- (node2.center) -- ...
-                val path = states.joinToString(" -- ") {
-                    "(${if (it is State.Root) "root" else "s${it.hashCode().toString().replace("-", "n")}"}.center)"
-                }
+
+                legendEntries.add("""\fill[$color, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition $c};""")
+
                 if (states.size > 1) {
+                    val path = states.joinToString(" -- ") {
+                        "(${if (it is State.Root) "root" else "s${it.hashCode().toString().replace("-", "n")}"}.center)"
+                    }
                     appendLine("        \\draw[hull, $color] $path;")
-                    // Label at the last node of the path
-                    val lastNodeId = if (states.last() is State.Root) "root" else "s${
-                        states.last().hashCode().toString().replace("-", "n")
-                    }"
-                    appendLine("        \\node[anchor=west] at ($lastNodeId.east) {Partition $c};")
                 } else {
                     val singleId = if (states.first() is State.Root) "root" else "s${
                         states.first().hashCode().toString().replace("-", "n")
                     }"
-                    appendLine("        \\node[draw=$color!50, fill=$color!10, rounded corners, fit=($singleId), label=above:Partition $c] {};")
+                    appendLine("        \\node[draw=$color!50, fill=$color!10, rounded corners, fit=($singleId)] {};")
                 }
             }
             appendLine("    \\end{scope}")
+
+            // 4. The Legend
+            if (legendEntries.isNotEmpty()) {
+                appendLine(
+                    """
+                                    \matrix [
+                                        draw,
+                                        fill=white,
+                                        rounded corners,
+                                        at=(current bounding box.north west),
+                                        anchor=north west,
+                                        xshift=0.5cm,
+                                        yshift=-0.5cm,
+                                        column sep=5pt,
+                                        ampersand replacement=\#
+                                    ] {
+                                        ${legendEntries.joinToString(" \\\\ \n                ")} \\
+                                    };
+    """.trimIndent()
+                )
+            }
+
             appendLine("\\end{tikzpicture}")
         }
     }
@@ -120,7 +140,7 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
     private fun getTikzLabel(epa: ExtendedPrefixAutomaton<T>, state: State): String {
         return when (state) {
             is State.Root -> "root"
-            is State.PrefixState -> epa.sequence(state).joinToString("\\\\") {
+            is State.PrefixState -> epa.sequence(state).joinToString(",\\\\") {
                 "\$${it.activity.name}_{${it.caseIdentifier}}\$"
             }
         }
