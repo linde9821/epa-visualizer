@@ -16,10 +16,10 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-    val filteredEpa = EpaService<Long>().applyFilters(epa, listOf(CompressionFilter<Long>()))
+//    val filteredEpa = EpaService<Long>().applyFilters(epa, listOf(CompressionFilter<Long>()))
 
     val export = EpaTikzExporter<Long>()
-    filteredEpa.acceptDepthFirst(export)
+    epa.acceptDepthFirst(export)
     saveToFile(export.tikz)
 }
 

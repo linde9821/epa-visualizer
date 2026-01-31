@@ -57,16 +57,16 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                     sloped,
                     pos=0.5
                 },
-                sibling distance=3.2cm,
-                layer distance=3.3cm
+                sibling distance=3.5cm,
+                layer distance=4.3cm
             ] {
             """.trimIndent()
             )
             // 1. Define nodes and their labels
             val allStates = statesByPartition.values.flatten()
-            allStates.forEach { state ->
+            allStates.forEachIndexed { index, state ->
                 val id = if (state is State.Root) "root" else "s${state.hashCode().toString().replace("-", "n")}"
-                val label = getTikzLabel(extendedPrefixAutomaton, state)
+                val label = getTikzLabel(extendedPrefixAutomaton, state, index)
                 appendLine("        $id [as={$label}];")
             }
 
@@ -80,7 +80,7 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                 """
             \begin{scope}[on background layer,
                 hull/.style={
-                    line width=2.0cm, 
+                    line width=2.8cm, 
                     line cap=round,
                     line join=round,
                     opacity=0.4
@@ -96,11 +96,14 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                 val states = statesSet.toList() // Convert to list to access middle element
                 val color = colors[index % colors.size]
 
-                legendEntries.add("""\fill[$color, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition $c};""")
+                val partitionLabel = if (c == 0) {
+                    "$\\bot$"
+                } else c.toString()
+                legendEntries.add("""\fill[$color, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition $partitionLabel};""")
 
                 if (states.size > 1) {
                     val path = states.joinToString(" -- ") {
-                        "(${if (it is State.Root) "root" else "s${it.hashCode().toString().replace("-", "n")}"}.center)"
+                        "(${if (it is State.Root) $$"$root$" else "s${it.hashCode().toString().replace("-", "n")}"}.center)"
                     }
                     appendLine("        \\draw[hull, $color] $path;")
                 } else {
@@ -137,11 +140,14 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
         }
     }
 
-    private fun getTikzLabel(epa: ExtendedPrefixAutomaton<T>, state: State): String {
+    private fun getTikzLabel(epa: ExtendedPrefixAutomaton<T>, state: State, index: Int): String {
         return when (state) {
-            is State.Root -> "root"
-            is State.PrefixState -> epa.sequence(state).joinToString(",\\\\") {
-                "\$${it.activity.name}_{${it.caseIdentifier}}\$"
+            is State.Root -> $$"$root$"
+            is State.PrefixState -> {
+                val sequence = epa.sequence(state).joinToString(",\\\\") {
+                    "\$${it.activity.name}_{${it.caseIdentifier}}\$"
+                }
+                $$"$s_$$index \\{$ $$sequence $\\}$"
             }
         }
     }
