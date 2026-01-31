@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.epa.features.dot
+package moritz.lindner.masterarbeit.epa.features.export
 
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -16,7 +16,8 @@ import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
  *
  * @param T The timestamp type used in the automaton's events.
  */
-class DotExport<T : Comparable<T>> : AutomatonVisitor<T> {
+class EpaDotExportVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
+
     private val labelByState = mutableMapOf<State, String>()
     private val transitions = mutableListOf<String>()
     private val statesByPartition = mutableMapOf<Int, MutableSet<State>>()
