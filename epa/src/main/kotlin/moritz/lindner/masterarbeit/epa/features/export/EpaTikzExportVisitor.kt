@@ -103,7 +103,11 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
 
                 if (states.size > 1) {
                     val path = states.joinToString(" -- ") {
-                        "(${if (it is State.Root) $$"$root$" else "s${it.hashCode().toString().replace("-", "n")}"}.center)"
+                        "(${
+                            if (it is State.Root) $$"$root$" else "s${
+                                it.hashCode().toString().replace("-", "n")
+                            }"
+                        }.center)"
                     }
                     appendLine("        \\draw[hull, $color] $path;")
                 } else {
@@ -147,7 +151,7 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                 val sequence = epa.sequence(state).joinToString(",\\\\") {
                     "\$${it.activity.name}_{${it.caseIdentifier}}\$"
                 }
-                $$"$s_$$index \\{$ $$sequence $\\}$"
+                $$"$s_$$index \\{$\\\\ $$sequence \\\\ $\\}$"
             }
         }
     }
