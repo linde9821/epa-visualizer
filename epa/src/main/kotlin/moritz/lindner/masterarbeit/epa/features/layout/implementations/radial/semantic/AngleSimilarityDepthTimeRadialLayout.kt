@@ -62,9 +62,8 @@ class AngleSimilarityDepthTimeRadialLayout(
 
         progressCallback?.onProgress(1, 2, "Reduce Dimensions")
         val partitionCoordinates = reduceDimensions(featureEmbeddings)
-        val angleByPartition = partitionCoordinates.values.toList().map { toAngle(it) }.toList()
+        val angleByPartition = partitionCoordinates.values.map(::toAngle)
         val partitionToAngleMap = partitionCoordinates.keys.zip(angleByPartition).toMap()
-
         val subtreeSizes = epaService.subtreeSizeByState(extendedPrefixAutomaton)
 
         placeNodesHierarchically(
@@ -156,6 +155,7 @@ class AngleSimilarityDepthTimeRadialLayout(
             throw IllegalStateException("Not enough data for UMAP reduction. Needed ${config.umapK} embeddings and ${embeddings.size} are available")
         }
 
+        MathEx.setSeed(42);
         val coordinates = umap(
             data = matrix,
             d = 2,
