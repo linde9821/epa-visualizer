@@ -33,9 +33,11 @@ class WholeEventLogAnimationBuilder<T : Comparable<T>>(
         state: State,
         depth: Int,
     ) {
-        extendedPrefixAutomaton.sequence(state).forEach { event ->
-            activeStateByCaseIdentifier.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
-        }
+        extendedPrefixAutomaton
+            .sequence(state)
+            .forEach { event ->
+                activeStateByCaseIdentifier.getOrPut(event.caseIdentifier) { TreeMap() }[event.timestamp] = state
+            }
     }
 
     /**
