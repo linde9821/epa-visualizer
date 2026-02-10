@@ -194,7 +194,7 @@ class EpaStateManager(
                                 buildStatisticForTab(tab)
                                 buildHighlightingForTab(tab)
                             }
-                        } catch (e: CancellationException) {
+                        } catch (_: CancellationException) {
                             logger.info { "Rebuild cancelled (mapper changed)" }
                         } catch (e: Exception) {
                             logger.error(e) { "Error while building state" }

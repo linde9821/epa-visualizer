@@ -21,7 +21,7 @@ dependencies {
     implementation(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")
     }
-    implementation(compose.components.resources)
+    implementation(libs.compose.resources)
     implementation(libs.jewel)
     implementation(libs.jewel.decorated)
     implementation(libs.intellijPlatform.icons)

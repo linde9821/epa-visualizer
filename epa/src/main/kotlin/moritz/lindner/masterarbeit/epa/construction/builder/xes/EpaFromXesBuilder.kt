@@ -32,7 +32,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     private var nextPartition = 1
 
     /**
-     * Sets the [XESEventLogMapper] used to convert XES [XEvent]s into
+     * Sets the [XESEventLogMapper] used to convert XES [org.deckfour.xes.model.XEvent]s into
      * domain-specific [moritz.lindner.masterarbeit.epa.domain.Event]s.
      *
      * @param mapper The implementation of [XESEventLogMapper] to be used.
