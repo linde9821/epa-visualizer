@@ -314,6 +314,7 @@ class EpaStateManager(
         val stateLabels = StateLabels(
             backgroundColor = Color.WHITE,
             baseFontSize = 21f,
+            scale = 3.0f
         )
 
         val states = epa.states

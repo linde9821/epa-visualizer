@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import org.jetbrains.skia.Paint
+import org.jetbrains.skia.Rect
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
@@ -63,7 +64,9 @@ object TreeCanvasRenderingHelper {
                     canvas.nativeCanvas.drawRRect(rrect, drawAtlas.sameActivityPaint)
                 }
 
-                canvas.nativeCanvas.drawImage(label, x, y)
+                val scale = stateLabels.scale
+                val dstRect = Rect.makeXYWH(x, y, label.width.toFloat() / scale, label.height.toFloat() / scale)
+                canvas.nativeCanvas.drawImageRect(label, dstRect, paint)
             }
         }
     }
