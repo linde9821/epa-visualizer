@@ -36,6 +36,7 @@ Currently only some event-logs are supported (due to the requirement of a mapper
 - [BPI Challenge 2017 - Offer log](https://data.4tu.nl/articles/dataset/BPI_Challenge_2017_-_Offer_log/12705737)
 - [BPI Challenge 2017](https://data.4tu.nl/articles/dataset/BPI_Challenge_2017/12696884)
 - [BPI Challenge 2018](https://data.4tu.nl/articles/dataset/BPI_Challenge_2018/12688355)
+- [Sepsis Cases - Event Log](https://data.4tu.nl/articles/dataset/Sepsis_Cases_-_Event_Log/12707639)
 - some sample logs
 
 All logs are available under [data/eventlogs/*](./data/eventlogs)
