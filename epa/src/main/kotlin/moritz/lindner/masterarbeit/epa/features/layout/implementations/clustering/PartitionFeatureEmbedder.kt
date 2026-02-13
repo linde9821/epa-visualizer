@@ -121,7 +121,7 @@ class PartitionFeatureEmbedder(
                             features.addAll(activityEncoding.toList())
                         }
 
-                        //Lempel-Ziv Complexity LZ76 Algorithm (Most Common for Complexity Measurement)
+                        //Lempel-Ziv Complexity LZ76 Algorithm
                         if (config.useLempelZivComplexity) {
                             val complexity =
                                 lempelZivComplexity(activitySequence)

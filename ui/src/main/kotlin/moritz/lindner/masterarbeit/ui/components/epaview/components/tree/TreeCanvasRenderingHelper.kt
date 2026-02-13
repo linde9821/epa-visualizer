@@ -17,6 +17,7 @@ import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing
 import moritz.lindner.masterarbeit.ui.components.epaview.components.tree.drawing.labels.StateLabels
 import moritz.lindner.masterarbeit.ui.components.epaview.state.AnimationState
 import org.jetbrains.skia.Paint
+import org.jetbrains.skia.RRect
 import org.jetbrains.skia.Rect
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -50,23 +51,23 @@ object TreeCanvasRenderingHelper {
                 val label = stateLabels.getLabelForState(state)
                 val x = cx + entry.size + 5f
                 val y = cy - label.height / 2f
+                val scale = stateLabels.scale
+
+                val dstRect = Rect.makeXYWH(x, y, label.width.toFloat() / scale, label.height.toFloat() / scale)
+                canvas.nativeCanvas.drawImageRect(label, dstRect, paint)
 
                 if (highlightingAtlas.sameActivityStates.contains(state)) {
                     val padding = 6f
-                    val rrect = org.jetbrains.skia.RRect.makeXYWH(
+                    val rrect = RRect.makeXYWH(
                         x - padding,
                         y - padding,
-                        label.width + (padding * 2),
-                        label.height + (padding * 2),
+                        (label.width / scale + (padding * 2)),
+                        (label.height / scale + (padding * 2)),
                         8f
                     )
 
                     canvas.nativeCanvas.drawRRect(rrect, drawAtlas.sameActivityPaint)
                 }
-
-                val scale = stateLabels.scale
-                val dstRect = Rect.makeXYWH(x, y, label.width.toFloat() / scale, label.height.toFloat() / scale)
-                canvas.nativeCanvas.drawImageRect(label, dstRect, paint)
             }
         }
     }
