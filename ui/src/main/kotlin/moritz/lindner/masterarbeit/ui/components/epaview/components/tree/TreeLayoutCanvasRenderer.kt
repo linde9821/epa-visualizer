@@ -416,8 +416,8 @@ private fun calculateHeatmapBitmap(
                 worldY + blockSize / 2f,
                 treeLayout,
                 drawAtlas,
-                power = 10f,
-                maxDistance = 3000f,
+                power = 8f,
+                maxDistance = 2000f,
             )
 
             skiaCanvas.drawRect(
@@ -469,7 +469,7 @@ fun calculateIDWColor(
         val dy = y - point.y
         val distance = sqrt(dx * dx + dy * dy)
 
-        if (distance < 0.01f) {
+        if (distance < 10.0f) {
             return paint
         }
 
