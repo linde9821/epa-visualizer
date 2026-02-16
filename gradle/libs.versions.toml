@@ -1,6 +1,6 @@
 [versions]
 guava = "33.5.0-jre"
-junit-jupiter = "6.0.2"
+junit-jupiter = "6.0.3"
 assertj = "4.0.0-M1"
 kotlin-logging-jvm = "7.0.14"
 log4j = "2.25.3"
