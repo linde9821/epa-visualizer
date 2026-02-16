@@ -50,8 +50,13 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @return A list of all [TimedState]s active at the given time.
      */
     fun getActiveStatesAt(timestamp: T): List<TimedState<T>> {
-        val relevantEntries = statesByInterval.headMap(timestamp, true).values.flatten()
-        return relevantEntries.filter { it.endTime == null || timestamp < it.endTime!! }
+        return statesByInterval
+            .headMap(timestamp, true) // O(log M) - Returns a Map View
+            .values                   // O(1) - Returns a Collection of Lists
+            .asSequence()             // Transition to lazy mode HERE
+            .flatten()                // Lazy flattening (no giant intermediate list)
+            .filter { it.endTime == null || timestamp < it.endTime }
+            .toList()                 // Terminal operation: produces the final result
     }
 
     /**
