@@ -36,4 +36,10 @@ class NormalizedStateFrequency(
     fun toList(): List<Float> {
         return relativeFrequencyByState.values.toList()
     }
+
+    override fun toString(): String {
+        return relativeFrequencyByState.map { (s, f)  ->
+            "$s: $f"
+        }.joinToString("\n")
+    }
 }

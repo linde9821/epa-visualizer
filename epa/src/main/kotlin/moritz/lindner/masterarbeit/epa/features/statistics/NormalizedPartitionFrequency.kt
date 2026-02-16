@@ -39,4 +39,10 @@ class NormalizedPartitionFrequency(
             .sortedByDescending { (_, value) -> value }
             .map { (key, _) -> key }
     }
+
+    override fun toString(): String {
+        return relativeFrequencyByPartition.map { (c, f) ->
+            "$c: $f"
+        }.joinToString("\n")
+    }
 }
