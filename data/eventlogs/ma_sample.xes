@@ -98,4 +98,37 @@
                 <date key="time:timestamp" value="2026-02-26T00:23:00.000+00:00"/>
               </event>
      </trace>
+
+
+       <trace>
+           <string key="concept:name" value="7"/>
+               <event>
+                 <string key="concept:name" value="received"/>
+                 <date key="time:timestamp" value="2026-02-27T00:00:00.000+00:00"/>
+               </event>
+               <event>
+                 <string key="concept:name" value="checked"/>
+                 <date key="time:timestamp" value="2026-02-27T00:01:00.000+00:00"/>
+               </event>
+              <event>
+                <string key="concept:name" value="approved"/>
+                <date key="time:timestamp" value="2026-02-27T00:02:00.000+00:00"/>
+              </event>
+      </trace>
+
+            <trace>
+                <string key="concept:name" value="8"/>
+                    <event>
+                      <string key="concept:name" value="received"/>
+                      <date key="time:timestamp" value="2026-02-27T00:03:00.000+00:00"/>
+                    </event>
+                    <event>
+                      <string key="concept:name" value="checked"/>
+                      <date key="time:timestamp" value="2026-02-27T00:04:00.000+00:00"/>
+                    </event>
+                   <event>
+                     <string key="concept:name" value="approved"/>
+                     <date key="time:timestamp" value="2026-02-27T00:05:00.000+00:00"/>
+                   </event>
+           </trace>
 </log>
