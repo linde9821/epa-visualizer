@@ -152,8 +152,33 @@ class EpaTikzExporter<T : Comparable<T>> : AutomatonVisitor<T> {
                     "\$${it.activity.name}_{${it.caseIdentifier}}\$"
                 }
                 $$"$s_$$index \\{$\\\\ $$sequence \\\\ $\\}$"
+
+//                TODO: grouping! not working completely as wanted
+//                val items = epa.sequence(state)
+//
+//                val groupedString = items.groupBy { it.activity.name }
+//                    .map { (name, items) ->
+//                        val ids = items.map { it.caseIdentifier.toInt() }.sorted()
+//
+//                        val idDisplay = when {
+//                            ids.size == 1 -> "${ids.first()}"
+//                            isSequential(ids) -> "${ids.first()}..${ids.last()}"
+//                            ids.size > 3 -> "${ids.first()}, \\dots, ${ids.last()}"
+//                            else -> ids.joinToString(",")
+//                        }
+//
+//                        "\$${name}_{${idDisplay}}\$"
+//                    }
+//                    .joinToString(", \\\\ ")
+
+//                $$"$s_$$index \\{$\\\\ $$groupedString \\\\ $\\}$"
             }
         }
+    }
+
+    private fun isSequential(list: List<Int>): Boolean {
+        if (list.size < 2) return true
+        return list.zipWithNext().all { it.second == it.first + 1 }
     }
 
     override fun visit(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>, state: State, depth: Int) {

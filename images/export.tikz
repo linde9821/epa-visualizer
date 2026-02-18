@@ -1,0 +1,75 @@
+% IMPORTANT: Compile with LuaLaTeX
+% add to preamble
+\usepackage{tikz}
+\usetikzlibrary{
+    shapes.geometric, 
+    positioning, 
+    graphs,
+    graphdrawing,
+    arrows.meta,
+    fit,
+    backgrounds,
+    quotes,
+    babel,
+    matrix
+}
+\usegdlibrary{trees} % Or 'layered'
+%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+    \graph [
+        tree layout,
+        nodes={
+            draw,
+            grow=right,
+            rounded corners,
+            font=\scriptsize,
+            fill=white,
+            align=center
+        },
+        edge quotes={
+            font=\scriptsize,
+            inner sep=2pt,
+            auto,
+            sloped,
+            pos=0.5
+        },
+        sibling distance=3.5cm,
+        layer distance=4.3cm
+    ] {
+        root [as={$root$}];
+        sn141864382 [as={$s_1 \{$\\ $received_{1}$,\\$received_{2}$,\\$received_{3}$,\\$received_{4}$,\\$received_{5}$,\\$received_{6}$,\\$received_{7}$,\\$received_{8}$,\\$checked_{1}$,\\$checked_{2}$,\\$checked_{3}$,\\$checked_{4}$,\\$checked_{5}$,\\$checked_{6}$,\\$checked_{7}$,\\$checked_{8}$ \\ $\}$}];
+        sn711325060 [as={$s_2 \{$\\ $rejected_{1}$,\\$rejected_{5}$ \\ $\}$}];
+        s1082416309 [as={$s_3 \{$\\ $approved_{3}$,\\$approved_{4}$,\\$approved_{7}$,\\$approved_{8}$ \\ $\}$}];
+
+        root ->["received-checked"] sn141864382;
+        sn141864382 ->["approved"] s1082416309;
+        sn141864382 ->["rejected"] sn711325060;
+  };
+\begin{scope}[on background layer,
+    hull/.style={
+        line width=2.8cm, 
+        line cap=round,
+        line join=round,
+        opacity=0.4
+    }]
+        \node[draw=magenta!50, fill=magenta!10, rounded corners, fit=(root)] {};
+        \draw[hull, cyan] (sn141864382.center) -- (sn711325060.center);
+        \node[draw=red!50, fill=red!10, rounded corners, fit=(s1082416309)] {};
+    \end{scope}
+                    \matrix [
+                        draw,
+                        fill=white,
+                        rounded corners,
+                        at=(current bounding box.north west),
+                        anchor=north west,
+                        xshift=0.5cm,
+                        yshift=-0.5cm,
+                        column sep=5pt,
+                        ampersand replacement=\#
+                    ] {
+                        \fill[magenta, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition $\bot$}; \\ 
+\fill[cyan, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition 1}; \\ 
+\fill[red, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition 3}; \\
+                    };
+\end{tikzpicture}

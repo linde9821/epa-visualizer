@@ -1,8 +1,14 @@
 package moritz.lindner.masterarbeit.playground
 
+import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
+import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.features.export.EpaTikzExporter
+import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
+import moritz.lindner.masterarbeit.epa.features.filter.CompressionFilter
+import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
+import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import java.io.File
 
 fun main() {
@@ -14,10 +20,15 @@ fun main() {
             .setEventLogMapper(mapper)
             .build()
 
-//    val filteredEpa = EpaService<Long>().applyFilters(epa, listOf(CompressionFilter<Long>()))
+    val filteredEpa = EpaService<Long>().applyFilters(
+        epa, listOf(
+            PartitionFrequencyFilter(0.2f),
+            CompressionFilter(),
+        )
+    )
 
     val export = EpaTikzExporter<Long>()
-    epa.acceptDepthFirst(export)
+    filteredEpa.acceptDepthFirst(export)
     saveToFile(export.tikz)
 }
 
