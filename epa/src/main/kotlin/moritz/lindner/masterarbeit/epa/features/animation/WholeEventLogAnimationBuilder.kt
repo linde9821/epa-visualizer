@@ -80,7 +80,7 @@ class WholeEventLogAnimationBuilder<T : Comparable<T>>(
 
         return EventLogAnimation(
             identifier = name,
-            timedStates = timedStates.sortedBy { timedState -> timedState.startTime },
+            timedStates = timedStates,
             totalAmountOfEvents = timedStates.size,
         )
     }
