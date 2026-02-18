@@ -5,12 +5,6 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'Target Release Tag (e.g., v1.2.0)'
-        required: true
-        type: string
 
 jobs:
   test:
@@ -39,17 +33,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # macOS
           - os: macos-latest
             arch: arm64
           - os: macos-15-intel
             arch: x64
-          # Windows
           - os: windows-latest
             arch: x64
           - os: windows-11-arm
             arch: arm64
-          # Linux
           - os: ubuntu-latest
             arch: x64
           - os: ubuntu-24.04-arm
@@ -78,24 +69,3 @@ jobs:
         with:
           name: distributable-${{ matrix.os }}-${{ matrix.arch }}
           path: ui/build/compose/binaries/main-release/app/
-
-  release:
-    needs: build
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release-zips
-          merge-multiple: true
-
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event.inputs.release_tag }}
-          files: release-zips/*.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
