@@ -8,6 +8,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018Challenge
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.statistics.StatesAndPartitionsByDepthVisitor
 import java.io.File
 
 fun main() {
@@ -18,17 +19,15 @@ fun main() {
     File("./data/eventlogs/loops.xes") to SampleEventMapper()
     val offer2017 = File("./data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
     val challenge2017 = File("./data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
-    val challange2018 = File("./data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
+    val challenge2018 = File("./data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
 
-    val (file, mapper) = sample
+    val (file, mapper) = challenge2018
 
     logger.info { "Parsing ${file.absolutePath}" }
 
-    val callback = object : EpaProgressCallback {
-        override fun onProgress(current: Long, total: Long, task: String) {
-            if (current % 100 == 0L) {
-                println("$task: $current/$total")
-            }
+    val callback = EpaProgressCallback { current, total, task ->
+        if (current % 100 == 0L) {
+            println("$task: $current/$total")
         }
     }
     val epa =
@@ -38,20 +37,8 @@ fun main() {
             .setProgressCallback(callback)
             .build()
 
-//    val simplifiedEpa = EpaService<Long>()
-//        .applyFilters(epa, listOf(StateFrequencyFilter(0.001f)), callback)
-//
-//    logger.info { "build EPA successfully" }
-//
-//    val embedder = DL4JGraphEmbedder<Long>(simplifiedEpa)
-//    val embeddings = embedder.computeEmbeddings()
-//    println(embeddings.map { (k, v) ->
-//        v.toList().joinToString(",") { it.toString() }
-//    })
-    val stateClusteringLayout = StateClusteringLayout(
-        epa
-    )
+    val v = StatesAndPartitionsByDepthVisitor<Long>()
+    epa.acceptDepthFirst(v)
 
-
-    val layout = stateClusteringLayout.build()
+    v.report("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/depth_analysis.csv")
 }

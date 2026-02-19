@@ -5,20 +5,20 @@ import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
 
-class PartitionsAtDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
+class StatesAndPartitionsByDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
     val statesByDepth = mutableMapOf<Int, List<State>>()
-    val paritionsByDepth = mutableMapOf<Int, Int>()
+    val partitionsByDepth = mutableMapOf<Int, Int>()
+    lateinit var epa: ExtendedPrefixAutomaton<T>
 
     override fun onEnd(extendedPrefixAutomaton: ExtendedPrefixAutomaton<T>) {
+        epa = extendedPrefixAutomaton
         statesByDepth.forEach { (depth, stateList) ->
-            val distinctPartions =
-                stateList
-                    .map { state ->
-                        extendedPrefixAutomaton.partition(state)
-                    }.distinct()
-                    .size
+            val distinctPartitionsAtDepth = stateList
+                .map { state -> extendedPrefixAutomaton.partition(state) }
+                .distinct()
+                .size
 
-            paritionsByDepth[depth] = distinctPartions
+            partitionsByDepth[depth] = distinctPartitionsAtDepth
         }
     }
 
@@ -36,10 +36,11 @@ class PartitionsAtDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T> {
 
     fun report(path: String) {
         csvWriter().open(path) {
-            writeRow("depth", "states", "paritions")
+            writeRow("depth", "states", "partitions", "events-count")
 
-            statesByDepth.values.zip(paritionsByDepth.values).forEachIndexed { depth, (states, paritions) ->
-                writeRow(depth, states.size, paritions)
+            statesByDepth.values.zip(partitionsByDepth.values).forEachIndexed { depth, (states, partitions) ->
+                val events = states.sumOf { epa.sequence(it).size }
+                writeRow(depth, states.size, partitions, events)
             }
         }
     }
