@@ -20,6 +20,6 @@ import moritz.lindner.masterarbeit.epa.domain.State
 data class TimedState<T : Comparable<T>>(
     val state: State,
     val startTime: T,
-    val endTime: T? = null, // null means still active
+    val endTime: T, // null means still active
     val nextState: State? = null,
 )

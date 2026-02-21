@@ -55,7 +55,7 @@ data class EventLogAnimation<T : Comparable<T>>(
             .values                   // O(1) - Returns a Collection of Lists
             .asSequence()             // Transition to lazy mode HERE
             .flatten()                // Lazy flattening (no giant intermediate list)
-            .filter { it.endTime == null || timestamp < it.endTime }
+            .filter { timedState -> timestamp < timedState.endTime }
             .toList()                 // Terminal operation: produces the final result
     }
 
@@ -85,7 +85,7 @@ data class EventLogAnimation<T : Comparable<T>>(
     fun getLast(): Pair<T, TimedState<T>> {
         val last = sortedTimedStates.lastOrNull()
             ?: throw IllegalStateException("No states in animation")
-        val endTimestamp = last.endTime ?: last.startTime
+        val endTimestamp = last.endTime
         return endTimestamp to last
     }
 
