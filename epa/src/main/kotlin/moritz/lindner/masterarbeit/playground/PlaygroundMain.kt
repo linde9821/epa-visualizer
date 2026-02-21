@@ -8,7 +8,9 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018Challenge
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering.StateClusteringLayout
+import moritz.lindner.masterarbeit.epa.features.statistics.PartitionsEventDistributionsVisitor
 import moritz.lindner.masterarbeit.epa.features.statistics.StatesAndPartitionsByDepthVisitor
+import moritz.lindner.masterarbeit.epa.features.traces.TraceIndexingVisitor
 import java.io.File
 
 fun main() {
@@ -37,8 +39,10 @@ fun main() {
             .setProgressCallback(callback)
             .build()
 
-    val v = StatesAndPartitionsByDepthVisitor<Long>()
+    val foo = TraceIndexingVisitor<Long>()
+    epa.acceptDepthFirst(foo)
+    val v = PartitionsEventDistributionsVisitor<Long>(foo)
     epa.acceptDepthFirst(v)
 
-    v.report("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/depth_analysis.csv")
+    v.report("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/partitions_distributation.csv")
 }

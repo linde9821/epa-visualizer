@@ -11,12 +11,10 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2020
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.Sepsis
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
-import moritz.lindner.masterarbeit.epa.features.statistics.StatesAndPartitionsByDepthVisitor
 import java.io.File
 
 fun main() {
     val logger = KotlinLogging.logger {}
-
 
     val challenge2017Offer2017 =
         File("./data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
@@ -35,12 +33,22 @@ fun main() {
 
     val callback = EpaProgressCallback { current, total, task ->
         if (current % 100 == 0L) {
-            logger.info {  "$task: $current/$total" }
+            logger.info { "$task: $current/$total" }
         }
     }
 
     csvWriter().open("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/filter_analysis.csv") {
-        writeRow("log", "states", "events", "states-after-0.05", "event-after-0.05", "states-after-0.005", "event-after-0.005", "states-after-0.0005", "event-after-0.0005")
+        writeRow(
+            "log",
+            "states",
+            "events",
+            "states-after-0.003",
+            "event-after-0.003",
+            "event-percentage-after-0.003",
+            "states-after-0.0003",
+            "event-after-0.0003",
+            "event-percentage-after-0.0003",
+        )
 
         logs.forEach { (file, mapper) ->
             val epa =
@@ -52,27 +60,27 @@ fun main() {
 
             val epaService = EpaService<Long>()
 
-            val filterSmall = PartitionFrequencyFilter<Long>(0.05f) // 5%
-            val filterSmallest = PartitionFrequencyFilter<Long>(0.005f) // 0.5%
-            val extraSmall = PartitionFrequencyFilter<Long>(0.0005f) // 0.05%
+            val filterSmallest = PartitionFrequencyFilter<Long>(0.003f) // 0.3%
+            val extraSmall = PartitionFrequencyFilter<Long>(0.0003f) // 0.03%
 
-            val smallEpa = epaService.applyFilters(epa.copy(), listOf(filterSmall))
             val smallestEpa = epaService.applyFilters(epa.copy(), listOf(filterSmallest))
             val extraEpa = epaService.applyFilters(epa.copy(), listOf(extraSmall))
 
+            val totalEventCount = epa.states.sumOf { epa.sequence(it).size }
+            val smallestEventCount = smallestEpa.states.sumOf { smallestEpa.sequence(it).count() }
+            val extraEventCount = extraEpa.states.sumOf { extraEpa.sequence(it).count() }
             writeRow(
                 mapper.name,
                 epa.states.size,
-                epa.states.sumOf { epa.sequence(it).size },
-
-                smallEpa.states.size,
-                smallEpa.states.sumOf { smallEpa.sequence(it).count() },
+                totalEventCount,
 
                 smallestEpa.states.size,
-                smallestEpa.states.sumOf { smallestEpa.sequence(it).count() },
+                smallestEventCount,
+                smallestEventCount.toFloat() / totalEventCount.toFloat(),
 
                 extraEpa.states.size,
-                extraEpa.states.sumOf { extraEpa.sequence(it).count() },
+                extraEventCount,
+                extraEventCount.toFloat() / totalEventCount.toFloat(),
             )
         }
     }
