@@ -85,10 +85,10 @@ object TreeCanvasRenderingHelper {
                 visibleStates.contains(timedState.state)
             }.forEachIndexed { index, timedState ->
                 val progress =
-                    if (timedState.endTime == null || timedState.nextState == null) {
+                    if (timedState.nextState == null) {
                         1f
                     } else {
-                        val duration = timedState.endTime!! - timedState.startTime
+                        val duration = timedState.endTime - timedState.startTime
                         val elapsed = animationState.time - timedState.startTime
                         (elapsed.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
                     }
