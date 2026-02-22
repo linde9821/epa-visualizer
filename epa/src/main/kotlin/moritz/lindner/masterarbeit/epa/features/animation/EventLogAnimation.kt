@@ -1,7 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.animation
 
 import moritz.lindner.masterarbeit.epa.domain.State
-import java.util.TreeMap
 
 /**
  * Represents a timeline-based animation of an event log, where each
@@ -26,19 +25,12 @@ data class EventLogAnimation<T : Comparable<T>>(
     private val timedStates: List<TimedState<T>>,
     val totalAmountOfEvents: Int,
 ) {
-    private val firstTimedState = timedStates.minByOrNull { it.startTime } ?: throw IllegalStateException("No states in animation")
-    private val lastTimedState = timedStates.maxByOrNull { it.endTime } ?: throw IllegalStateException("No states in animation")
+    private val firstTimedState =
+        timedStates.minByOrNull { it.startTime } ?: throw IllegalStateException("No states in animation")
+    private val lastTimedState =
+        timedStates.maxByOrNull { it.endTime } ?: throw IllegalStateException("No states in animation")
 
-    /**
-     * Indexes states by their start time to allow efficient range-based access
-     * during queries.
-     */
-    private val statesByInterval: TreeMap<T, MutableList<TimedState<T>>> =
-        TreeMap<T, MutableList<TimedState<T>>>().apply {
-            timedStates.forEach { timedState ->
-                getOrPut(timedState.startTime) { mutableListOf() } += timedState
-            }
-        }
+    private val segmentTree = TimedStateSegmentTree<T>(timedStates)
 
     /**
      * Returns all [TimedState]s that are active at a specific [timestamp].
@@ -51,13 +43,7 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @return A list of all [TimedState]s active at the given time.
      */
     fun getActiveStatesAt(timestamp: T): List<TimedState<T>> {
-        return statesByInterval
-            .headMap(timestamp, true) // O(log M) - Returns a Map View
-            .values                   // O(1) - Returns a Collection of Lists
-            .asSequence()             // Transition to lazy mode HERE
-            .flatten()                // Lazy flattening (no giant intermediate list)
-            .filter { timedState -> timestamp < timedState.endTime }
-            .toList()                 // Terminal operation: produces the final result
+        return segmentTree.getActiveStatesAt(timestamp)
     }
 
     /**
@@ -95,3 +81,4 @@ data class EventLogAnimation<T : Comparable<T>>(
      */
     fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.startTime to it }
 }
+
