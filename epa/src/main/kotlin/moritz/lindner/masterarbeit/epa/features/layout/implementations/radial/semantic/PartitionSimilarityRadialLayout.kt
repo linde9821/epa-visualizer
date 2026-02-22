@@ -39,7 +39,7 @@ class PartitionSimilarityRadialLayout(
     private var maxDepth = Int.MIN_VALUE
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        MathEx.setSeed(42);
+        MathEx.setSeed(42)
 
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,

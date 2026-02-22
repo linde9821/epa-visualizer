@@ -3,12 +3,9 @@ package moritz.lindner.masterarbeit.playground
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
-import moritz.lindner.masterarbeit.epa.domain.Activity
 import moritz.lindner.masterarbeit.epa.features.export.EpaTikzExporter
-import moritz.lindner.masterarbeit.epa.features.filter.ActivityFilter
 import moritz.lindner.masterarbeit.epa.features.filter.CompressionFilter
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
-import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import java.io.File
 
 fun main() {

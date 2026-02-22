@@ -38,7 +38,7 @@ class NormalizedStateFrequency(
     }
 
     override fun toString(): String {
-        return relativeFrequencyByState.map { (s, f)  ->
+        return relativeFrequencyByState.map { (s, f) ->
             "$s: $f"
         }.joinToString("\n")
     }

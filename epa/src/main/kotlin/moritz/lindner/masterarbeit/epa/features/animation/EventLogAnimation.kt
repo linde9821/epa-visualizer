@@ -81,4 +81,3 @@ data class EventLogAnimation<T : Comparable<T>>(
      */
     fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.startTime to it }
 }
-

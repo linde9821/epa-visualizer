@@ -39,6 +39,7 @@ class TimedStateSegmentTree<T : Comparable<T>>(
         else query(2 * node + 1, mid + 1, end, target, results)
     }
 
+    // O(log(N+K))
     fun getActiveStatesAt(timestamp: T): List<TimedState<T>> {
         val idx = sortedPoints.binarySearch(timestamp).let { if (it < 0) -it - 2 else it }
         if (idx < 0 || idx >= sortedPoints.size) return emptyList()

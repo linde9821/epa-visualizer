@@ -40,7 +40,7 @@ class AngleSimilarityDepthTimeRadialLayout(
     lateinit var combinedLogarithmicNormalizedCycleTimeByState: Map<State, Float>
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        MathEx.setSeed(42);
+        MathEx.setSeed(42)
 
         combinedLogarithmicNormalizedCycleTimeByState =
             LogarithmicCycleTimeCalculator.combinedLogarithmicMinMaxNormalizedTransitionCycleTimeByState(
@@ -108,7 +108,7 @@ class AngleSimilarityDepthTimeRadialLayout(
         val depth = combinedLogarithmicNormalizedCycleTimeByState[state]!!
 
         nodePlacementByState[state] = NodePlacement(
-            coordinate = Coordinate.Companion.fromPolar(depth, constrainedAngle),
+            coordinate = Coordinate.fromPolar(depth, constrainedAngle),
             state = state
         )
 
@@ -155,7 +155,7 @@ class AngleSimilarityDepthTimeRadialLayout(
             throw IllegalStateException("Not enough data for UMAP reduction. Needed ${config.umapK} embeddings and ${embeddings.size} are available")
         }
 
-        MathEx.setSeed(42);
+        MathEx.setSeed(42)
         val coordinates = umap(
             data = matrix,
             d = 2,

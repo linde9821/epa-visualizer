@@ -36,7 +36,7 @@ class PartitionClusteringLayout(
     lateinit var boundingBoxByCluster: Map<Int, List<Coordinate>>
 
     override fun build(progressCallback: EpaProgressCallback?) {
-        MathEx.setSeed(42);
+        MathEx.setSeed(42)
         val embedder = PartitionFeatureEmbedder(
             extendedPrefixAutomaton = extendedPrefixAutomaton,
             config = PartitionEmbedderConfig.from(config),

@@ -95,7 +95,7 @@ object Mappers {
         Sepsis()
     )
 
-    private val mappersByName = Mappers.getMappers().associateBy { it.name }
+    private val mappersByName = getMappers().associateBy { it.name }
 
     fun getMappers(): List<XESEventLogMapper<Long>> {
         return mappers

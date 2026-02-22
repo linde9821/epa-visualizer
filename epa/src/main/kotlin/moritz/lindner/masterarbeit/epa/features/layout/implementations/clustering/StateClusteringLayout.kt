@@ -37,7 +37,7 @@ class StateClusteringLayout(
     override fun build(
         progressCallback: EpaProgressCallback?
     ) {
-        MathEx.setSeed(42);
+        MathEx.setSeed(42)
         progressCallback?.onProgress(0, 4, "Creating graph embeddings...")
         val graphEmbeddings = createGraphEmbeddings(progressCallback)
 
