@@ -26,7 +26,8 @@ data class EventLogAnimation<T : Comparable<T>>(
     private val timedStates: List<TimedState<T>>,
     val totalAmountOfEvents: Int,
 ) {
-    private val sortedTimedStates = timedStates.sortedBy { it.startTime }
+    private val firstTimedState = timedStates.minByOrNull { it.startTime } ?: throw IllegalStateException("No states in animation")
+    private val lastTimedState = timedStates.maxByOrNull { it.endTime } ?: throw IllegalStateException("No states in animation")
 
     /**
      * Indexes states by their start time to allow efficient range-based access
@@ -66,10 +67,7 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @throws IllegalStateException if no states are recorded.
      */
     fun getFirst(): Pair<T, TimedState<T>> {
-        val first =
-            sortedTimedStates.firstOrNull()
-                ?: throw IllegalStateException("No states in animation")
-        return first.startTime to first
+        return firstTimedState.startTime to firstTimedState
     }
 
     /**
@@ -83,10 +81,7 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @throws IllegalStateException if the animation contains no states.
      */
     fun getLast(): Pair<T, TimedState<T>> {
-        val last = sortedTimedStates.lastOrNull()
-            ?: throw IllegalStateException("No states in animation")
-        val endTimestamp = last.endTime
-        return endTimestamp to last
+        return lastTimedState.startTime to lastTimedState
     }
 
     /**
