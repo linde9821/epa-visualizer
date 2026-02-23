@@ -26,9 +26,9 @@ data class EventLogAnimation<T : Comparable<T>>(
     val totalAmountOfEvents: Int,
 ) {
     private val firstTimedState =
-        timedStates.minByOrNull { it.startTime } ?: throw IllegalStateException("No states in animation")
+        timedStates.minByOrNull(TimedState<T>::startTime) ?: throw IllegalStateException("No states in animation")
     private val lastTimedState =
-        timedStates.maxByOrNull { it.endTime } ?: throw IllegalStateException("No states in animation")
+        timedStates.maxByOrNull(TimedState<T>::endTime) ?: throw IllegalStateException("No states in animation")
 
     private val segmentTree = TimedStateSegmentTree<T>(timedStates)
 
