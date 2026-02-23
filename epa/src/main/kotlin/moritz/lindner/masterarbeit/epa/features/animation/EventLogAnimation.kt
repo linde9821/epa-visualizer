@@ -25,10 +25,10 @@ data class EventLogAnimation<T : Comparable<T>>(
     private val timedStates: List<TimedState<T>>,
     val totalAmountOfEvents: Int,
 ) {
-    private val firstTimedState =
-        timedStates.minByOrNull { it.startTime } ?: throw IllegalStateException("No states in animation")
-    private val lastTimedState =
-        timedStates.maxByOrNull { it.endTime } ?: throw IllegalStateException("No states in animation")
+    private val firstTimedState = timedStates
+        .minByOrNull(TimedState<T>::startTime) ?: throw IllegalStateException("No states in animation")
+    private val lastTimedState = timedStates
+        .maxByOrNull(TimedState<T>::endTime) ?: throw IllegalStateException("No states in animation")
 
     private val segmentTree = TimedStateSegmentTree<T>(timedStates)
 
@@ -79,5 +79,10 @@ data class EventLogAnimation<T : Comparable<T>>(
      * @return A pair of `(from timestamp, TimedState)`, or `null` if the index
      *    is out of bounds.
      */
-    fun getNthEntry(n: Int): Pair<T, TimedState<T>>? = timedStates.getOrNull(n)?.let { it.startTime to it }
+    fun getNthEntry(n: Int): Pair<T, TimedState<T>>? {
+        return timedStates
+            .getOrNull(n)?.let { timedState ->
+                timedState.startTime to timedState
+            }
+    }
 }

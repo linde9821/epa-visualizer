@@ -81,7 +81,8 @@ object LayoutFactory {
 
             is LayoutConfig.StateClusteringLayoutConfig -> StateClusteringLayout(
                 extendedPrefixAutomaton,
-                config = config
+                config = config,
+                backgroundDispatcher = backgroundDispatcher,
             )
 
             is LayoutConfig.PRTLayoutConfig -> {

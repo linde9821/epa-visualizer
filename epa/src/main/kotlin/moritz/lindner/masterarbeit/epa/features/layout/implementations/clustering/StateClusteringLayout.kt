@@ -4,6 +4,7 @@ import com.github.davidmoten.rtree2.Entry
 import com.github.davidmoten.rtree2.RTree
 import com.github.davidmoten.rtree2.geometry.internal.PointFloat
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
 import moritz.lindner.masterarbeit.epa.domain.State
@@ -24,7 +25,8 @@ import kotlin.math.sqrt
 
 class StateClusteringLayout(
     private val epa: ExtendedPrefixAutomaton<Long>,
-    private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig()
+    private val config: LayoutConfig.StateClusteringLayoutConfig = LayoutConfig.StateClusteringLayoutConfig(),
+    private val backgroundDispatcher: CoroutineDispatcher,
 ) : ClusterLayout {
 
     private val logger = KotlinLogging.logger { }
@@ -152,7 +154,7 @@ class StateClusteringLayout(
 
     private fun createFeatureEmbeddings(progressCallback: EpaProgressCallback?): Map<State, DoubleArray> {
         return if (config.useFeatureEmbedding) {
-            val embedder = StateFeatureEmbedder(epa, config, progressCallback)
+            val embedder = StateFeatureEmbedder(epa, config, backgroundDispatcher, progressCallback)
             embedder.computeEmbeddings()
         } else emptyMap()
     }

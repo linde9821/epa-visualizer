@@ -1,11 +1,13 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering
 
+import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.SampleEventMapper
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.util.concurrent.Executors
 
 class ClusteringLayoutTest {
     @Test
@@ -22,7 +24,8 @@ class ClusteringLayoutTest {
                 useGraphEmbedding = true,
                 umapK = 5,
                 iterations = 200,
-            )
+            ),
+            backgroundDispatcher = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
         )
 
         assertThat(clusteringLayout.isBuilt()).isFalse

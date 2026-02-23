@@ -32,7 +32,6 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         val chainStarts = chains.map { it.first() }.toSet()
 
         val partitionByChain = chains.associateWith { chain ->
-            // does it really make sens to just take partition of the first chain state
             epa.partition(chain.first())
         }
 
@@ -111,7 +110,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         }
 
         fun addParentForState(key: State, value: MarkedState) {
-            parentByState.put(key, value)
+            parentByState[key] = value
         }
 
         fun addChildrenForState(key: State, values: List<MarkedState>) {
@@ -191,9 +190,9 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
         ) {
             progressCallback?.onProgress(0, syntheticStates.chains.size, "Adding synthetic states")
             syntheticStates.chains.forEachIndexed { index, chain ->
-                val parent = parentByState.getOrElse(chain.first(), {
-                    throw Exception("This shouldnt happen")
-                })
+                val parent = parentByState.getOrElse(chain.first()) {
+                    throw Exception("This shouldn't happen")
+                }
                 parentByState[syntheticStates.syntheticStateByChain[chain]!!.state] = parent
 
                 val children = childrenByState[chain.last()]!!
@@ -207,27 +206,27 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             syntheticStates: SyntheticStates<T>,
             progressCallback: EpaProgressCallback?
         ) {
-            val newparentByState = mutableMapOf<State, MarkedState>()
-            val newchildrenByState = mutableMapOf<State, List<MarkedState>>()
+            val newParentByState = mutableMapOf<State, MarkedState>()
+            val newChildrenByState = mutableMapOf<State, List<MarkedState>>()
 
             val totalStates = parentByState.size + childrenByState.size
             var processed = 0
 
             progressCallback?.onProgress(0, totalStates, "Removing chain states: filtering parents")
-            parentByState.forEach { state, p ->
-                if (syntheticStates.isPartOfChain(state).not()) newparentByState.put(state, p)
+            parentByState.forEach { (state, p) ->
+                if (syntheticStates.isPartOfChain(state).not()) newParentByState[state] = p
                 processed++
                 progressCallback?.onProgress(processed, totalStates, "Removing chain states")
             }
 
-            childrenByState.forEach { state, c ->
-                if (syntheticStates.isPartOfChain(state).not()) newchildrenByState.put(state, c)
+            childrenByState.forEach { (state, c) ->
+                if (syntheticStates.isPartOfChain(state).not()) newChildrenByState[state] = c
                 processed++
                 progressCallback?.onProgress(processed, totalStates, "Removing chain states")
             }
 
-            parentByState = newparentByState
-            childrenByState = newchildrenByState
+            parentByState = newParentByState
+            childrenByState = newChildrenByState
         }
 
         fun updateParents(
@@ -372,7 +371,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
             val newSequenceByState = buildSequenceMapping(epa, syntheticStates, oldToNewStateMapping, progressCallback)
 
             progressCallback?.onProgress(95, 100, "Building new EPA: finalizing")
-            return ExtendedPrefixAutomaton<T>(
+            return ExtendedPrefixAutomaton(
                 eventLogName = epa.eventLogName + "compressed",
                 states = allNewStates,
                 activities = newTransitions.map { it.activity }.toSet(),
@@ -396,7 +395,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
 
             progressCallback?.onProgress(0, totalItems, "Building partition mappings: processing non-chain states")
             // Add partitions for non-chain states (mapped to new state instances)
-            nonChainStates.forEachIndexed { index, oldState ->
+            nonChainStates.forEach { oldState ->
                 val partition = epa.partition(oldState)
                 val newState = oldToNewStateMapping[oldState] ?: oldState
                 newPartitionByState[newState] = partition
@@ -413,7 +412,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
                 "Building partition mappings: processing synthetic states"
             )
             // Add partitions for synthetic states
-            syntheticStates.partitionByChain.entries.forEachIndexed { index, (chain, partition) ->
+            syntheticStates.partitionByChain.entries.forEach { (chain, partition) ->
                 val syntheticState = oldToNewStateMapping[syntheticStates.syntheticStateByChain[chain]!!.state]
                 if (syntheticState != null) {
                     newPartitionByState[syntheticState] = partition
@@ -439,7 +438,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
 
             progressCallback?.onProgress(0, totalItems, "Building sequence mappings: processing non-chain states")
             // Add sequences for non-chain states (mapped to new state instances)
-            nonChainStates.forEachIndexed { index, oldState ->
+            nonChainStates.forEach { oldState ->
                 val sequence = epa.sequence(oldState)
                 val newState = oldToNewStateMapping[oldState] ?: oldState
                 newSequenceByState[newState] = sequence
@@ -456,7 +455,7 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
                 "Building sequence mappings: processing synthetic states"
             )
             // Add sequences for synthetic states
-            syntheticStates.seqByChain.entries.forEachIndexed { index, (chain, sequence) ->
+            syntheticStates.seqByChain.entries.forEach { (chain, sequence) ->
                 val syntheticState = oldToNewStateMapping[syntheticStates.syntheticStateByChain[chain]!!.state]
                 if (syntheticState != null) {
                     newSequenceByState[syntheticState] = sequence
@@ -477,9 +476,12 @@ class CompressionFilter<T : Comparable<T>> : EpaFilter<T> {
 
         // Step 1: Initialize mappings
         progressCallback?.onProgress(0, 100, "$name: Building parent-child mappings")
-        val childrenByParent = epa.transitions.groupBy { it.start }.mapValues { it.value.map { it.end } }
-        val parentByChild =
-            epa.transitions.groupBy { it.end }.mapValues { it.value.map { transition -> transition.start }.first() }
+        val childrenByParent = epa.transitions
+            .groupBy(Transition::start)
+            .mapValues { entry -> entry.value.map(Transition::end) }
+        val parentByChild = epa.transitions
+            .groupBy(Transition::end)
+            .mapValues { entry -> entry.value.map(Transition::start).first() }
 
         progressCallback?.onProgress(0, childrenByParent.size, "$name: Processing children mappings")
         childrenByParent.entries.forEachIndexed { index, (state, children) ->
