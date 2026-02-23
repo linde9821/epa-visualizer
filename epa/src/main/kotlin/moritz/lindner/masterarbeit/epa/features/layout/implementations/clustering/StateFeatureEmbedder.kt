@@ -1,5 +1,10 @@
 package moritz.lindner.masterarbeit.epa.features.layout.implementations.clustering
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -9,8 +14,10 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 class StateFeatureEmbedder(
     private val extendedPrefixAutomaton: ExtendedPrefixAutomaton<Long>,
     private val config: LayoutConfig.StateClusteringLayoutConfig,
+    private val backgroundDispatcher: CoroutineDispatcher,
     private val progressCallback: EpaProgressCallback?
 ) {
+    private val logger = KotlinLogging.logger { }
     private val epaService = EpaService<Long>()
 
     fun computeEmbeddings(): Map<State, DoubleArray> {
@@ -26,51 +33,61 @@ class StateFeatureEmbedder(
             progressCallback = progressCallback
         )
 
-        var c = 0
-        val total = extendedPrefixAutomaton.states.size
+        val chunkSize = 100
+        val chunked = extendedPrefixAutomaton.states.chunked(chunkSize)
+        val total = chunked.size
 
-        return extendedPrefixAutomaton.states.associateWith { state ->
-            progressCallback?.onProgress(c++, total, "feature embedding")
-            val features = mutableListOf<Double>()
+        return runBlocking {
+            chunked.mapIndexed { index, chunk ->
+                async(backgroundDispatcher) {
+                    progressCallback?.onProgress(index, total, "State Feature Embedding chunked")
+                    logger.info { "Computing chunk $index" }
+                    chunk.map { state ->
+                        val features = mutableListOf<Double>()
 
-            with(config) {
-                // Structural features
-                if (useDepthFeature) features.add(epaService.getDepth(state).toDouble())
-                if (useOutgoingTransitions) features.add(
-                    epaService.outgoingTransitions(
-                        extendedPrefixAutomaton,
-                        state
-                    ).size.toDouble()
-                )
-                // EPA-specific features
-                if (usePartitionValue) features.add(extendedPrefixAutomaton.partition(state).toDouble())
-                if (useSequenceLength) features.add(extendedPrefixAutomaton.sequence(state).size.toDouble())
-                if (useCycleTime) features.add(cycleTimeByState[state]!!.toDouble())
-                // Path features
-                if (usePathLength) {
-                    val path = epaService.getPathFromRoot(state)
-                    features.add(path.size.toDouble())
-                }
-                if (useActivity) {
-                    // Activity encoding (simplified one-hot)
-                    val statesActivity = when (state) {
-                        is State.PrefixState -> state.via
-                        State.Root -> null
+                        with(config) {
+                            // Structural features
+                            if (useDepthFeature) features.add(epaService.getDepth(state).toDouble())
+                            if (useOutgoingTransitions) features.add(
+                                epaService.outgoingTransitions(
+                                    extendedPrefixAutomaton,
+                                    state
+                                ).size.toDouble()
+                            )
+                            // EPA-specific features
+                            if (usePartitionValue) features.add(extendedPrefixAutomaton.partition(state).toDouble())
+                            if (useSequenceLength) features.add(extendedPrefixAutomaton.sequence(state).size.toDouble())
+                            if (useCycleTime) features.add(cycleTimeByState[state]!!.toDouble())
+                            // Path features
+                            if (usePathLength) {
+                                val path = epaService.getPathFromRoot(state)
+                                features.add(path.size.toDouble())
+                            }
+                            if (useActivity) {
+                                // Activity encoding (simplified one-hot)
+                                val statesActivity = when (state) {
+                                    is State.PrefixState -> state.via
+                                    State.Root -> null
+                                }
+                                // might be larger than embedding size
+                                allActivities.forEach { activity ->
+                                    features.add(if (activity == statesActivity) 1.0 else 0.0)
+                                }
+                            }
+                        }
+
+                        // Pad or truncate to desired size
+                        val result = DoubleArray(config.featureEmbeddingDims)
+                        features.take(config.featureEmbeddingDims).forEachIndexed { i, value ->
+                            result[i] = value
+                        }
+
+                        state to result
+                    }.also {
+                        logger.info { "Finished chunk $index" }
                     }
-                    // might be larger than embedding size
-                    allActivities.forEach { activity ->
-                        features.add(if (activity == statesActivity) 1.0 else 0.0)
-                    }
                 }
-            }
-
-            // Pad or truncate to desired size
-            val result = DoubleArray(config.featureEmbeddingDims)
-            features.take(config.featureEmbeddingDims).forEachIndexed { i, value ->
-                result[i] = value
-            }
-
-            result
+            }.awaitAll().flatten().toMap()
         }
     }
 }
