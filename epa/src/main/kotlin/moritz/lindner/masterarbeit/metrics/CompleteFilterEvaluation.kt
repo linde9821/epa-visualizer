@@ -46,16 +46,19 @@ data class FilterReport(
 
 @OptIn(ExperimentalAtomicApi::class)
 fun main() {
+
+    val rootPath = System.getProperty("project.root") ?: "."
+    val repoRoot = File(rootPath)
     val processors = Runtime.getRuntime().availableProcessors()
     // Dispatchers.Default is already optimized for CPU-bound tasks
     val logger = KotlinLogging.logger {}
 
     val challenge2017Offer2017 =
-        File("./data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
-    val challenge2017 = File("./data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
-    val challenge2018 = File("./data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
-    val challenge2020Internationale = File("./data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
-    val sepsis = File("./data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
+        File(repoRoot, "/data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
+    val challenge2017 = File(repoRoot, "/data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
+    val challenge2018 = File(repoRoot, "/data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
+    val challenge2020Internationale = File(repoRoot,"/data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
+    val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
 
     val logs = listOf(
         challenge2017Offer2017,
@@ -74,7 +77,7 @@ fun main() {
     val epaService = EpaService<Long>()
 
     logs.forEach { (file, mapper) ->
-        val outputFile = File("./data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}.csv")
+        val outputFile = File(repoRoot, "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}.csv")
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {
             // Use a static header or a helper from your data class

@@ -59,6 +59,8 @@ tasks.withType<JavaExec> {
         "-XX:ParallelGCThreads=20", // Capping the "stop the world" threads
         "-XX:ConcGCThreads=10"
     )
+
+    systemProperty("project.root", project.rootDir.absolutePath)
 }
 
 tasks.test {
