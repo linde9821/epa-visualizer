@@ -25,7 +25,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
  *    have to be included.
  */
 class PartitionFrequencyFilter<T : Comparable<T>>(
-    private val threshold: Float,
+    val threshold: Float,
     private val withPruning: Boolean = true
 ) : EpaFilter<T> {
 

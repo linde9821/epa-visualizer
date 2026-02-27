@@ -149,8 +149,8 @@ class EpaFromXesBuilder<T : Comparable<T>> {
         existingTransitionFromPredecessor: Transition?,
         partitionByState: Map<State, Int>,
         predecessorState: State,
-    ): Int =
-        if (existingTransitionFromPredecessor != null) {
+    ): Int {
+        return if (existingTransitionFromPredecessor != null) {
             nextPartition++
             nextPartition
         } else {
@@ -161,4 +161,5 @@ class EpaFromXesBuilder<T : Comparable<T>> {
                     ?: throw IllegalStateException("Unknown predecessor activity but there must be one")
             }
         }
+    }
 }

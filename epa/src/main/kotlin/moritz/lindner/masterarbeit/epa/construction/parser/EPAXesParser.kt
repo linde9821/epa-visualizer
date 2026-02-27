@@ -8,7 +8,7 @@ import java.io.InputStream
 
 /**
  * A file parser for XES logs that supports both plain XML and
- * GZIP-compressed formats, with integrated progress bar reporting.
+ * GZIP-compressed formats.
  *
  * This class dynamically selects the appropriate parser strategy based on
  * file extension and wraps parsing with a visual progress bar.
@@ -33,7 +33,9 @@ class EPAXesParser : XesXmlParser() {
      *    false otherwise.
      */
     override fun canParse(file: File): Boolean =
-        parserStrategyByExtension[file.extension]?.also { parser = it }?.canParse(file) ?: false
+        parserStrategyByExtension[file.extension]?.also { chosenParser ->
+            parser = chosenParser
+        }?.canParse(file) ?: false
 
     /**
      * Parses the given input stream into a list of [XLog]s, showing a progress
@@ -43,7 +45,7 @@ class EPAXesParser : XesXmlParser() {
      * @return A list of parsed XES logs.
      * @throws IllegalArgumentException If the input stream is null.
      */
-    override fun parse(`is`: InputStream?): MutableList<XLog> {
+    override fun parse(`is`: InputStream?): List<XLog> {
         requireNotNull(`is`) { "InputStream cannot be null" }
         return parser.parse(`is`)
     }
