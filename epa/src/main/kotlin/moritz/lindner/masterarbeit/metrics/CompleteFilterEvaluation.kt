@@ -74,7 +74,7 @@ fun main() {
     val epaService = EpaService<Long>()
 
     logs.forEach { (file, mapper) ->
-        csvWriter().open("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/filter_analysis_complete_${mapper.name}.csv") {
+        csvWriter().open("./data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}.csv") {
             // Use a static header or a helper from your data class
             writeRow(
                 "log",

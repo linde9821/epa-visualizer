@@ -3,6 +3,12 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
+    application
+}
+
+application {
+    // Replace with the actual package and class name containing your `fun main()`
+    mainClass.set("moritz.lindner.masterarbeit.metrics.CompleteFilterEvaluationKt")
 }
 
 kotlin {
