@@ -1,6 +1,7 @@
 package moritz.lindner.masterarbeit.metrics
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -15,6 +16,8 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2018Challenge
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2020
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.Sepsis
+import moritz.lindner.masterarbeit.epa.construction.builder.xes.XESEventLogMapper
+import moritz.lindner.masterarbeit.epa.features.filter.EpaFilter
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import java.io.File
@@ -43,7 +46,7 @@ data class FilterReport(
         eventsAfterFilter.toString(),
         statesAfterFilter.toString(),
         // Formats percentage to 2 decimal places (e.g., "85.24")
-        "%.2f".format(eventsPercentage)
+        "%.8f".format(eventsPercentage * 100.0)
     )
 }
 
@@ -70,18 +73,40 @@ fun main() {
         sepsis
     )
 
-    val n = 4000
+    val n = 5000
     val maxP = 0.10
-    val filters = List(n) {
+    val stateFilters = List(n) {
         // This creates very dense samples near 0 and spreads out toward 10%
         val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
-        StateFrequencyFilter<Long>(p.toFloat())
+        StateFrequencyFilter<Long>(p.toFloat()) to p.toFloat()
     }
 
     val epaService = EpaService<Long>()
 
+    runFilterReport(logs, repoRoot, stateFilters, processors, logger, epaService)
+
+    val partitionFilters = List(n) {
+        // This creates very dense samples near 0 and spreads out toward 10%
+        val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
+        PartitionFrequencyFilter<Long>(p.toFloat()) to p.toFloat()
+    }
+    runFilterReport(logs, repoRoot, partitionFilters, processors, logger, epaService)
+}
+
+@OptIn(ExperimentalAtomicApi::class)
+private fun runFilterReport(
+    logs: List<Pair<File, XESEventLogMapper<Long>>>,
+    repoRoot: File,
+    filters: List<Pair<EpaFilter<Long>, Float>>,
+    processors: Int,
+    logger: KLogger,
+    epaService: EpaService<Long>,
+) {
     logs.forEach { (file, mapper) ->
-        val outputFile = File(repoRoot, "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().name}.csv")
+        val outputFile = File(
+            repoRoot,
+            "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().first.name}.csv"
+        )
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {
             // Use a static header or a helper from your data class
@@ -113,15 +138,15 @@ fun main() {
                     val reports = filters.map { filter ->
                         async(Dispatchers.Default) {
                             semaphore.withPermit {
-                                val filteredEpa = epaService.applyFilters(epa, listOf(filter))
+                                val filteredEpa = epaService.applyFilters(epa, listOf(filter.first))
                                 val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }
 
                                 val report = FilterReport(
                                     logName = mapper.name,
                                     totalStates = epa.states.size,
                                     totalEvents = totalEventCount,
-                                    filterName = filter.name,
-                                    filterThreshold = filter.threshold,
+                                    filterName = filter.first.name,
+                                    filterThreshold = filter.second,
                                     eventsAfterFilter = filteredEventCount,
                                     statesAfterFilter = filteredEpa.states.size,
                                     eventsPercentage = filteredEventCount.toFloat() / totalEventCount
@@ -148,7 +173,6 @@ fun main() {
             }.also {
                 logger.info { "Execution of ${mapper.name} took $it" }
             }
-
         }
     }
 }
