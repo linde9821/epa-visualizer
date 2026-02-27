@@ -7,7 +7,6 @@ plugins {
 }
 
 application {
-    // Replace with the actual package and class name containing your `fun main()`
     mainClass.set("moritz.lindner.masterarbeit.metrics.CompleteFilterEvaluationKt")
 }
 
@@ -54,7 +53,8 @@ tasks.withType<JavaExec> {
         "-XX:+UseG1GC",                // Use G1GC since max_map_count is low
         "-XX:MaxGCPauseMillis=500",    // Allow slightly longer pauses for huge heap throughput
         "-XX:+ExitOnOutOfMemoryError",
-        "-XX:+AlwaysPreTouch"          // CRITICAL for large heaps
+        "-XX:+AlwaysPreTouch",          // CRITICAL for large heaps
+        "-XX:G1HeapRegionSize=32M"
     )
 
     systemProperty("project.root", project.rootDir.absolutePath)

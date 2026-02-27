@@ -78,8 +78,6 @@ fun main() {
         PartitionFrequencyFilter<Long>(p.toFloat())
     }
 
-    println(filters.map { it.threshold }.joinToString(","))
-
     val epaService = EpaService<Long>()
 
     logs.forEach { (file, mapper) ->
