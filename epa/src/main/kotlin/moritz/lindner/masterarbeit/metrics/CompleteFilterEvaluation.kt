@@ -75,13 +75,13 @@ fun main() {
     val filters = List(n) {
         // This creates very dense samples near 0 and spreads out toward 10%
         val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
-        PartitionFrequencyFilter<Long>(p.toFloat())
+        StateFrequencyFilter<Long>(p.toFloat())
     }
 
     val epaService = EpaService<Long>()
 
     logs.forEach { (file, mapper) ->
-        val outputFile = File(repoRoot, "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}.csv")
+        val outputFile = File(repoRoot, "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().name}.csv")
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {
             // Use a static header or a helper from your data class
@@ -110,8 +110,6 @@ fun main() {
             measureTime {
                 val rows = runBlocking {
                     logger.info { "Starting analysis for ${file.name} with $processors workers..." }
-
-
                     val reports = filters.map { filter ->
                         async(Dispatchers.Default) {
                             semaphore.withPermit {
