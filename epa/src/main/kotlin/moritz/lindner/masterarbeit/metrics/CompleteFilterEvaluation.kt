@@ -21,6 +21,7 @@ import java.io.File
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
+import kotlin.time.measureTime
 
 data class FilterReport(
     val logName: String,
@@ -57,7 +58,7 @@ fun main() {
         File(repoRoot, "/data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
     val challenge2017 = File(repoRoot, "/data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File(repoRoot, "/data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
-    val challenge2020Internationale = File(repoRoot,"/data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
+    val challenge2020Internationale = File(repoRoot, "/data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
     val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
 
     val logs = listOf(
@@ -68,10 +69,10 @@ fun main() {
         sepsis
     )
 
-    val n = 5_000
+    val n = 6_000
     val filters = List(n) {
         val p = it.toFloat() / n.toFloat()
-        StateFrequencyFilter<Long>(p)
+        PartitionFrequencyFilter<Long>(p)
     }
 
     val epaService = EpaService<Long>()
@@ -103,44 +104,50 @@ fun main() {
             // Limit concurrent executions to the number of processors
             val semaphore = Semaphore(processors)
 
-            val rows = runBlocking {
-                logger.info { "Starting analysis for ${file.name} with $processors workers..." }
+            measureTime {
+                val rows = runBlocking {
+                    logger.info { "Starting analysis for ${file.name} with $processors workers..." }
 
-                val reports = filters.map { filter ->
-                    async(Dispatchers.Default) {
-                        semaphore.withPermit {
-                            val filteredEpa = epaService.applyFilters(epa, listOf(filter))
-                            val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }
 
-                            val report = FilterReport(
-                                logName = mapper.name,
-                                totalStates = epa.states.size,
-                                totalEvents = totalEventCount,
-                                filterName = filter.name,
-                                filterThreshold = filter.threshold,
-                                eventsAfterFilter = filteredEventCount,
-                                statesAfterFilter = filteredEpa.states.size,
-                                eventsPercentage = filteredEventCount.toFloat() / totalEventCount
-                            )
+                    val reports = filters.map { filter ->
+                        async(Dispatchers.Default) {
+                            semaphore.withPermit {
+                                val filteredEpa = epaService.applyFilters(epa, listOf(filter))
+                                val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }
 
-                            val current = progressCounter.incrementAndFetch()
-                            if (current % 500 == 0) {
-                                logger.info { "Processed $current / ${filters.size} filters" }
+                                val report = FilterReport(
+                                    logName = mapper.name,
+                                    totalStates = epa.states.size,
+                                    totalEvents = totalEventCount,
+                                    filterName = filter.name,
+                                    filterThreshold = filter.threshold,
+                                    eventsAfterFilter = filteredEventCount,
+                                    statesAfterFilter = filteredEpa.states.size,
+                                    eventsPercentage = filteredEventCount.toFloat() / totalEventCount
+                                )
+
+                                val current = progressCounter.incrementAndFetch()
+                                if (current % 500 == 0) {
+                                    logger.info { "Processed $current / ${filters.size} filters" }
+                                }
+
+                                report
                             }
-
-                            report
                         }
-                    }
-                }.awaitAll()
+                    }.awaitAll()
 
-                logger.info { "Sorting and writing ${reports.size} results..." }
+                    logger.info { "Sorting and writing ${reports.size} results..." }
 
-                reports
-                    .sortedBy { it.filterThreshold }
-                    .map { it.toRow() }
+                    reports
+                        .sortedBy { it.filterThreshold }
+                        .map { it.toRow() }
+                }
+                logger.info { "writing rows ${rows.size}" }
+                writeRows(rows)
+            }.also {
+                logger.info { "Execution of ${mapper.name} took $it" }
             }
-            logger.info { "writing rows ${rows.size}" }
-            writeRows(rows)
+
         }
     }
 }
