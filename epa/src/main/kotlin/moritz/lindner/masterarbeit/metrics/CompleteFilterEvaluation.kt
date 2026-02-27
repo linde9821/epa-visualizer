@@ -49,7 +49,7 @@ data class FilterReport(
 fun main() {
     val rootPath = System.getProperty("project.root") ?: "."
     val repoRoot = File(rootPath)
-    val processors = Runtime.getRuntime().availableProcessors() / 2
+    val processors = (Runtime.getRuntime().availableProcessors() / 1.5).toInt()
     // Dispatchers.Default is already optimized for CPU-bound tasks
     val logger = KotlinLogging.logger {}
 
@@ -71,7 +71,7 @@ fun main() {
     val n = 5_000
     val filters = List(n) {
         val p = it.toFloat() / n.toFloat()
-        PartitionFrequencyFilter<Long>(p)
+        StateFrequencyFilter<Long>(p)
     }
 
     val epaService = EpaService<Long>()
