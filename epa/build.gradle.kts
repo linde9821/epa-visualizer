@@ -45,6 +45,19 @@ dependencies {
     testImplementation(libs.assertjCore)
 }
 
+tasks.withType<JavaExec> {
+    // Give it 64GB or even 128GB. With 1TB total, the server won't even feel it.
+    maxHeapSize = "128g"
+
+    jvmArgs(
+        "-Xms32g",                     // Start with a large initial heap
+        "-XX:+UseZGC",                 // Optimized for large memory/high core count
+        "-XX:+ZGenerational",          // Best for Java 21+ (improves efficiency)
+        "-XX:+ExitOnOutOfMemoryError",
+        "-XX:+AlwaysPreTouch"          // Pre-allocates RAM at startup to avoid OS-level delays later
+    )
+}
+
 tasks.test {
     jvmArgs("-Xss4m")
     maxHeapSize = "2g"
