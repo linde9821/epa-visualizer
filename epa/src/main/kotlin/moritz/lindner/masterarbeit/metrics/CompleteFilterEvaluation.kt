@@ -16,6 +16,7 @@ import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2020
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.EpaFromXesBuilder
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.Sepsis
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
+import moritz.lindner.masterarbeit.epa.features.filter.StateFrequencyFilter
 import java.io.File
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
@@ -46,10 +47,9 @@ data class FilterReport(
 
 @OptIn(ExperimentalAtomicApi::class)
 fun main() {
-
     val rootPath = System.getProperty("project.root") ?: "."
     val repoRoot = File(rootPath)
-    val processors = Runtime.getRuntime().availableProcessors()
+    val processors = Runtime.getRuntime().availableProcessors() / 2
     // Dispatchers.Default is already optimized for CPU-bound tasks
     val logger = KotlinLogging.logger {}
 
@@ -109,7 +109,7 @@ fun main() {
                 val reports = filters.map { filter ->
                     async(Dispatchers.Default) {
                         semaphore.withPermit {
-                            val filteredEpa = epaService.applyFilters(epa.copy(), listOf(filter))
+                            val filteredEpa = epaService.applyFilters(epa, listOf(filter))
                             val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }
 
                             val report = FilterReport(

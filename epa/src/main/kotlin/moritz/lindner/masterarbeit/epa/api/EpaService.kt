@@ -55,7 +55,7 @@ class EpaService<T : Comparable<T>> {
     ): ExtendedPrefixAutomaton<T> {
         return filters.fold(epa) { acc, filter ->
 //            logger.info { "Applying filter ${filter.name}" }
-            filter.apply(acc.copy(), progressCallback)
+            filter.apply(acc, progressCallback)
         }
     }
 

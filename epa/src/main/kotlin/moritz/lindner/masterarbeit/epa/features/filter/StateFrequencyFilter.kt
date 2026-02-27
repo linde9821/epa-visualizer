@@ -19,7 +19,7 @@ import moritz.lindner.masterarbeit.epa.features.statistics.NormalizedStateFreque
  *    to be retained.
  */
 class StateFrequencyFilter<T : Comparable<T>>(
-    private val threshold: Float,
+    val threshold: Float,
 ) : EpaFilter<T> {
 
     override val name: String
