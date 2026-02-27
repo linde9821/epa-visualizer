@@ -21,6 +21,7 @@ import java.io.File
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
+import kotlin.math.pow
 import kotlin.time.measureTime
 
 data class FilterReport(
@@ -69,11 +70,15 @@ fun main() {
         sepsis
     )
 
-    val n = 6_000
+    val n = 4000
+    val maxP = 0.10
     val filters = List(n) {
-        val p = it.toFloat() / n.toFloat()
-        PartitionFrequencyFilter<Long>(p)
+        // This creates very dense samples near 0 and spreads out toward 10%
+        val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
+        PartitionFrequencyFilter<Long>(p.toFloat())
     }
+
+    println(filters.map { it.threshold }.joinToString(","))
 
     val epaService = EpaService<Long>()
 
