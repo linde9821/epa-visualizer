@@ -46,18 +46,15 @@ dependencies {
 }
 
 tasks.withType<JavaExec> {
-    maxHeapSize = "128g"
+    maxHeapSize = "512g"
 
     jvmArgs(
-        "-Xms32g",
+        "-Xms128g",                    // Start with 128GB to avoid frequent resizing
+        "-Xss4m",                      // Increased stack size
+        "-XX:+UseG1GC",                // Use G1GC since max_map_count is low
+        "-XX:MaxGCPauseMillis=500",    // Allow slightly longer pauses for huge heap throughput
         "-XX:+ExitOnOutOfMemoryError",
-        "-XX:+AlwaysPreTouch",
-
-        // OPTION A: Use this if you DON'T have sudo/root access
-        "-XX:+UseG1GC",
-        "-XX:MaxGCPauseMillis=200",
-        "-XX:ParallelGCThreads=20", // Capping the "stop the world" threads
-        "-XX:ConcGCThreads=10"
+        "-XX:+AlwaysPreTouch"          // CRITICAL for large heaps
     )
 
     systemProperty("project.root", project.rootDir.absolutePath)
