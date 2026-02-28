@@ -72,7 +72,7 @@ tasks.withType<JavaExec> {
 
             // --- Memory Efficiency ---
             "-XX:InitiatingHeapOccupancyPercent=35", // Start GC earlier to avoid fragmentation
-            "-XX:+UseLargePages"           // Use if the OS has HugePages configured
+            "-XX:+UseTransparentHugePages",
         )
     }
 
