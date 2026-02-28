@@ -53,12 +53,11 @@ fun main() {
     val n = 10_000
     val maxP = 0.15
     val stateFilters = List(n) {
-        // very dense samples near 0 and spreads out toward 10%
-        val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
+        val p = (it.toDouble() / n.toDouble()).pow(3.0) * maxP
         StateFrequencyFilter<Long>(p.toFloat()) to p.toFloat()
     }
     val partitionFilters = List(n) {
-        val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
+        val p = (it.toDouble() / n.toDouble()).pow(3.0) * maxP
         PartitionFrequencyFilter<Long>(p.toFloat()) to p.toFloat()
     }
 
