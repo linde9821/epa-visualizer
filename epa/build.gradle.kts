@@ -50,7 +50,7 @@ tasks.withType<JavaExec> {
     val isServer = hostname.contains("gruenau")
 
     if (isServer) {
-        logger.info("Running on Server... Configuring for high performance run")
+        logger.log(LogLevel.WARN, "Running on Server... Configuring for high performance run")
         maxHeapSize = "800g"
 
         jvmArgs(
