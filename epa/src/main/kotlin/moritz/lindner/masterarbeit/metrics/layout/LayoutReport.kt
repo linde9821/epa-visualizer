@@ -1,6 +1,6 @@
-package moritz.lindner.masterarbeit.metrics
+package moritz.lindner.masterarbeit.metrics.layout
 
-data class Result(
+data class LayoutReport(
     val area: Double,
     val areaScore: Double,
     val density: Double,

@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.metrics
+package moritz.lindner.masterarbeit.metrics.filter
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import io.github.oshai.kotlinlogging.KotlinLogging

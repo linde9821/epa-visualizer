@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.metrics
+package moritz.lindner.masterarbeit.metrics.filter
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import io.github.oshai.kotlinlogging.KLogger
@@ -27,35 +27,11 @@ import kotlin.concurrent.atomics.incrementAndFetch
 import kotlin.math.pow
 import kotlin.time.measureTime
 
-data class FilterReport(
-    val logName: String,
-    val totalStates: Int,
-    val totalEvents: Int,
-    val filterName: String,
-    val filterThreshold: Float, // or Float, depending on your precision needs
-    val eventsAfterFilter: Int,
-    val statesAfterFilter: Int,
-    val eventsPercentage: Float
-) {
-    fun toRow(): List<String> = listOf(
-        logName,
-        totalStates.toString(),
-        totalEvents.toString(),
-        filterName,
-        filterThreshold.toString(),
-        eventsAfterFilter.toString(),
-        statesAfterFilter.toString(),
-        // Formats percentage to 2 decimal places (e.g., "85.24")
-        "%.8f".format(eventsPercentage * 100.0)
-    )
-}
-
 @OptIn(ExperimentalAtomicApi::class)
 fun main() {
     val rootPath = System.getProperty("project.root") ?: "."
     val repoRoot = File(rootPath)
     val processors = (Runtime.getRuntime().availableProcessors() / 1.5).toInt()
-    // Dispatchers.Default is already optimized for CPU-bound tasks
     val logger = KotlinLogging.logger {}
 
     val challenge2017Offer2017 =
@@ -73,23 +49,21 @@ fun main() {
         sepsis
     )
 
-    val n = 5000
+    val epaService = EpaService<Long>()
+    val n = 10_000
     val maxP = 0.10
     val stateFilters = List(n) {
-        // This creates very dense samples near 0 and spreads out toward 10%
+        // very dense samples near 0 and spreads out toward 10%
         val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
         StateFrequencyFilter<Long>(p.toFloat()) to p.toFloat()
     }
-
-    val epaService = EpaService<Long>()
-
-    runFilterReport(logs, repoRoot, stateFilters, processors, logger, epaService)
-
     val partitionFilters = List(n) {
-        // This creates very dense samples near 0 and spreads out toward 10%
         val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
         PartitionFrequencyFilter<Long>(p.toFloat()) to p.toFloat()
     }
+
+    runFilterReport(logs, repoRoot, stateFilters, processors, logger, epaService)
+
     runFilterReport(logs, repoRoot, partitionFilters, processors, logger, epaService)
 }
 
@@ -109,7 +83,6 @@ private fun runFilterReport(
         )
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {
-            // Use a static header or a helper from your data class
             writeRow(
                 "log",
                 "total_states",
@@ -133,7 +106,7 @@ private fun runFilterReport(
             val semaphore = Semaphore(processors)
 
             measureTime {
-                val rows = runBlocking {
+                val reportRows = runBlocking {
                     logger.info { "Starting analysis for ${file.name} with $processors workers..." }
                     val reports = filters.map { filter ->
                         async(Dispatchers.Default) {
@@ -141,7 +114,7 @@ private fun runFilterReport(
                                 val filteredEpa = epaService.applyFilters(epa, listOf(filter.first))
                                 val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }
 
-                                val report = FilterReport(
+                                FilterReport(
                                     logName = mapper.name,
                                     totalStates = epa.states.size,
                                     totalEvents = totalEventCount,
@@ -150,14 +123,12 @@ private fun runFilterReport(
                                     eventsAfterFilter = filteredEventCount,
                                     statesAfterFilter = filteredEpa.states.size,
                                     eventsPercentage = filteredEventCount.toFloat() / totalEventCount
-                                )
-
-                                val current = progressCounter.incrementAndFetch()
-                                if (current % 500 == 0) {
-                                    logger.info { "Processed $current / ${filters.size} filters" }
+                                ).also {
+                                    val current = progressCounter.incrementAndFetch()
+                                    if (current % 100 == 0) {
+                                        logger.info { "Processed $current / ${filters.size} filters" }
+                                    }
                                 }
-
-                                report
                             }
                         }
                     }.awaitAll()
@@ -165,13 +136,13 @@ private fun runFilterReport(
                     logger.info { "Sorting and writing ${reports.size} results..." }
 
                     reports
-                        .sortedBy { it.filterThreshold }
-                        .map { it.toRow() }
+                        .sortedBy(FilterReport::filterThreshold)
+                        .map(FilterReport::toRow)
                 }
-                logger.info { "writing rows ${rows.size}" }
-                writeRows(rows)
-            }.also {
-                logger.info { "Execution of ${mapper.name} took $it" }
+                logger.info { "writing rows ${reportRows.size}" }
+                writeRows(reportRows)
+            }.also { duration ->
+                logger.info { "Execution of ${mapper.name} took $duration" }
             }
         }
     }
