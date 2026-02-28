@@ -51,7 +51,7 @@ fun main() {
 
     val epaService = EpaService<Long>()
     val n = 10_000
-    val maxP = 0.10
+    val maxP = 0.15
     val stateFilters = List(n) {
         // very dense samples near 0 and spreads out toward 10%
         val p = (it.toDouble() / n.toDouble()).pow(2.0) * maxP
