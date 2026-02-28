@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.metrics
+package moritz.lindner.masterarbeit.metrics.layout
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
@@ -12,7 +12,7 @@ import kotlin.math.sqrt
 class LayoutScore(
     private val gridSize: Int,
 ) {
-    fun scoreLayouts(layouts: List<TreeLayout>): Map<TreeLayout, Result> {
+    fun scoreLayouts(layouts: List<TreeLayout>): Map<TreeLayout, LayoutReport> {
         val scores =
             layouts.map { layout ->
                 val area = area(layout)
@@ -37,7 +37,7 @@ class LayoutScore(
                     val densityScore = normalizedDensityScores[index]
 
                     layout to
-                            Result(
+                            LayoutReport(
                                 area = scores[index].first.toDouble(),
                                 areaScore = areaScore,
                                 density = scores[index].second,

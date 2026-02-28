@@ -1,4 +1,4 @@
-package moritz.lindner.masterarbeit.playground
+package moritz.lindner.masterarbeit.metrics.filter
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -14,14 +14,16 @@ import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import java.io.File
 
 fun main() {
+    val rootPath = System.getProperty("project.root") ?: "."
+    val repoRoot = File(rootPath)
     val logger = KotlinLogging.logger {}
 
     val challenge2017Offer2017 =
-        File("./data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
-    val challenge2017 = File("./data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
-    val challenge2018 = File("./data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
-    val challenge2020Internationale = File("./data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
-    val sepsis = File("./data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
+        File(repoRoot, "/data/eventlogs/BPI Challenge 2017 - Offer log.xes.gz") to BPI2017OfferChallengeEventMapper()
+    val challenge2017 = File(repoRoot, "/data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
+    val challenge2018 = File(repoRoot, "/data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
+    val challenge2020Internationale = File(repoRoot, "/data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
+    val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
 
     val logs = listOf(
         challenge2017Offer2017,
@@ -37,7 +39,7 @@ fun main() {
         }
     }
 
-    csvWriter().open("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/filter_analysis.csv") {
+    csvWriter().open("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/filter/filter_analysis_small.csv") {
         writeRow(
             "log",
             "states",

@@ -1,8 +1,14 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import java.net.InetAddress
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
+    application
+}
+
+application {
+    mainClass.set("moritz.lindner.masterarbeit.metrics.filter.CompleteFilterEvaluationKt")
 }
 
 kotlin {
@@ -37,6 +43,40 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.selfie.runner)
     testImplementation(libs.assertjCore)
+}
+
+tasks.withType<JavaExec> {
+    val hostname = InetAddress.getLocalHost().hostName.lowercase()
+    val isServer = hostname.contains("gruenau")
+
+    if (isServer) {
+        logger.log(LogLevel.WARN, "Running on Server... Configuring for high performance run")
+        maxHeapSize = "700g"
+
+        jvmArgs(
+            "-Xms700g",                    // Lock memory at 800GB immediately
+            "-Xss2m",                      // 1MB is standard and safe here
+            "-XX:+UseG1GC",
+            "-XX:MaxGCPauseMillis=599",    // Slightly tighter than 500ms to keep it snappy
+            "-XX:+ExitOnOutOfMemoryError",
+            "-XX:+AlwaysPreTouch",         // CRITICAL: Pre-allocating 800GB will take ~2-4 minutes at startup
+            "-XX:G1HeapRegionSize=32M",    // Mandatory for heaps of this size
+
+            // --- Intel Quad-Socket Optimization ---
+            "-XX:+UseNUMA",                // Essential for 4-socket Intel systems
+            "-XX:+UseCondCardMark",        // Reduces cache line contention on many-core Intel CPUs
+
+            // --- GC Thread Scaling for 120 Threads ---
+            "-XX:ParallelGCThreads=30",    // 1/3 of total threads is usually ideal for G1 on this gen
+            "-XX:ConcGCThreads=10",        // Concurrent marking threads
+
+            // --- Memory Efficiency ---
+            "-XX:InitiatingHeapOccupancyPercent=35", // Start GC earlier to avoid fragmentation
+            "-XX:+UseTransparentHugePages",
+        )
+    }
+
+    systemProperty("project.root", project.rootDir.absolutePath)
 }
 
 tasks.test {
