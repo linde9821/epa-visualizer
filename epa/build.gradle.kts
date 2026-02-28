@@ -49,17 +49,30 @@ tasks.withType<JavaExec> {
     val hostname = InetAddress.getLocalHost().hostName.lowercase()
     val isServer = hostname.contains("gruenau")
 
-    if (isServer){
-        maxHeapSize = "512g"
+    if (isServer) {
+        logger.info("Running on Server... Configuring for high performance run")
+        maxHeapSize = "1024g"
 
         jvmArgs(
-            "-Xms128g",                    // Start with 128GB to avoid frequent resizing
-            "-Xss4m",                      // Increased stack size
-            "-XX:+UseG1GC",                // Use G1GC since max_map_count is low
-            "-XX:MaxGCPauseMillis=500",    // Allow slightly longer pauses for huge heap throughput
+            "-Xms1024g",                   // Match Xmx to Xms to lock memory immediately
+            "-Xss1m",
+            "-XX:+UseG1GC",
+            "-XX:MaxGCPauseMillis=500",
             "-XX:+ExitOnOutOfMemoryError",
-            "-XX:+AlwaysPreTouch",          // CRITICAL for large heaps
-            "-XX:G1HeapRegionSize=32M"
+            "-XX:+AlwaysPreTouch",         // Still critical; will take a few mins to start up 1TB.
+            "-XX:G1HeapRegionSize=32M",    // Mandatory for heaps >32GB to reduce region count.
+
+            // --- NUMA Awareness: CRITICAL for AMD EPYC Dual-Socket ---
+            "-XX:+UseNUMA",                // Optimizes memory access for EPYC's multi-die architecture
+
+            // --- Parallelism Tuning for 256 Threads ---
+            "-XX:ParallelGCThreads=128",   // Use 50% of cores for "Stop-the-World" phases
+            "-XX:ConcGCThreads=32",        // Background concurrent marking threads
+
+            // --- Throughput Optimizations ---
+            "-XX:InitiatingHeapOccupancyPercent=45", // Start GC earlier to avoid "To-space exhausted"
+            "-XX:+UnlockDiagnosticVMOptions",
+//            "-XX:-DoEscapeAnalysis"        // Optional: Only use if you notice weird object allocation issues
         )
     }
 
