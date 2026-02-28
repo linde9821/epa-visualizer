@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import java.net.InetAddress
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -7,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClass.set("moritz.lindner.masterarbeit.metrics.CompleteFilterEvaluationKt")
+    mainClass.set("moritz.lindner.masterarbeit.metrics.filter.CompleteFilterEvaluationKt")
 }
 
 kotlin {
@@ -45,17 +46,22 @@ dependencies {
 }
 
 tasks.withType<JavaExec> {
-    maxHeapSize = "512g"
+    val hostname = InetAddress.getLocalHost().hostName.lowercase()
+    val isServer = hostname.contains("gruenau")
 
-    jvmArgs(
-        "-Xms128g",                    // Start with 128GB to avoid frequent resizing
-        "-Xss4m",                      // Increased stack size
-        "-XX:+UseG1GC",                // Use G1GC since max_map_count is low
-        "-XX:MaxGCPauseMillis=500",    // Allow slightly longer pauses for huge heap throughput
-        "-XX:+ExitOnOutOfMemoryError",
-        "-XX:+AlwaysPreTouch",          // CRITICAL for large heaps
-        "-XX:G1HeapRegionSize=32M"
-    )
+    if (isServer){
+        maxHeapSize = "512g"
+
+        jvmArgs(
+            "-Xms128g",                    // Start with 128GB to avoid frequent resizing
+            "-Xss4m",                      // Increased stack size
+            "-XX:+UseG1GC",                // Use G1GC since max_map_count is low
+            "-XX:MaxGCPauseMillis=500",    // Allow slightly longer pauses for huge heap throughput
+            "-XX:+ExitOnOutOfMemoryError",
+            "-XX:+AlwaysPreTouch",          // CRITICAL for large heaps
+            "-XX:G1HeapRegionSize=32M"
+        )
+    }
 
     systemProperty("project.root", project.rootDir.absolutePath)
 }
