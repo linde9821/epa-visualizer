@@ -51,13 +51,13 @@ tasks.withType<JavaExec> {
 
     if (isServer) {
         logger.log(LogLevel.WARN, "Running on Server... Configuring for high performance run")
-        maxHeapSize = "800g"
+        maxHeapSize = "700g"
 
         jvmArgs(
-            "-Xms800g",                    // Lock memory at 800GB immediately
-            "-Xss1m",                      // 1MB is standard and safe here
+            "-Xms700g",                    // Lock memory at 800GB immediately
+            "-Xss2m",                      // 1MB is standard and safe here
             "-XX:+UseG1GC",
-            "-XX:MaxGCPauseMillis=250",    // Slightly tighter than 500ms to keep it snappy
+            "-XX:MaxGCPauseMillis=599",    // Slightly tighter than 500ms to keep it snappy
             "-XX:+ExitOnOutOfMemoryError",
             "-XX:+AlwaysPreTouch",         // CRITICAL: Pre-allocating 800GB will take ~2-4 minutes at startup
             "-XX:G1HeapRegionSize=32M",    // Mandatory for heaps of this size
@@ -67,7 +67,7 @@ tasks.withType<JavaExec> {
             "-XX:+UseCondCardMark",        // Reduces cache line contention on many-core Intel CPUs
 
             // --- GC Thread Scaling for 120 Threads ---
-            "-XX:ParallelGCThreads=40",    // 1/3 of total threads is usually ideal for G1 on this gen
+            "-XX:ParallelGCThreads=30",    // 1/3 of total threads is usually ideal for G1 on this gen
             "-XX:ConcGCThreads=10",        // Concurrent marking threads
 
             // --- Memory Efficiency ---
