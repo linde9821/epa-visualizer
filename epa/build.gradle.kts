@@ -51,28 +51,28 @@ tasks.withType<JavaExec> {
 
     if (isServer) {
         logger.info("Running on Server... Configuring for high performance run")
-        maxHeapSize = "1024g"
+        maxHeapSize = "800g"
 
         jvmArgs(
-            "-Xms1024g",                   // Match Xmx to Xms to lock memory immediately
-            "-Xss1m",
+            "-Xms800g",                    // Lock memory at 800GB immediately
+            "-Xss1m",                      // 1MB is standard and safe here
             "-XX:+UseG1GC",
-            "-XX:MaxGCPauseMillis=500",
+            "-XX:MaxGCPauseMillis=250",    // Slightly tighter than 500ms to keep it snappy
             "-XX:+ExitOnOutOfMemoryError",
-            "-XX:+AlwaysPreTouch",         // Still critical; will take a few mins to start up 1TB.
-            "-XX:G1HeapRegionSize=32M",    // Mandatory for heaps >32GB to reduce region count.
+            "-XX:+AlwaysPreTouch",         // CRITICAL: Pre-allocating 800GB will take ~2-4 minutes at startup
+            "-XX:G1HeapRegionSize=32M",    // Mandatory for heaps of this size
 
-            // --- NUMA Awareness: CRITICAL for AMD EPYC Dual-Socket ---
-            "-XX:+UseNUMA",                // Optimizes memory access for EPYC's multi-die architecture
+            // --- Intel Quad-Socket Optimization ---
+            "-XX:+UseNUMA",                // Essential for 4-socket Intel systems
+            "-XX:+UseCondCardMark",        // Reduces cache line contention on many-core Intel CPUs
 
-            // --- Parallelism Tuning for 256 Threads ---
-            "-XX:ParallelGCThreads=128",   // Use 50% of cores for "Stop-the-World" phases
-            "-XX:ConcGCThreads=32",        // Background concurrent marking threads
+            // --- GC Thread Scaling for 120 Threads ---
+            "-XX:ParallelGCThreads=40",    // 1/3 of total threads is usually ideal for G1 on this gen
+            "-XX:ConcGCThreads=10",        // Concurrent marking threads
 
-            // --- Throughput Optimizations ---
-            "-XX:InitiatingHeapOccupancyPercent=45", // Start GC earlier to avoid "To-space exhausted"
-            "-XX:+UnlockDiagnosticVMOptions",
-//            "-XX:-DoEscapeAnalysis"        // Optional: Only use if you notice weird object allocation issues
+            // --- Memory Efficiency ---
+            "-XX:InitiatingHeapOccupancyPercent=35", // Start GC earlier to avoid fragmentation
+            "-XX:+UseLargePages"           // Use if the OS has HugePages configured
         )
     }
 
