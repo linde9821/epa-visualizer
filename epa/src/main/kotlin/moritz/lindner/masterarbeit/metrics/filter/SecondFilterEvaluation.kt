@@ -94,6 +94,8 @@ private fun runFilterReport(
                 .build()
 
             val progressCounter = AtomicInt(0)
+            val totalEventsCount = epa.states.sumOf { epa.sequence(it).size }.toFloat()
+            val totalStates = epa.states.size.toFloat()
 
             // Limit concurrent executions to the number of processors
             val semaphore = Semaphore(processors)
@@ -105,13 +107,13 @@ private fun runFilterReport(
                         async(Dispatchers.Default) {
                             semaphore.withPermit {
                                 val filteredEpa = epaService.applyFilters(epa, listOf(filter.first))
-                                val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }
+                                val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }.toFloat()
 
                                 FilterReport2(
                                     logName = mapper.name,
                                     gamma = filter.second,
-                                    eventsAfterFilter = filteredEventCount,
-                                    statesAfterFilter = filteredEpa.states.size,
+                                    eventsAfterFilter = filteredEventCount / totalEventsCount,
+                                    statesAfterFilter = filteredEpa.states.size.toFloat() / totalStates,
                                 ).also {
                                     val current = progressCounter.incrementAndFetch()
                                     if (current % 100 == 0) {
@@ -140,13 +142,13 @@ private fun runFilterReport(
 data class FilterReport2(
     val logName: String,
     val gamma: Float,
-    val eventsAfterFilter: Int,
-    val statesAfterFilter: Int
+    val eventsAfterFilter: Float,
+    val statesAfterFilter: Float
 ) {
     fun toRow(): List<String> = listOf(
         logName,
-        "%.10f".format(gamma),
-        eventsAfterFilter.toString(),
-        statesAfterFilter.toString()
+        "%.15f".format(gamma),
+        "%.15f".format(eventsAfterFilter),
+        "%.15f".format(statesAfterFilter),
     )
 }
