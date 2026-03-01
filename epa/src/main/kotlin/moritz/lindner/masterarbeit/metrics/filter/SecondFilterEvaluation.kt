@@ -31,7 +31,7 @@ import kotlin.time.measureTime
 fun main() {
     val rootPath = System.getProperty("project.root") ?: "."
     val repoRoot = File(rootPath)
-    val processors = (Runtime.getRuntime().availableProcessors() / 1.5).toInt()
+    val processors = (Runtime.getRuntime().availableProcessors() / 2.1).toInt()
     val logger = KotlinLogging.logger {}
 
     val challenge2017Offer2017 =
