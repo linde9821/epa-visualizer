@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClass.set("moritz.lindner.masterarbeit.metrics.filter.CompleteFilterEvaluationKt")
+    mainClass.set("moritz.lindner.masterarbeit.metrics.filter.SecondFilterEvaluationKt")
 }
 
 kotlin {
@@ -51,10 +51,10 @@ tasks.withType<JavaExec> {
 
     if (isServer) {
         logger.log(LogLevel.WARN, "Running on Server... Configuring for high performance run")
-        maxHeapSize = "700g"
+        maxHeapSize = "350g"
 
         jvmArgs(
-            "-Xms700g",                    // Lock memory at 800GB immediately
+            "-Xms350g",                    // Lock memory at 800GB immediately
             "-Xss2m",                      // 1MB is standard and safe here
             "-XX:+UseG1GC",
             "-XX:MaxGCPauseMillis=599",    // Slightly tighter than 500ms to keep it snappy
