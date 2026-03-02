@@ -142,7 +142,7 @@ fun getGitCommitHash(): String =
 buildConfig {
     val gitHash = getGitCommitHash()
     val versionWithHash = "${project.version}-$gitHash"
-    logger.info("Version: $versionWithHash")
+    logger.log(LogLevel.WARN, "Extracted Gitbased Version Suffix: $versionWithHash")
     buildConfigField("String", "APP_VERSION", "\"${versionWithHash}\"")
     packageName("moritz.lindner.masterarbeit.buildconfig")
 }
