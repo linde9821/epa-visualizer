@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.PopupPositionProvider
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.FileKitMacOSSettings
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +60,7 @@ import org.jetbrains.jewel.ui.component.TabStrip
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import org.jetbrains.jewel.ui.theme.defaultTabStyle
+import org.jetbrains.letsPlot.core.spec.plotson.title
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import java.util.UUID
@@ -194,6 +197,9 @@ fun TabsComponent(
                             var capturedBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
                             val fileSaver = rememberFileSaverLauncher(
+                                dialogSettings = FileKitDialogSettings(
+                                    title = "Export Visualization Screenshot"
+                                )
                             ) { file ->
                                 logger.info { "exporting image" }
                                 if (file != null && capturedBitmap != null) {
@@ -204,11 +210,12 @@ fun TabsComponent(
                                                 ?: throw IllegalStateException("Failed to encode image to PNG")
 
                                             file.write(pngEncoded)
+                                            logger.info { "image exported" }
+                                            capturedBitmap = null
                                         }
                                     }
                                 }
                                 tabStateManager.exportImage(activeTabId!!, false)
-                                capturedBitmap = null
                             }
 
                             LaunchedEffect(capturedBitmap) {
