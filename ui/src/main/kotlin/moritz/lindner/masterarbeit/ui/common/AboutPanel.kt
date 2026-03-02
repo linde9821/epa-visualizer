@@ -32,7 +32,7 @@ object AboutPanel {
         
         GitHub: https://github.com/linde9821/epa-visualizer
         
-        © 2025 Moritz Lindner
+        © 2025-2026 Moritz Lindner
         """.trimIndent(),
             "About $APPLICATION_NAME",
             JOptionPane.INFORMATION_MESSAGE

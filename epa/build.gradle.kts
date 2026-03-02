@@ -67,7 +67,7 @@ tasks.withType<JavaExec> {
             "-XX:+UseCondCardMark",        // Reduces cache line contention on many-core Intel CPUs
 
             // --- GC Thread Scaling for 120 Threads ---
-            "-XX:ParallelGCThreads=30",    // 1/3 of total threads is usually ideal for G1 on this gen
+            "-XX:ParallelGCThreads=20",    // 1/3 of total threads is usually ideal for G1 on this gen
             "-XX:ConcGCThreads=10",        // Concurrent marking threads
 
             // --- Memory Efficiency ---
