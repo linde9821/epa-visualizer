@@ -8,7 +8,7 @@ plugins {
 }
 
 application {
-    mainClass.set("moritz.lindner.masterarbeit.metrics.filter.SecondFilterEvaluationKt")
+    mainClass.set("moritz.lindner.masterarbeit.metrics.scenario.ScenarioRunKt")
 }
 
 kotlin {
@@ -50,7 +50,7 @@ tasks.withType<JavaExec> {
     val isServer = hostname.contains("gruenau")
 
     if (isServer) {
-        logger.log(LogLevel.WARN, "Running on Server... Configuring for high performance run")
+        logger.log(LogLevel.LIFECYCLE, "Running on Server... Configuring for high performance run")
         maxHeapSize = "350g"
 
         jvmArgs(
@@ -73,6 +73,20 @@ tasks.withType<JavaExec> {
             // --- Memory Efficiency ---
             "-XX:InitiatingHeapOccupancyPercent=35", // Start GC earlier to avoid fragmentation
             "-XX:+UseTransparentHugePages",
+        )
+    } else {
+        logger.log(LogLevel.LIFECYCLE, "Running on Local Setup... Configuring for development run")
+        maxHeapSize = "12g"
+        jvmArgs(
+            "-Xms12g",                     // Pre-allocate to avoid resizing
+            "-Xss1m",                      // Standard thread stack size
+            "-XX:+UseG1GC",                // Best all-rounder
+            "-XX:+ExitOnOutOfMemoryError",
+            "-XX:+AlwaysPreTouch",         // Still good for consistent timing
+
+            // --- Local Optimization ---
+            "-XX:+TieredCompilation",      // Faster JIT warmup for shorter local runs
+            "-XX:MaxGCPauseMillis=200",    // Keep it responsive for local testing
         )
     }
 
