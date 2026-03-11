@@ -39,7 +39,12 @@ fun main() {
         }
     }
 
-    csvWriter().open("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/filter/filter_analysis_small.csv") {
+    val outputFile = File(
+        repoRoot,
+        "/data/results/filter/filter_analysis_small.csv"
+    )
+
+    csvWriter().open(outputFile) {
         writeRow(
             "log",
             "states",

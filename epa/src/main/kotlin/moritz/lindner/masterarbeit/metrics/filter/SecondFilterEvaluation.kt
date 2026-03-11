@@ -77,7 +77,7 @@ private fun runFilterReport(
     logs.forEach { (file, mapper) ->
         val outputFile = File(
             repoRoot,
-            "/data/statistics/filter/scatter/${mapper.name.trim()}_${filters.first().first.name}.csv".trim()
+            "/data/results/filter/scatter/${mapper.name.trim()}_${filters.first().first.name}.csv".trim()
         )
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {
@@ -107,7 +107,8 @@ private fun runFilterReport(
                         async(Dispatchers.Default) {
                             semaphore.withPermit {
                                 val filteredEpa = epaService.applyFilters(epa, listOf(filter.first))
-                                val filteredEventCount = filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }.toFloat()
+                                val filteredEventCount =
+                                    filteredEpa.states.sumOf { filteredEpa.sequence(it).count() }.toFloat()
 
                                 FilterReport2(
                                     logName = mapper.name,

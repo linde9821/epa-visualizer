@@ -78,7 +78,7 @@ private fun runFilterReport(
     logs.forEach { (file, mapper) ->
         val outputFile = File(
             repoRoot,
-            "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().first.name}.csv"
+            "/data/results/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().first.name}.csv"
         )
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {

@@ -16,17 +16,15 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import java.io.File
 import java.util.concurrent.Executors
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.time.Duration
 import kotlin.time.measureTimedValue
 
-@OptIn(ExperimentalAtomicApi::class)
 fun main() {
     val rootPath = System.getProperty("project.root") ?: "."
     val repoRoot = File(rootPath)
     val outputFile = File(
         repoRoot,
-        "/data/statistics/scenario/scenario.csv"
+        "/data/results/scenario/scenario.csv"
     )
     outputFile.parentFile.mkdirs()
 
