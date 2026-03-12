@@ -23,7 +23,7 @@ fun main() {
     val challenge2017 = File(repoRoot, "/data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File(repoRoot, "/data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
     val challenge2020Internationale = File(repoRoot, "/data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
-    val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
+    val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes") to Sepsis()
 
     val logs = listOf(
         challenge2017Offer2017,
@@ -39,7 +39,12 @@ fun main() {
         }
     }
 
-    csvWriter().open("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/filter/filter_analysis_small.csv") {
+    val outputFile = File(
+        repoRoot,
+        "/data/results/filter/filter_analysis_small.csv"
+    )
+
+    csvWriter().open(outputFile) {
         writeRow(
             "log",
             "states",

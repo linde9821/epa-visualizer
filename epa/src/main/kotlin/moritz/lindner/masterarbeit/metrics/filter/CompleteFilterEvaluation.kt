@@ -39,7 +39,7 @@ fun main() {
     val challenge2017 = File(repoRoot, "/data/eventlogs/BPI Challenge 2017.xes.gz") to BPI2017ChallengeEventMapper()
     val challenge2018 = File(repoRoot, "/data/eventlogs/BPI Challenge 2018.xes.gz") to BPI2018ChallengeMapper()
     val challenge2020Internationale = File(repoRoot, "/data/eventlogs/InternationalDeclarations.xes.gz") to BPI2020()
-    val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes.gz") to Sepsis()
+    val sepsis = File(repoRoot, "/data/eventlogs/Sepsis Cases - Event Log.xes") to Sepsis()
 
     val logs = listOf(
         challenge2017Offer2017,
@@ -78,7 +78,7 @@ private fun runFilterReport(
     logs.forEach { (file, mapper) ->
         val outputFile = File(
             repoRoot,
-            "/data/statistics/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().first.name}.csv"
+            "/data/results/filter/filter_analysis_complete_${mapper.name.trim()}_${filters.first().first.name}.csv"
         )
         outputFile.parentFile.mkdirs()
         csvWriter().open(outputFile) {

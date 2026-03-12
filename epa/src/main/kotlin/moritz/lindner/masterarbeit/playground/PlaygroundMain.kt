@@ -42,5 +42,5 @@ fun main() {
     val v = PartitionsEventDistributionsVisitor<Long>(foo)
     epa.acceptDepthFirst(v)
 
-    v.report("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/statistics/partitions_distributation.csv")
+    v.report("/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/results/partitions_distributation.csv")
 }
