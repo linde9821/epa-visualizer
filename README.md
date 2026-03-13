@@ -109,7 +109,7 @@ The project consists of two modules:
 > It Should be downloaded automatically when running Gradle command through Foojay.
 
 ```shell
-./gradlew run
+./gradlew ui:run
 ```
 
 ### Custom `EventLogMapper`
