@@ -23,9 +23,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
       - name: epa tests
-        run: ./gradlew epa:test
+        run: ./gradlew epa:test --no-daemon --console=plain
       - name: ui tests
-        run: xvfb-run ./gradlew ui:test
+        run: xvfb-run ./gradlew ui:test --no-daemon --console=plain
 
   build:
     if: github.ref == 'refs/heads/main'
@@ -61,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Distributable
-        run: ./gradlew createReleaseDistributable
+        run: ./gradlew createReleaseDistributable --no-daemon --console=plain
         shell: bash
 
       - name: Upload distributable artifacts
