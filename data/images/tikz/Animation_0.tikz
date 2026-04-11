@@ -1,0 +1,65 @@
+% IMPORTANT: Compile with LuaLaTeX
+% add to preamble
+\usepackage{tikz}
+\usetikzlibrary{
+    shapes.geometric, 
+    positioning, 
+    graphs,
+    graphdrawing,
+    arrows.meta,
+    fit,
+    backgrounds,
+    quotes,
+    babel,
+    matrix
+}
+\usegdlibrary{trees} % Or 'layered'
+%%%%%%%%%%%%%%
+
+\begin{tikzpicture}
+    \graph [
+        tree layout,
+        nodes={
+            draw,
+            grow=right,
+            rounded corners,
+            font=\scriptsize,
+            fill=white,
+            align=center
+        },
+        edge quotes={
+            font=\scriptsize,
+            inner sep=2pt,
+            auto,
+            sloped,
+            pos=0.5
+        },
+        sibling distance=3.5cm,
+        layer distance=4.3cm
+    ] {
+        root [as={$root$}];
+  };
+\begin{scope}[on background layer,
+    hull/.style={
+        line width=2.8cm,
+        line cap=round,
+        line join=round,
+        opacity=0.4
+    }]
+        \node[draw=magenta!50, fill=magenta!10, rounded corners, fit=(root)] {};
+    \end{scope}
+%                    \matrix [
+%                        draw,
+%                        fill=white,
+%                        rounded corners,
+%                        at=(current bounding box.north west),
+%                        anchor=north west,
+%                        xshift=0.5cm,
+%                        yshift=-0.5cm,
+%                        column sep=5pt,
+%                        ampersand replacement=\#
+%                    ] {
+%                        \fill[magenta, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition $\bot$}; \\
+%\fill[cyan, opacity=0.4] (0,0) rectangle (0.4,0.2); \# \node[anchor=west, font=\scriptsize]{Partition 1}; \\
+%                    };
+\end{tikzpicture}
