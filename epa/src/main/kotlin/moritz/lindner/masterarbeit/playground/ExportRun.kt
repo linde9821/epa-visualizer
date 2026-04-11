@@ -29,7 +29,7 @@ fun main() {
     saveToFile(export.tikz)
 }
 
-fun saveToFile(content: String) {
-    val file = File("./export.tikz")
+fun saveToFile(content: String, filePath: String = "export.tikz") {
+    val file = File(filePath)
     file.writeText(content)
 }

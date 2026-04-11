@@ -30,6 +30,7 @@ class EpaFromXesBuilder<T : Comparable<T>> {
     private val parser: XesXmlParser = EPAXesParser()
 
     private var nextPartition = 1
+    private var maxEventsInFile: Int = Int.MAX_VALUE
 
     /**
      * Sets the [XESEventLogMapper] used to convert XES
@@ -61,6 +62,11 @@ class EpaFromXesBuilder<T : Comparable<T>> {
         return this
     }
 
+    fun parseNEvents(i: Int): EpaFromXesBuilder<T> {
+        maxEventsInFile = i
+        return this
+    }
+
     /**
      * Builds the [moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton]
      * using the configured file and mapper.
@@ -89,7 +95,9 @@ class EpaFromXesBuilder<T : Comparable<T>> {
             }
         )
         val log = parser.parse(progressInputStream).first()
-        val plainEventLog = XESEventLogMapper!!.buildPlainEventLog(log, progressCallback)
+        val plainEventLog = XESEventLogMapper!!.buildPlainEventLog(log, progressCallback).take(maxEventsInFile)
+
+        println("Events in plain event log: ${plainEventLog.size}")
 
         val states: MutableSet<State> = hashSetOf(State.Root)
         val transitions: MutableSet<Transition> = hashSetOf()
