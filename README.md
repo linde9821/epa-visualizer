@@ -7,6 +7,8 @@ Process Mining
 
 ## 🔍 Overview
 
+![Animation.gif](data/images/animation.gif)
+
 **EPA Visualizer** constructs and visualizes an **Extended Prefix Automaton (EPA)** from
 raw [XES event logs](https://www.tf-pm.org/resources/xes-standard/about-xes/event-logs).
 
