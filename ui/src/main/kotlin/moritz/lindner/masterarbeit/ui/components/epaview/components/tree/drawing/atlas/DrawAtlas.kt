@@ -44,7 +44,7 @@ class DrawAtlas(
     }
 
     val tokenPaint = Paint().apply {
-        color = Color.RED
+        color = Color.BLUE
         mode = PaintMode.FILL
         isAntiAlias = true
         strokeWidth = 5f
