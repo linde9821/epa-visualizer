@@ -1,5 +1,5 @@
 [versions]
-guava = "33.5.0-jre"
+guava = "33.6.0-jre"
 junit-jupiter = "6.0.3"
 assertj = "4.0.0-M1"
 kotlin-logging-jvm = "8.0.01"
