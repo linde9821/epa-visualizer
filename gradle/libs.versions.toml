@@ -25,7 +25,7 @@ smile = "4.4.2"
 javacpp = "1.5.13"
 openblas = "0.3.31-1.5.13"
 arpack = "3.9.1-1.5.13"
-coroutines = "1.10.2"
+coroutines = "1.11.0"
 jts = "1.20.0"
 
 [libraries]
