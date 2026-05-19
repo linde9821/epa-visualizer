@@ -220,7 +220,7 @@ fun TabsComponent(
                                 if (capturedBitmap != null && currentTab.exportImage) {
                                     fileSaver.launch(
                                         suggestedName = "epa-${currentTab.title}-${currentTab.layoutConfig.name}",
-                                        extension = "png",
+                                        defaultExtension = "png"
                                     )
                                 }
                             }
