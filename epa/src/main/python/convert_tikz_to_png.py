@@ -1,8 +1,9 @@
-import os
-import subprocess
 import glob
-import sys
+import os
 import shutil
+import subprocess
+import sys
+
 
 def main():
     if len(sys.argv) < 3:
@@ -85,6 +86,7 @@ def main():
                 os.remove(file_to_del)
 
     print("\nAll done! Your source files remain untouched.")
+
 
 if __name__ == "__main__":
     main()

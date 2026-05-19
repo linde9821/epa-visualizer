@@ -19,6 +19,9 @@ fun main() {
                 .build()
         val export = EpaTikzExporter<Long>()
         epa.acceptDepthFirst(export)
-        saveToFile(export.tikz, "/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/images/tikz/Animation_${it}.tikz")
+        saveToFile(
+            export.tikz,
+            "/Users/moritzlindner/programming/masterarbeit/epa-visualizer/data/images/tikz/Animation_${it}.tikz"
+        )
     }
 }
