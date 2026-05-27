@@ -25,7 +25,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.withTransform
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -71,6 +72,7 @@ import org.jetbrains.skia.PaintMode
 import org.jetbrains.skia.PaintStrokeCap
 import org.jetbrains.skia.PaintStrokeJoin
 import org.jetbrains.skia.Path
+import org.jetbrains.skia.PathBuilder
 import org.jetbrains.skia.PathEffect
 import kotlin.math.ln
 import kotlin.math.pow
@@ -540,10 +542,10 @@ private fun DrawScope.drawClusterOutline(
             dashPhase
         )
     }
-
+    val pathBuilder = PathBuilder()
     drawIntoCanvas { canvas ->
         treeLayout.getClusterPolygons().forEach { (_, coords) ->
-            val path = Path().apply {
+            pathBuilder.apply {
                 moveTo(
                     coords.first().x,
                     coords.first().y
@@ -554,11 +556,10 @@ private fun DrawScope.drawClusterOutline(
                         coord.y
                     )
                 }
-
                 closePath()
             }
 
-            canvas.nativeCanvas.drawPath(path, pathPaint)
+            canvas.skiaCanvas.drawPath(pathBuilder.detach(), pathPaint)
         }
     }
 }
@@ -605,7 +606,7 @@ fun DrawScope.drawTree(
     animationState: AnimationState
 ) {
     drawIntoCanvas { canvas ->
-        val path = Path()
+        val path = PathBuilder()
         val highlightedIncomingPath = drawAtlas.pathFromRootPaint
         val highlightedOutgoingPath = drawAtlas.outgoingPathsPaint
         val transitionModeForLayout = drawAtlas.transitionDrawMode
@@ -638,15 +639,15 @@ fun DrawScope.drawTree(
                                 mode = PaintMode.STROKE
                                 strokeWidth = entry.paint.strokeWidth
                             }
-                            canvas.nativeCanvas.drawPath(path, strokePaint)
+                            canvas.skiaCanvas.drawPath(path.detach(), strokePaint)
                         } else if (highlightingAtlas.outgoingPathsState.contains(state)) {
                             val strokePaint = highlightedOutgoingPath.apply {
                                 mode = PaintMode.STROKE
                                 strokeWidth = entry.paint.strokeWidth
                             }
-                            canvas.nativeCanvas.drawPath(path, strokePaint)
+                            canvas.skiaCanvas.drawPath(path.detach(), strokePaint)
                         } else {
-                            canvas.nativeCanvas.drawPath(path, entry.paint)
+                            canvas.skiaCanvas.drawPath(path.detach(), entry.paint)
                         }
                     }
                 }
@@ -683,7 +684,7 @@ fun DrawScope.drawTree(
             val cx = coordinate.x
             val cy = coordinate.y
             val entry = drawAtlas.getState(selectedState)
-            canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
+            canvas.skiaCanvas.drawCircle(cx, cy, entry.size + 15f, selectedPaint)
         }
     }
 }

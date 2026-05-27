@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.features.layout.Layout
 import moritz.lindner.masterarbeit.epa.features.layout.RadialTreeLayout
@@ -40,12 +40,12 @@ object TreeCanvasRenderingHelper {
             val cy = coordinate.y
 
             if (highlightingAtlas.pathFromRootStates.contains(state)) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.pathFromRootPaint)
+                canvas.skiaCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.pathFromRootPaint)
             } else if (highlightingAtlas.outgoingPathsState.contains(state)) {
-                canvas.nativeCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.outgoingPathsPaint)
+                canvas.skiaCanvas.drawCircle(cx, cy, entry.size + 15f, drawAtlas.outgoingPathsPaint)
             }
 
-            canvas.nativeCanvas.drawCircle(cx, cy, entry.size, paint)
+            canvas.skiaCanvas.drawCircle(cx, cy, entry.size, paint)
 
             if (entry.size * scale >= drawAtlas.stateSizeUntilLabelIsDrawn) {
                 val label = stateLabels.getLabelForState(state)
@@ -54,7 +54,7 @@ object TreeCanvasRenderingHelper {
                 val scale = stateLabels.scale
 
                 val dstRect = Rect.makeXYWH(x, y, label.width.toFloat() / scale, label.height.toFloat() / scale)
-                canvas.nativeCanvas.drawImageRect(label, dstRect, paint)
+                canvas.skiaCanvas.drawImageRect(label, dstRect, paint)
 
                 if (highlightingAtlas.sameActivityStates.contains(state)) {
                     val padding = 6f
@@ -66,7 +66,7 @@ object TreeCanvasRenderingHelper {
                         8f
                     )
 
-                    canvas.nativeCanvas.drawRRect(rrect, drawAtlas.sameActivityPaint)
+                    canvas.skiaCanvas.drawRRect(rrect, drawAtlas.sameActivityPaint)
                 }
             }
         }
@@ -117,7 +117,7 @@ object TreeCanvasRenderingHelper {
                 val dx = (spread * cos(angle)).toFloat()
                 val dy = (spread * sin(angle)).toFloat()
 
-                canvas.nativeCanvas.drawCircle(
+                canvas.skiaCanvas.drawCircle(
                     tokenPosition.x + dx,
                     tokenPosition.y + dy,
                     6f,
