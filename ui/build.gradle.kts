@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.jewel)
     implementation(libs.jewel.decorated)
     implementation(libs.intellijPlatform.icons)
+    implementation(libs.kotlinx.datetime)
 
     implementation(project(":epa"))
 
@@ -72,7 +73,8 @@ compose.desktop {
                 "-XX:+UseStringDeduplication",
                 "-XX:+AlwaysPreTouch",
                 "-XX:+UseG1GC",
-                "--enable-native-access=ALL-UNNAMED"
+                "--enable-native-access=ALL-UNNAMED",
+                "-Dcompose.accessibility.enable=false"
             )
 
         buildTypes.release.proguard {
