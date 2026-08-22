@@ -100,10 +100,10 @@ The project consists of two modules:
 
 ### Prerequisites
 
-- JetBrains Runtime **25+** (it must be a jetbrains JDK due to the usage
-  of [jewels](https://github.com/JetBrains/intellij-community/tree/master/platform/jewel))
-- Kotlin **2.2.21+**
-- Gradle (or use the included Gradle wrapper)
+- JetBrains Runtime **25+** (it must be a JetBrains JDK due to the usage
+  of [Jewel](https://github.com/JetBrains/jewel))
+- Kotlin **2.4.10**
+- Gradle **9.7.0** (or use the included Gradle wrapper)
 
 ### Run the App
 
@@ -132,7 +132,7 @@ natural extension point for new features or experiments.
 - **Kotlin** Gradle project
 - **Kotlin Compose Desktop**
 - **OpenXES**
-- **Jewels**
+- **Jewel**
 
 ---
 
