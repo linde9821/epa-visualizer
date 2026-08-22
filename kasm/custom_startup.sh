@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Give Kasm 3 seconds to spin up the virtual display
+# Give Kasm 5 seconds to spin up the virtual display
 sleep 5
 
 # Force Compose Desktop / Skiko to use software rendering instead of OpenGL

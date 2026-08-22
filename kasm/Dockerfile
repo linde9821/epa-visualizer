@@ -20,12 +20,12 @@ COPY ["User Study Project.zip", "/tmp/User Study Project.zip"]
 RUN unzip /tmp/epa-visualizer.zip -d /opt/ \
     && rm /tmp/epa-visualizer.zip
 
-# Unzip the Project directly to the Kasm default desktop
-RUN unzip "/tmp/User Study Project.zip" -d "/home/kasm-default-profile/Desktop/" \
+# Unzip the Project into the Kasm home directory
+RUN unzip "/tmp/User Study Project.zip" -d "/home/kasm-default-profile/" \
     && rm "/tmp/User Study Project.zip"
 
 # Give the Kasm user permission to actually use and edit the project files
-RUN chown -R 1000:1000 "/home/kasm-default-profile/Desktop/"
+RUN chown -R 1000:1000 "/home/kasm-default-profile/User Study Project"
 
 # Make the launch script executable
 RUN chmod +x "/opt/EPA Visualizer/bin/EPA Visualizer"
