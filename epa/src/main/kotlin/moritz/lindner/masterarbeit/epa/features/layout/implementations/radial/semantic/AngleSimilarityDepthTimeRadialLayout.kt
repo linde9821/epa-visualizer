@@ -141,7 +141,14 @@ class AngleSimilarityDepthTimeRadialLayout(
     }
 
     private fun constrainAngleToWedge(angle: Float, wedgeStart: Float, wedgeEnd: Float): Float {
-        return angle.coerceIn(wedgeStart, wedgeEnd)
+        // 1. Normalize the preferred angle to a percentage between 0.0 and 1.0
+        val normalizedAngle = angle / (2 * Math.PI).toFloat()
+
+        // 2. Calculate the total size of the current wedge
+        val wedgeSize = wedgeEnd - wedgeStart
+
+        // 3. Map the percentage into the wedge space
+        return wedgeStart + (normalizedAngle * wedgeSize)
     }
 
     private fun reduceDimensions(
