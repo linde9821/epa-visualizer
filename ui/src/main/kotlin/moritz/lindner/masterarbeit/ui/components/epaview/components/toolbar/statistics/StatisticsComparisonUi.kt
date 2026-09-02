@@ -71,7 +71,7 @@ fun StatisticsComparisonUi(tabStateManager: TabStateManager, epaStateManager: Ep
                         modifier = Modifier.weight(1f),
                     )
                 } else if (statisticsState.filteredEpa != null && statisticsState.filteredEpa == statisticsState.fullEpa) {
-                    Unit
+                    // do nothing
                 } else CircularProgressIndicatorBig()
             } else {
                 CircularProgressIndicatorBig()
