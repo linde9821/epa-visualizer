@@ -78,7 +78,7 @@ tasks.withType<JavaExec> {
         )
     } else {
         logger.log(LogLevel.LIFECYCLE, "Running on Local Setup... Configuring for development run")
-        maxHeapSize = "12g"
+        maxHeapSize = "18g"
         jvmArgs(
             "-Xms18g",                     // Pre-allocate to avoid resizing
             "-Xss1m",                      // Standard thread stack size

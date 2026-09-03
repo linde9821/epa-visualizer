@@ -16,6 +16,7 @@ import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
 import java.io.File
+import java.util.Locale
 import java.util.concurrent.Executors
 import kotlin.time.DurationUnit
 import kotlin.time.measureTimedValue
@@ -53,7 +54,7 @@ fun main() {
         challenge2018,
     )
 
-    val warmupIteration = 8
+    val warmupIteration = 6
     val measurementIteration = 4
 
     println("Starting JVM Warmup...")
@@ -167,10 +168,7 @@ fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
     )
 }
 
-// Extension to format Double milliseconds to your custom string format
 fun Double.formattedSecondsMillis(): String {
-    val totalMillis = this.toLong()
-    val seconds = totalMillis / 1000
-    val millis = totalMillis % 1000
-    return "$seconds.${millis.toString().padStart(3, '0')}"
+    val seconds = this / 1000.0
+    return String.format(Locale.US, "%.6f", seconds)
 }
