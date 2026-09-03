@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     application
+    kotlin("plugin.dataframe") version "2.4.10"
 }
 
 application {
@@ -18,6 +19,7 @@ kotlin {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:dataframe:1.0.0-rc01")
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
     implementation(libs.logging)
@@ -78,7 +80,7 @@ tasks.withType<JavaExec> {
         logger.log(LogLevel.LIFECYCLE, "Running on Local Setup... Configuring for development run")
         maxHeapSize = "12g"
         jvmArgs(
-            "-Xms12g",                     // Pre-allocate to avoid resizing
+            "-Xms18g",                     // Pre-allocate to avoid resizing
             "-Xss1m",                      // Standard thread stack size
             "-XX:+UseG1GC",                // Best all-rounder
             "-XX:+ExitOnOutOfMemoryError",
