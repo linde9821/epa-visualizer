@@ -13,22 +13,31 @@ import moritz.lindner.masterarbeit.epa.features.filter.CompressionFilter
 import moritz.lindner.masterarbeit.epa.features.filter.PartitionFrequencyFilter
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutConfig
 import moritz.lindner.masterarbeit.epa.features.layout.factory.LayoutFactory
-import org.jetbrains.kotlinx.dataframe.api.*
+import org.jetbrains.kotlinx.dataframe.api.aggregate
+import org.jetbrains.kotlinx.dataframe.api.colsOf
+import org.jetbrains.kotlinx.dataframe.api.convert
+import org.jetbrains.kotlinx.dataframe.api.groupBy
+import org.jetbrains.kotlinx.dataframe.api.max
+import org.jetbrains.kotlinx.dataframe.api.mean
+import org.jetbrains.kotlinx.dataframe.api.print
+import org.jetbrains.kotlinx.dataframe.api.rename
+import org.jetbrains.kotlinx.dataframe.api.toDataFrame
+import org.jetbrains.kotlinx.dataframe.api.with
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executors
-import kotlin.time.DurationUnit
+import kotlin.time.Duration
 import kotlin.time.measureTimedValue
 
 // Data class to securely hold the typed measurements before aggregation
 data class ScenarioResult(
     val eventLog: String,
-    val initialEpaCreationMs: Double,
-    val initialLayoutMs: Double,
-    val applyingFiltersMs: Double,
-    val secondLayoutMs: Double,
-    val totalScenarioTimeMs: Double,
+    val initialEpaCreationMs: Duration,
+    val initialLayoutMs: Duration,
+    val applyingFiltersMs: Duration,
+    val secondLayoutMs: Duration,
+    val totalScenarioTimeMs: Duration,
     val eventLogSize: Int,
     val statesSize: Int
 )
@@ -121,7 +130,6 @@ fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
             .build()
     }
 
-    // 2. create layout
     val (_, step2) = measureTimedValue {
         val executor = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
         val createLayout = LayoutFactory.createLayout(
@@ -132,17 +140,15 @@ fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
         createLayout.build()
     }
 
-    // 3. apply filters
     val (epaFiltered, step3) = measureTimedValue {
         epaService.applyFilters(
             epa, listOf(
-                PartitionFrequencyFilter<Long>(0.05f),
-                CompressionFilter<Long>()
+                PartitionFrequencyFilter(0.05f),
+                CompressionFilter()
             )
         )
     }
 
-    // 4. create layout for filtered epa
     val (_, step4) = measureTimedValue {
         val executor = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
         val createLayout = LayoutFactory.createLayout(
@@ -158,11 +164,11 @@ fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
     // Return the strongly-typed data class instead of strings
     return ScenarioResult(
         eventLog = mapper.name,
-        initialEpaCreationMs = step1.toDouble(DurationUnit.MILLISECONDS),
-        initialLayoutMs = step2.toDouble(DurationUnit.MILLISECONDS),
-        applyingFiltersMs = step3.toDouble(DurationUnit.MILLISECONDS),
-        secondLayoutMs = step4.toDouble(DurationUnit.MILLISECONDS),
-        totalScenarioTimeMs = (step1 + step2 + step3 + step4).toDouble(DurationUnit.MILLISECONDS),
+        initialEpaCreationMs = step1,
+        initialLayoutMs = step2,
+        applyingFiltersMs = step3,
+        secondLayoutMs = step4,
+        totalScenarioTimeMs = (step1 + step2 + step3 + step4),
         eventLogSize = events,
         statesSize = epa.states.size
     )
@@ -170,5 +176,5 @@ fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
 
 fun Double.formattedSecondsMillis(): String {
     val seconds = this / 1000.0
-    return String.format(Locale.US, "%.6f", seconds)
+    return String.format(Locale.US, "%.4f", seconds)
 }
