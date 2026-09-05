@@ -28,16 +28,17 @@ import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executors
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
 import kotlin.time.measureTimedValue
 
 // Data class to securely hold the typed measurements before aggregation
 data class ScenarioResult(
     val eventLog: String,
-    val initialEpaCreationMs: Duration,
-    val initialLayoutMs: Duration,
-    val applyingFiltersMs: Duration,
-    val secondLayoutMs: Duration,
-    val totalScenarioTimeMs: Duration,
+    val initialEpaCreationMs: Double,
+    val initialLayoutMs: Double,
+    val applyingFiltersMs: Double,
+    val secondLayoutMs: Double,
+    val totalScenarioTimeMs: Double,
     val eventLogSize: Int,
     val statesSize: Int
 )
@@ -164,11 +165,11 @@ fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
     // Return the strongly-typed data class instead of strings
     return ScenarioResult(
         eventLog = mapper.name,
-        initialEpaCreationMs = step1,
-        initialLayoutMs = step2,
-        applyingFiltersMs = step3,
-        secondLayoutMs = step4,
-        totalScenarioTimeMs = (step1 + step2 + step3 + step4),
+        initialEpaCreationMs = step1.toDouble(DurationUnit.MILLISECONDS),
+        initialLayoutMs = step2.toDouble(DurationUnit.MILLISECONDS),
+        applyingFiltersMs = step3.toDouble(DurationUnit.MILLISECONDS),
+        secondLayoutMs = step4.toDouble(DurationUnit.MILLISECONDS),
+        totalScenarioTimeMs = (step1 + step2 + step3 + step4).toDouble(DurationUnit.MILLISECONDS),
         eventLogSize = events,
         statesSize = epa.states.size
     )

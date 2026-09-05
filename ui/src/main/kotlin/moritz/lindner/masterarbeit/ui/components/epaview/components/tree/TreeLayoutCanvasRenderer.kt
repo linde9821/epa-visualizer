@@ -159,7 +159,7 @@ fun EpaLayoutCanvasRenderer(
     }
 
     val canvasModifier = Modifier
-        .background(Color.White)
+        .background(Color.Transparent)
         .onSizeChanged { size -> canvasSize = size }
         .fillMaxSize()
         .pointerInput(Unit) {
