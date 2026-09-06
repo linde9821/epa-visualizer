@@ -95,6 +95,7 @@ smile = ["smile-core", "smile-kotlin"]
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-dataframe = { id = "org.jetbrains.kotlin.plugin.dataframe", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose-version" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 gradle-buildconfig-plugin = { id = "com.github.gmazzo.buildconfig", version.ref = "gradle-buildconfig" }
