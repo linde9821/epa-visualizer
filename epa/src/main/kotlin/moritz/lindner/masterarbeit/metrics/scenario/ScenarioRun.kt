@@ -61,12 +61,12 @@ fun main() {
     val logs = listOf(
         sepsis,
         challenge2020Internationale,
-//        challenge2017Offer2017,
-//        challenge2017,
-//        challenge2018,
+        challenge2017Offer2017,
+        challenge2017,
+        challenge2018,
     )
 
-    val warmupIteration = 0
+    val warmupIteration = 6
     val measurementIteration = 4
 
     logger.info { "Starting JVM Warmup..." }
