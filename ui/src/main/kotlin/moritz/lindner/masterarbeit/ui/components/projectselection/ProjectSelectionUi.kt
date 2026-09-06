@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import moritz.lindner.masterarbeit.epa.project.Project
-import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
+import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME_LONG
 import moritz.lindner.masterarbeit.ui.common.Icons
 import moritz.lindner.masterarbeit.ui.logger
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -63,7 +63,7 @@ fun ProjectSelectionUi(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Welcome to $APPLICATION_NAME",
+            text = "Welcome to $APPLICATION_NAME_LONG",
             style = JewelTheme.typography.h1TextStyle
         )
 
