@@ -19,7 +19,6 @@ kotlin {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:dataframe:1.0.0-rc01")
     implementation(libs.guava)
     implementation(libs.bundles.log4j)
     implementation(libs.logging)
@@ -32,6 +31,7 @@ dependencies {
     implementation(libs.bundles.serialization)
     implementation(libs.bundles.dl4j)
     implementation(libs.bundles.smile)
+    implementation(libs.kotlinx.dataframe)
 
     val osName = System.getProperty("os.name").lowercase()
     val osArch = System.getProperty("os.arch").lowercase()

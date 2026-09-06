@@ -1,5 +1,6 @@
 package moritz.lindner.masterarbeit.metrics.scenario
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.asCoroutineDispatcher
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.xes.BPI2017ChallengeEventMapper
@@ -23,11 +24,11 @@ import org.jetbrains.kotlinx.dataframe.api.print
 import org.jetbrains.kotlinx.dataframe.api.rename
 import org.jetbrains.kotlinx.dataframe.api.toDataFrame
 import org.jetbrains.kotlinx.dataframe.api.with
-import org.jetbrains.kotlinx.dataframe.io.writeCSV
+import org.jetbrains.kotlinx.dataframe.io.renderToString
+import org.jetbrains.kotlinx.dataframe.io.writeCsv
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executors
-import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.measureTimedValue
 
@@ -44,6 +45,7 @@ data class ScenarioResult(
 )
 
 fun main() {
+    val logger = KotlinLogging.logger {}
     val rootPath = System.getProperty("project.root") ?: "."
     val repoRoot = File(rootPath)
     val outputFile = File(repoRoot, "/data/results/scenario/scenario.csv")
@@ -59,24 +61,24 @@ fun main() {
     val logs = listOf(
         sepsis,
         challenge2020Internationale,
-        challenge2017Offer2017,
-        challenge2017,
-        challenge2018,
+//        challenge2017Offer2017,
+//        challenge2017,
+//        challenge2018,
     )
 
-    val warmupIteration = 6
+    val warmupIteration = 0
     val measurementIteration = 4
 
-    println("Starting JVM Warmup...")
+    logger.info { "Starting JVM Warmup..." }
     // 1. Deep Warmup: Run multiple times so the JIT compiler fully optimizes the hot paths.
     repeat(warmupIteration) { iteration ->
-        println("Warmup iteration ${iteration + 1}/$warmupIteration")
+        logger.info { "Warmup iteration ${iteration + 1}/$warmupIteration" }
         logs.forEach { log ->
             runScenario(log)
         }
     }
 
-    println("Starting Measurement...")
+    logger.info { "Starting Measurement..." }
     val results = mutableListOf<ScenarioResult>()
 
     logs.forEach { log ->
@@ -101,22 +103,20 @@ fun main() {
             mean("totalScenarioTimeMs") into "total scenario time"
 
             // Using max() bypasses the compiler confusion with first()
-            // Since the sizes are identical across iterations, max == first
             max("eventLogSize") into "Event Log Size"
             max("statesSize") into "States Size"
         }
         .rename("eventLog" to "Event Log")
 
-    // 4. Format the aggregated Double millisecond values back to your preferred String format.
-    // colsOf<Double>() automatically selects all time columns, meaning we don't have to list strings or cast!
+    // 4. Format the aggregated Double millisecond values back to formatted String.
     val formattedDf = aggregatedDf
         .convert { colsOf<Double>() }
         .with { it.formattedSecondsMillis() }
 
     // 5. Output the results
-    formattedDf.print()
-    formattedDf.writeCSV(outputFile.absolutePath)
-    println("Results saved to ${outputFile.absolutePath}")
+    logger.info { formattedDf.renderToString() }
+    formattedDf.writeCsv(path = outputFile.absolutePath)
+    logger.info { "Results saved to ${outputFile.absolutePath}" }
 }
 
 fun runScenario(log: Pair<File, XESEventLogMapper<Long>>): ScenarioResult {
