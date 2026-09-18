@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     application
-    kotlin("plugin.dataframe") version "2.4.10"
+    kotlin("plugin.dataframe") version "2.4.20"
 }
 
 application {
