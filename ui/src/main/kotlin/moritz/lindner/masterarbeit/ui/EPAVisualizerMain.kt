@@ -17,7 +17,8 @@ import androidx.compose.ui.window.application
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.buildconfig.BuildConfig
 import moritz.lindner.masterarbeit.ui.common.AboutPanel.showAboutDialog
-import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
+import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME_LONG
+import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME_SHORT
 import moritz.lindner.masterarbeit.ui.common.Icons
 import moritz.lindner.masterarbeit.ui.components.EPAVisualizerUi
 import moritz.lindner.masterarbeit.ui.generated.resources.Res
@@ -56,7 +57,7 @@ val logger = KotlinLogging.logger {}
 @ExperimentalJewelApi
 fun main() {
     try {
-        logger.info { "Starting EPA-Visualizer ${BuildConfig.APP_VERSION}" }
+        logger.info { "Starting VisEPA ${BuildConfig.APP_VERSION}" }
         setSystemProperties()
         setupMemoryMonitoring()
         runApplication()
@@ -70,10 +71,10 @@ fun main() {
 @Composable
 private fun AppTitleWithLogo() {
     Tooltip(
-        tooltip = { Text("$APPLICATION_NAME version ${BuildConfig.APP_VERSION}") }
+        tooltip = { Text("$APPLICATION_NAME_SHORT version ${BuildConfig.APP_VERSION}") }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(APPLICATION_NAME)
+            Text(APPLICATION_NAME_SHORT)
             Icon(Icons.logo, "App Logo", modifier = Modifier.size(32.dp))
         }
     }
@@ -82,7 +83,7 @@ private fun AppTitleWithLogo() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun GitHubButton() {
-    Tooltip({ Text("Open the $APPLICATION_NAME repository on Github") }) {
+    Tooltip({ Text("Open the $APPLICATION_NAME_SHORT repository on Github") }) {
         IconButton(
             onClick = {
                 runCatching {
@@ -135,7 +136,7 @@ private fun runApplication() {
                     placement = WindowPlacement.Maximized,
                     isMinimized = false,
                 ),
-                title = APPLICATION_NAME,
+                title = APPLICATION_NAME_SHORT,
                 icon = painterResource(Res.drawable.logo),
             ) {
                 LaunchedEffect(Unit) {
@@ -183,7 +184,7 @@ private fun setupMemoryMonitoring() {
 
 private fun setSystemProperties() {
     val properties = mapOf(
-        "apple.awt.application.name" to APPLICATION_NAME,
+        "apple.awt.application.name" to APPLICATION_NAME_LONG,
         "awt.useSystemAAFontSettings" to "on",
         "swing.aatext" to "true",
         "sun.awt.useSystemAAFontSettings" to "on",

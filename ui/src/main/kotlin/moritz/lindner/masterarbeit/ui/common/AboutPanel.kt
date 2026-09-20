@@ -1,7 +1,7 @@
 package moritz.lindner.masterarbeit.ui.common
 
 import moritz.lindner.masterarbeit.buildconfig.BuildConfig
-import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME
+import moritz.lindner.masterarbeit.ui.common.Constants.APPLICATION_NAME_LONG
 import javax.swing.JOptionPane
 import javax.swing.JOptionPane.showMessageDialog
 
@@ -10,22 +10,22 @@ object AboutPanel {
         showMessageDialog(
             null,
             """
-        $APPLICATION_NAME
+        $APPLICATION_NAME_LONG
         Version: ${BuildConfig.APP_VERSION}
         
         Interactive Visualization of Extended Prefix Automaton
         
         A tool for analyzing trace variants in large, complex event logs using 
-        Extended Prefix Automata (EPA) and different semantic and hierarchical tree layouts.
+        enhanced Extended Prefix Automata (EPA*) and different semantic and hierarchical tree layouts.
         This visualization approach encodes thousands of trace variants while 
         minimizing visual clutter, supporting interactive filtering and analysis.
         
         Built as part of a Master's Thesis at Humboldt-Universität zu Berlin.
         
-        This application and the master thesis is currently under development and not finished.
+        This application.
         
         Built with Kotlin and Compose Desktop
-        Process Mining • Event Log Visualization • Variant Analysis
+        Process mining • Variant Analysis • Visual analytics • Extended Prefix Automata • Filter • Layout
         
         Author: Moritz Lindner
         Supervisor: Prof. Dr. Jan Mendling
@@ -34,7 +34,7 @@ object AboutPanel {
         
         © 2025-2026 Moritz Lindner
         """.trimIndent(),
-            "About $APPLICATION_NAME",
+            "About $APPLICATION_NAME_LONG",
             JOptionPane.INFORMATION_MESSAGE
         )
     }
