@@ -5,6 +5,17 @@ updates:
     schedule:
       interval: "weekly"
     groups:
+      # Compose, Skiko and everything compiled against them must move together:
+      # lets-plot-compose breaks at runtime on newer Skiko (guarded by LetsPlotRenderingTest).
+      # Kept separate so a broken combination doesn't block the unrelated safe updates.
+      compose-stack:
+        patterns:
+          - "org.jetbrains.compose*"
+          - "org.jetbrains.jewel*"
+          - "com.jetbrains.intellij.platform*"
+          - "org.jetbrains.lets-plot*"
+          - "io.github.vinceglb*"
+          - "org.jetbrains.skiko*"
       safe-updates:
         update-types:
           - "minor"
