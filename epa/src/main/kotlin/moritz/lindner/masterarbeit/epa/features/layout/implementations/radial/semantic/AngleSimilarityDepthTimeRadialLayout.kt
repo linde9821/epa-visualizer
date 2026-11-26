@@ -112,9 +112,11 @@ class AngleSimilarityDepthTimeRadialLayout(
             state = state
         )
 
-        val children = extendedPrefixAutomaton.outgoingTransitionsByState[state]?.map {
-            it.end
-        }?.sortedByDescending { subtreeSizes[it] ?: 0 } ?: emptyList()
+        val children = orderByCircularAngle(
+            items = extendedPrefixAutomaton.outgoingTransitionsByState[state]?.map { it.end } ?: emptyList(),
+            angleOf = { partitionToAngleMap[extendedPrefixAutomaton.partition(it)]!! },
+            sizeOf = { subtreeSizes[it] ?: 0 }
+        )
 
         if (children.isEmpty()) return
 
@@ -199,4 +201,50 @@ class AngleSimilarityDepthTimeRadialLayout(
     }
 
     override fun iterator(): Iterator<NodePlacement> = nodePlacementByState.values.iterator()
+}
+
+/**
+ * Orders sibling states by the circular angle of their partition so that
+ * siblings with similar partitions get neighboring slices of the parent's
+ * wedge.
+ *
+ * Angles live on [0, 2π). The items are sorted ascending by angle and the
+ * resulting circular order is cut at the largest angular gap between
+ * consecutive angles (the wrap-around gap from the last to the first angle
+ * included), so that angles close to 0 and close to 2π stay neighbors. If
+ * several gaps are equally large, the wrap-around gap is preferred, then the
+ * first gap in ascending order.
+ *
+ * Ties (equal angles) are broken by size descending and then by [State]'s
+ * natural order (its name, which is unique among the children of one state
+ * because each outgoing transition has a distinct activity).
+ */
+internal fun orderByCircularAngle(
+    items: List<State>,
+    angleOf: (State) -> Float,
+    sizeOf: (State) -> Int
+): List<State> {
+    if (items.size <= 1) return items
+
+    val twoPi = (2 * PI).toFloat()
+    val angleByItem = items.associateWith { ((angleOf(it) % twoPi) + twoPi) % twoPi }
+
+    val sorted = items.sortedWith(
+        compareBy<State> { angleByItem[it]!! }
+            .thenByDescending { sizeOf(it) }
+            .thenBy { it }
+    )
+
+    // Start with the wrap-around gap (last -> first), i.e. no rotation.
+    var largestGap = angleByItem[sorted.first()]!! + twoPi - angleByItem[sorted.last()]!!
+    var startIndex = 0
+    for (i in 0 until sorted.size - 1) {
+        val gap = angleByItem[sorted[i + 1]]!! - angleByItem[sorted[i]]!!
+        if (gap > largestGap) {
+            largestGap = gap
+            startIndex = i + 1
+        }
+    }
+
+    return sorted.drop(startIndex) + sorted.take(startIndex)
 }
