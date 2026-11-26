@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.metrics.layout
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import moritz.lindner.masterarbeit.epa.util.writeCsv
 import moritz.lindner.masterarbeit.epa.features.layout.TreeLayout
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Coordinate
 import moritz.lindner.masterarbeit.epa.features.layout.placement.Rectangle
@@ -45,7 +45,7 @@ class LayoutScore(
                             )
                 }.toMap()
 
-        csvWriter().open("./results.csv") {
+        writeCsv("./results.csv") {
             writeRow("", "area", "normalized area", "variance", "normalized uniformity")
 
             results.forEach { (layout, result) ->

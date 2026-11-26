@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import moritz.lindner.masterarbeit.epa.util.writeCsv
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -63,7 +63,7 @@ class PartitionsEventDistributionsVisitor<T>(
         }
 
 
-        csvWriter().open(path) {
+        writeCsv(path) {
             writeRow("partition", "states", "traces")
 
             statesByPartition.forEach { (c, states) ->
