@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.epa.features.statistics
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import moritz.lindner.masterarbeit.epa.util.writeCsv
 import moritz.lindner.masterarbeit.epa.ExtendedPrefixAutomaton
 import moritz.lindner.masterarbeit.epa.domain.State
 import moritz.lindner.masterarbeit.epa.visitor.AutomatonVisitor
@@ -35,7 +35,7 @@ class StatesAndPartitionsByDepthVisitor<T : Comparable<T>> : AutomatonVisitor<T>
     }
 
     fun report(path: String) {
-        csvWriter().open(path) {
+        writeCsv(path) {
             writeRow("depth", "states", "partitions", "events-count")
 
             statesByDepth.values.zip(partitionsByDepth.values).forEachIndexed { depth, (states, partitions) ->

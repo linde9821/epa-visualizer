@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.metrics.filter
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import moritz.lindner.masterarbeit.epa.util.writeCsv
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -80,7 +80,7 @@ private fun runFilterReport(
             "/data/results/filter/scatter/${mapper.name.trim()}_${filters.first().first.name}.csv".trim()
         )
         outputFile.parentFile.mkdirs()
-        csvWriter().open(outputFile) {
+        writeCsv(outputFile) {
             writeRow(
                 "log",
                 "gamma",

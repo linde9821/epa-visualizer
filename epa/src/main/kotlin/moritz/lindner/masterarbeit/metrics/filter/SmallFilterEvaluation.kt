@@ -1,6 +1,6 @@
 package moritz.lindner.masterarbeit.metrics.filter
 
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import moritz.lindner.masterarbeit.epa.util.writeCsv
 import io.github.oshai.kotlinlogging.KotlinLogging
 import moritz.lindner.masterarbeit.epa.api.EpaService
 import moritz.lindner.masterarbeit.epa.construction.builder.EpaProgressCallback
@@ -44,7 +44,7 @@ fun main() {
         "/data/results/filter/filter_analysis_small.csv"
     )
 
-    csvWriter().open(outputFile) {
+    writeCsv(outputFile) {
         writeRow(
             "log",
             "states",
